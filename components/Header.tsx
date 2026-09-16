@@ -13,7 +13,7 @@ const NAV_LINKS = [
 const ACCOUNT_LINKS = [
   { href: "/biblioteca", label: "Biblioteca", icon: Library },
   { href: "/favoritos", label: "Favoritos", icon: Heart },
-  { href: "/dashboard", label: "Área do criador", icon: LayoutDashboard },
+  { href: "/meu-perfil", label: "Área do criador", icon: LayoutDashboard },
   { href: "/seguranca", label: "Central de segurança", icon: ShieldCheck },
 ];
 
