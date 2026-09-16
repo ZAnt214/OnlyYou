@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   LayoutDashboard,
   UserRound,
@@ -12,9 +13,17 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { userRepository } from "@/lib/repositories/UserRepository";
+import { getCurrentUser } from "@/lib/supabase/session";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const creator = await userRepository.findMockCurrentCreator();
+  // Sessão real sem papel de criadora ainda -> nunca mostra o painel mock
+  // de outra pessoa; manda para o próprio perfil, que exibe o convite para
+  // se tornar criadora. Sem sessão real, cai no fallback de demo de sempre.
+  const realUser = await getCurrentUser();
+  if (realUser && !realUser.creatorProfile) {
+    redirect(`/criadores/${realUser.username}`);
+  }
+  const creator = realUser ?? (await userRepository.findMockCurrentCreator());
 
   const NAV = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },

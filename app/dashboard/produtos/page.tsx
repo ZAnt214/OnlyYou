@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/types";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { productRepository } from "@/lib/repositories/ProductRepository";
+import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatusBadge } from "@/components/StatusBadge";
 import { PriceTag } from "@/components/PriceTag";
 import { Plus } from "lucide-react";
@@ -14,7 +14,7 @@ export default function DashboardProdutosPage() {
 
   useEffect(() => {
     (async () => {
-      const creator = await userRepository.findMockCurrentCreator();
+      const creator = await getCurrentCreatorClient();
       setProducts(await productRepository.findByCreator(creator.id));
     })();
   }, []);

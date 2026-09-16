@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { Coupon, User } from "@/lib/types";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { couponRepository } from "@/lib/repositories/CouponRepository";
+import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 
 export default function DashboardCuponsPage() {
   const [creator, setCreator] = useState<User | null>(null);
@@ -11,7 +11,7 @@ export default function DashboardCuponsPage() {
 
   useEffect(() => {
     (async () => {
-      const c = await userRepository.findMockCurrentCreator();
+      const c = await getCurrentCreatorClient();
       setCreator(c);
       setCoupons(await couponRepository.findByCreator(c.id));
     })();
