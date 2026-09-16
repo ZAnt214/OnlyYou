@@ -9,7 +9,7 @@ const TABS = [
   { href: "/descobrir", label: "Descobrir", icon: Search },
   { href: "/biblioteca", label: "Biblioteca", icon: Library },
   { href: "/favoritos", label: "Favoritos", icon: Heart },
-  { href: "/dashboard", label: "Criador", icon: LayoutDashboard },
+  { href: "/meu-perfil", label: "Criador", icon: LayoutDashboard, matchPrefixes: ["/meu-perfil", "/dashboard"] },
 ];
 
 export function MobileNav() {
@@ -18,7 +18,9 @@ export function MobileNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-(--color-border) bg-(--color-bg) md:hidden">
       {TABS.map((tab) => {
-        const active = pathname === tab.href || (tab.href !== "/" && pathname.startsWith(tab.href));
+        const prefixes = tab.matchPrefixes ?? [tab.href];
+        const active =
+          pathname === tab.href || (tab.href !== "/" && prefixes.some((p) => pathname.startsWith(p)));
         return (
           <Link
             key={tab.href}
