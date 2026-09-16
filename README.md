@@ -217,8 +217,50 @@ deve hardcodar `0.8`/`0.2`.
 1. No painel da Vercel, escolha **Import Git Repository** e selecione este repositório
    (`ZAnt214/OnlyYou`).
 2. Nenhuma configuração adicional é necessária — é um projeto Next.js padrão (zero-config).
-3. Quando integrações reais forem adicionadas, as variáveis de `.env.example` (sem valores
-   aqui) precisarão ser configuradas em **Project Settings → Environment Variables** na Vercel.
+3. A partir desta versão, `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   (ver seção "Autenticação (Supabase)" abaixo) precisam ser configuradas em **Project
+   Settings → Environment Variables** na Vercel para o cadastro/login funcionarem no site
+   publicado — sem elas o build passa, mas as páginas `/entrar` e `/cadastro` falham em
+   runtime. As demais variáveis de `.env.example` seguem sem uso até as respectivas
+   integrações serem implementadas.
+
+## Autenticação (Supabase)
+
+Criação de conta e login agora usam **Supabase Auth de verdade** — não é mais mock.
+
+- Projeto Supabase dedicado (`onlyyou`, região `sa-east-1`), criado e configurado via MCP.
+- Tabela `public.profiles` (`id` referenciando `auth.users`, `username`, `display_name`, `bio`,
+  `avatar_url`, `roles`, `verification_status`, `offerings`, `offerings_description`), criada
+  automaticamente para cada novo usuário por um trigger (`handle_new_user`) em `auth.users`.
+- RLS habilitado: perfis são públicos para leitura (`select using (true)`, é um marketplace
+  público); cada usuário só atualiza a própria linha (`auth.uid() = id`, com `USING` e
+  `WITH CHECK`). Além disso, `roles` e `verification_status` têm `UPDATE` revogado do papel
+  `authenticated` a nível de coluna — nem o dono da linha consegue alterar esses campos pela
+  API pública, só um processo com a service role (que este app não usa em nenhum lugar).
+- `lib/supabase/client.ts` (Client Components), `lib/supabase/server.ts` (Server
+  Components/Actions) e `proxy.ts` + `lib/supabase/proxy.ts` (renovação de sessão a cada
+  request) seguem o padrão oficial `@supabase/ssr` para Next.js App Router.
+- `/cadastro` chama `supabase.auth.signUp()` (com `username`/`display_name` em
+  `raw_user_meta_data`, lidos pelo trigger) e `/entrar` chama
+  `supabase.auth.signInWithPassword()`. O cabeçalho mostra o e-mail logado e um botão "Sair"
+  quando há sessão.
+
+**O que isso NÃO faz ainda — importante:** autenticar com Supabase cria uma conta e um
+`profiles` real, mas **o resto do marketplace (dashboard, produtos, pedidos, carteira, admin)
+continua rodando sobre os dados mock fixos de `lib/data/users.ts`**, não sobre quem está
+logado. Ou seja: hoje dá para criar conta e entrar/sair de verdade, mas isso ainda não muda o
+que aparece no dashboard do criador nem substitui `mockCurrentUser`/`findMockCurrentCreator`/
+`findMockCurrentAdmin` usados no resto do app — essa integração (fazer o `UserRepository` ler
+de `profiles` em vez de `lib/data/users.ts`, e decidir o que fazer com os dados mock de
+produtos/pedidos que hoje referenciam IDs de usuário fixos) é o próximo passo, ainda não
+feito.
+
+// TODO(integração): trocar `UserRepository` para ler/escrever em `profiles` via Supabase em
+// todo o app, e decidir a migração dos dados mock (produtos, pedidos, vendas) que hoje
+// referenciam IDs de `lib/data/users.ts`.
+// TODO(integração): proteger rotas que exigem login de verdade (hoje `proxy.ts` só renova a
+// sessão, não bloqueia acesso) e conectar RBAC de admin a `profiles.roles` em vez do usuário
+// mock fixo em `findMockCurrentAdmin()`.
 
 ## Limitações e integrações futuras
 
@@ -236,8 +278,10 @@ Esta é a primeira versão pública do produto — um scaffold de interface e ar
   CCBill, Segpay, Epoch, Verotel.
 - **Banco de dados real.** Todos os dados vivem em fixtures TypeScript (`lib/data/`) mais o
   estado de sessão em `localStorage`.
-- **Autenticação real.** As telas de entrar/cadastro são ilustrativas; a "sessão" é sempre o
-  usuário mock definido em `lib/data/users.ts`.
+- **Autenticação real só no login/cadastro em si** (ver seção "Autenticação (Supabase)"
+  acima) — criar conta e entrar/sair já usa Supabase Auth de verdade, mas essa identidade
+  ainda não está conectada ao resto do app: dashboard, produtos, pedidos, carteira e admin
+  continuam usando o usuário mock fixo de `lib/data/users.ts`.
 - **Verificação real de idade.** O `AgeGate` no cadastro é uma confirmação visual de data de
   nascimento, não uma verificação documental — claramente insuficiente para fins legais.
 - **Verificação real de identidade de criadores.** `verificationStatus` é apenas um campo de
