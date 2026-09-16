@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Search, LayoutDashboard, Library, Heart, ShieldCheck, Menu, X } from "lucide-react";
+import { Search, LayoutDashboard, Library, Heart, ShieldCheck, Menu, X, ChevronDown } from "lucide-react";
+import { categories } from "@/lib/data/categories";
 
 const NAV_LINKS = [
   { href: "/descobrir", label: "Descobrir" },
   { href: "/criadores", label: "Criadores" },
-  { href: "/categorias/packs", label: "Categorias" },
+  { href: "/descobrir?sort=vendidos", label: "Mais vendidos" },
+  { href: "/descobrir?ofertas=1", label: "Ofertas" },
 ];
 
 const ACCOUNT_LINKS = [
@@ -19,6 +21,7 @@ const ACCOUNT_LINKS = [
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-20 border-b border-(--color-border) bg-(--color-bg)">
@@ -37,6 +40,30 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setCategoriesOpen((v) => !v)}
+              className="flex items-center gap-1 rounded-md px-3 py-2 text-sm text-(--color-text-muted) hover:bg-(--color-surface) hover:text-(--color-text)"
+            >
+              Categorias
+              <ChevronDown size={14} strokeWidth={1.5} />
+            </button>
+            {categoriesOpen ? (
+              <div className="absolute left-0 z-10 mt-1 w-56 rounded-md border border-(--color-border) bg-(--color-bg) py-1 shadow-sm">
+                {categories.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/categorias/${c.slug}`}
+                    onClick={() => setCategoriesOpen(false)}
+                    className="block px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface)"
+                  >
+                    {c.name}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </nav>
 
         <form
@@ -117,6 +144,20 @@ export function Header() {
                 </Link>
               ),
             )}
+          </div>
+
+          <p className="mb-1 mt-4 px-2 text-xs text-(--color-text-subtle)">Categorias</p>
+          <div className="flex flex-col gap-1">
+            {categories.map((c) => (
+              <Link
+                key={c.id}
+                href={`/categorias/${c.slug}`}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-md px-2 py-2 text-sm text-(--color-text) hover:bg-(--color-surface)"
+              >
+                {c.name}
+              </Link>
+            ))}
           </div>
         </div>
       ) : null}

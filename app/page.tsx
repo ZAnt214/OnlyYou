@@ -42,7 +42,7 @@ export default async function HomePage() {
         </Row>
       </Section>
 
-      <Section title="Mais vendidos" href="/descobrir">
+      <Section title="Mais vendidos" href="/descobrir?sort=vendidos">
         <Row>
           {maisVendidos.map((p) => (
             <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
@@ -61,7 +61,7 @@ export default async function HomePage() {
       </Section>
 
       {ofertas.length > 0 ? (
-        <Section title="Ofertas" href="/descobrir">
+        <Section title="Ofertas" href="/descobrir?ofertas=1">
           <Row>
             {ofertas.map((p) => (
               <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
