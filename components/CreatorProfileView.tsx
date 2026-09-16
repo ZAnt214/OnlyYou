@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 import type { Product, User } from "@/lib/types";
 import { PRODUCT_TYPE_LABELS } from "@/lib/types";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
@@ -5,21 +7,22 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { RatingStars } from "@/components/RatingStars";
 import { ProductCard } from "@/components/ProductCard";
 import { ReportMenu } from "@/components/ReportMenu";
+import { ProfileOwnerMenu } from "@/components/ProfileOwnerMenu";
 import { CustomOrderForm } from "@/components/CustomOrderForm";
 
 interface CreatorProfileViewProps {
   creator: User;
   products: Product[];
   /**
-   * "public": como um comprador vê a loja do criador (/criadores/[username]).
-   * "preview": renderizado dentro do painel do criador (/dashboard/perfil) —
-   * mesmo conteúdo, sem ações que só fazem sentido para quem está de fora
-   * (seguir, denunciar, pedir conteúdo personalizado).
+   * O perfil é a mesma tela para quem visita e para o próprio criador —
+   * como em redes sociais como o TikTok. `isOwnProfile` só troca as ações
+   * que não fazem sentido contra si mesmo (seguir, denunciar, pedir
+   * conteúdo personalizado) por equivalentes de dono (editar perfil).
    */
-  variant?: "public" | "preview";
+  isOwnProfile?: boolean;
 }
 
-export function CreatorProfileView({ creator, products, variant = "public" }: CreatorProfileViewProps) {
+export function CreatorProfileView({ creator, products, isOwnProfile = false }: CreatorProfileViewProps) {
   const profile = creator.creatorProfile;
   if (!profile) return null;
 
@@ -40,7 +43,7 @@ export function CreatorProfileView({ creator, products, variant = "public" }: Cr
             <RatingStars rating={profile.rating} ratingCount={profile.ratingCount} />
           </div>
         </div>
-        {variant === "public" ? <ReportMenu /> : null}
+        {isOwnProfile ? <ProfileOwnerMenu /> : <ReportMenu />}
       </div>
 
       <p className="max-w-2xl text-sm text-(--color-text-muted)">{profile.bio}</p>
@@ -53,14 +56,22 @@ export function CreatorProfileView({ creator, products, variant = "public" }: Cr
         <span>
           <strong className="text-(--color-text)">{profile.productCount}</strong> produtos
         </span>
-        {variant === "public" ? (
+        {isOwnProfile ? (
+          <Link
+            href="/dashboard/configuracoes"
+            className="ml-auto flex items-center gap-1.5 rounded-md border border-(--color-border) px-4 py-1.5 text-sm text-(--color-text) hover:bg-(--color-surface)"
+          >
+            <Pencil size={14} strokeWidth={1.5} />
+            Editar perfil
+          </Link>
+        ) : (
           <button
             type="button"
             className="ml-auto rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
           >
             Seguir
           </button>
-        ) : null}
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -102,12 +113,12 @@ export function CreatorProfileView({ creator, products, variant = "public" }: Cr
           Peça um conteúdo feito sob encomenda para {creator.displayName}. O criador decide se
           aceita, e vocês combinam os detalhes antes da entrega.
         </p>
-        {variant === "public" ? (
-          <CustomOrderForm creatorId={creator.id} />
-        ) : (
+        {isOwnProfile ? (
           <p className="text-sm text-(--color-text-subtle)">
-            Assim aparece para os compradores no seu perfil público.
+            Assim aparece para os compradores no seu perfil.
           </p>
+        ) : (
+          <CustomOrderForm creatorId={creator.id} />
         )}
       </div>
     </div>

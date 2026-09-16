@@ -10,20 +10,23 @@ import {
   BarChart3,
   Settings,
 } from "lucide-react";
+import { userRepository } from "@/lib/repositories/UserRepository";
 
-const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/meu-perfil", label: "Meu perfil", icon: UserRound },
-  { href: "/dashboard/produtos", label: "Produtos", icon: Package },
-  { href: "/dashboard/vendas", label: "Vendas", icon: Receipt },
-  { href: "/dashboard/carteira", label: "Carteira", icon: Wallet },
-  { href: "/dashboard/cupons", label: "Cupons", icon: Ticket },
-  { href: "/dashboard/afiliados", label: "Afiliados", icon: Users, disabled: true },
-  { href: "/dashboard/estatisticas", label: "Estatísticas", icon: BarChart3 },
-  { href: "/dashboard/configuracoes", label: "Configurações", icon: Settings, disabled: true },
-];
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const creator = await userRepository.findMockCurrentCreator();
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const NAV = [
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: `/criadores/${creator.username}`, label: "Meu perfil", icon: UserRound },
+    { href: "/dashboard/produtos", label: "Produtos", icon: Package },
+    { href: "/dashboard/vendas", label: "Vendas", icon: Receipt },
+    { href: "/dashboard/carteira", label: "Carteira", icon: Wallet },
+    { href: "/dashboard/cupons", label: "Cupons", icon: Ticket },
+    { href: "/dashboard/afiliados", label: "Afiliados", icon: Users, disabled: true },
+    { href: "/dashboard/estatisticas", label: "Estatísticas", icon: BarChart3 },
+    { href: "/dashboard/configuracoes", label: "Configurações", icon: Settings },
+  ];
+
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 md:flex-row">
       <aside className="flex-shrink-0 md:w-56">

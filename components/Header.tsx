@@ -12,14 +12,14 @@ const NAV_LINKS = [
   { href: "/descobrir?ofertas=1", label: "Ofertas" },
 ];
 
-const ACCOUNT_LINKS = [
-  { href: "/biblioteca", label: "Biblioteca", icon: Library },
-  { href: "/favoritos", label: "Favoritos", icon: Heart },
-  { href: "/meu-perfil", label: "Área do criador", icon: LayoutDashboard },
-  { href: "/seguranca", label: "Central de segurança", icon: ShieldCheck },
-];
+export function Header({ creatorUsername }: { creatorUsername: string }) {
+  const ACCOUNT_LINKS = [
+    { href: "/biblioteca", label: "Biblioteca", icon: Library },
+    { href: "/favoritos", label: "Favoritos", icon: Heart },
+    { href: `/criadores/${creatorUsername}`, label: "Área do criador", icon: LayoutDashboard },
+    { href: "/seguranca", label: "Central de segurança", icon: ShieldCheck },
+  ];
 
-export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
 

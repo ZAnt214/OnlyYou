@@ -4,16 +4,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Library, Heart, LayoutDashboard } from "lucide-react";
 
-const TABS = [
-  { href: "/", label: "Início", icon: Home },
-  { href: "/descobrir", label: "Descobrir", icon: Search },
-  { href: "/biblioteca", label: "Biblioteca", icon: Library },
-  { href: "/favoritos", label: "Favoritos", icon: Heart },
-  { href: "/meu-perfil", label: "Criador", icon: LayoutDashboard, matchPrefixes: ["/meu-perfil", "/dashboard"] },
-];
-
-export function MobileNav() {
+export function MobileNav({ creatorUsername }: { creatorUsername: string }) {
   const pathname = usePathname();
+
+  const TABS = [
+    { href: "/", label: "Início", icon: Home },
+    { href: "/descobrir", label: "Descobrir", icon: Search },
+    { href: "/biblioteca", label: "Biblioteca", icon: Library },
+    { href: "/favoritos", label: "Favoritos", icon: Heart },
+    {
+      href: `/criadores/${creatorUsername}`,
+      label: "Criador",
+      icon: LayoutDashboard,
+      matchPrefixes: [`/criadores/${creatorUsername}`, "/dashboard"],
+    },
+  ];
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-(--color-border) bg-(--color-bg) md:hidden">

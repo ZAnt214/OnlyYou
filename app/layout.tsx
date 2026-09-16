@@ -5,6 +5,7 @@ import { MockSessionProvider } from "@/lib/mock-session/MockSessionProvider";
 import { Header } from "@/components/Header";
 import { MobileNav } from "@/components/MobileNav";
 import { Footer } from "@/components/Footer";
+import { userRepository } from "@/lib/repositories/UserRepository";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -20,15 +21,17 @@ export const metadata: Metadata = {
     "Marketplace onde criadores publicam conteúdo e definem o preço, e compradores adquirem individualmente o que desejam.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const currentCreator = await userRepository.findMockCurrentCreator();
+
   return (
     <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-(--color-bg) text-(--color-text)">
         <MockSessionProvider>
-          <Header />
+          <Header creatorUsername={currentCreator.username} />
           <main className="flex-1 pb-16 md:pb-0">{children}</main>
           <Footer />
-          <MobileNav />
+          <MobileNav creatorUsername={currentCreator.username} />
         </MockSessionProvider>
       </body>
     </html>
