@@ -13,13 +13,25 @@ export function AgeGate({ onConfirm }: { onConfirm: () => void }) {
   const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+    let formatted = digits;
+    if (digits.length > 4) {
+      formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+    } else if (digits.length > 2) {
+      formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    }
+    setBirthDate(formatted);
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!birthDate) {
-      setError("Informe sua data de nascimento.");
+    const parsed = parseBirthDate(birthDate);
+    if (!parsed) {
+      setError("Informe uma data de nascimento válida no formato DD/MM/AAAA.");
       return;
     }
-    const age = calculateAge(birthDate);
+    const age = calculateAge(parsed);
     if (age < 18) {
       setError("Você precisa ter 18 anos ou mais para acessar o OnlyYou.");
       return;
@@ -41,9 +53,12 @@ export function AgeGate({ onConfirm }: { onConfirm: () => void }) {
         <label className="flex flex-col gap-1 text-sm text-(--color-text)">
           Data de nascimento
           <input
-            type="date"
+            type="text"
+            inputMode="numeric"
+            placeholder="DD/MM/AAAA"
+            maxLength={10}
             value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
+            onChange={handleDateChange}
             className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
           />
         </label>
@@ -59,8 +74,18 @@ export function AgeGate({ onConfirm }: { onConfirm: () => void }) {
   );
 }
 
-function calculateAge(birthDateStr: string): number {
-  const birth = new Date(birthDateStr);
+/** Converte "DD/MM/AAAA" digitado em Date, ou null se inválido/incompleto. */
+function parseBirthDate(value: string): Date | null {
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [day, month, year] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const date = new Date(year, month - 1, day);
+  const isValid =
+    date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+  return isValid ? date : null;
+}
+
+function calculateAge(birth: Date): number {
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
   const monthDiff = today.getMonth() - birth.getMonth();
