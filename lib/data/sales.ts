@@ -1,0 +1,42 @@
+import type { Sale } from "@/lib/types";
+
+// Valores calculados a partir de platformConfig (creatorRevenueShare: 0.8 / platformRevenueShare: 0.2)
+// no momento da confirmação do pagamento. Snapshot financeiro — não recalcular a partir do preço atual do produto.
+export const sales: Sale[] = [
+  {
+    id: "sale-1001",
+    orderId: "order-1001",
+    paymentId: "pay-1001",
+    productId: "prod-001",
+    creatorId: "user-c01",
+    grossAmount: 39.9,
+    platformFee: 7.98,
+    creatorAmount: 31.92,
+    currency: "BRL",
+    createdAt: "2025-09-01T14:21:30.000Z",
+  },
+  {
+    id: "sale-1002",
+    orderId: "order-1002",
+    paymentId: "pay-1002",
+    productId: "prod-003",
+    creatorId: "user-c02",
+    grossAmount: 24.9,
+    platformFee: 4.98,
+    creatorAmount: 19.92,
+    currency: "BRL",
+    createdAt: "2025-09-05T09:10:45.000Z",
+  },
+  {
+    id: "sale-1003",
+    orderId: "order-1003",
+    paymentId: "pay-1003",
+    productId: "prod-009",
+    creatorId: "user-c05",
+    grossAmount: 34.9,
+    platformFee: 6.98,
+    creatorAmount: 27.92,
+    currency: "BRL",
+    createdAt: "2025-09-08T18:46:10.000Z",
+  },
+];

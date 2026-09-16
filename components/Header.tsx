@@ -1,0 +1,125 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { Search, LayoutDashboard, Library, Heart, ShieldCheck, Menu, X } from "lucide-react";
+
+const NAV_LINKS = [
+  { href: "/descobrir", label: "Descobrir" },
+  { href: "/criadores", label: "Criadores" },
+  { href: "/categorias/packs", label: "Categorias" },
+];
+
+const ACCOUNT_LINKS = [
+  { href: "/biblioteca", label: "Biblioteca", icon: Library },
+  { href: "/favoritos", label: "Favoritos", icon: Heart },
+  { href: "/dashboard", label: "Área do criador", icon: LayoutDashboard },
+  { href: "/seguranca", label: "Central de segurança", icon: ShieldCheck },
+];
+
+export function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  return (
+    <header className="sticky top-0 z-20 border-b border-(--color-border) bg-(--color-bg)">
+      <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
+        <Link href="/" className="text-lg font-semibold tracking-tight text-(--color-text)">
+          OnlyYou
+        </Link>
+
+        <nav className="hidden items-center gap-1 md:flex">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-md px-3 py-2 text-sm text-(--color-text-muted) hover:bg-(--color-surface) hover:text-(--color-text)"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <form
+          action="/descobrir"
+          className="ml-auto hidden max-w-xs flex-1 items-center gap-2 rounded-md border border-(--color-border) px-3 py-1.5 md:flex"
+        >
+          <Search size={14} className="text-(--color-text-subtle)" strokeWidth={1.5} />
+          <input
+            name="q"
+            type="search"
+            placeholder="Buscar produtos ou criadores"
+            className="w-full bg-transparent text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none"
+          />
+        </form>
+
+        <div className="hidden items-center gap-2 md:flex">
+          <Link
+            href="/entrar"
+            className="rounded-md px-3 py-2 text-sm text-(--color-text-muted) hover:text-(--color-text)"
+          >
+            Entrar
+          </Link>
+          <Link
+            href="/cadastro"
+            className="rounded-md bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+          >
+            Criar conta
+          </Link>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-(--color-border) text-(--color-text-muted) hover:bg-(--color-surface)"
+              aria-label="Menu da conta"
+            >
+              <LayoutDashboard size={14} strokeWidth={1.5} />
+            </button>
+            {menuOpen ? (
+              <div className="absolute right-0 z-10 mt-1 w-56 rounded-md border border-(--color-border) bg-(--color-bg) py-1 shadow-sm">
+                {ACCOUNT_LINKS.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface)"
+                  >
+                    <link.icon size={14} strokeWidth={1.5} />
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          className="ml-auto flex h-8 w-8 items-center justify-center rounded-md text-(--color-text-muted) md:hidden"
+          aria-label="Abrir menu"
+        >
+          {menuOpen ? <X size={18} strokeWidth={1.5} /> : <Menu size={18} strokeWidth={1.5} />}
+        </button>
+      </div>
+
+      {menuOpen ? (
+        <div className="border-t border-(--color-border) px-4 py-3 md:hidden">
+          <div className="flex flex-col gap-1">
+            {[...NAV_LINKS, { href: "/entrar", label: "Entrar" }, { href: "/cadastro", label: "Criar conta" }, ...ACCOUNT_LINKS].map(
+              (link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-md px-2 py-2 text-sm text-(--color-text) hover:bg-(--color-surface)"
+                >
+                  {link.label}
+                </Link>
+              ),
+            )}
+          </div>
+        </div>
+      ) : null}
+    </header>
+  );
+}

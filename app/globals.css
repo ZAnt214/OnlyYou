@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f7f7f7;
+  --color-surface-2: #efefef;
+  --color-border: #e0e0e0;
+  --color-text: #141414;
+  --color-text-muted: #5c5c5c;
+  --color-text-subtle: #8a8a8a;
+  --color-accent: #6b1e2b;
+  --color-accent-hover: #591723;
+  --color-accent-soft: #f4e7e9;
+  --color-success: #2f6b3a;
+  --color-warning: #8a6d1a;
+  --color-danger: #a3272c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #0d0d0d;
+    --color-surface: #161616;
+    --color-surface-2: #1e1e1e;
+    --color-border: #2c2c2c;
+    --color-text: #f2f2f2;
+    --color-text-muted: #a6a6a6;
+    --color-text-subtle: #7a7a7a;
+    --color-accent: #8a2c3b;
+    --color-accent-hover: #a3374a;
+    --color-accent-soft: #2a1417;
+    --color-success: #4c9a5b;
+    --color-warning: #c9a33b;
+    --color-danger: #c9484e;
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #0d0d0d;
+  --color-surface: #161616;
+  --color-surface-2: #1e1e1e;
+  --color-border: #2c2c2c;
+  --color-text: #f2f2f2;
+  --color-text-muted: #a6a6a6;
+  --color-text-subtle: #7a7a7a;
+  --color-accent: #8a2c3b;
+  --color-accent-hover: #a3374a;
+  --color-accent-soft: #2a1417;
+  --color-success: #4c9a5b;
+  --color-warning: #c9a33b;
+  --color-danger: #c9484e;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-subtle: var(--color-text-subtle);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+::selection {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
