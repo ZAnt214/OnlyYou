@@ -6,4 +6,5 @@ export * from "./sale";
 export * from "./entitlement";
 export * from "./review";
 export * from "./report";
+export * from "./custom-request";
 export * from "./misc";

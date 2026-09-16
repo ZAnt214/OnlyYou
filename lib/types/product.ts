@@ -1,5 +1,14 @@
 export type ProductType = "photo" | "video" | "pack" | "bundle" | "custom" | "other";
 
+export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
+  photo: "Fotos",
+  video: "Vídeos",
+  pack: "Packs",
+  bundle: "Bundles",
+  custom: "Conteúdo personalizado",
+  other: "Outros",
+};
+
 export type ProductStatus =
   | "draft"
   | "pending_review"
