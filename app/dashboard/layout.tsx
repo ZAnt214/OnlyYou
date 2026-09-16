@@ -13,7 +13,7 @@ import {
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/perfil", label: "Meu perfil", icon: UserRound },
+  { href: "/meu-perfil", label: "Meu perfil", icon: UserRound },
   { href: "/dashboard/produtos", label: "Produtos", icon: Package },
   { href: "/dashboard/vendas", label: "Vendas", icon: Receipt },
   { href: "/dashboard/carteira", label: "Carteira", icon: Wallet },
