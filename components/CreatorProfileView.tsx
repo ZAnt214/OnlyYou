@@ -96,16 +96,20 @@ export function CreatorProfileView({ creator, products, variant = "public" }: Cr
         )}
       </div>
 
-      {variant === "public" ? (
-        <div className="flex flex-col gap-2 border-t border-(--color-border) pt-6">
-          <h2 className="text-base font-semibold text-(--color-text)">Conteúdo personalizado</h2>
-          <p className="max-w-2xl text-sm text-(--color-text-muted)">
-            Peça um conteúdo feito sob encomenda para {creator.displayName}. O criador decide se
-            aceita, e vocês combinam os detalhes antes da entrega.
-          </p>
+      <div className="flex flex-col gap-2 border-t border-(--color-border) pt-6">
+        <h2 className="text-base font-semibold text-(--color-text)">Conteúdo personalizado</h2>
+        <p className="max-w-2xl text-sm text-(--color-text-muted)">
+          Peça um conteúdo feito sob encomenda para {creator.displayName}. O criador decide se
+          aceita, e vocês combinam os detalhes antes da entrega.
+        </p>
+        {variant === "public" ? (
           <CustomOrderForm creatorId={creator.id} />
-        </div>
-      ) : null}
+        ) : (
+          <p className="text-sm text-(--color-text-subtle)">
+            Assim aparece para os compradores no seu perfil público.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
