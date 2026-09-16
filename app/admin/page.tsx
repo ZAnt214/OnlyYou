@@ -3,12 +3,14 @@ import { productRepository } from "@/lib/repositories/ProductRepository";
 import { StatCard } from "@/components/StatCard";
 import { Users, UserCheck, Package, ShoppingCart, DollarSign } from "lucide-react";
 import { adminStatsRepository } from "@/lib/repositories/AdminStatsRepository";
+import { requireAdmin } from "@/lib/security/adminAuth";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 export default async function AdminOverviewPage() {
+  await requireAdmin();
   const [allUsers, creators, products, orderCount, totalRevenue] = await Promise.all([
     userRepository.findAll(),
     userRepository.findCreators(),
@@ -22,7 +24,9 @@ export default async function AdminOverviewPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-semibold text-(--color-text)">Visão geral</h1>
         <p className="text-sm text-(--color-text-muted)">
-          Painel administrativo simplificado — sem controle de acesso (RBAC) real nesta fase.
+          Painel administrativo simplificado — o acesso é limitado a usuários com o papel
+          &quot;admin&quot;, mas nesta fase a checagem usa um usuário mock fixo, não autenticação
+          real (ver TODO em lib/security/adminAuth.ts).
         </p>
       </div>
 

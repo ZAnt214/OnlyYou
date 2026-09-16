@@ -1,22 +1,53 @@
+"use client";
+
+import { useMemo } from "react";
 import type { CustomRequest } from "@/lib/types";
-import { customRequests } from "@/lib/data/custom-requests";
+import { useMockSession, type MockSessionContextValue } from "@/lib/mock-session/MockSessionProvider";
 
 export interface CustomRequestRepository {
-  findByCreator(creatorId: string): Promise<CustomRequest[]>;
-  create(request: CustomRequest): Promise<CustomRequest>;
+  findAll(): CustomRequest[];
+  findById(id: string): CustomRequest | null;
+  findByRequester(requesterId: string): CustomRequest[];
+  findByCreator(creatorId: string): CustomRequest[];
+  create(request: CustomRequest): void;
+  update(id: string, patch: Partial<CustomRequest>): void;
 }
 
-let mockCustomRequests: CustomRequest[] = [...customRequests];
-
+/**
+ * Substitui a versão anterior (repositório mock "plano", em memória de
+ * processo) por uma implementação ligada ao MockSessionProvider — pedidos
+ * personalizados precisam sobreviver a reload/navegação como qualquer outro
+ * estado de fluxo de compra (Order, Payment, ...).
+ */
 export class MockCustomRequestRepository implements CustomRequestRepository {
-  async findByCreator(creatorId: string): Promise<CustomRequest[]> {
-    return mockCustomRequests.filter((r) => r.creatorId === creatorId);
+  constructor(private session: MockSessionContextValue) {}
+
+  findAll(): CustomRequest[] {
+    return this.session.customRequests;
   }
 
-  async create(request: CustomRequest): Promise<CustomRequest> {
-    mockCustomRequests = [...mockCustomRequests, request];
-    return request;
+  findById(id: string): CustomRequest | null {
+    return this.session.customRequests.find((r) => r.id === id) ?? null;
+  }
+
+  findByRequester(requesterId: string): CustomRequest[] {
+    return this.session.customRequests.filter((r) => r.requesterId === requesterId);
+  }
+
+  findByCreator(creatorId: string): CustomRequest[] {
+    return this.session.customRequests.filter((r) => r.creatorId === creatorId);
+  }
+
+  create(request: CustomRequest): void {
+    this.session.addCustomRequest(request);
+  }
+
+  update(id: string, patch: Partial<CustomRequest>): void {
+    this.session.updateCustomRequest(id, patch);
   }
 }
 
-export const customRequestRepository = new MockCustomRequestRepository();
+export function useCustomRequestRepository(): CustomRequestRepository {
+  const session = useMockSession();
+  return useMemo(() => new MockCustomRequestRepository(session), [session]);
+}

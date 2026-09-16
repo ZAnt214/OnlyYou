@@ -1,18 +1,52 @@
-export type CustomRequestStatus = "pending" | "accepted" | "declined" | "delivered";
+/**
+ * CustomRequest é o pedido de conteúdo personalizado feito por um comprador
+ * a um criador. Ele nasce junto com uma Conversation (1:1) e evolui de
+ * status conforme a negociação, proposta, pagamento e entrega avançam.
+ *
+ * Ver lib/types/conversation.ts, lib/types/custom-proposal.ts e
+ * lib/types/custom-service-order.ts para as entidades relacionadas, e o
+ * README ("Pedidos personalizados") para o fluxo completo.
+ */
+export type CustomRequestStatus =
+  | "pending"
+  | "negotiating"
+  | "proposal_sent"
+  | "accepted"
+  | "in_progress"
+  | "delivered"
+  | "completed"
+  | "declined"
+  | "cancelled"
+  | "expired"
+  | "refunded"
+  | "disputed";
 
 export interface CustomRequest {
   id: string;
-  buyerId: string;
+  requesterId: string;
   creatorId: string;
   description: string;
-  budget?: number;
   status: CustomRequestStatus;
+  conversationId: string;
   createdAt: string;
+  updatedAt: string;
+  expiresAt?: string;
+  acceptedAt?: string;
+  declinedAt?: string;
+  cancelledAt?: string;
 }
 
 export const CUSTOM_REQUEST_STATUS_LABELS: Record<CustomRequestStatus, string> = {
   pending: "Aguardando resposta",
-  accepted: "Aceito pelo criador",
-  declined: "Recusado",
+  negotiating: "Em negociação",
+  proposal_sent: "Proposta enviada",
+  accepted: "Proposta aceita",
+  in_progress: "Em produção",
   delivered: "Entregue",
+  completed: "Concluído",
+  declined: "Recusado",
+  cancelled: "Cancelado",
+  expired: "Expirado",
+  refunded: "Reembolsado",
+  disputed: "Em disputa",
 };

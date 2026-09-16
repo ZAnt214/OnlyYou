@@ -9,6 +9,7 @@ import {
   Users,
   BarChart3,
   Settings,
+  MessageSquare,
 } from "lucide-react";
 import { userRepository } from "@/lib/repositories/UserRepository";
 
@@ -20,6 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     { href: `/criadores/${creator.username}`, label: "Meu perfil", icon: UserRound },
     { href: "/dashboard/produtos", label: "Produtos", icon: Package },
     { href: "/dashboard/vendas", label: "Vendas", icon: Receipt },
+    { href: "/dashboard/pedidos-personalizados", label: "Pedidos personalizados", icon: MessageSquare },
     { href: "/dashboard/carteira", label: "Carteira", icon: Wallet },
     { href: "/dashboard/cupons", label: "Cupons", icon: Ticket },
     { href: "/dashboard/afiliados", label: "Afiliados", icon: Users, disabled: true },

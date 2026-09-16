@@ -109,4 +109,43 @@ export const orders: Order[] = [
     status: "cancelled",
     createdAt: "2025-09-11T20:00:00.000Z",
   },
+  // Pedidos personalizados (custom requests) reaproveitam a mesma estrutura de
+  // Order — o "produto" é o serviço combinado na proposta aceita (ver
+  // lib/data/custom-service-orders.ts e lib/data/custom-proposals.ts).
+  {
+    id: "order-cso-2",
+    buyerId: "user-b01",
+    items: [
+      {
+        productId: "prop-2",
+        productTitle: "Vídeo personalizado — Ana Rubi",
+        creatorId: "user-c01",
+        unitPrice: 200,
+        quantity: 1,
+        subtotal: 200,
+      },
+    ],
+    total: 200,
+    currency: "BRL",
+    status: "paid",
+    createdAt: "2025-09-09T14:00:00.000Z",
+  },
+  {
+    id: "order-cso-3",
+    buyerId: "user-b03",
+    items: [
+      {
+        productId: "prop-3",
+        productTitle: "Pack de fotos personalizado — Helena Rosa",
+        creatorId: "user-c05",
+        unitPrice: 350,
+        quantity: 1,
+        subtotal: 350,
+      },
+    ],
+    total: 350,
+    currency: "BRL",
+    status: "paid",
+    createdAt: "2025-08-26T09:00:00.000Z",
+  },
 ];

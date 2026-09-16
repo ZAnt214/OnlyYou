@@ -10,6 +10,8 @@ export class ReportService {
     targetId: string;
     reason: ReportReason;
     description: string;
+    customRequestId?: string;
+    conversationId?: string;
   }): Promise<Report> {
     const priority: Report["priority"] =
       params.reason === "minor_content" || params.reason === "illegal_content"
@@ -25,6 +27,8 @@ export class ReportService {
       targetId: params.targetId,
       reason: params.reason,
       description: params.description,
+      customRequestId: params.customRequestId,
+      conversationId: params.conversationId,
       status: "open",
       priority,
       createdAt: new Date().toISOString(),

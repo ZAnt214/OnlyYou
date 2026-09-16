@@ -15,6 +15,9 @@ export const creators: User[] = [
       rating: 4.8,
       ratingCount: 612,
       productCount: 4,
+      offerings: ["Ensaio fotográfico personalizado", "Vídeo personalizado", "Roteiro sob encomenda"],
+      offeringsDescription:
+        "Produzo conteúdo personalizado sob encomenda a partir de uma descrição ou roteiro enviado por você.",
     },
   },
   {
@@ -31,6 +34,8 @@ export const creators: User[] = [
       rating: 4.9,
       ratingCount: 894,
       productCount: 3,
+      offerings: ["Ensaio fotográfico personalizado"],
+      offeringsDescription: "Ensaios temáticos sob encomenda, em estúdio próprio.",
     },
   },
   {

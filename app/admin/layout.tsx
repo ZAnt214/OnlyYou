@@ -1,12 +1,19 @@
 import Link from "next/link";
-import { LayoutDashboard, Flag } from "lucide-react";
+import { LayoutDashboard, Flag, MessageSquare } from "lucide-react";
+import { requireAdmin } from "@/lib/security/adminAuth";
 
 const NAV = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
   { href: "/admin/denuncias", label: "Denúncias", icon: Flag },
+  { href: "/admin/conversas", label: "Conversas", icon: MessageSquare },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  // Gate de autorização no layout cobre toda a árvore /admin/* — mas cada
+  // página também chama requireAdmin() para não depender só do layout
+  // (defesa em profundidade, ver lib/security/adminAuth.ts).
+  await requireAdmin();
+
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 md:flex-row">
       <aside className="flex-shrink-0 md:w-56">

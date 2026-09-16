@@ -8,7 +8,12 @@ export interface UserRepository {
   findCreators(): Promise<User[]>;
   updateCreatorProfile(
     userId: string,
-    patch: { displayName?: string; bio?: string },
+    patch: {
+      displayName?: string;
+      bio?: string;
+      offerings?: string[];
+      offeringsDescription?: string;
+    },
   ): Promise<User>;
 }
 
@@ -40,6 +45,20 @@ export class MockUserRepository implements UserRepository {
   }
 
   /**
+   * Mesma ideia de "sessão mock fixa" usada por findMockCurrentCreator(),
+   * só que para a área administrativa: toda página /admin/* server-side
+   * consulta este usuário para decidir se autoriza o acesso.
+   *
+   * TODO(integração): autenticação real e autorização server-side (sessão,
+   * JWT, ou equivalente) — este check hoje usa um usuário mock fixo.
+   */
+  async findMockCurrentAdmin(): Promise<User> {
+    const admin = allUsers.find((u) => u.roles.includes("admin"));
+    if (!admin) throw new Error("Nenhum usuário admin mock encontrado.");
+    return admin;
+  }
+
+  /**
    * Mutação em memória, sem banco de dados: atualiza o objeto do usuário
    * diretamente no array mock. Persiste apenas enquanto o processo do
    * servidor estiver de pé (mesmo padrão usado por ReportRepository e
@@ -47,7 +66,12 @@ export class MockUserRepository implements UserRepository {
    */
   async updateCreatorProfile(
     userId: string,
-    patch: { displayName?: string; bio?: string },
+    patch: {
+      displayName?: string;
+      bio?: string;
+      offerings?: string[];
+      offeringsDescription?: string;
+    },
   ): Promise<User> {
     const user = allUsers.find((u) => u.id === userId);
     if (!user || !user.creatorProfile) {
@@ -55,6 +79,9 @@ export class MockUserRepository implements UserRepository {
     }
     if (patch.displayName !== undefined) user.displayName = patch.displayName;
     if (patch.bio !== undefined) user.creatorProfile.bio = patch.bio;
+    if (patch.offerings !== undefined) user.creatorProfile.offerings = patch.offerings;
+    if (patch.offeringsDescription !== undefined)
+      user.creatorProfile.offeringsDescription = patch.offeringsDescription;
     return user;
   }
 }

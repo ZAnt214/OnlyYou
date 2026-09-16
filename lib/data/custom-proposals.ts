@@ -1,0 +1,38 @@
+import type { CustomProposal } from "@/lib/types";
+
+export const customProposals: CustomProposal[] = [
+  {
+    id: "prop-2",
+    customRequestId: "cr-2",
+    conversationId: "conv-2",
+    creatorId: "user-c01",
+    requesterId: "user-b01",
+    serviceType: "Vídeo personalizado",
+    description: "Vídeo de 3 a 5 minutos seguindo o roteiro combinado na conversa.",
+    priceCents: 20000,
+    currency: "BRL",
+    deliveryDays: 5,
+    deliveryDeadlineAt: "2025-09-14T15:40:00.000Z",
+    status: "accepted",
+    createdAt: "2025-09-09T09:00:00.000Z",
+    updatedAt: "2025-09-09T15:40:00.000Z",
+    acceptedAt: "2025-09-09T14:00:00.000Z",
+  },
+  {
+    id: "prop-3",
+    customRequestId: "cr-3",
+    conversationId: "conv-3",
+    creatorId: "user-c05",
+    requesterId: "user-b03",
+    serviceType: "Pack de fotos personalizado",
+    description: "15 fotos em estúdio com direção de poses combinada.",
+    priceCents: 35000,
+    currency: "BRL",
+    deliveryDays: 4,
+    deliveryDeadlineAt: "2025-08-30T09:00:00.000Z",
+    status: "accepted",
+    createdAt: "2025-08-25T20:00:00.000Z",
+    updatedAt: "2025-08-26T09:00:00.000Z",
+    acceptedAt: "2025-08-26T09:00:00.000Z",
+  },
+];

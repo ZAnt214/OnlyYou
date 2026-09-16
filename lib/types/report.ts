@@ -1,4 +1,4 @@
-export type ReportTargetType = "product" | "user";
+export type ReportTargetType = "product" | "user" | "message" | "conversation";
 
 export type ReportStatus = "open" | "under_review" | "resolved" | "dismissed";
 
@@ -24,6 +24,9 @@ export interface Report {
   evidence?: string;
   status: ReportStatus;
   priority: ReportPriority;
+  /** Presentes quando o alvo é uma mensagem ou conversa do fluxo de pedidos personalizados. */
+  customRequestId?: string;
+  conversationId?: string;
   createdAt: string;
   reviewedAt?: string;
   reviewedBy?: string;
