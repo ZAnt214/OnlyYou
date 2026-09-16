@@ -6,6 +6,10 @@ export interface UserRepository {
   findById(id: string): Promise<User | null>;
   findByUsername(username: string): Promise<User | null>;
   findCreators(): Promise<User[]>;
+  updateCreatorProfile(
+    userId: string,
+    patch: { displayName?: string; bio?: string },
+  ): Promise<User>;
 }
 
 export class MockUserRepository implements UserRepository {
@@ -33,6 +37,25 @@ export class MockUserRepository implements UserRepository {
    */
   async findMockCurrentCreator(): Promise<User> {
     return creators[0];
+  }
+
+  /**
+   * Mutação em memória, sem banco de dados: atualiza o objeto do usuário
+   * diretamente no array mock. Persiste apenas enquanto o processo do
+   * servidor estiver de pé (mesmo padrão usado por ReportRepository e
+   * CustomRequestRepository).
+   */
+  async updateCreatorProfile(
+    userId: string,
+    patch: { displayName?: string; bio?: string },
+  ): Promise<User> {
+    const user = allUsers.find((u) => u.id === userId);
+    if (!user || !user.creatorProfile) {
+      throw new Error("Usuário não encontrado ou não é criador.");
+    }
+    if (patch.displayName !== undefined) user.displayName = patch.displayName;
+    if (patch.bio !== undefined) user.creatorProfile.bio = patch.bio;
+    return user;
   }
 }
 

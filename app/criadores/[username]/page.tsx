@@ -34,7 +34,7 @@ export default async function CreatorProfilePage({
         </div>
       ) : null}
 
-      <CreatorProfileView creator={creator} products={products} variant="public" />
+      <CreatorProfileView creator={creator} products={products} isOwnProfile={isOwnProfile} />
     </div>
   );
 }
