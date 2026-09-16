@@ -94,6 +94,27 @@ export function CreatorProfileView({ creator, products, isOwnProfile = false }: 
         )}
       </div>
 
+      {profile.offerings?.length || profile.offeringsDescription ? (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-base font-semibold text-(--color-text)">O que ofereço</h2>
+          {profile.offeringsDescription ? (
+            <p className="max-w-2xl text-sm text-(--color-text-muted)">{profile.offeringsDescription}</p>
+          ) : null}
+          {profile.offerings?.length ? (
+            <div className="flex flex-wrap gap-2">
+              {profile.offerings.map((offering) => (
+                <span
+                  key={offering}
+                  className="rounded-md border border-(--color-border) px-3 py-1.5 text-sm text-(--color-text-muted)"
+                >
+                  {offering}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-3">
         <h2 className="text-base font-semibold text-(--color-text)">Produtos</h2>
         {approved.length === 0 ? (
@@ -118,7 +139,7 @@ export function CreatorProfileView({ creator, products, isOwnProfile = false }: 
             Assim aparece para os compradores no seu perfil.
           </p>
         ) : (
-          <CustomOrderForm creatorId={creator.id} />
+          <CustomOrderForm creator={creator} />
         )}
       </div>
     </div>

@@ -2,8 +2,20 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Search, LayoutDashboard, Library, Heart, ShieldCheck, Menu, X, ChevronDown } from "lucide-react";
+import {
+  Search,
+  LayoutDashboard,
+  Library,
+  Heart,
+  ShieldCheck,
+  Menu,
+  X,
+  ChevronDown,
+  MessageSquare,
+  Bell,
+} from "lucide-react";
 import { categories } from "@/lib/data/categories";
+import { NotificationBell } from "@/components/NotificationBell";
 
 const NAV_LINKS = [
   { href: "/descobrir", label: "Descobrir" },
@@ -15,6 +27,8 @@ const NAV_LINKS = [
 export function Header({ creatorUsername }: { creatorUsername: string }) {
   const ACCOUNT_LINKS = [
     { href: "/biblioteca", label: "Biblioteca", icon: Library },
+    { href: "/pedidos", label: "Minhas solicitações", icon: MessageSquare },
+    { href: "/notificacoes", label: "Notificações", icon: Bell },
     { href: "/favoritos", label: "Favoritos", icon: Heart },
     { href: `/criadores/${creatorUsername}`, label: "Área do criador", icon: LayoutDashboard },
     { href: "/seguranca", label: "Central de segurança", icon: ShieldCheck },
@@ -80,6 +94,7 @@ export function Header({ creatorUsername }: { creatorUsername: string }) {
         </form>
 
         <div className="hidden items-center gap-2 md:flex">
+          <NotificationBell />
           <Link
             href="/entrar"
             className="rounded-md px-3 py-2 text-sm text-(--color-text-muted) hover:text-(--color-text)"

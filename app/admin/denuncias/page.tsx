@@ -1,6 +1,7 @@
 import { reportRepository } from "@/lib/repositories/ReportRepository";
 import { StatusBadge } from "@/components/StatusBadge";
 import { REPORT_REASON_LABELS, type ReportStatus } from "@/lib/types";
+import { requireAdmin } from "@/lib/security/adminAuth";
 
 const GROUPS: { status: ReportStatus; label: string }[] = [
   { status: "open", label: "Abertas" },
@@ -17,6 +18,7 @@ const PRIORITY_LABEL: Record<string, string> = {
 };
 
 export default async function AdminDenunciasPage() {
+  await requireAdmin();
   const reports = await reportRepository.findAll();
 
   return (

@@ -88,6 +88,115 @@ no carregamento e persiste a cada mudança — assim o fluxo sobrevive a navega�
 página **durante a sessão do navegador**. Essa persistência é client-side e vale apenas para
 esta fase de mock; não substitui um banco de dados real.
 
+## Pedidos personalizados, conversa e propostas
+
+Além da compra direta de produtos publicados, a plataforma tem um segundo fluxo de
+contratação: o comprador pede um conteúdo sob encomenda, negocia com o criador numa
+conversa, o criador propõe valor/prazo, o comprador aceita e paga, e o criador entrega
+dentro da mesma plataforma.
+
+### Entidades
+
+`lib/types/custom-request.ts`, `conversation.ts`, `custom-proposal.ts`,
+`custom-service-order.ts`, `notification.ts` e `dispute.ts`:
+
+- **CustomRequest**: o pedido em si (`pending → negotiating → proposal_sent → accepted →
+  in_progress → delivered → completed`, com desvios para `declined`/`cancelled`/`expired`/
+  `refunded`/`disputed`). Sempre nasce com uma **Conversation** (1:1).
+- **Conversation** / **Message**: histórico de mensagens de uma negociação. Mensagens têm
+  `type` (`text`/`proposal`/`system`/`delivery`/`attachment`) — uma proposta ou uma entrega
+  aparecem como *cards* especiais na conversa, não como texto livre. Exclusão de mensagem é
+  só soft-delete (`deletedAt`): o registro continua existindo (e visível para a
+  administração).
+- **CustomProposal**: a proposta formal (tipo de serviço, descrição, valor em **centavos**,
+  prazo em dias). Só o criador do pedido pode criar; só o solicitante pode aceitar/recusar.
+- **CustomServiceOrder**: a contratação efetiva depois que uma proposta é aceita e paga —
+  liga-se a um `Order`/`Payment` "genéricos" (mesma infraestrutura do checkout de produto).
+- **Notification**: eventos (`CUSTOM_REQUEST_CREATED`, `CUSTOM_PROPOSAL_ACCEPTED`,
+  `CUSTOM_PAYMENT_CONFIRMED`, `CUSTOM_DELIVERY_SENT`, etc.), com um sino em `Header.tsx`
+  linkando para `/notificacoes`.
+- **Dispute**: registro simples aberto via "Relatar problema" na entrega — não há uma tela de
+  gestão de disputas completa nesta fase, apenas o registro e o status refletido no pedido.
+
+**Valores em centavos**: diferente de `Order`/`Payment`/`Sale` (que usam reais em ponto
+flutuante, herdados do checkout original), as entidades novas guardam dinheiro como inteiro
+em centavos (`priceCents`, `agreedAmountCents`) — a conversão para reais só acontece na borda
+(formatação/inputs). Essa inconsistência entre os dois grupos de entidades é conhecida e não
+foi corrigida retroativamente nas antigas para não alterar o checkout de produto existente.
+
+### Fluxo completo
+
+```
+Perfil do criador → "Pedir conteúdo personalizado" → CustomRequestService.createRequest()
+  cria CustomRequest (pending) + Conversation + mensagem inicial + Notification pro criador
+→ Criador vê em /dashboard/pedidos-personalizados, abre a conversa
+→ Mensagens de texto (MessageService.sendText) — cada envio verifica que quem está enviando
+  é participante do pedido (requester ou creator), senão lança erro
+→ Criador clica "Criar proposta" → ProposalService.create() → CustomProposal (sent),
+  CustomRequest → proposal_sent, mensagem type "proposal" na conversa
+→ Requester aceita (ProposalService.accept) → proposal.status = accepted,
+  request.status = accepted → card mostra "Pagar proposta"
+→ CustomOrderService.createOrderAndPayment() reaproveita OrderService.createOrderForCustomProposal()
+  + PaymentService.startPayment() (o MESMO MockPaymentProvider do checkout de produto) →
+  CustomServiceOrder (awaiting_payment)
+→ "Simular confirmação do pagamento" (mesmo padrão do CheckoutFlow.tsx) →
+  CustomOrderService.confirmPaymentAndStart(): PaymentService.confirmPayment() →
+  OrderService.markPaid() → WalletService.registerSaleFromPayment() (Sale via platformConfig)
+  → CustomServiceOrder → in_progress, deliveryDeadlineAt calculado a partir de
+  proposal.deliveryDays, CustomRequest → in_progress, notificações, AuditLog
+  ("custom_order.paid"). Idempotente: se o CustomServiceOrder já saiu de "awaiting_payment",
+  a chamada não repete a transição nem duplica a Sale.
+→ Conversa mostra o prazo e o aviso de que a falta de entrega no prazo pode levar a
+  cancelamento/reembolso pelas regras da plataforma (sem prometer reembolso automático)
+→ Criador clica "Enviar entrega" (CustomDeliveryService.sendDelivery) → anexa metadado mock
+  de mídia (MessageAttachment, via MockMediaStorageProvider — nenhum arquivo real) → mensagem
+  type "delivery" → CustomServiceOrder/CustomRequest → delivered, Notification
+→ Comprador "Confirma recebimento" (CustomDeliveryService.confirmReceipt) → completed,
+  AuditLog ("custom_order.completed"), conversa é fechada — ou "Relata problema"
+  (CustomDeliveryService.reportProblem) → Dispute + status "disputed" nos dois lados
+```
+
+Todo esse estado (`customRequests`, `conversations`, `messages`, `customProposals`,
+`customServiceOrders`, `notifications`) foi adicionado ao `MockSessionProvider` seguindo o
+mesmo padrão de `orders`/`payments`/`sales` — sobrevive a reload/navegação durante a sessão do
+navegador. `MessageAttachment` e `Dispute` são repositórios mock "planos" (em memória de
+processo, como `ReportRepository`), já que não precisam sobreviver a reload para a demo.
+
+### Autorização (na ausência de autenticação real)
+
+Como esta é uma aplicação mock sem backend, "confiar só no componente" equivaleria a não ter
+proteção nenhuma contra IDOR. Por isso, **toda** leitura/mutação de conversa, mensagem,
+proposta ou pedido personalizado passa pela camada de serviço, que recebe o id do usuário
+atuante e verifica que ele é `requesterId` ou `creatorId` do `CustomRequest` correspondente
+(`assertParticipant()` em `lib/services/CustomRequestService.ts`) — lançando erro caso
+contrário. Componentes só expressam intenção (`proposalService.accept(proposalId,
+actingUserId)`), nunca escrevem diretamente em um repositório com campos como `priceCents`
+vindos do cliente.
+
+A área `/admin/*` segue o mesmo princípio: `lib/security/adminAuth.ts` expõe
+`requireAdmin()`, chamado tanto pelo layout (`app/admin/layout.tsx`) quanto por cada página
+`/admin/*` individualmente (defesa em profundidade) — ele busca um usuário mock fixo
+(`UserRepository.findMockCurrentAdmin()`) e chama `notFound()` se `roles` não incluir
+`"admin"`. A checagem vive num componente de servidor, não num `if` no client.
+
+`/admin/conversas` e `/admin/conversas/[id]` mostram o histórico completo (mensagens,
+propostas, pagamento, prazo, entrega, denúncias relacionadas) de cada conversa; toda
+visualização de uma conversa específica grava um `AuditLog` (`action: "view_conversation"`).
+
+### Novos `// TODO(integração)`
+
+- **Rate limiting** na criação de pedidos, envio de mensagens e propostas — nada disso é
+  limitado nesta fase (comentário em `CustomRequestService`/`MessageService`).
+- **Verificação de prazo (cron)**: não há nenhuma rotina server-side que confira
+  `deliveryDeadlineAt` e encerre/reembolse pedidos vencidos automaticamente
+  (`CustomDeliveryService`).
+- **Refund real**: "reembolsado"/"disputed" são apenas transições de status; nenhuma reversão
+  financeira acontece de fato (reaproveita o mesmo `TODO(integração)` de
+  `PaymentProvider.refund()`).
+- **Armazenamento/streaming privado de mídia**: a entrega reaproveita
+  `MockMediaStorageProvider` — mesmas limitações já documentadas para produtos.
+- **Autenticação/autorização real** da área `/admin/*` — ver `lib/security/adminAuth.ts`.
+
 ## Divisão de receita (revenue share)
 
 `lib/security/config.ts` exporta:
@@ -142,11 +251,17 @@ Esta é a primeira versão pública do produto — um scaffold de interface e ar
 - **Antifraude real.**
 - **Saques/repasses reais para criadores.** `WithdrawalRepository` só registra o pedido de
   saque no estado mock; não há integração bancária.
+- **Fluxo de pedidos personalizados sem verificação automática de prazo, rate limiting ou
+  refund real.** Ver seção "Pedidos personalizados, conversa e propostas" acima para o
+  detalhamento dos `TODO(integração)` desse fluxo.
 
 ## Estrutura de páginas
 
 Ver `app/` para o roteamento completo (App Router): marketplace público (`/`, `/descobrir`,
 `/categorias/[slug]`, `/criadores`, `/criadores/[username]`, `/produto/[id]`), conta
-(`/entrar`, `/cadastro`, `/checkout/[productId]`, `/biblioteca`, `/favoritos`), institucional
-(`/sobre`, `/termos`, `/privacidade`, `/conteudo`, `/seguranca`), área do criador
-(`/dashboard/*`) e um esqueleto de administração (`/admin/*`).
+(`/entrar`, `/cadastro`, `/checkout/[productId]`, `/biblioteca`, `/favoritos`, `/pedidos`,
+`/pedidos/[id]`, `/notificacoes`), institucional (`/sobre`, `/termos`, `/privacidade`,
+`/conteudo`, `/seguranca`), área do criador (`/dashboard/*`, incluindo
+`/dashboard/pedidos-personalizados` e `/dashboard/pedidos-personalizados/[id]`) e a área de
+administração (`/admin/*`, incluindo `/admin/conversas` e `/admin/conversas/[id]`), gateada
+por `requireAdmin()`.

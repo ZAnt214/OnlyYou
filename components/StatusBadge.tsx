@@ -39,6 +39,19 @@ const STATUS_MAP: Record<string, { label: string; tone: Tone }> = {
   active: { label: "Ativo", tone: "positive" },
   revoked: { label: "Revogado", tone: "negative" },
   expired: { label: "Expirado", tone: "neutral" },
+  // Pedido personalizado / conversa / proposta / contratação
+  // ("pending"/"paid"/"cancelled"/"refunded"/"expired" já cobertos acima)
+  negotiating: { label: "Em negociação", tone: "warning" },
+  proposal_sent: { label: "Proposta enviada", tone: "warning" },
+  sent: { label: "Enviada", tone: "warning" },
+  accepted: { label: "Aceita", tone: "positive" },
+  awaiting_payment: { label: "Aguardando pagamento", tone: "warning" },
+  in_progress: { label: "Em produção", tone: "warning" },
+  delivered: { label: "Entregue", tone: "positive" },
+  completed: { label: "Concluído", tone: "positive" },
+  declined: { label: "Recusado", tone: "negative" },
+  disputed: { label: "Em disputa", tone: "negative" },
+  closed: { label: "Encerrada", tone: "neutral" },
 };
 
 export function StatusBadge({ status }: { status: string }) {

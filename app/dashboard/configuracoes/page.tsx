@@ -9,6 +9,8 @@ export default function DashboardConfiguracoesPage() {
   const [creator, setCreator] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
+  const [offerings, setOfferings] = useState("");
+  const [offeringsDescription, setOfferingsDescription] = useState("");
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -17,6 +19,8 @@ export default function DashboardConfiguracoesPage() {
       setCreator(c);
       setDisplayName(c.displayName);
       setBio(c.creatorProfile?.bio ?? "");
+      setOfferings((c.creatorProfile?.offerings ?? []).join(", "));
+      setOfferingsDescription(c.creatorProfile?.offeringsDescription ?? "");
     })();
   }, []);
 
@@ -25,7 +29,15 @@ export default function DashboardConfiguracoesPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!creator) return;
-    await userRepository.updateCreatorProfile(creator.id, { displayName, bio });
+    await userRepository.updateCreatorProfile(creator.id, {
+      displayName,
+      bio,
+      offerings: offerings
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+      offeringsDescription,
+    });
     setSaved(true);
   }
 
@@ -69,6 +81,41 @@ export default function DashboardConfiguracoesPage() {
               setSaved(false);
             }}
             rows={3}
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1 border-t border-(--color-border) pt-4">
+          <label htmlFor="offerings" className="text-sm font-medium text-(--color-text)">
+            O que ofereço (tags, separadas por vírgula)
+          </label>
+          <input
+            id="offerings"
+            value={offerings}
+            onChange={(e) => {
+              setOfferings(e.target.value);
+              setSaved(false);
+            }}
+            placeholder="Ensaio fotográfico personalizado, Vídeo personalizado"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+          />
+          <p className="text-xs text-(--color-text-subtle)">
+            Aparece no seu perfil, separado das tags automáticas de produtos publicados.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="offeringsDescription" className="text-sm font-medium text-(--color-text)">
+            Descrição do que ofereço
+          </label>
+          <textarea
+            id="offeringsDescription"
+            value={offeringsDescription}
+            onChange={(e) => {
+              setOfferingsDescription(e.target.value);
+              setSaved(false);
+            }}
+            rows={2}
             className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
           />
         </div>
