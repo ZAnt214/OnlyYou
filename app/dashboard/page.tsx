@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { Product, User } from "@/lib/types";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { useSaleRepository } from "@/lib/repositories/SaleRepository";
 import { walletRepository } from "@/lib/repositories/WalletRepository";
+import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatCard } from "@/components/StatCard";
 import { StatusBadge } from "@/components/StatusBadge";
 import { DollarSign, Package, Wallet } from "lucide-react";
@@ -22,7 +22,7 @@ export default function DashboardOverviewPage() {
 
   useEffect(() => {
     (async () => {
-      const c = await userRepository.findMockCurrentCreator();
+      const c = await getCurrentCreatorClient();
       setCreator(c);
       setProducts(await productRepository.findByCreator(c.id));
       const balance = await walletRepository.findByCreator(c.id);

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import type { Product, User } from "@/lib/types";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { useSaleRepository } from "@/lib/repositories/SaleRepository";
+import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatCard } from "@/components/StatCard";
 import { TrendingUp, Star, Eye } from "lucide-react";
 
@@ -15,7 +15,7 @@ export default function DashboardEstatisticasPage() {
 
   useEffect(() => {
     (async () => {
-      const c = await userRepository.findMockCurrentCreator();
+      const c = await getCurrentCreatorClient();
       setCreator(c);
       setProducts(await productRepository.findByCreator(c.id));
     })();

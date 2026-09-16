@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { CreatorBalance, User } from "@/lib/types";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { walletRepository } from "@/lib/repositories/WalletRepository";
+import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { useWithdrawalRepository } from "@/lib/repositories/WithdrawalRepository";
 import { StatCard } from "@/components/StatCard";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -22,9 +22,20 @@ export default function DashboardCarteiraPage() {
 
   useEffect(() => {
     (async () => {
-      const c = await userRepository.findMockCurrentCreator();
+      const c = await getCurrentCreatorClient();
       setCreator(c);
-      setBalance(await walletRepository.findByCreator(c.id));
+      // Um criador real ainda não tem linha em creatorBalances (dado mock,
+      // não referencia UUIDs reais) — saldo zerado é o valor honesto aqui,
+      // não um erro a esconder atrás de uma tela em branco.
+      setBalance(
+        (await walletRepository.findByCreator(c.id)) ?? {
+          creatorId: c.id,
+          available: 0,
+          pending: 0,
+          withdrawn: 0,
+          currency: "BRL",
+        },
+      );
     })();
   }, []);
 

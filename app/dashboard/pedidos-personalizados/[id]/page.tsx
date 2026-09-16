@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { ConversationView } from "@/components/ConversationView";
+import { getCurrentUser } from "@/lib/supabase/session";
 
 export default async function DashboardCustomRequestConversationPage({
   params,
@@ -9,7 +10,10 @@ export default async function DashboardCustomRequestConversationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const creator = await userRepository.findMockCurrentCreator();
+  // Ver comentário em pedidos-personalizados/page.tsx — o redirecionamento
+  // de não-criadores já acontece em app/dashboard/layout.tsx.
+  const realUser = await getCurrentUser();
+  const creator = realUser ?? (await userRepository.findMockCurrentCreator());
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">

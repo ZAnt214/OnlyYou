@@ -1,8 +1,13 @@
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { CustomRequestsList } from "@/components/CustomRequestsList";
+import { getCurrentUser } from "@/lib/supabase/session";
 
 export default async function DashboardCustomRequestsPage() {
-  const creator = await userRepository.findMockCurrentCreator();
+  // app/dashboard/layout.tsx já redireciona uma pessoa real sem papel de
+  // criadora para fora do painel, então aqui só resolve qual identidade
+  // usar (real, se logada; mock, como fallback de demo de sempre).
+  const realUser = await getCurrentUser();
+  const creator = realUser ?? (await userRepository.findMockCurrentCreator());
 
   return (
     <div className="flex flex-col gap-6">

@@ -6,6 +6,7 @@ import { userRepository } from "@/lib/repositories/UserRepository";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { useSaleRepository } from "@/lib/repositories/SaleRepository";
 import { useOrderRepository } from "@/lib/repositories/OrderRepository";
+import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatusBadge } from "@/components/StatusBadge";
 
 function formatBRL(value: number): string {
@@ -21,7 +22,7 @@ export default function DashboardVendasPage() {
 
   useEffect(() => {
     (async () => {
-      const c = await userRepository.findMockCurrentCreator();
+      const c = await getCurrentCreatorClient();
       setCreator(c);
       setProducts(await productRepository.findByCreator(c.id));
       setBuyers(await userRepository.findAll());

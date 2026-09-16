@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useSyncExternalStore,
   type ReactNode,
@@ -31,6 +32,7 @@ import { conversations as seedConversations, messages as seedMessages } from "@/
 import { customProposals as seedCustomProposals } from "@/lib/data/custom-proposals";
 import { customServiceOrders as seedCustomServiceOrders } from "@/lib/data/custom-service-orders";
 import { notifications as seedNotifications } from "@/lib/data/notifications";
+import { createClient } from "@/lib/supabase/client";
 
 /**
  * MockSessionProvider é o ÚNICO lugar da aplicação que acessa localStorage
@@ -164,6 +166,45 @@ const MockSessionContext = createContext<MockSessionContextValue | null>(null);
 
 export function MockSessionProvider({ children }: { children: ReactNode }) {
   const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  // Se existir uma sessão Supabase real, sobrepõe a "identidade agindo" nos
+  // fluxos mock (pedidos/favoritos/etc.) para o UUID real da pessoa — só
+  // depois de montar (evita divergência entre o snapshot do servidor e o do
+  // cliente, já que o servidor não tem acesso à sessão do navegador aqui).
+  // Roda uma vez sem depender de `store`/`setCurrentUserId` de propósito:
+  // só precisa ler a sessão ao montar e reagir a mudanças de auth depois.
+  useEffect(() => {
+    const supabase = createClient();
+    let cancelled = false;
+
+    supabase.auth.getUser().then(async ({ data }) => {
+      const user = data.user;
+      if (!user || cancelled) return;
+      // Confirma que existe uma linha em profiles para este id antes de
+      // assumir a identidade (deveria sempre existir, via trigger de
+      // signup, mas evita assumir um id sem perfil correspondente).
+      const { data: row } = await supabase.from("profiles").select("id").eq("id", user.id).single();
+      if (!cancelled && row) {
+        setStore((s) => ({ ...s, currentUserId: user.id }));
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setStore((s) => ({ ...s, currentUserId: session.user.id }));
+      }
+      // Sem sessão (logout): mantém currentUserId como está — não há
+      // redirecionamento forçado nesta fase, então reverter para o
+      // comprador mock não é necessário nem esperado.
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const value = useMemo<MockSessionContextValue>(
     () => ({

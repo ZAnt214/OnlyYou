@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { User } from "@/lib/types";
 import { userRepository } from "@/lib/repositories/UserRepository";
+import { createClient } from "@/lib/supabase/client";
+import { mapProfileRowToUser, type ProfileRow } from "@/lib/supabase/profile";
 
 export default function DashboardConfiguracoesPage() {
   const [creator, setCreator] = useState<User | null>(null);
@@ -12,9 +14,38 @@ export default function DashboardConfiguracoesPage() {
   const [offerings, setOfferings] = useState("");
   const [offeringsDescription, setOfferingsDescription] = useState("");
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  // Sem sessão Supabase real: mantém o comportamento mock de sempre
+  // (updateCreatorProfile em memória via UserRepository). Com sessão real:
+  // lê/grava diretamente em public.profiles, restrito pelo RLS à própria
+  // linha (auth.uid() = id) e apenas às colunas liberadas para
+  // `authenticated` (roles/verification_status nunca são enviadas daqui).
+  const [realUserId, setRealUserId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
+      const supabase = createClient();
+      const { data } = await supabase.auth.getUser();
+      const authUser = data.user;
+
+      if (authUser) {
+        const { data: row } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", authUser.id)
+          .single();
+        if (row) {
+          const c = mapProfileRowToUser(row as ProfileRow);
+          setRealUserId(authUser.id);
+          setCreator(c);
+          setDisplayName(c.displayName);
+          setBio(c.creatorProfile?.bio ?? "");
+          setOfferings((c.creatorProfile?.offerings ?? []).join(", "));
+          setOfferingsDescription(c.creatorProfile?.offeringsDescription ?? "");
+          return;
+        }
+      }
+
       const c = await userRepository.findMockCurrentCreator();
       setCreator(c);
       setDisplayName(c.displayName);
@@ -29,15 +60,36 @@ export default function DashboardConfiguracoesPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!creator) return;
-    await userRepository.updateCreatorProfile(creator.id, {
-      displayName,
-      bio,
-      offerings: offerings
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-      offeringsDescription,
-    });
+    setSaveError(null);
+    const offeringsList = offerings
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+
+    if (realUserId) {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          display_name: displayName,
+          bio,
+          offerings: offeringsList,
+          offerings_description: offeringsDescription,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", realUserId);
+      if (error) {
+        setSaveError(error.message);
+        return;
+      }
+    } else {
+      await userRepository.updateCreatorProfile(creator.id, {
+        displayName,
+        bio,
+        offerings: offeringsList,
+        offeringsDescription,
+      });
+    }
     setSaved(true);
   }
 
@@ -128,6 +180,7 @@ export default function DashboardConfiguracoesPage() {
             Salvar alterações
           </button>
           {saved ? <span className="text-sm text-(--color-text-muted)">Alterações salvas.</span> : null}
+          {saveError ? <span className="text-sm text-(--color-danger)">{saveError}</span> : null}
         </div>
       </form>
     </div>
