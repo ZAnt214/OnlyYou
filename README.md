@@ -42,7 +42,7 @@ lib/
   data/              # fixtures mock tipadas (produtos, criadores, pedidos...)
   repositories/      # 1 interface + 1 Mock*Repository por entidade
   services/          # regras de negócio orquestrando repositórios/providers
-  payments/          # PaymentProvider e MediaStorageProvider (mock) + TODOs de integração
+  payments/          # PaymentProvider (Mercado Pago) e MediaStorageProvider (mock) + TODOs de integração
   access/            # regras de liberação de conteúdo (content-release)
   moderation/        # ModerationService, ReportService
   security/          # configuração de revenue share, AuditLogRepository
@@ -51,8 +51,9 @@ lib/
 
 Quando chegar a hora de conectar um banco de dados real, o trabalho é escrever
 `DatabaseProductRepository implements ProductRepository` (por exemplo) e trocar a instância
-usada — nenhuma página muda. O mesmo vale para `RealPaymentProvider implements PaymentProvider`
-no lugar de `MockPaymentProvider`.
+usada — nenhuma página muda. Pagamentos já seguem esse padrão: `MercadoPagoProvider implements
+PaymentProvider` é o provider real (usado pelas API routes), com `MockPaymentProvider` mantido
+apenas como fallback de desenvolvimento quando `MERCADOPAGO_ACCESS_TOKEN` não está configurado.
 
 ### Repositórios de leitura vs. repositórios com mutação
 
@@ -65,17 +66,25 @@ no lugar de `MockPaymentProvider`.
   sobre o estado central mantido por `MockSessionProvider` — nunca acessam `localStorage`
   diretamente.
 
-## Como funciona o checkout mock (Order → Payment → Sale → Entitlement)
+## Como funciona o checkout (Order → Payment → Sale → Entitlement)
 
-Não há banco de dados nem gateway de pagamento reais nesta fase. O fluxo de compra é simulado
-assim:
+Não há banco de dados real nesta fase (pedidos/pagamentos vivem no mock-session do navegador),
+mas os pagamentos em si são processados de verdade pelo **Mercado Pago**:
 
 1. **Order**: ao clicar em "Finalizar compra", `OrderService` cria um `Order` com status
    `pending`, guardando um *snapshot* do preço no momento da compra (`OrderItem`).
-2. **Payment**: `PaymentService` chama `MockPaymentProvider.createCheckout()`, que cria um
-   `Payment` com status `pending` — nenhuma cobrança real acontece.
-3. **Confirmação**: a tela de checkout tem um botão "Simular confirmação do pagamento", que
-   equivale ao webhook de confirmação de um provedor real. Isso muda o `Payment` para `paid`.
+2. **Payment**: `PaymentService.startPayment()` chama `POST /api/mercadopago/checkout`, que usa
+   `MercadoPagoProvider` (server-only, `lib/payments/MercadoPagoProvider.ts`) para criar uma
+   cobrança real no Mercado Pago: Pix vira um pagamento com QR code/copia-e-cola via API de
+   Payments, cartão/boleto viram uma Preference do Checkout Pro (redirecionamento para o
+   ambiente do Mercado Pago). O `Payment` local nasce `pending`.
+3. **Confirmação**: para Pix, `MercadoPagoPixPanel` faz polling de
+   `GET /api/mercadopago/status` até o Mercado Pago aprovar o pagamento. Para cartão/boleto, a
+   pessoa é redirecionada ao Checkout Pro e volta para `/checkout/retorno`, que reconsulta o
+   status real (nunca confia nos parâmetros da própria URL) antes de liberar qualquer coisa.
+   `POST /api/mercadopago/webhook` também recebe as notificações do Mercado Pago, mas como este
+   protótipo não tem banco de dados no servidor, o polling é a fonte de verdade — o webhook só
+   valida a assinatura e confirma a notificação junto à API do Mercado Pago.
 4. **Sale**: `WalletService` registra uma `Sale` (snapshot financeiro) aplicando o split de
    receita configurado (ver abaixo).
 5. **Entitlement**: `EntitlementService` só concede o `Entitlement` (o que libera o produto na
@@ -137,9 +146,9 @@ Perfil do criador → "Pedir conteúdo personalizado" → CustomRequestService.c
 → Requester aceita (ProposalService.accept) → proposal.status = accepted,
   request.status = accepted → card mostra "Pagar proposta"
 → CustomOrderService.createOrderAndPayment() reaproveita OrderService.createOrderForCustomProposal()
-  + PaymentService.startPayment() (o MESMO MockPaymentProvider do checkout de produto) →
+  + PaymentService.startPayment() (o MESMO provider Mercado Pago do checkout de produto) →
   CustomServiceOrder (awaiting_payment)
-→ "Simular confirmação do pagamento" (mesmo padrão do CheckoutFlow.tsx) →
+→ MercadoPagoPixPanel faz polling do pagamento Pix real (mesmo padrão do CheckoutFlow.tsx) →
   CustomOrderService.confirmPaymentAndStart(): PaymentService.confirmPayment() →
   OrderService.markPaid() → WalletService.registerSaleFromPayment() (Sale via platformConfig)
   → CustomServiceOrder → in_progress, deliveryDeadlineAt calculado a partir de
@@ -267,15 +276,18 @@ feito.
 Esta é a primeira versão pública do produto — um scaffold de interface e arquitetura. Ela
 **não tem**:
 
-- **Pagamentos reais.** `MockPaymentProvider` simula o fluxo pending → paid manualmente. A
-  escolha de um processador de pagamentos compatível com o modelo específico do OnlyYou
-  (marketplace de conteúdo adulto, venda individual, divisão de comissões, saques para
-  criadores, chargebacks, reembolsos) ainda precisa ser validada formalmente antes de qualquer
-  integração real. A disponibilidade de processamento depende das políticas atuais do
-  provedor, da jurisdição, do tipo de conteúdo, do modelo comercial e da aprovação da conta —
-  não se deve presumir que um gateway genérico (Stripe/PayPal/Mercado Pago padrão) aceita este
-  modelo sem essa validação. Exemplos de provedores especializados a avaliar (não decididos):
-  CCBill, Segpay, Epoch, Verotel.
+- **Aprovação de conta pendente de validação.** Os pagamentos usam o Mercado Pago
+  (`lib/payments/MercadoPagoProvider.ts`, API routes em `app/api/mercadopago/*`), mas a
+  compatibilidade formal do Mercado Pago com o modelo específico do OnlyYou (marketplace de
+  conteúdo adulto, venda individual, divisão de comissões, saques para criadores, chargebacks,
+  reembolsos) ainda precisa ser validada diretamente com o Mercado Pago antes de operar em
+  produção — a disponibilidade de processamento depende das políticas atuais do provedor, da
+  jurisdição, do tipo de conteúdo, do modelo comercial e da aprovação da conta. Caso a conta
+  seja recusada/suspensa por política de conteúdo, a migração para um provedor especializado
+  (CCBill, Segpay, Epoch, Verotel) é o plano de contingência.
+- **Split para criadores e saques ainda não usam a API do Mercado Pago.** `WalletService`
+  calcula o split (plataforma/criador) apenas como registro interno (`Sale`); o repasse
+  financeiro em si (marketplace fee, saque via Pix/transferência) ainda não está integrado.
 - **Banco de dados real.** Todos os dados vivem em fixtures TypeScript (`lib/data/`) mais o
   estado de sessão em `localStorage`.
 - **Autenticação real só no login/cadastro em si** (ver seção "Autenticação (Supabase)"

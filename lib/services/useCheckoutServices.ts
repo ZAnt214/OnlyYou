@@ -9,9 +9,7 @@ import { OrderService } from "./OrderService";
 import { PaymentService } from "./PaymentService";
 import { WalletService } from "./WalletService";
 import { EntitlementService } from "./EntitlementService";
-import { MockPaymentProvider } from "@/lib/payments/PaymentProvider";
-
-const paymentProvider = new MockPaymentProvider();
+import { paymentProvider } from "@/lib/payments/getPaymentProvider";
 
 /**
  * Reúne os serviços necessários para o fluxo de checkout

@@ -20,9 +20,7 @@ import { NotificationService } from "./NotificationService";
 import { OrderService } from "./OrderService";
 import { PaymentService } from "./PaymentService";
 import { WalletService } from "./WalletService";
-import { MockPaymentProvider } from "@/lib/payments/PaymentProvider";
-
-const paymentProvider = new MockPaymentProvider();
+import { paymentProvider } from "@/lib/payments/getPaymentProvider";
 
 /**
  * Reúne os serviços do fluxo de pedidos personalizados
@@ -82,6 +80,7 @@ export function useCustomOrderServices() {
         notificationRepo,
       ),
       notificationService: new NotificationService(notificationRepo),
+      paymentService,
       proposalRepo,
       customServiceOrderRepo,
     };
