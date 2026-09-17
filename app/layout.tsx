@@ -15,11 +15,18 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "OnlyYou — Marketplace de conteúdo",
-    template: "%s · OnlyYou",
+    default: "Jobê — Encontre quem faz",
+    template: "%s · Jobê",
   },
   description:
-    "Marketplace onde criadores publicam conteúdo e definem o preço, e compradores adquirem individualmente o que desejam.",
+    "Plataforma onde profissionais e criadores publicam serviços e produtos digitais, e quem precisa contratar encontra, conversa e paga direto pela plataforma.",
+  openGraph: {
+    title: "Jobê — Encontre quem faz",
+    description:
+      "Serviços, produtos digitais e pedidos personalizados de profissionais e criadores brasileiros.",
+    locale: "pt_BR",
+    type: "website",
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -29,7 +29,7 @@ export default function SegurancaPage() {
       <div className="flex flex-col gap-2">
         <h1 className="text-xl font-semibold text-(--color-text)">Central de Segurança</h1>
         <p className="text-sm text-(--color-text-muted)">
-          Como o OnlyYou trata verificação, denúncias e proteção de conteúdo.
+          Como o Jobê trata verificação, denúncias e proteção de conteúdo.
         </p>
       </div>
 

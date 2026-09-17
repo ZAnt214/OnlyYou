@@ -1,7 +1,7 @@
 const SECTIONS = [
   {
     title: "1. Elegibilidade",
-    body: "O uso do OnlyYou exige uma conta cadastrada e verificada por e-mail.",
+    body: "O uso do Jobê exige uma conta cadastrada e verificada por e-mail.",
   },
   {
     title: "2. Publicação de conteúdo",

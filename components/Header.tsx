@@ -63,7 +63,7 @@ export function Header({ creatorUsername }: { creatorUsername: string }) {
     <header className="sticky top-0 z-20 border-b border-(--color-border) bg-(--color-bg)">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
         <Link href="/" className="text-lg font-semibold tracking-tight text-(--color-text)">
-          OnlyYou
+          Jobê
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

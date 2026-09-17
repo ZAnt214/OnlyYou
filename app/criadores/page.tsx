@@ -13,9 +13,9 @@ export default async function CriadoresPage() {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold text-(--color-text)">Criadores</h1>
+        <h1 className="text-xl font-semibold text-(--color-text)">Profissionais e criadores</h1>
         <p className="text-sm text-(--color-text-muted)">
-          Publique seu conteúdo e defina o preço.
+          Publique seus serviços e produtos e defina o preço.
         </p>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

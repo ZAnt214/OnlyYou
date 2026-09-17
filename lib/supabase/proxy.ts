@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Renova a sessão do Supabase a cada request. O OnlyYou é um marketplace
+ * Renova a sessão do Supabase a cada request. O Jobê é um marketplace
  * público (a maior parte das páginas não exige login), então este proxy
  * só mantém a sessão viva — não redireciona ninguém. Proteção de rota
  * específica (ex.: dashboard exigir login de verdade) é uma decisão

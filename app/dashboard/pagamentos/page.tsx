@@ -29,7 +29,7 @@ export default async function PagamentosPage({
       <h1 className="text-xl font-semibold text-(--color-text)">Pagamentos</h1>
       <p className="text-sm text-(--color-text-muted)">
         Conecte sua conta do Mercado Pago para receber automaticamente sua parte de cada venda.
-        O OnlyYou nunca vê nem armazena sua senha — a conexão é feita pelo fluxo oficial de OAuth
+        O Jobê nunca vê nem armazena sua senha — a conexão é feita pelo fluxo oficial de OAuth
         do Mercado Pago.
       </p>
       <MercadoPagoConnectionCard status={status} oauthResult={mp_oauth} />

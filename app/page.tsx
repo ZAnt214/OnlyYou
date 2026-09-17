@@ -23,9 +23,10 @@ export default async function HomePage() {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-8">
       <section className="flex flex-col gap-2">
-        <h1 className="text-xl font-semibold text-(--color-text)">Descubra novos conteúdos</h1>
+        <h1 className="text-xl font-semibold text-(--color-text)">Encontre quem faz</h1>
         <p className="text-sm text-(--color-text-muted)">
-          Escolha o conteúdo que deseja comprar. Publicado por criadores que definem o próprio preço.
+          Produtos digitais e serviços publicados por profissionais que definem o próprio preço.
+          Não achou pronto? Peça um trabalho personalizado direto com quem faz.
         </p>
         <Row>
           {approved.slice(0, 10).map((p) => (

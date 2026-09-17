@@ -163,8 +163,8 @@ export const buyers: User[] = [
   },
   {
     id: "user-admin01",
-    username: "admin.onlyyou",
-    displayName: "Administração OnlyYou",
+    username: "admin.jobe",
+    displayName: "Administração Jobê",
     avatar: "/avatars/admin.svg",
     roles: ["admin"],
     createdAt: "2023-01-01T12:00:00.000Z",

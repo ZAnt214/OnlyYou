@@ -14,7 +14,7 @@ function requiredEnv(name: string): string {
   return value;
 }
 
-/** Access token da própria integradora (app do OnlyYou) — usado para consultar
+/** Access token da própria integradora (app do Jobê) — usado para consultar
  * pagamentos criados em nome de contas conectadas via OAuth (o app integrador
  * sempre tem visibilidade sobre pagamentos do seu próprio ecossistema) e para
  * estornos. A criação do pagamento em si usa o access token do CRIADOR
@@ -54,7 +54,7 @@ export class MercadoPagoMarketplaceProvider implements PaymentProvider {
         external_reference: input.orderId,
         application_fee: round2(input.marketplaceFeeAmount),
         notification_url: `${requiredEnv("NEXT_PUBLIC_APP_URL")}/api/mercadopago/webhook`,
-        payer: { email: input.payerEmail ?? "comprador@onlyyou.app" },
+        payer: { email: input.payerEmail ?? "comprador@jobe.app" },
       }),
     });
 

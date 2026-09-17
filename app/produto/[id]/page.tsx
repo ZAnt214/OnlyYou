@@ -92,7 +92,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <Link href="/conteudo" className="underline hover:text-(--color-accent)">
               política de conteúdo
             </Link>{" "}
-            do OnlyYou.
+            do Jobê.
           </div>
         </div>
       </div>

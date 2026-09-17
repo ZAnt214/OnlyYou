@@ -307,7 +307,7 @@ export function ConversationView({
       </div>
 
       <div className="rounded-md border border-(--color-border) bg-(--color-surface) p-3 text-xs text-(--color-text-muted)">
-        Mantenha toda a conversa, os combinados e o pagamento dentro do OnlyYou. É isso que garante
+        Mantenha toda a conversa, os combinados e o pagamento dentro do Jobê. É isso que garante
         a proteção da plataforma em caso de problema com a entrega ou o pagamento.
       </div>
 
