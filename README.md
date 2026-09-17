@@ -63,46 +63,30 @@ mercadopago` (`lib/payments/getServerPaymentProvider.ts`); sem a variável, usa 
 `MERCADOPAGO_ACCESS_TOKEN` estiver configurado, senão cai para o mock — a ausência de
 credenciais nunca derruba a aplicação.
 
-Diferente do resto do domínio (que continua 100% mock/client-side), os dados de pagamento têm
-uma autoridade real no servidor: um projeto Supabase dedicado guarda os tokens OAuth de cada
-criador conectado e o resultado confirmado de cada pagamento (ver "Mercado Pago: marketplace,
-OAuth e split" abaixo). É a única parte do domínio com persistência real nesta fase.
+Diferente de parte do domínio (catálogo de produtos, `Order`/`Payment`/`Sale` mock), os dados de
+pagamento e carteira têm uma autoridade real no servidor: um projeto Supabase guarda o
+resultado confirmado de cada pagamento e o saldo/saque de cada criador (ver "Mercado Pago e
+carteira" abaixo) — junto com pedidos personalizados/conversa, é a parte do domínio com
+persistência real nesta fase.
 
 ### Repositórios de leitura vs. repositórios com mutação
 
 - Repositórios só de leitura (`ProductRepository`, `UserRepository`, `CategoryRepository`,
-  `ReviewRepository`, `ReportRepository`, `CouponRepository`, `WalletRepository`) são
-  instâncias simples que leem de `lib/data/*`.
+  `ReviewRepository`, `ReportRepository`, `CouponRepository`) são instâncias simples que leem
+  de `lib/data/*`.
 - Repositórios que precisam de mutação durante a sessão de uso (`OrderRepository`,
-  `PaymentRepository`, `SaleRepository`, `EntitlementRepository`, `WithdrawalRepository`,
-  `FavoriteRepository`) são expostos como **hooks** (`useOrderRepository()` etc.) que operam
-  sobre o estado central mantido por `MockSessionProvider` — nunca acessam `localStorage`
-  diretamente.
+  `PaymentRepository`, `SaleRepository`, `EntitlementRepository`, `FavoriteRepository`) são
+  expostos como **hooks** (`useOrderRepository()` etc.) que operam sobre o estado central
+  mantido por `MockSessionProvider` — nunca acessam `localStorage` diretamente.
+- Carteira/saque (`CreatorBalance`, `Withdrawal`) não é mock — lê e escreve direto no Supabase
+  via `lib/supabase/wallet.ts` (ver "Mercado Pago e carteira" abaixo).
 
-## Mercado Pago: marketplace, OAuth e split
+## Mercado Pago e carteira: conta única, saque manual
 
-Jobê processa pagamentos como um **marketplace** do Mercado Pago: cada criador conecta a
-própria conta via OAuth, e cada venda é criada em nome dele, com a comissão da plataforma
-retida automaticamente pelo Mercado Pago (`marketplace_fee`/`application_fee`) — o dinheiro do
-comprador nunca passa por uma conta única do Jobê.
-
-### Conectar a conta do criador (OAuth)
-
-```
-Painel do criador → /dashboard/pagamentos → "Conectar Mercado Pago"
-→ GET /api/mercadopago/oauth/authorize (exige sessão Supabase real; assina um "state" HMAC)
-→ redireciona para auth.mercadopago.com (o criador autoriza no ambiente do Mercado Pago)
-→ GET /api/mercadopago/oauth/callback (valida o state, confirma que é a mesma sessão que
-  iniciou o fluxo, troca o code por tokens em POST /oauth/token)
-→ tokens salvos em creator_mercadopago_accounts (Supabase, só service role lê/escreve)
-→ espelho público sem tokens em creator_mercadopago_status (o criador e o checkout enxergam
-  "conectado: sim/não" sem nunca tocar no token)
-```
-
-`access_token`/`refresh_token` nunca chegam ao navegador — nem em `NEXT_PUBLIC_*`, nem em
-localStorage, nem em nenhuma resposta de API. `getValidCreatorAccessToken()`
-(`lib/payments/creatorMercadoPagoAccount.ts`) renova o token automaticamente quando está perto
-de expirar, sempre a partir de código server-only.
+Jobê processa pagamentos numa **conta única** do Mercado Pago (a do Jobê) — não há OAuth nem
+conta conectada por criador. Todo pagamento, de produto ou de pedido personalizado, cai nessa
+conta; o repasse ao criador acontece **por fora** do Mercado Pago, como saldo em carteira +
+saque manual conferido pela administração.
 
 ### Checkout (Order → Payment → Sale → Entitlement)
 
@@ -110,12 +94,13 @@ de expirar, sempre a partir de código server-only.
    `pending`, guardando um *snapshot* do preço no momento da compra (`OrderItem`).
 2. **Payment**: `PaymentService.startProductCheckout()` chama `POST /api/mercadopago/checkout`
    passando só `orderId`/`productId`/`method` — **nunca o valor**. A rota resolve o produto e o
-   criador no servidor (`productRepository`), calcula o split a partir de
-   `platformConfig` e busca o access token do criador conectado; se ele não tiver conectado o
-   Mercado Pago, o checkout é recusado com 409 antes de qualquer chamada ao gateway. Só então
-   `MercadoPagoMarketplaceProvider` (server-only) cria a cobrança em nome do criador: Pix vira
-   um pagamento com QR code/copia-e-cola, cartão/boleto viram uma Preference do Checkout Pro. O
-   resultado é gravado imediatamente em `payment_confirmations` (Supabase) como `pending`.
+   criador no servidor (`productRepository`) e calcula o split a partir de `platformConfig`.
+   `MercadoPagoProvider` (server-only, `lib/payments/MercadoPagoProvider.ts`) cria a cobrança
+   sempre na conta do Jobê (`MERCADOPAGO_ACCESS_TOKEN`): Pix vira um pagamento com QR
+   code/copia-e-cola, cartão/boleto viram uma Preference do Checkout Pro. O resultado é gravado
+   imediatamente em `payment_confirmations` (Supabase) como `pending`, já com o split
+   (`gross_amount_cents`/`platform_fee_cents`/`creator_amount_cents`) — é essa tabela que
+   alimenta o saldo da carteira do criador.
 3. **Confirmação (sempre no servidor)**: para Pix, `MercadoPagoPixPanel` faz polling de
    `GET /api/mercadopago/status?orderId=...`. Para cartão/boleto, a pessoa é redirecionada ao
    Checkout Pro e volta para `/checkout/retorno` — que **nunca trata o retorno do navegador
@@ -126,22 +111,43 @@ de expirar, sempre a partir de código server-only.
    linha nem repete o processamento; ver `confirmPaymentFromWebhook` em
    `lib/payments/paymentConfirmations.ts`).
 4. **Sale**: assim que o `Payment` local reflete `paid` (via `syncStatus`, nunca antes),
-   `WalletService` registra uma `Sale` (snapshot financeiro) aplicando o split de receita
-   configurado (ver abaixo).
+   `WalletService` registra uma `Sale` (snapshot financeiro, só para o dashboard de vendas
+   mock de produtos) aplicando o split de receita configurado (ver abaixo).
 5. **Entitlement**: `EntitlementService` só concede o `Entitlement` (o que libera o produto na
    biblioteca) **se o `Payment` associado estiver `paid`** — a criação do `Order` sozinha nunca
    libera conteúdo. Essa regra está implementada em código, não só em documentação.
+
+### Carteira e saque (`lib/supabase/wallet.ts`)
+
+O saldo disponível de um criador é calculado a partir de `payment_confirmations` (real,
+Supabase) — nunca de um valor guardado à parte: `saldo = soma(creator_amount_cents dos
+pagamentos "paid") - soma(valor dos saques "requested"/"paid")`. Fluxo:
+
+1. Criador pede saque em `/dashboard/carteira` — informa valor e chave Pix (CPF/e-mail/
+   telefone/aleatória). `request_withdrawal()` (RPC, Postgres) valida no banco que o valor não
+   passa do saldo disponível e cria a linha em `withdrawals` com status `requested` — nunca
+   confia numa validação só no cliente.
+2. O pedido aparece em `/admin/saques` para qualquer admin. A transferência em si é **manual**,
+   feita por fora da plataforma (Pix direto para a chave informada).
+3. Admin marca o saque como `paid` (transferido) ou `rejected` via `review_withdrawal()` (RPC),
+   que também notifica o criador. Só então o valor sai do "saldo disponível" para "total
+   sacado".
+
+Não há transferência automática (Payouts) nem split automático do Mercado Pago nesta fase —
+é uma decisão explícita, documentada aqui, para manter o dinheiro sempre na conta única do
+Jobê até a conferência manual.
 
 ### O que é real e o que ainda é mock nesse fluxo
 
 `Order`/`Payment`/`Sale`/`Entitlement` continuam vivendo no mock-session do navegador (mesmo
 padrão de sempre, `lib/mock-session/MockSessionProvider.tsx`) — é o que a UI lê para montar
-biblioteca, pedidos e carteira. A **autoridade real** sobre "esse pagamento foi de fato
-aprovado" é a tabela `payment_confirmations` no Supabase, escrita só pelo backend a partir de
-uma resposta verificada da API do Mercado Pago; o mock local é sincronizado a partir dela
-(`PaymentService.syncStatus`), nunca o contrário. Isso é o suficiente para nunca liberar
-conteúdo por engano, mas **não** substitui um banco de dados real para o restante do domínio —
-ver "Limitações e integrações futuras".
+biblioteca e o histórico de vendas do dashboard. A **autoridade real** sobre "esse pagamento
+foi de fato aprovado" e sobre o saldo/saque da carteira são as tabelas `payment_confirmations`
+e `withdrawals` no Supabase; o mock local de `Order`/`Payment` é sincronizado a partir da
+primeira (`PaymentService.syncStatus`), nunca o contrário. Isso é o suficiente para nunca
+liberar conteúdo por engano nem exibir um saldo sacável maior que o real, mas **não** substitui
+um banco de dados real para o restante do domínio (catálogo de produtos, vendas mock) — ver
+"Limitações e integrações futuras".
 
 ## Pedidos personalizados, conversa e propostas
 
@@ -274,9 +280,10 @@ export const platformConfig = {
 
 Esse é o único lugar onde esses percentuais devem existir. Dois consumidores calculam a partir
 dele, sempre em centavos (nunca ponto flutuante como autoridade): `WalletService` (o `Sale`
-mock exibido na carteira/vendas) e `POST /api/mercadopago/checkout` (o `marketplace_fee`/
-`application_fee` real enviado ao Mercado Pago, que efetivamente retém a comissão no momento do
-pagamento). Nenhum outro módulo deve hardcodar `0.8`/`0.2`.
+mock exibido no dashboard de vendas de produtos) e `POST /api/mercadopago/checkout`, que grava
+`platform_fee_cents`/`creator_amount_cents` em `payment_confirmations` — é esse split, não um
+retido automático do Mercado Pago, que alimenta o saldo sacável da carteira real (ver seção
+anterior). Nenhum outro módulo deve hardcodar `0.8`/`0.2`.
 
 ## Deploy no Vercel
 
@@ -288,11 +295,11 @@ pagamento). Nenhum outro módulo deve hardcodar `0.8`/`0.2`.
    Environment Variables** na Vercel para o cadastro/login funcionarem no site publicado — sem
    elas o build passa, mas as páginas `/entrar` e `/cadastro` falham em runtime.
 4. Para pagamentos reais, configure também `SUPABASE_SERVICE_ROLE_KEY`,
-   `MERCADOPAGO_CLIENT_ID`, `MERCADOPAGO_CLIENT_SECRET`, `MERCADOPAGO_REDIRECT_URI`,
-   `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`, `NEXT_PUBLIC_APP_URL` (a URL
-   pública real do deploy) e `AUTH_SECRET` — ver comentários em `.env.example` para o que cada
-   uma faz e onde encontrá-la no painel do Mercado Pago. Sem elas, os pagamentos caem
-   automaticamente no `MockPaymentProvider` (checkout simulado, nunca cobra de verdade).
+   `MERCADOPAGO_ACCESS_TOKEN` (token da conta única do Jobê no Mercado Pago — não há OAuth por
+   criador), `MERCADOPAGO_WEBHOOK_SECRET` e `NEXT_PUBLIC_APP_URL` (a URL pública real do
+   deploy) — ver comentários em `.env.example` para o que cada uma faz e onde encontrá-la no
+   painel do Mercado Pago. Sem elas, os pagamentos caem automaticamente no
+   `MockPaymentProvider` (checkout simulado, nunca cobra de verdade).
 
 ## Autenticação (Supabase)
 
@@ -338,29 +345,28 @@ Esta é a primeira versão pública do produto — um scaffold de interface e ar
 **não tem**:
 
 - **Produtos do catálogo mock não pertencem a criadores reais.** O checkout de produto já
-  resolve criador/valor no servidor e recusa a venda se o criador não tiver conectado o
-  Mercado Pago (ver seção acima) — mas os produtos de `lib/data/products.ts` referenciam ids
-  mock (`user-c01` etc.), não perfis Supabase reais, e a criação de produto
-  (`/dashboard/produtos/novo`) ainda não persiste em lugar nenhum além de um toast de sucesso.
-  Ou seja: com os dados de demonstração, todo checkout de produto vai corretamente cair em "409
-  — criador não conectado", por design. Para testar o fluxo ponta a ponta é preciso: uma conta
-  Supabase real com papel `creator`, conectar o Mercado Pago por ela, e um produto cujo
-  `creatorId` seja o `id` dessa conta (hoje isso só é possível editando `lib/data/products.ts`
-  manualmente, já que a criação de produto não está ligada a `profiles`).
-- **Split para criadores usa o Mercado Pago (`marketplace_fee`/`application_fee`), mas o saque
-  em si não.** A comissão da plataforma já é retida automaticamente pelo Mercado Pago no
-  momento do pagamento; o valor do criador fica na própria conta dele — o Jobê não
-  intermedia esse saque. `WithdrawalRepository` continua só um registro mock do *pedido* de
-  saque, sem nenhuma integração bancária real.
-- **Banco de dados real só para pagamentos.** `payment_confirmations`,
-  `creator_mercadopago_accounts` e `creator_mercadopago_status` vivem num projeto Supabase real
-  (com RLS). Todo o resto (produtos, pedidos, vendas, entitlements, pedidos personalizados)
-  continua em fixtures TypeScript (`lib/data/`) mais o estado de sessão em `localStorage`.
-- **Autenticação real só no login/cadastro em si** (ver seção "Autenticação (Supabase)"
-  acima) — criar conta e entrar/sair já usa Supabase Auth de verdade, mas essa identidade
-  ainda não está conectada ao resto do app: dashboard, produtos, pedidos, carteira e admin
-  continuam usando o usuário mock fixo de `lib/data/users.ts` (a única exceção é a conexão do
-  Mercado Pago, que exige sessão real — ver `/dashboard/pagamentos`).
+  resolve criador/valor no servidor (nunca confia no cliente) — mas os produtos de
+  `lib/data/products.ts` referenciam ids mock (`user-c01` etc.), não perfis Supabase reais, e a
+  criação de produto (`/dashboard/produtos/novo`) ainda não persiste em lugar nenhum além de um
+  toast de sucesso. Isso significa que um checkout de produto do catálogo mock cria uma
+  confirmação de pagamento real, mas o `creator_amount_cents` fica "preso" num `creatorId` que
+  não existe em `profiles` — a carteira só reflete saldo de verdade para pedidos personalizados
+  (que sempre usam UUIDs reais) até a criação de produto também ser ligada a `profiles`.
+- **Repasse ao criador é manual, por decisão de produto — não uma limitação a corrigir.** Todo
+  pagamento cai na conta única do Jobê no Mercado Pago; o saldo do criador (ver "Mercado Pago e
+  carteira" acima) é real, calculado a partir de `payment_confirmations`, e o saque em si (Pix
+  para a chave informada) é conferido e feito à mão pela administração em `/admin/saques` — não
+  há Payout automático do Mercado Pago nesta fase.
+- **Banco de dados real para pagamentos, carteira e pedidos personalizados.**
+  `payment_confirmations`, `withdrawals`, `custom_requests`/`conversations`/`messages`/
+  `custom_proposals`/`custom_service_orders`/`notifications`/`disputes` vivem num projeto
+  Supabase real (com RLS). O restante (catálogo de produtos, `Order`/`Payment`/`Sale`/
+  `Entitlement` do checkout de produto) continua em fixtures TypeScript (`lib/data/`) mais o
+  estado de sessão em `localStorage`.
+- **Autenticação real só parcialmente conectada ao resto do app.** Criar conta e entrar/sair já
+  usa Supabase Auth de verdade, e pedidos personalizados/carteira/saque já exigem sessão real
+  (sem fallback mock) — mas dashboard de produtos, pedidos de compra e admin ainda usam em
+  parte o usuário mock fixo de `lib/data/users.ts` quando não há sessão real.
 - **Verificação real de identidade de criadores.** `verificationStatus` é apenas um campo de
   dado; não há fluxo de verificação operacional.
 - **Armazenamento, streaming e watermarking real de mídia.** `MockMediaStorageProvider` guarda
@@ -370,8 +376,9 @@ Esta é a primeira versão pública do produto — um scaffold de interface e ar
 - **Moderação operacional real.** `ModerationService`/fila de denúncias em `/admin/denuncias`
   são esqueletos de UI e regras de transição de status, sem operação humana real por trás.
 - **Antifraude real.**
-- **Saques/repasses reais para criadores.** `WithdrawalRepository` só registra o pedido de
-  saque no estado mock; não há integração bancária.
+- **Saque é manual por decisão de produto, não automático.** O pedido de saque e o saldo são
+  reais (Supabase, ver "Mercado Pago e carteira"); a transferência Pix em si é feita à mão pela
+  administração em `/admin/saques`, sem integração bancária/Payout automática.
 - **Fluxo de pedidos personalizados sem verificação automática de prazo, rate limiting ou
   refund real.** Ver seção "Pedidos personalizados, conversa e propostas" acima para o
   detalhamento dos `TODO(integração)` desse fluxo.
@@ -382,8 +389,7 @@ Ver `app/` para o roteamento completo (App Router): marketplace público (`/`, `
 `/categorias/[slug]`, `/criadores`, `/criadores/[username]`, `/produto/[id]`), conta
 (`/entrar`, `/cadastro`, `/checkout/[productId]`, `/checkout/retorno`, `/biblioteca`,
 `/favoritos`, `/pedidos`, `/pedidos/[id]`, `/notificacoes`), institucional (`/sobre`, `/termos`,
-`/privacidade`, `/conteudo`, `/seguranca`), área do criador (`/dashboard/*`, incluindo
-`/dashboard/pedidos-personalizados`, `/dashboard/pedidos-personalizados/[id]` e
-`/dashboard/pagamentos` — conexão com o Mercado Pago) e a área de administração (`/admin/*`,
-incluindo `/admin/pagamentos`, `/admin/conversas` e `/admin/conversas/[id]`), gateada por
-`requireAdmin()`.
+`/privacidade`, `/conteudo`, `/seguranca`), área do criador (`/dashboard/*`, incluindo `/dashboard/pedidos-personalizados`,
+`/dashboard/pedidos-personalizados/[id]` e `/dashboard/carteira` — saldo e saque) e a área de
+administração (`/admin/*`, incluindo `/admin/pagamentos`, `/admin/saques`, `/admin/conversas` e
+`/admin/conversas/[id]`), gateada por `requireAdmin()`.

@@ -1,6 +1,7 @@
-// Processador de pagamentos: Mercado Pago, no modelo de marketplace (split
-// automático entre Jobê e o criador via conta conectada por OAuth). Ver
-// lib/payments/MercadoPagoMarketplaceProvider.ts para a implementação real e
+// Processador de pagamentos: Mercado Pago, conta única da plataforma (todo
+// pagamento cai na conta do Jobê; o repasse ao criador é feito por fora,
+// como saldo em carteira + saque manual — ver lib/supabase/wallet.ts). Ver
+// lib/payments/MercadoPagoProvider.ts para a implementação real e
 // lib/payments/getServerPaymentProvider.ts para a seleção mock/real.
 
 import type { PaymentMethod, PaymentStatus } from "@/lib/types";
@@ -13,10 +14,6 @@ export interface CreateCheckoutInput {
   method: PaymentMethod;
   description?: string;
   payerEmail?: string;
-  /** Access token OAuth do criador conectado — o pagamento é criado em nome dele. */
-  sellerAccessToken: string;
-  /** Parte retida pela plataforma (reais), descontada automaticamente pelo Mercado Pago. */
-  marketplaceFeeAmount: number;
 }
 
 export interface CreateCheckoutResult {

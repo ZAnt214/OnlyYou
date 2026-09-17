@@ -131,11 +131,48 @@ Esse fluxo foi migrado por completo para Supabase:
   produção, `MERCADOPAGO_WEBHOOK_SECRET` deve estar sempre configurado — não é uma falha de
   código, é uma configuração de ambiente a garantir no deploy.
 
+## Migração do Mercado Pago: de marketplace/OAuth por criador para conta única + carteira
+
+A base herdada implementava Mercado Pago como marketplace (cada criador conecta a própria
+conta via OAuth, split automático via `marketplace_fee`/`application_fee`). A pedido do
+usuário, isso foi substituído por um modelo de conta única: **todo pagamento cai na conta do
+Jobê**, e o repasse ao criador vira saldo em carteira + saque manual conferido pela
+administração — nunca transferência bancária automática.
+
+- **Removido**: fluxo OAuth completo (`lib/payments/mercadoPagoOAuth.ts`,
+  `lib/payments/creatorMercadoPagoAccount.ts`, rotas `app/api/mercadopago/oauth/*`,
+  `components/payments/MercadoPagoConnectionCard.tsx`, página `/dashboard/pagamentos`, tabelas
+  `creator_mercadopago_accounts`/`creator_mercadopago_status`). `checkout/route.ts` não resolve
+  mais um `sellerAccessToken` por criador nem recusa com 409 quando ele não conectou nada — cria
+  a cobrança direto com `MERCADOPAGO_ACCESS_TOKEN` da plataforma
+  (`lib/payments/MercadoPagoProvider.ts`, renomeado de `MercadoPagoMarketplaceProvider.ts`).
+  `payment_confirmations` continua gravando o split (`creator_amount_cents`) — só deixou de ser
+  retido automaticamente pelo Mercado Pago, passa a ser a base do saldo da carteira.
+- **Novo — carteira real** (`lib/supabase/wallet.ts`, migrações `withdrawals_schema` +
+  `withdrawals_rpc`): tabela `withdrawals` (RLS: criador vê/insere as próprias linhas, admin vê
+  e atualiza todas) e duas RPCs SECURITY INVOKER — `request_withdrawal(amount_cents,
+  pix_key_type, pix_key)` calcula saldo disponível a partir de
+  `payment_confirmations`/`withdrawals` e valida no banco (nunca confia no cliente) que o valor
+  pedido não excede o disponível; `review_withdrawal(withdrawal_id, status, admin_notes)`
+  (só `is_admin()`) marca `paid`/`rejected` e notifica o criador. Precisou ampliar a policy de
+  INSERT de `notifications` para também permitir `is_admin()` (antes só cobria o par
+  requester/creator de um pedido personalizado).
+- **UI nova**: `/dashboard/carteira` reescrita — saldo real (disponível/ganho/sacado) e
+  formulário de saque (valor + tipo de chave Pix + chave); `/admin/saques`
+  (`AdminWithdrawalsTable`) lista todos os pedidos com ação de marcar como pago/recusado. Item
+  "Pagamentos" removido do menu do dashboard do criador (não há mais nada para conectar);
+  "Saques" adicionado ao menu do admin.
+- **Verificado via SQL com `begin;...rollback;`** contra o projeto real: `request_withdrawal`
+  reserva corretamente o saldo (uma segunda solicitação que excede o restante é recusada),
+  `review_withdrawal` recusa não-admin e, como admin, atualiza o status e grava a notificação.
+  `get_advisors` (segurança) sem novos achados além dos pré-existentes.
+
 ## Pendências que dependem de configuração/infra externa (não bloqueiam o resto)
 
-- **Credenciais reais do Mercado Pago** (`MERCADOPAGO_CLIENT_ID/SECRET/REDIRECT_URI`,
-  `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`) e `SUPABASE_SERVICE_ROLE_KEY` — sem
-  elas, o app cai automaticamente no `MockPaymentProvider` (comportamento esperado).
+- **Credenciais reais do Mercado Pago** (`MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`)
+  e `SUPABASE_SERVICE_ROLE_KEY` — sem elas, o app cai automaticamente no `MockPaymentProvider`
+  (comportamento esperado). Não há mais `MERCADOPAGO_CLIENT_ID/SECRET/REDIRECT_URI` nem
+  `AUTH_SECRET` (eram só do OAuth por criador, removido).
 - **`UserRepository` ainda não lê de `profiles` (Supabase) para todo o app** — dashboard,
   produtos e carteira continuam sobre `lib/data/users.ts`, mesmo com login real.
 - **Verificação de identidade de profissionais** com provedor especializado — hoje é só um
@@ -166,8 +203,11 @@ resultado completo do build.
 
 ## Último ponto de execução
 
-Rebrand para Jobê, ampliação de categorias profissionais e migração completa do fluxo de
-pedido personalizado (chat/proposta/entrega) para Supabase concluídos. `npx tsc --noEmit`,
-`npm run lint` e `npm run build` verdes após a migração. Próximo passo sugerido: migrar
-`UserRepository` para `profiles` (Supabase) em todo o app, e avaliar migrar
+Rebrand para Jobê, ampliação de categorias profissionais, migração completa do fluxo de
+pedido personalizado (chat/proposta/entrega) para Supabase e migração do Mercado Pago de
+marketplace/OAuth por criador para conta única + carteira/saque manual concluídas. `npx tsc
+--noEmit`, `npm run lint` e `npm run build` verdes após cada mudança. Próximo passo sugerido:
+migrar `UserRepository` para `profiles` (Supabase) em todo o app — inclui ligar a criação de
+produto (`/dashboard/produtos/novo`) a `profiles` para que o saldo de carteira também reflita
+vendas de produto do catálogo, hoje só correto para pedidos personalizados — e avaliar migrar
 `AuditLogRepository`/`ReportRepository` (admin) para Supabase também.

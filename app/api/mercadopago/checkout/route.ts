@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/supabase/session";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getServerPaymentProvider } from "@/lib/payments/getServerPaymentProvider";
-import { getValidCreatorAccessToken } from "@/lib/payments/creatorMercadoPagoAccount";
 import { createPendingConfirmation } from "@/lib/payments/paymentConfirmations";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { platformConfig } from "@/lib/security/config";
@@ -34,13 +33,15 @@ function isValidBody(body: unknown): body is CheckoutBody {
 }
 
 /**
- * Cria um checkout Mercado Pago no modelo de marketplace. O valor e o
- * criador NUNCA vêm confiados do cliente: para produtos do catálogo são
- * resolvidos a partir de productRepository; para pedidos personalizados
- * (kind "custom_service"), agora que CustomProposal/custom_service_orders
- * vivem em tabelas reais (RLS restringe a linha ao próprio solicitante),
- * são resolvidos aqui a partir da proposta aceita — o cliente só informa
- * qual proposta está pagando, nunca o valor.
+ * Cria um checkout Mercado Pago na conta única da plataforma — todo
+ * pagamento cai na conta do Jobê, nunca na de um criador (sem OAuth/split
+ * por criador; o repasse é feito por fora, como saldo em carteira + saque
+ * manual, ver lib/supabase/wallet.ts). O valor e o criador NUNCA vêm
+ * confiados do cliente: para produtos do catálogo são resolvidos a partir
+ * de productRepository; para pedidos personalizados (kind "custom_service"),
+ * são resolvidos aqui a partir da proposta aceita (RLS restringe a linha ao
+ * próprio solicitante) — o cliente só informa qual proposta está pagando,
+ * nunca o valor.
  */
 export async function POST(request: Request) {
   const buyer = await getCurrentUser();
@@ -89,14 +90,6 @@ export async function POST(request: Request) {
     description = `${cso.service_type} — pedido personalizado`;
   }
 
-  const sellerAccessToken = await getValidCreatorAccessToken(creatorId);
-  if (!sellerAccessToken) {
-    return NextResponse.json(
-      { error: "Este criador ainda não conectou uma conta do Mercado Pago." },
-      { status: 409 },
-    );
-  }
-
   const grossAmountCents = Math.round(amount * 100);
   const platformFeeCents = Math.round(grossAmountCents * platformConfig.platformRevenueShare);
   const creatorAmountCents = grossAmountCents - platformFeeCents;
@@ -108,8 +101,6 @@ export async function POST(request: Request) {
       amount,
       method: body.method,
       description,
-      sellerAccessToken,
-      marketplaceFeeAmount: platformFeeCents / 100,
     });
 
     await createPendingConfirmation({

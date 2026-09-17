@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { fetchMercadoPagoPayment, mapMercadoPagoStatus } from "@/lib/payments/MercadoPagoMarketplaceProvider";
+import { fetchMercadoPagoPayment, mapMercadoPagoStatus } from "@/lib/payments/MercadoPagoProvider";
 import { confirmPaymentFromWebhook } from "@/lib/payments/paymentConfirmations";
 import { activateCustomServiceOrderAfterPayment } from "@/lib/payments/activateCustomServiceOrder";
 

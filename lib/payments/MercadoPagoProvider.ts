@@ -14,24 +14,24 @@ function requiredEnv(name: string): string {
   return value;
 }
 
-/** Access token da própria integradora (app do Jobê) — usado para consultar
- * pagamentos criados em nome de contas conectadas via OAuth (o app integrador
- * sempre tem visibilidade sobre pagamentos do seu próprio ecossistema) e para
- * estornos. A criação do pagamento em si usa o access token do CRIADOR
- * (sellerAccessToken), para que o valor caia na conta dele com o
- * marketplace_fee/application_fee retido automaticamente para a plataforma. */
+/** Access token único da conta do Jobê no Mercado Pago — toda cobrança da
+ * plataforma (produto ou pedido personalizado) é criada nesta conta, nunca
+ * na de um criador. O repasse ao criador acontece por fora do Mercado Pago:
+ * o valor líquido (já descontada a comissão) vira saldo disponível na
+ * carteira dele (ver lib/supabase/wallet.ts) e o saque é feito manualmente
+ * pela administração — não há split automático nem OAuth por criador. */
 function platformAccessToken(): string {
   return requiredEnv("MERCADOPAGO_ACCESS_TOKEN");
 }
 
 /**
- * Provedor real de pagamentos via Mercado Pago no modelo de marketplace.
+ * Provedor real de pagamentos via Mercado Pago, conta única da plataforma.
  * Só deve ser importado em código de servidor — nunca em um componente de
  * cliente. Ver app/api/mercadopago/checkout/route.ts (validação de
  * produto/criador/valor sempre no servidor, split calculado a partir de
- * lib/security/config.ts).
+ * lib/security/config.ts e registrado em payment_confirmations).
  */
-export class MercadoPagoMarketplaceProvider implements PaymentProvider {
+export class MercadoPagoProvider implements PaymentProvider {
   async createCheckout(input: CreateCheckoutInput): Promise<CreateCheckoutResult> {
     if (input.method === "pix") {
       return this.createPixPayment(input);
@@ -43,7 +43,7 @@ export class MercadoPagoMarketplaceProvider implements PaymentProvider {
     const res = await fetch(`${MP_API}/v1/payments`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${input.sellerAccessToken}`,
+        Authorization: `Bearer ${platformAccessToken()}`,
         "Content-Type": "application/json",
         "X-Idempotency-Key": `${input.orderId}-pix`,
       },
@@ -52,7 +52,6 @@ export class MercadoPagoMarketplaceProvider implements PaymentProvider {
         description: input.description ?? `Pedido ${input.orderId}`,
         payment_method_id: "pix",
         external_reference: input.orderId,
-        application_fee: round2(input.marketplaceFeeAmount),
         notification_url: `${requiredEnv("NEXT_PUBLIC_APP_URL")}/api/mercadopago/webhook`,
         payer: { email: input.payerEmail ?? "comprador@jobe.app" },
       }),
@@ -76,7 +75,7 @@ export class MercadoPagoMarketplaceProvider implements PaymentProvider {
     const res = await fetch(`${MP_API}/checkout/preferences`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${input.sellerAccessToken}`,
+        Authorization: `Bearer ${platformAccessToken()}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -90,7 +89,6 @@ export class MercadoPagoMarketplaceProvider implements PaymentProvider {
           },
         ],
         external_reference: input.orderId,
-        marketplace_fee: round2(input.marketplaceFeeAmount),
         payer: input.payerEmail ? { email: input.payerEmail } : undefined,
         payment_methods:
           input.method === "boleto"
@@ -116,8 +114,6 @@ export class MercadoPagoMarketplaceProvider implements PaymentProvider {
     };
   }
 
-  /** Consulta usando o token da própria integradora — funciona para qualquer
-   * pagamento criado dentro do ecossistema OAuth deste app. */
   async getPaymentStatus(mpPaymentId: string): Promise<PaymentStatus> {
     const res = await fetch(`${MP_API}/v1/payments/${mpPaymentId}`, {
       headers: { Authorization: `Bearer ${platformAccessToken()}` },
@@ -141,8 +137,8 @@ export class MercadoPagoMarketplaceProvider implements PaymentProvider {
   }
 }
 
-/** Busca um pagamento pelo id usando o token da integradora — usado pelo
- * webhook para nunca confiar cegamente no payload recebido. */
+/** Busca um pagamento pelo id usando o token da própria plataforma — usado
+ * pelo webhook para nunca confiar cegamente no payload recebido. */
 export async function fetchMercadoPagoPayment(mpPaymentId: string): Promise<{
   id: string;
   status: string;

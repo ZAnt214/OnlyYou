@@ -21,6 +21,8 @@ const TYPE_LABELS: Record<string, string> = {
   CUSTOM_SERVICE_EXPIRED: "Pedido expirado",
   CUSTOM_REFUND_CREATED: "Reembolso registrado",
   CUSTOM_DISPUTE_CREATED: "Problema relatado",
+  WITHDRAWAL_PAID: "Saque concluído",
+  WITHDRAWAL_REJECTED: "Saque recusado",
 };
 
 export default function NotificacoesPage() {

@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import type { Product, User } from "@/lib/types";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { useSaleRepository } from "@/lib/repositories/SaleRepository";
-import { walletRepository } from "@/lib/repositories/WalletRepository";
+import { createClient } from "@/lib/supabase/client";
+import { getCreatorBalance } from "@/lib/supabase/wallet";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatCard } from "@/components/StatCard";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -25,8 +26,8 @@ export default function DashboardOverviewPage() {
       const c = await getCurrentCreatorClient();
       setCreator(c);
       setProducts(await productRepository.findByCreator(c.id));
-      const balance = await walletRepository.findByCreator(c.id);
-      setAvailable(balance?.available ?? 0);
+      const balance = await getCreatorBalance(createClient(), c.id);
+      setAvailable(balance.availableCents / 100);
     })();
   }, []);
 

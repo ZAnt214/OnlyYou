@@ -8,20 +8,19 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import type { Order, Payment, Sale, Entitlement, Withdrawal } from "@/lib/types";
+import type { Order, Payment, Sale, Entitlement } from "@/lib/types";
 import { orders as seedOrders } from "@/lib/data/orders";
 import { payments as seedPayments } from "@/lib/data/payments";
 import { sales as seedSales } from "@/lib/data/sales";
 import { entitlements as seedEntitlements } from "@/lib/data/entitlements";
-import { withdrawals as seedWithdrawals } from "@/lib/data/wallets";
 import { mockCurrentUser } from "@/lib/data/users";
 import { createClient } from "@/lib/supabase/client";
 
 /**
  * MockSessionProvider é o ÚNICO lugar da aplicação que acessa localStorage
  * diretamente. Ele guarda o estado mutável da sessão de mock (pedidos,
- * pagamentos, vendas, entitlements, saques e favoritos) e mantém tudo
- * hidratado entre navegações e reloads durante a sessão do navegador.
+ * pagamentos, vendas, entitlements e favoritos) e mantém tudo hidratado
+ * entre navegações e reloads durante a sessão do navegador.
  *
  * Nenhum componente ou repositório deve chamar localStorage diretamente —
  * sempre passar por useMockSession().
@@ -40,7 +39,6 @@ export interface MockSessionState {
   payments: Payment[];
   sales: Sale[];
   entitlements: Entitlement[];
-  withdrawals: Withdrawal[];
   favorites: string[];
 }
 
@@ -51,7 +49,6 @@ function getInitialState(): MockSessionState {
     payments: seedPayments,
     sales: seedSales,
     entitlements: seedEntitlements,
-    withdrawals: seedWithdrawals,
     favorites: [],
   };
 }
@@ -115,8 +112,6 @@ export interface MockSessionContextValue extends MockSessionState {
   addSale: (sale: Sale) => void;
   addEntitlement: (entitlement: Entitlement) => void;
   updateEntitlement: (id: string, patch: Partial<Entitlement>) => void;
-  addWithdrawal: (withdrawal: Withdrawal) => void;
-  updateWithdrawal: (id: string, patch: Partial<Withdrawal>) => void;
   toggleFavorite: (productId: string) => void;
   resetMockSession: () => void;
 }
@@ -188,13 +183,6 @@ export function MockSessionProvider({ children }: { children: ReactNode }) {
         setStore((s) => ({
           ...s,
           entitlements: s.entitlements.map((e) => (e.id === id ? { ...e, ...patch } : e)),
-        })),
-      addWithdrawal: (withdrawal) =>
-        setStore((s) => ({ ...s, withdrawals: [...s.withdrawals, withdrawal] })),
-      updateWithdrawal: (id, patch) =>
-        setStore((s) => ({
-          ...s,
-          withdrawals: s.withdrawals.map((w) => (w.id === id ? { ...w, ...patch } : w)),
         })),
       toggleFavorite: (productId) =>
         setStore((s) => ({

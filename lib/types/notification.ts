@@ -10,7 +10,9 @@ export type NotificationType =
   | "CUSTOM_SERVICE_COMPLETED"
   | "CUSTOM_SERVICE_EXPIRED"
   | "CUSTOM_REFUND_CREATED"
-  | "CUSTOM_DISPUTE_CREATED";
+  | "CUSTOM_DISPUTE_CREATED"
+  | "WITHDRAWAL_PAID"
+  | "WITHDRAWAL_REJECTED";
 
 export interface Notification {
   id: string;

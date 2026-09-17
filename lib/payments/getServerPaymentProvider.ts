@@ -1,5 +1,5 @@
 import "server-only";
-import { MercadoPagoMarketplaceProvider } from "@/lib/payments/MercadoPagoMarketplaceProvider";
+import { MercadoPagoProvider } from "@/lib/payments/MercadoPagoProvider";
 import { MockPaymentProvider, type PaymentProvider } from "@/lib/payments/PaymentProvider";
 
 /**
@@ -12,11 +12,11 @@ export function getServerPaymentProvider(): PaymentProvider {
   const selected = process.env.PAYMENT_PROVIDER;
   if (selected === "mock") return new MockPaymentProvider();
   if (selected === "mercadopago" || process.env.MERCADOPAGO_ACCESS_TOKEN) {
-    return new MercadoPagoMarketplaceProvider();
+    return new MercadoPagoProvider();
   }
   return new MockPaymentProvider();
 }
 
 export function isRealPaymentProviderActive(): boolean {
-  return getServerPaymentProvider() instanceof MercadoPagoMarketplaceProvider;
+  return getServerPaymentProvider() instanceof MercadoPagoProvider;
 }

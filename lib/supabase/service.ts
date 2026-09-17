@@ -7,10 +7,9 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
  * ser importado por um módulo "use client" — a service role key nunca pode
  * chegar ao navegador.
  *
- * Usado para: ler/escrever tokens OAuth do Mercado Pago
- * (creator_mercadopago_accounts) e escrever confirmações de pagamento
- * (payment_confirmations) a partir do webhook — as únicas rotas que têm
- * autoridade para alterar essas tabelas.
+ * Usado para: escrever confirmações de pagamento (payment_confirmations) a
+ * partir do webhook — a única rota que tem autoridade para alterar essa
+ * tabela.
  */
 export function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
