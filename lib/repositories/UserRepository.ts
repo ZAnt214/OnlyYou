@@ -1,5 +1,30 @@
 import type { User } from "@/lib/types";
 import { allUsers, creators } from "@/lib/data/users";
+import { createClient } from "@/lib/supabase/client";
+import { mapProfileRowToUser, type ProfileRow } from "@/lib/supabase/profile";
+
+/**
+ * Busca criadores reais (roles contém "creator") direto de `profiles` —
+ * RLS permite SELECT público nessa tabela (ver lib/supabase/session.ts), e
+ * createClient() do navegador funciona sem `next/headers` mesmo quando
+ * chamado de um Server Component, então é seguro usar aqui apesar deste
+ * repositório mock ser importado tanto de páginas server quanto de código
+ * client (lib/supabase/current-creator-client.ts). Nunca lança — em caso de
+ * erro/config ausente, a lista real fica vazia e só os mocks aparecem.
+ */
+async function fetchRealCreators(): Promise<User[]> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .contains("roles", ["creator"]);
+    if (error || !data) return [];
+    return (data as ProfileRow[]).map(mapProfileRowToUser);
+  } catch {
+    return [];
+  }
+}
 
 export interface UserRepository {
   findAll(): Promise<User[]>;
@@ -31,7 +56,8 @@ export class MockUserRepository implements UserRepository {
   }
 
   async findCreators(): Promise<User[]> {
-    return creators;
+    const real = await fetchRealCreators();
+    return [...real, ...creators];
   }
 
   /**
