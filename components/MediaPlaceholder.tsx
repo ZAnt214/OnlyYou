@@ -24,11 +24,14 @@ export function MediaPlaceholder({
   kind = "image",
   className = "",
   label,
+  flush = false,
 }: {
   seed: string;
   kind?: "image" | "video" | "avatar";
   className?: string;
   label?: string;
+  /** Sem borda e sem cantos próprios — para mídia que preenche um card. */
+  flush?: boolean;
 }) {
   const hash = hashSeed(seed);
   const tone = TONES[hash % TONES.length];
@@ -36,7 +39,9 @@ export function MediaPlaceholder({
   if (kind === "avatar") {
     return (
       <div
-        className={`flex items-center justify-center rounded-full border border-(--color-border) ${tone} ${className}`}
+        className={`flex items-center justify-center rounded-full ${
+          flush ? "" : "border border-(--color-border)"
+        } ${tone} ${className}`}
         aria-label={label ?? "Avatar"}
       >
         <User className="h-1/2 w-1/2 text-(--color-text-subtle)" strokeWidth={1.5} />
@@ -46,7 +51,9 @@ export function MediaPlaceholder({
 
   return (
     <div
-      className={`relative flex items-center justify-center overflow-hidden rounded-md border border-(--color-border) ${tone} ${className}`}
+      className={`relative flex items-center justify-center overflow-hidden ${
+        flush ? "" : "rounded-md border border-(--color-border)"
+      } ${tone} ${className}`}
       aria-label={label ?? "Prévia de conteúdo"}
     >
       {kind === "video" ? (

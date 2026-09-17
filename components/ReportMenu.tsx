@@ -4,7 +4,13 @@ import { useState } from "react";
 import { MoreHorizontal, Flag } from "lucide-react";
 import { REPORT_REASON_LABELS, type ReportReason } from "@/lib/types";
 
-export function ReportMenu({ onReport }: { onReport?: (reason: ReportReason) => void }) {
+export function ReportMenu({
+  onReport,
+  bare = false,
+}: {
+  onReport?: (reason: ReportReason) => void;
+  bare?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -13,7 +19,11 @@ export function ReportMenu({ onReport }: { onReport?: (reason: ReportReason) => 
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-8 w-8 items-center justify-center rounded-md border border-(--color-border) text-(--color-text-muted) hover:bg-(--color-surface)"
+        className={
+          bare
+            ? "flex h-8 w-8 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-text)"
+            : "flex h-8 w-8 items-center justify-center rounded-md border border-(--color-border) text-(--color-text-muted) hover:bg-(--color-surface)"
+        }
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Mais opções"

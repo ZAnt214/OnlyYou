@@ -1,8 +1,11 @@
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { ProductCard } from "@/components/ProductCard";
-import { CreatorCard } from "@/components/CreatorCard";
+import { FeedPostCard } from "@/components/FeedPostCard";
+import { TopCreatorCard } from "@/components/TopCreatorCard";
+import { BecomeCreatorBanner } from "@/components/BecomeCreatorBanner";
 
 export default async function HomePage() {
   const [products, creators] = await Promise.all([
@@ -11,51 +14,43 @@ export default async function HomePage() {
   ]);
 
   const approved = products.filter((p) => p.status === "approved");
-  const nameById = new Map(creators.map((c) => [c.id, c.displayName]));
+  const creatorById = new Map(creators.map((c) => [c.id, c]));
 
-  const novidades = [...approved].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).slice(0, 8);
-  const maisVendidos = [...approved].sort((a, b) => b.salesCount - a.salesCount).slice(0, 8);
-  const ofertas = approved.filter((p) => p.promoPrice != null).slice(0, 8);
-  const emDestaque = creators
-    .filter((c) => c.creatorProfile?.verificationStatus === "verified")
+  const feed = [...approved].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  const maisVendidos = [...approved].sort((a, b) => b.salesCount - a.salesCount).slice(0, 6);
+  const ofertas = approved.filter((p) => p.promoPrice != null).slice(0, 6);
+  const topCreators = [...creators]
+    .sort((a, b) => (b.creatorProfile?.followers ?? 0) - (a.creatorProfile?.followers ?? 0))
     .slice(0, 6);
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-8">
-      <section className="flex flex-col gap-2">
-        <h1 className="text-xl font-semibold text-(--color-text)">Descubra novos conteúdos</h1>
-        <p className="text-sm text-(--color-text-muted)">
-          Escolha o conteúdo que deseja comprar. Publicado por criadores que definem o próprio preço.
-        </p>
-        <Row>
-          {approved.slice(0, 10).map((p) => (
-            <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
-          ))}
-        </Row>
-      </section>
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-4">
+      <BecomeCreatorBanner href="/dashboard" />
 
-      <Section title="Novidades" href="/descobrir">
+      {feed.slice(0, 2).map((p) => (
+        <FeedPostCard key={p.id} product={p} creator={creatorById.get(p.creatorId)} />
+      ))}
+
+      <Section title="Top Creators" href="/criadores">
         <Row>
-          {novidades.map((p) => (
-            <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
+          {topCreators.map((c, i) => (
+            <TopCreatorCard key={c.id} creator={c} rank={i + 1} />
           ))}
         </Row>
       </Section>
+
+      {feed.slice(2, 6).map((p) => (
+        <FeedPostCard key={p.id} product={p} creator={creatorById.get(p.creatorId)} />
+      ))}
 
       <Section title="Mais vendidos" href="/descobrir?sort=vendidos">
         <Row>
           {maisVendidos.map((p) => (
-            <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
-          ))}
-        </Row>
-      </Section>
-
-      <Section title="Criadores em destaque" href="/criadores">
-        <Row>
-          {emDestaque.map((c) => (
-            <div key={c.id} className="w-40">
-              <CreatorCard creator={c} />
-            </div>
+            <ProductCard
+              key={p.id}
+              product={p}
+              creatorName={creatorById.get(p.creatorId)?.displayName}
+            />
           ))}
         </Row>
       </Section>
@@ -64,11 +59,19 @@ export default async function HomePage() {
         <Section title="Ofertas" href="/descobrir?ofertas=1">
           <Row>
             {ofertas.map((p) => (
-              <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                creatorName={creatorById.get(p.creatorId)?.displayName}
+              />
             ))}
           </Row>
         </Section>
       ) : null}
+
+      {feed.slice(6).map((p) => (
+        <FeedPostCard key={p.id} product={p} creator={creatorById.get(p.creatorId)} />
+      ))}
     </div>
   );
 }
@@ -83,13 +86,11 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-(--color-text)">{title}</h2>
-        <Link href={href} className="text-sm text-(--color-text-muted) hover:text-(--color-accent)">
-          Ver produtos
-        </Link>
-      </div>
+    <section className="flex flex-col gap-3 py-2">
+      <Link href={href} className="flex items-center justify-between gap-2">
+        <h2 className="text-lg font-bold text-(--color-text)">{title}</h2>
+        <ChevronRight size={20} strokeWidth={2} className="text-(--color-text-muted)" />
+      </Link>
       {children}
     </section>
   );
@@ -97,7 +98,7 @@ function Section({
 
 function Row({ children }: { children: React.ReactNode }) {
   return (
-    <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 md:grid-cols-4 lg:grid-cols-5 [&>*]:w-40 sm:[&>*]:w-auto">
+    <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [&>*]:w-44 [&>*]:shrink-0 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:[&>*]:w-auto">
       {children}
     </div>
   );
