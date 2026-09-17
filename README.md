@@ -281,7 +281,7 @@ pagamento). Nenhum outro módulo deve hardcodar `0.8`/`0.2`.
 ## Deploy no Vercel
 
 1. No painel da Vercel, escolha **Import Git Repository** e selecione este repositório
-   (`ZAnt214/OnlyYou`).
+   (`ZAnt214/OnlyYou` — o repositório mantém o nome antigo).
 2. Nenhuma configuração adicional é necessária — é um projeto Next.js padrão (zero-config).
 3. `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (ver seção
    "Autenticação (Supabase)" abaixo) precisam ser configuradas em **Project Settings →

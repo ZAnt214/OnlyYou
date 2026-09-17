@@ -1,53 +1,44 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #ffffff;
-  --color-surface: #f7f7f7;
-  --color-surface-2: #efefef;
-  --color-border: #e0e0e0;
-  --color-text: #141414;
-  --color-text-muted: #5c5c5c;
-  --color-text-subtle: #8a8a8a;
-  --color-accent: #6b1e2b;
-  --color-accent-hover: #591723;
-  --color-accent-soft: #f4e7e9;
-  --color-success: #2f6b3a;
-  --color-warning: #8a6d1a;
-  --color-danger: #a3272c;
+  --color-bg: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #eceef2;
+  --color-border: #e4e7ec;
+  --color-text: #16181d;
+  --color-text-muted: #5f6570;
+  --color-text-subtle: #8b919c;
+  --color-accent: #f5821f;
+  --color-accent-hover: #dd6f10;
+  --color-accent-soft: #fdead6;
+  --color-success: #1f9d55;
+  --color-warning: #b58a1a;
+  --color-danger: #c0392b;
+  --color-verified: #3b82f6;
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-bg: #0d0d0d;
-    --color-surface: #161616;
-    --color-surface-2: #1e1e1e;
-    --color-border: #2c2c2c;
-    --color-text: #f2f2f2;
-    --color-text-muted: #a6a6a6;
-    --color-text-subtle: #7a7a7a;
-    --color-accent: #8a2c3b;
-    --color-accent-hover: #a3374a;
-    --color-accent-soft: #2a1417;
-    --color-success: #4c9a5b;
-    --color-warning: #c9a33b;
-    --color-danger: #c9484e;
-  }
-}
-
+/*
+ * O Jobê não segue o tema claro/escuro do sistema operacional: o app sempre
+ * abre no visual claro, e a paleta escura só entra via `data-theme="dark"`
+ * no <html>, setado por um toggle manual (ainda não implementado na UI).
+ */
 :root[data-theme="dark"] {
-  --color-bg: #0d0d0d;
-  --color-surface: #161616;
-  --color-surface-2: #1e1e1e;
-  --color-border: #2c2c2c;
-  --color-text: #f2f2f2;
-  --color-text-muted: #a6a6a6;
-  --color-text-subtle: #7a7a7a;
-  --color-accent: #8a2c3b;
-  --color-accent-hover: #a3374a;
-  --color-accent-soft: #2a1417;
+  --color-bg: #101216;
+  --color-surface: #181b21;
+  --color-surface-2: #21252d;
+  --color-border: #2e333d;
+  --color-text: #eceef2;
+  --color-text-muted: #a2a9b6;
+  --color-text-subtle: #737a87;
+  --color-accent: #f5821f;
+  --color-accent-hover: #ff9a40;
+  --color-accent-soft: #3a2712;
   --color-success: #4c9a5b;
   --color-warning: #c9a33b;
   --color-danger: #c9484e;
+  --color-verified: #5b9bf7;
 }
 
 @theme inline {
@@ -64,7 +55,17 @@
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);
+  --color-verified: var(--color-verified);
+  --radius-card: var(--radius-card);
+  --radius-pill: var(--radius-pill);
   --font-sans: var(--font-inter);
+
+  /* Softer, more rounded scale (Privacy-inspired) — applies to every
+     existing and future `rounded-*` utility across the app. */
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
 }
 
 body {

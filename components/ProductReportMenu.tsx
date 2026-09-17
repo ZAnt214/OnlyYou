@@ -5,11 +5,12 @@ import { reportService } from "@/lib/moderation/ReportService";
 import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
 import type { ReportReason } from "@/lib/types";
 
-export function ProductReportMenu({ productId }: { productId: string }) {
+export function ProductReportMenu({ productId, bare = false }: { productId: string; bare?: boolean }) {
   const session = useMockSession();
 
   return (
     <ReportMenu
+      bare={bare}
       onReport={(reason: ReportReason) => {
         reportService.fileReport({
           reporterId: session.currentUserId,

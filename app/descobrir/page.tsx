@@ -2,7 +2,9 @@ import { productRepository } from "@/lib/repositories/ProductRepository";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { categoryRepository } from "@/lib/repositories/CategoryRepository";
 import { ProductCard } from "@/components/ProductCard";
+import { EmptyState } from "@/components/EmptyState";
 import Link from "next/link";
+import { Search } from "lucide-react";
 
 const SORTS = [
   { value: "", label: "Relevância" },
@@ -49,89 +51,87 @@ export default async function DescobrirPage({
   }
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-xl font-semibold text-(--color-text)">Descobrir</h1>
-        <form className="flex max-w-md items-center gap-2">
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-4">
+      <form className="flex items-center gap-2">
+        <div className="flex flex-1 items-center gap-2 rounded-(--radius-pill) bg-(--color-surface-2) px-4 py-2.5">
+          <Search size={16} strokeWidth={1.5} className="shrink-0 text-(--color-text-subtle)" />
           <input
             name="q"
             defaultValue={q}
-            placeholder="Buscar produtos, tags ou descrições"
-            className="w-full rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            placeholder="Buscar conteúdos, tags ou criadores"
+            className="w-full bg-transparent text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none"
           />
-          <button
-            type="submit"
-            className="rounded-md border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface)"
-          >
-            Buscar
-          </button>
-        </form>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        <Link
-          href={buildQuery({ categoria: "" })}
-          className={`rounded-md border px-3 py-1.5 text-sm ${
-            !categoria
-              ? "border-(--color-accent) text-(--color-accent)"
-              : "border-(--color-border) text-(--color-text-muted)"
-          }`}
+        </div>
+        <button
+          type="submit"
+          className="rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
         >
+          Buscar
+        </button>
+      </form>
+
+      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+        <Chip href={buildQuery({ categoria: "" })} active={!categoria}>
           Todas
-        </Link>
+        </Chip>
         {categories.map((c) => (
-          <Link
+          <Chip
             key={c.id}
             href={buildQuery({ categoria: c.slug })}
-            className={`rounded-md border px-3 py-1.5 text-sm ${
-              categoria === c.slug
-                ? "border-(--color-accent) text-(--color-accent)"
-                : "border-(--color-border) text-(--color-text-muted)"
-            }`}
+            active={categoria === c.slug}
           >
             {c.name}
-          </Link>
+          </Chip>
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 border-y border-(--color-border) py-3 text-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-(--color-text-subtle)">Ordenar:</span>
-          {SORTS.map((s) => (
-            <Link
-              key={s.value}
-              href={buildQuery({ sort: s.value })}
-              className={
-                sort === s.value
-                  ? "font-medium text-(--color-text)"
-                  : "text-(--color-text-muted) hover:text-(--color-text)"
-              }
-            >
-              {s.label}
-            </Link>
-          ))}
-        </div>
-        <Link
-          href={buildQuery({ ofertas: ofertas ? "" : "1" })}
-          className={`ml-auto rounded-md border px-3 py-1.5 ${
-            ofertas
-              ? "border-(--color-accent) text-(--color-accent)"
-              : "border-(--color-border) text-(--color-text-muted)"
-          }`}
-        >
+      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
+        {SORTS.map((s) => (
+          <Chip key={s.value} href={buildQuery({ sort: s.value })} active={sort === s.value}>
+            {s.label}
+          </Chip>
+        ))}
+        <Chip href={buildQuery({ ofertas: ofertas ? "" : "1" })} active={Boolean(ofertas)}>
           Só ofertas
-        </Link>
+        </Chip>
       </div>
 
       {products.length === 0 ? (
-        <p className="text-sm text-(--color-text-muted)">Nenhum produto encontrado.</p>
+        <EmptyState
+          icon={Search}
+          title="Nada encontrado"
+          description="Tente outra busca ou remova os filtros aplicados."
+        />
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3">
           {products.map((p) => (
             <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+function Chip({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`shrink-0 whitespace-nowrap rounded-(--radius-pill) border px-4 py-1.5 text-sm ${
+        active
+          ? "border-transparent bg-(--color-accent-soft) font-medium text-(--color-accent)"
+          : "border-(--color-border) bg-(--color-surface) text-(--color-text-muted) hover:bg-(--color-surface-2)"
+      }`}
+    >
+      {children}
+    </Link>
   );
 }

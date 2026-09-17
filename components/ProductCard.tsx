@@ -8,13 +8,14 @@ export function ProductCard({ product, creatorName }: { product: Product; creato
   return (
     <Link
       href={`/produto/${product.id}`}
-      className="group flex w-full flex-shrink-0 flex-col overflow-hidden rounded-lg border border-(--color-border) bg-(--color-bg) transition-colors hover:border-(--color-accent)"
+      className="group flex w-full flex-shrink-0 flex-col overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) transition-colors hover:border-(--color-accent)"
     >
       <MediaPlaceholder
         seed={product.id}
         kind={product.type === "video" ? "video" : "image"}
-        className="aspect-[4/3] w-full"
+        className="aspect-square w-full"
         label={product.title}
+        flush
       />
       <div className="flex flex-1 flex-col gap-2 p-3">
         {creatorName ? (
