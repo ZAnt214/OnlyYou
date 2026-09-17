@@ -553,6 +553,7 @@ export function ConversationView({
             />
           ))
         )}
+        {otherTyping ? <TypingBubble /> : null}
       </div>
 
       {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
@@ -726,10 +727,7 @@ export function ConversationView({
       {isClosed ? (
         <p className="text-center text-xs text-(--color-text-subtle)">Esta conversa está encerrada.</p>
       ) : (
-        <form onSubmit={handleSend} className="flex flex-col gap-1">
-          {otherTyping ? (
-            <p className="px-1 text-xs text-(--color-text-subtle)">{counterpartName} está digitando…</p>
-          ) : null}
+        <form onSubmit={handleSend}>
           <div className="flex items-center gap-2">
             <input
               value={text}
@@ -748,6 +746,16 @@ export function ConversationView({
           </div>
         </form>
       )}
+    </div>
+  );
+}
+
+function TypingBubble() {
+  return (
+    <div className="flex items-center gap-1 self-start rounded-md bg-(--color-surface) px-3 py-2.5">
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-(--color-text-subtle) [animation-delay:-0.3s]" />
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-(--color-text-subtle) [animation-delay:-0.15s]" />
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-(--color-text-subtle)" />
     </div>
   );
 }
@@ -781,22 +789,29 @@ function MessageItem({
 
   if (message.type === "proposal" && proposal) {
     return (
-      <div className="flex flex-col gap-2 self-center rounded-md border border-(--color-accent) bg-(--color-surface) p-4 text-sm">
+      <div className="flex w-full max-w-sm flex-col gap-3 self-center rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
         <div className="flex items-center justify-between gap-3">
-          <span className="font-medium text-(--color-text)">{proposal.serviceType}</span>
+          <span className="text-xs font-medium uppercase tracking-wide text-(--color-text-subtle)">
+            Proposta
+          </span>
           <StatusBadge status={proposal.status} />
         </div>
-        <p className="text-(--color-text-muted)">{proposal.description}</p>
-        <div className="flex items-center gap-4 text-(--color-text)">
-          <span className="font-medium">{formatBRLFromCents(proposal.priceCents)}</span>
-          <span className="text-(--color-text-muted)">Prazo: {proposal.deliveryDays} dias</span>
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-semibold text-(--color-text)">{proposal.serviceType}</span>
+          <p className="text-sm text-(--color-text-muted)">{proposal.description}</p>
+        </div>
+        <div className="flex items-end justify-between rounded-xl bg-(--color-surface-2) px-3 py-2">
+          <span className="text-lg font-bold text-(--color-accent)">
+            {formatBRLFromCents(proposal.priceCents)}
+          </span>
+          <span className="text-xs text-(--color-text-muted)">Prazo: {proposal.deliveryDays} dias</span>
         </div>
         {isRequester && proposal.status === "sent" ? (
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => onAccept(proposal.id)}
-              className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
             >
               <CheckCircle2 size={14} strokeWidth={1.5} />
               Aceitar
@@ -804,7 +819,7 @@ function MessageItem({
             <button
               type="button"
               onClick={() => onReject(proposal.id)}
-              className="flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-1.5 text-sm text-(--color-text) hover:bg-(--color-bg)"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface-2)"
             >
               <XCircle size={14} strokeWidth={1.5} />
               Recusar
@@ -812,15 +827,15 @@ function MessageItem({
           </div>
         ) : null}
         {isRequester && proposal.status === "accepted" ? (
-          <div className="flex flex-col gap-2 border-t border-(--color-border) pt-2">
-            <p className="text-(--color-text-muted)">
+          <div className="flex flex-col gap-2 border-t border-(--color-border) pt-3">
+            <p className="text-sm text-(--color-text-muted)">
               Proposta aceita. Para iniciar o serviço, conclua o pagamento.
             </p>
             <button
               type="button"
               disabled={busy}
               onClick={() => onPay(proposal.id)}
-              className="w-fit rounded-md bg-(--color-accent) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+              className="w-full rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
             >
               Pagar proposta
             </button>
