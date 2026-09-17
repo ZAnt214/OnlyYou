@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { ConversationView } from "@/components/ConversationView";
 import { getCurrentUser } from "@/lib/supabase/session";
 
@@ -10,10 +9,9 @@ export default async function DashboardCustomRequestConversationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  // Ver comentário em pedidos-personalizados/page.tsx — o redirecionamento
-  // de não-criadores já acontece em app/dashboard/layout.tsx.
+  // Ver comentário em pedidos-personalizados/page.tsx — o fluxo agora
+  // exige conta real, sem fallback mock.
   const realUser = await getCurrentUser();
-  const creator = realUser ?? (await userRepository.findMockCurrentCreator());
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
@@ -24,7 +22,7 @@ export default async function DashboardCustomRequestConversationPage({
         <ArrowLeft size={14} strokeWidth={1.5} />
         Voltar
       </Link>
-      <ConversationView customRequestId={id} actingUserId={creator.id} />
+      <ConversationView customRequestId={id} actingUserId={realUser?.id ?? null} />
     </div>
   );
 }

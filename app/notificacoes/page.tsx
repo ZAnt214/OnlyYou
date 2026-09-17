@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bell } from "lucide-react";
-import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
-import { useCustomOrderServices } from "@/lib/services/useCustomOrderServices";
+import { Bell, Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
+import { listNotificationsForUser, markNotificationRead } from "@/lib/supabase/customRequests";
+import type { Notification } from "@/lib/types";
 
 const TYPE_LABELS: Record<string, string> = {
   CUSTOM_REQUEST_CREATED: "Novo pedido",
@@ -21,9 +24,20 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default function NotificacoesPage() {
-  const session = useMockSession();
-  const { notificationService } = useCustomOrderServices();
-  const notifications = notificationService.listForUser(session.currentUserId);
+  const { userId, loading: loadingUser } = useCurrentUserId();
+  const [notifications, setNotifications] = useState<Notification[] | null>(null);
+
+  useEffect(() => {
+    if (!userId) return;
+    const supabase = createClient();
+    listNotificationsForUser(supabase, userId).then(setNotifications);
+  }, [userId]);
+
+  async function handleMarkRead(id: string) {
+    const supabase = createClient();
+    await markNotificationRead(supabase, id);
+    setNotifications((prev) => prev?.map((n) => (n.id === id ? { ...n, read: true } : n)) ?? null);
+  }
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8">
@@ -32,7 +46,24 @@ export default function NotificacoesPage() {
         <h1 className="text-xl font-semibold text-(--color-text)">Notificações</h1>
       </div>
 
-      {notifications.length === 0 ? (
+      {loadingUser ? (
+        <div className="flex items-center justify-center gap-2 py-16 text-sm text-(--color-text-muted)">
+          <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
+          Carregando…
+        </div>
+      ) : !userId ? (
+        <p className="text-sm text-(--color-text-muted)">
+          <Link href="/entrar" className="text-(--color-accent) hover:underline">
+            Entre na sua conta
+          </Link>{" "}
+          para ver suas notificações.
+        </p>
+      ) : notifications === null ? (
+        <div className="flex items-center justify-center gap-2 py-16 text-sm text-(--color-text-muted)">
+          <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
+          Carregando…
+        </div>
+      ) : notifications.length === 0 ? (
         <p className="text-sm text-(--color-text-muted)">Nenhuma notificação ainda.</p>
       ) : (
         <div className="flex flex-col gap-2">
@@ -54,7 +85,7 @@ export default function NotificacoesPage() {
                 {n.linkHref ? (
                   <Link
                     href={n.linkHref}
-                    onClick={() => notificationService.markRead(n.id)}
+                    onClick={() => handleMarkRead(n.id)}
                     className="w-fit text-xs font-medium text-(--color-accent) hover:underline"
                   >
                     Ver pedido
@@ -63,7 +94,7 @@ export default function NotificacoesPage() {
                 {!n.read ? (
                   <button
                     type="button"
-                    onClick={() => notificationService.markRead(n.id)}
+                    onClick={() => handleMarkRead(n.id)}
                     className="text-xs text-(--color-text-subtle) hover:text-(--color-text)"
                   >
                     Marcar como lida

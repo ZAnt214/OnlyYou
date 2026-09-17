@@ -1,10 +1,10 @@
 "use client";
 
-import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
+import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
 import { CustomRequestsList } from "@/components/CustomRequestsList";
 
 export default function MeusPedidosPage() {
-  const session = useMockSession();
+  const { userId } = useCurrentUserId();
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-4">
@@ -14,7 +14,7 @@ export default function MeusPedidosPage() {
           Suas conversas e pedidos personalizados com profissionais da plataforma.
         </p>
       </div>
-      <CustomRequestsList userId={session.currentUserId} role="requester" />
+      <CustomRequestsList userId={userId} role="requester" />
     </div>
   );
 }

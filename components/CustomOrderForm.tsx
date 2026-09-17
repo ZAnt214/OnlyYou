@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { MessageSquarePlus } from "lucide-react";
 import type { User } from "@/lib/types";
-import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
-import { useCustomOrderServices } from "@/lib/services/useCustomOrderServices";
+import { createClient } from "@/lib/supabase/client";
+import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
+import { createCustomRequest } from "@/lib/supabase/customRequests";
 import { isEligibleForCustomRequests } from "@/lib/services/CustomRequestService";
 
 export function CustomOrderForm({ creator }: { creator: User }) {
   const router = useRouter();
-  const session = useMockSession();
-  const { customRequestService } = useCustomOrderServices();
+  const { userId, loading } = useCurrentUserId();
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState("");
   const [sent, setSent] = useState<string | null>(null);
@@ -19,18 +20,31 @@ export function CustomOrderForm({ creator }: { creator: User }) {
   const [error, setError] = useState<string | null>(null);
 
   // A UI esconde o botão quando o criador não está elegível, mas
-  // CustomRequestService.createRequest() faz a mesma checagem — a UI nunca
-  // é a única barreira.
+  // create_custom_request() faz a mesma checagem no banco — a UI nunca é a
+  // única barreira.
   if (!isEligibleForCustomRequests(creator)) return null;
+  if (loading) return null;
+
+  if (!userId) {
+    return (
+      <Link
+        href="/entrar"
+        className="flex items-center gap-2 rounded-md border border-(--color-border) px-3 py-1.5 text-sm text-(--color-text) hover:bg-(--color-surface)"
+      >
+        <MessageSquarePlus size={14} strokeWidth={1.5} />
+        Entre para pedir personalizado
+      </Link>
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
     try {
-      const { request } = customRequestService.createRequest({
-        requesterId: session.currentUserId,
-        creator,
+      const supabase = createClient();
+      const request = await createCustomRequest(supabase, {
+        creatorId: creator.id,
         description,
       });
       setSent(request.id);

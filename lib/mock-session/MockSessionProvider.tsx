@@ -8,30 +8,13 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import type {
-  Order,
-  Payment,
-  Sale,
-  Entitlement,
-  Withdrawal,
-  CustomRequest,
-  Conversation,
-  Message,
-  CustomProposal,
-  CustomServiceOrder,
-  Notification,
-} from "@/lib/types";
+import type { Order, Payment, Sale, Entitlement, Withdrawal } from "@/lib/types";
 import { orders as seedOrders } from "@/lib/data/orders";
 import { payments as seedPayments } from "@/lib/data/payments";
 import { sales as seedSales } from "@/lib/data/sales";
 import { entitlements as seedEntitlements } from "@/lib/data/entitlements";
 import { withdrawals as seedWithdrawals } from "@/lib/data/wallets";
 import { mockCurrentUser } from "@/lib/data/users";
-import { customRequests as seedCustomRequests } from "@/lib/data/custom-requests";
-import { conversations as seedConversations, messages as seedMessages } from "@/lib/data/conversations";
-import { customProposals as seedCustomProposals } from "@/lib/data/custom-proposals";
-import { customServiceOrders as seedCustomServiceOrders } from "@/lib/data/custom-service-orders";
-import { notifications as seedNotifications } from "@/lib/data/notifications";
 import { createClient } from "@/lib/supabase/client";
 
 /**
@@ -59,12 +42,6 @@ export interface MockSessionState {
   entitlements: Entitlement[];
   withdrawals: Withdrawal[];
   favorites: string[];
-  customRequests: CustomRequest[];
-  conversations: Conversation[];
-  messages: Message[];
-  customProposals: CustomProposal[];
-  customServiceOrders: CustomServiceOrder[];
-  notifications: Notification[];
 }
 
 function getInitialState(): MockSessionState {
@@ -76,12 +53,6 @@ function getInitialState(): MockSessionState {
     entitlements: seedEntitlements,
     withdrawals: seedWithdrawals,
     favorites: [],
-    customRequests: seedCustomRequests,
-    conversations: seedConversations,
-    messages: seedMessages,
-    customProposals: seedCustomProposals,
-    customServiceOrders: seedCustomServiceOrders,
-    notifications: seedNotifications,
   };
 }
 
@@ -147,18 +118,6 @@ export interface MockSessionContextValue extends MockSessionState {
   addWithdrawal: (withdrawal: Withdrawal) => void;
   updateWithdrawal: (id: string, patch: Partial<Withdrawal>) => void;
   toggleFavorite: (productId: string) => void;
-  addCustomRequest: (request: CustomRequest) => void;
-  updateCustomRequest: (id: string, patch: Partial<CustomRequest>) => void;
-  addConversation: (conversation: Conversation) => void;
-  updateConversation: (id: string, patch: Partial<Conversation>) => void;
-  addMessage: (message: Message) => void;
-  updateMessage: (id: string, patch: Partial<Message>) => void;
-  addCustomProposal: (proposal: CustomProposal) => void;
-  updateCustomProposal: (id: string, patch: Partial<CustomProposal>) => void;
-  addCustomServiceOrder: (order: CustomServiceOrder) => void;
-  updateCustomServiceOrder: (id: string, patch: Partial<CustomServiceOrder>) => void;
-  addNotification: (notification: Notification) => void;
-  updateNotification: (id: string, patch: Partial<Notification>) => void;
   resetMockSession: () => void;
 }
 
@@ -243,47 +202,6 @@ export function MockSessionProvider({ children }: { children: ReactNode }) {
           favorites: s.favorites.includes(productId)
             ? s.favorites.filter((id) => id !== productId)
             : [...s.favorites, productId],
-        })),
-      addCustomRequest: (request) =>
-        setStore((s) => ({ ...s, customRequests: [...s.customRequests, request] })),
-      updateCustomRequest: (id, patch) =>
-        setStore((s) => ({
-          ...s,
-          customRequests: s.customRequests.map((r) => (r.id === id ? { ...r, ...patch } : r)),
-        })),
-      addConversation: (conversation) =>
-        setStore((s) => ({ ...s, conversations: [...s.conversations, conversation] })),
-      updateConversation: (id, patch) =>
-        setStore((s) => ({
-          ...s,
-          conversations: s.conversations.map((c) => (c.id === id ? { ...c, ...patch } : c)),
-        })),
-      addMessage: (message) => setStore((s) => ({ ...s, messages: [...s.messages, message] })),
-      updateMessage: (id, patch) =>
-        setStore((s) => ({
-          ...s,
-          messages: s.messages.map((m) => (m.id === id ? { ...m, ...patch } : m)),
-        })),
-      addCustomProposal: (proposal) =>
-        setStore((s) => ({ ...s, customProposals: [...s.customProposals, proposal] })),
-      updateCustomProposal: (id, patch) =>
-        setStore((s) => ({
-          ...s,
-          customProposals: s.customProposals.map((p) => (p.id === id ? { ...p, ...patch } : p)),
-        })),
-      addCustomServiceOrder: (order) =>
-        setStore((s) => ({ ...s, customServiceOrders: [...s.customServiceOrders, order] })),
-      updateCustomServiceOrder: (id, patch) =>
-        setStore((s) => ({
-          ...s,
-          customServiceOrders: s.customServiceOrders.map((o) => (o.id === id ? { ...o, ...patch } : o)),
-        })),
-      addNotification: (notification) =>
-        setStore((s) => ({ ...s, notifications: [...s.notifications, notification] })),
-      updateNotification: (id, patch) =>
-        setStore((s) => ({
-          ...s,
-          notifications: s.notifications.map((n) => (n.id === id ? { ...n, ...patch } : n)),
         })),
       resetMockSession: () => setStore(() => getInitialState()),
     }),

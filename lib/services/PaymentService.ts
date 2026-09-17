@@ -42,25 +42,17 @@ export class PaymentService {
   }
 
   /**
-   * Pedidos personalizados: o valor e o criador vêm da CustomProposal aceita,
-   * que hoje só existe no mock-session do navegador (não há backend real
-   * para propostas ainda) — por isso chegam como parâmetros em vez de serem
-   * resolvidos no servidor a partir de um id, diferente do checkout de
-   * produto. Limitação pré-existente do fluxo de pedidos personalizados,
-   * não uma regressão desta mudança.
+   * Pedidos personalizados: orderId é o id de um custom_service_orders já
+   * criado (via create_custom_service_order, ver lib/supabase/customRequests.ts)
+   * a partir de uma proposta aceita. O servidor resolve valor/criador a
+   * partir dessa linha (RLS garante que é do próprio solicitante) — nunca
+   * confia em nada vindo do cliente aqui.
    */
-  async startCustomServiceCheckout(
-    order: Order,
-    method: PaymentMethod,
-    creatorId: string,
-  ): Promise<Payment> {
+  async startCustomServiceCheckout(order: Order, method: PaymentMethod): Promise<Payment> {
     const result = await this.postCheckout({
       orderId: order.id,
       method,
       kind: "custom_service",
-      creatorId,
-      amount: order.total,
-      description: order.items[0]?.productTitle ?? `Pedido ${order.id}`,
     });
 
     return this.savePaymentFromCheckout(order, method, result);

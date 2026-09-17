@@ -3,12 +3,12 @@
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
+import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
 import { ConversationView } from "@/components/ConversationView";
 
 export default function MeuPedidoConversationPage() {
   const params = useParams<{ id: string }>();
-  const session = useMockSession();
+  const { userId } = useCurrentUserId();
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-8">
@@ -19,7 +19,7 @@ export default function MeuPedidoConversationPage() {
         <ArrowLeft size={14} strokeWidth={1.5} />
         Voltar
       </Link>
-      <ConversationView customRequestId={params.id} actingUserId={session.currentUserId} />
+      <ConversationView customRequestId={params.id} actingUserId={userId} />
     </div>
   );
 }

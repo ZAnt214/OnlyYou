@@ -1,18 +1,28 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useConversationRepository } from "@/lib/repositories/ConversationRepository";
-import { useCustomRequestRepository } from "@/lib/repositories/CustomRequestRepository";
-import { useMessageRepository } from "@/lib/repositories/MessageRepository";
-import { useCustomProposalRepository } from "@/lib/repositories/CustomProposalRepository";
-import { useCustomServiceOrderRepository } from "@/lib/repositories/CustomServiceOrderRepository";
-import { messageAttachmentRepository } from "@/lib/repositories/MessageAttachmentRepository";
+import { Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import {
+  getCustomRequestById,
+  listMessagesForConversation,
+  listProposalsForRequest,
+  getCustomServiceOrderByRequest,
+  listAttachmentsForMessage,
+} from "@/lib/supabase/customRequests";
 import { reportRepository } from "@/lib/repositories/ReportRepository";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { auditLogRepository } from "@/lib/security/AuditLogRepository";
 import { newId } from "@/lib/utils/id";
 import { StatusBadge } from "@/components/StatusBadge";
-import type { Report, User } from "@/lib/types";
+import type {
+  Report,
+  CustomRequest,
+  Conversation,
+  Message,
+  MessageAttachment,
+  CustomProposal,
+  CustomServiceOrder,
+} from "@/lib/types";
 
 function formatBRLFromCents(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -29,57 +39,102 @@ export function AdminConversationDetail({
   customRequestId: string;
   adminId: string;
 }) {
-  const conversationRepo = useConversationRepository();
-  const customRequestRepo = useCustomRequestRepository();
-  const messageRepo = useMessageRepository();
-  const proposalRepo = useCustomProposalRepository();
-  const customServiceOrderRepo = useCustomServiceOrderRepository();
+  const [request, setRequest] = useState<CustomRequest | null>(null);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [proposals, setProposals] = useState<CustomProposal[]>([]);
+  const [customServiceOrder, setCustomServiceOrder] = useState<CustomServiceOrder | null>(null);
+  const [attachmentsByMessage, setAttachmentsByMessage] = useState<Record<string, MessageAttachment[]>>({});
+  const [names, setNames] = useState<{ requester: string; creator: string }>({ requester: "", creator: "" });
   const [reports, setReports] = useState<Report[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const loggedRef = useRef(false);
 
-  const request = customRequestRepo.findById(customRequestId);
-  const conversation = request ? conversationRepo.findByCustomRequest(request.id) : null;
-
   useEffect(() => {
-    reportRepository.findAll().then(setReports);
-    userRepository.findAll().then(setUsers);
-  }, []);
+    const supabase = createClient();
+    async function load() {
+      const req = await getCustomRequestById(supabase, customRequestId);
+      if (!req) {
+        setLoading(false);
+        return;
+      }
+      const { data: convoRow } = await supabase
+        .from("conversations")
+        .select("*")
+        .eq("custom_request_id", req.id)
+        .single();
+      if (!convoRow) {
+        setLoading(false);
+        return;
+      }
+      const convo: Conversation = {
+        id: convoRow.id,
+        customRequestId: convoRow.custom_request_id,
+        status: convoRow.status,
+        createdAt: convoRow.created_at,
+        updatedAt: convoRow.updated_at,
+        lastMessageAt: convoRow.last_message_at,
+      };
 
-  // Toda visualização de uma conversa pela administração fica registrada em
-  // AuditLog (action: "view_conversation"). Como as páginas /admin/* são
-  // server components mas os dados de conversa são session-backed
-  // (client-only, ver MockSessionProvider), o registro acontece aqui, no
-  // primeiro render client-side desta tela — não há um "request" de
-  // servidor por trás desta view nesta fase de mock.
-  useEffect(() => {
-    if (loggedRef.current || !conversation) return;
-    loggedRef.current = true;
-    void auditLogRepository.append({
-      id: newId("audit"),
-      actorId: adminId,
-      action: "view_conversation",
-      entityType: "conversation",
-      entityId: conversation.id,
-      metadata: { customRequestId },
-      createdAt: new Date().toISOString(),
-    });
-  }, [conversation, adminId, customRequestId]);
+      const [msgs, props, cso, requester, creator, allReports] = await Promise.all([
+        listMessagesForConversation(supabase, convo.id),
+        listProposalsForRequest(supabase, req.id),
+        getCustomServiceOrderByRequest(supabase, req.id),
+        supabase.from("profiles").select("username").eq("id", req.requesterId).maybeSingle(),
+        supabase.from("profiles").select("username").eq("id", req.creatorId).maybeSingle(),
+        reportRepository.findAll(),
+      ]);
+
+      const deliveryMessages = msgs.filter((m) => m.type === "delivery");
+      const attachmentEntries = await Promise.all(
+        deliveryMessages.map(async (m) => [m.id, await listAttachmentsForMessage(supabase, m.id)] as const),
+      );
+
+      setRequest(req);
+      setConversation(convo);
+      setMessages(msgs);
+      setProposals(props);
+      setCustomServiceOrder(cso);
+      setAttachmentsByMessage(Object.fromEntries(attachmentEntries));
+      setNames({
+        requester: requester.data?.username ?? req.requesterId,
+        creator: creator.data?.username ?? req.creatorId,
+      });
+      setReports(allReports);
+      setLoading(false);
+
+      if (!loggedRef.current) {
+        loggedRef.current = true;
+        void auditLogRepository.append({
+          id: newId("audit"),
+          actorId: adminId,
+          action: "view_conversation",
+          entityType: "conversation",
+          entityId: convo.id,
+          metadata: { customRequestId },
+          createdAt: new Date().toISOString(),
+        });
+      }
+    }
+    void load();
+  }, [customRequestId, adminId]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center gap-2 py-16 text-sm text-(--color-text-muted)">
+        <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
+        Carregando…
+      </div>
+    );
+  }
 
   if (!request || !conversation) {
     return <p className="text-sm text-(--color-text-muted)">Conversa não encontrada.</p>;
   }
 
-  const usersById = new Map(users.map((u) => [u.id, u]));
-  const messages = messageRepo.findByConversation(conversation.id);
-  const proposals = proposalRepo.findByCustomRequest(request.id);
-  const customServiceOrder = customServiceOrderRepo.findByCustomRequest(request.id);
   const relatedReports = reports.filter(
     (r) => r.conversationId === conversation.id || r.customRequestId === request.id,
   );
-
-  const requester = usersById.get(request.requesterId);
-  const creator = usersById.get(request.creatorId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -99,11 +154,11 @@ export function AdminConversationDetail({
             </div>
             <div className="flex justify-between gap-2">
               <dt>Usuário</dt>
-              <dd className="text-(--color-text)">{requester?.username ?? request.requesterId}</dd>
+              <dd className="text-(--color-text)">{names.requester}</dd>
             </div>
             <div className="flex justify-between gap-2">
               <dt>Criador</dt>
-              <dd className="text-(--color-text)">{creator?.username ?? request.creatorId}</dd>
+              <dd className="text-(--color-text)">{names.creator}</dd>
             </div>
             <div className="flex justify-between gap-2">
               <dt>Criado em</dt>
@@ -133,10 +188,8 @@ export function AdminConversationDetail({
                 <dd>{formatDateTime(customServiceOrder.deliveryDeadlineAt)}</dd>
               </div>
               <div className="flex justify-between gap-2">
-                <dt>Order / Payment</dt>
-                <dd className="text-(--color-text)">
-                  {customServiceOrder.orderId} / {customServiceOrder.paymentId ?? "—"}
-                </dd>
+                <dt>Order (Mercado Pago)</dt>
+                <dd className="text-(--color-text)">{customServiceOrder.orderId}</dd>
               </div>
               {customServiceOrder.deliveredAt ? (
                 <div className="flex justify-between gap-2">
@@ -191,13 +244,13 @@ export function AdminConversationDetail({
         <h2 className="mb-3 text-sm font-medium text-(--color-text)">Histórico de mensagens</h2>
         <div className="flex flex-col gap-2">
           {messages.map((m) => {
-            const attachments =
-              m.type === "delivery" ? messageAttachmentRepository.findByMessage(m.id) : [];
+            const attachments = attachmentsByMessage[m.id] ?? [];
+            const senderName = m.senderId === request.requesterId ? names.requester : names.creator;
             return (
               <div key={m.id} className="rounded-md border border-(--color-border) px-3 py-2 text-sm">
                 <div className="flex items-center justify-between gap-2 text-xs text-(--color-text-subtle)">
                   <span>
-                    {usersById.get(m.senderId)?.username ?? m.senderId} · {m.type}
+                    {senderName} · {m.type}
                     {m.deletedAt ? " · oculta pelo autor" : ""}
                   </span>
                   <span>{formatDateTime(m.createdAt)}</span>

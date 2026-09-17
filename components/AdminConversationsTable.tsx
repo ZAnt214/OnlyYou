@@ -2,54 +2,84 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useConversationRepository } from "@/lib/repositories/ConversationRepository";
-import { useCustomRequestRepository } from "@/lib/repositories/CustomRequestRepository";
-import { useMessageRepository } from "@/lib/repositories/MessageRepository";
+import { Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import {
+  listAllConversationsForAdmin,
+  listMessagesForConversation,
+} from "@/lib/supabase/customRequests";
 import { reportRepository } from "@/lib/repositories/ReportRepository";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { StatusBadge } from "@/components/StatusBadge";
-import type { Report, User } from "@/lib/types";
+import type { Report, Conversation, CustomRequest } from "@/lib/types";
+
+interface Row {
+  conversation: Conversation;
+  request: CustomRequest;
+  lastMessageContent: string | null;
+  requesterName: string;
+  creatorName: string;
+  relatedReports: Report[];
+}
 
 export function AdminConversationsTable() {
-  const conversationRepo = useConversationRepository();
-  const customRequestRepo = useCustomRequestRepository();
-  const messageRepo = useMessageRepository();
+  const [rows, setRows] = useState<Row[] | null>(null);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [reports, setReports] = useState<Report[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    reportRepository.findAll().then(setReports);
-    userRepository.findAll().then(setUsers);
+    const supabase = createClient();
+    async function load() {
+      const [conversations, reports] = await Promise.all([
+        listAllConversationsForAdmin(supabase),
+        reportRepository.findAll(),
+      ]);
+
+      const built = await Promise.all(
+        conversations.map(async ({ conversation, request }) => {
+          const [messages, requester, creator] = await Promise.all([
+            listMessagesForConversation(supabase, conversation.id),
+            supabase.from("profiles").select("username").eq("id", request.requesterId).maybeSingle(),
+            supabase.from("profiles").select("username").eq("id", request.creatorId).maybeSingle(),
+          ]);
+          const lastMessage = messages[messages.length - 1];
+          const relatedReports = reports.filter(
+            (r) => r.conversationId === conversation.id || r.customRequestId === request.id,
+          );
+          return {
+            conversation,
+            request,
+            lastMessageContent: lastMessage?.content ?? null,
+            requesterName: requester.data?.username ?? request.requesterId,
+            creatorName: creator.data?.username ?? request.creatorId,
+            relatedReports,
+          };
+        }),
+      );
+
+      setRows(built);
+    }
+    void load();
   }, []);
 
-  const usersById = new Map(users.map((u) => [u.id, u]));
-  const conversations = conversationRepo.findAll();
+  if (rows === null) {
+    return (
+      <div className="flex items-center justify-center gap-2 py-16 text-sm text-(--color-text-muted)">
+        <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
+        Carregando…
+      </div>
+    );
+  }
 
-  const rows = conversations
-    .map((conversation) => {
-      const request = customRequestRepo.findById(conversation.customRequestId);
-      if (!request) return null;
-      const messages = messageRepo.findByConversation(conversation.id);
-      const lastMessage = messages[messages.length - 1];
-      const relatedReports = reports.filter(
-        (r) => r.conversationId === conversation.id || r.customRequestId === request.id,
-      );
-      return { conversation, request, lastMessage, relatedReports };
-    })
-    .filter((row): row is NonNullable<typeof row> => row !== null)
+  const filtered = rows
     .filter((row) => {
       if (statusFilter !== "all" && row.request.status !== statusFilter) return false;
       if (!query.trim()) return true;
       const q = query.trim().toLowerCase();
-      const requester = usersById.get(row.request.requesterId);
-      const creator = usersById.get(row.request.creatorId);
       return (
         row.conversation.id.toLowerCase().includes(q) ||
         row.request.id.toLowerCase().includes(q) ||
-        requester?.username.toLowerCase().includes(q) ||
-        creator?.username.toLowerCase().includes(q)
+        row.requesterName.toLowerCase().includes(q) ||
+        row.creatorName.toLowerCase().includes(q)
       );
     })
     .sort((a, b) => b.conversation.lastMessageAt.localeCompare(a.conversation.lastMessageAt));
@@ -82,7 +112,7 @@ export function AdminConversationsTable() {
         </select>
       </div>
 
-      {rows.length === 0 ? (
+      {filtered.length === 0 ? (
         <p className="text-sm text-(--color-text-muted)">Nenhuma conversa encontrada.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-(--color-border)">
@@ -101,29 +131,25 @@ export function AdminConversationsTable() {
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ conversation, request, lastMessage, relatedReports }) => (
-                <tr key={conversation.id} className="border-b border-(--color-border) last:border-0">
-                  <td className="px-4 py-3 text-(--color-text)">{conversation.id}</td>
-                  <td className="px-4 py-3 text-(--color-text-muted)">{request.id}</td>
-                  <td className="px-4 py-3 text-(--color-text-muted)">
-                    {usersById.get(request.requesterId)?.username ?? request.requesterId}
-                  </td>
-                  <td className="px-4 py-3 text-(--color-text-muted)">
-                    {usersById.get(request.creatorId)?.username ?? request.creatorId}
-                  </td>
+              {filtered.map((row) => (
+                <tr key={row.conversation.id} className="border-b border-(--color-border) last:border-0">
+                  <td className="px-4 py-3 text-(--color-text)">{row.conversation.id.slice(0, 8)}</td>
+                  <td className="px-4 py-3 text-(--color-text-muted)">{row.request.id.slice(0, 8)}</td>
+                  <td className="px-4 py-3 text-(--color-text-muted)">{row.requesterName}</td>
+                  <td className="px-4 py-3 text-(--color-text-muted)">{row.creatorName}</td>
                   <td className="px-4 py-3">
-                    <StatusBadge status={request.status} />
+                    <StatusBadge status={row.request.status} />
                   </td>
                   <td className="max-w-[220px] truncate px-4 py-3 text-(--color-text-muted)">
-                    {lastMessage?.content ?? "—"}
+                    {row.lastMessageContent ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-(--color-text-muted)">
-                    {new Date(conversation.lastMessageAt).toLocaleDateString("pt-BR")}
+                    {new Date(row.conversation.lastMessageAt).toLocaleDateString("pt-BR")}
                   </td>
-                  <td className="px-4 py-3 text-(--color-text-muted)">{relatedReports.length}</td>
+                  <td className="px-4 py-3 text-(--color-text-muted)">{row.relatedReports.length}</td>
                   <td className="px-4 py-3 text-right">
                     <Link
-                      href={`/admin/conversas/${request.id}`}
+                      href={`/admin/conversas/${row.request.id}`}
                       className="rounded-md border border-(--color-border) px-3 py-1.5 text-sm text-(--color-text) hover:bg-(--color-surface)"
                     >
                       Ver

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Send,
   Paperclip,
@@ -12,10 +12,27 @@ import {
   Ban,
   Clock,
   PlusCircle,
+  Loader2,
 } from "lucide-react";
-import { useCustomOrderServices } from "@/lib/services/useCustomOrderServices";
-import { messageAttachmentRepository } from "@/lib/repositories/MessageAttachmentRepository";
-import { userRepository } from "@/lib/repositories/UserRepository";
+import { createClient } from "@/lib/supabase/client";
+import {
+  getCustomRequestById,
+  listMessagesForConversation,
+  listProposalsForRequest,
+  getCustomServiceOrderByRequest,
+  listAttachmentsForMessage,
+  sendCustomMessage,
+  softDeleteCustomMessage,
+  createCustomProposal,
+  acceptCustomProposal,
+  rejectCustomProposal,
+  createCustomServiceOrder,
+  sendCustomDelivery,
+  confirmCustomReceipt,
+  reportCustomOrderProblem,
+} from "@/lib/supabase/customRequests";
+import { PaymentService } from "@/lib/services/PaymentService";
+import { usePaymentRepository } from "@/lib/repositories/PaymentRepository";
 import { reportService } from "@/lib/moderation/ReportService";
 import { StatusBadge } from "@/components/StatusBadge";
 import { MercadoPagoPixPanel } from "@/components/payments/MercadoPagoPixPanel";
@@ -23,9 +40,12 @@ import {
   REPORT_REASON_LABELS,
   type ReportReason,
   type Message,
+  type MessageAttachment,
   type CustomProposal,
+  type CustomRequest,
+  type Conversation,
+  type CustomServiceOrder,
   type Payment,
-  type User,
 } from "@/lib/types";
 
 function formatBRLFromCents(cents: number): string {
@@ -44,7 +64,7 @@ function PendingPaymentPanel({
 }: {
   customServiceOrderId: string;
   orderId: string;
-  paymentService: ReturnType<typeof useCustomOrderServices>["paymentService"];
+  paymentService: PaymentService;
   onPaid: () => void;
 }) {
   const payment = paymentService.findByOrder(orderId);
@@ -74,9 +94,22 @@ export function ConversationView({
   actingUserId,
 }: {
   customRequestId: string;
-  actingUserId: string;
+  actingUserId: string | null;
 }) {
-  const services = useCustomOrderServices();
+  const supabase = createClient();
+  const paymentRepo = usePaymentRepository();
+  const [paymentService] = useState(() => new PaymentService(paymentRepo));
+
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [request, setRequest] = useState<CustomRequest | null>(null);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [proposals, setProposals] = useState<CustomProposal[]>([]);
+  const [customServiceOrder, setCustomServiceOrder] = useState<CustomServiceOrder | null>(null);
+  const [counterpartName, setCounterpartName] = useState("Usuário");
+  const [attachmentsByMessage, setAttachmentsByMessage] = useState<Record<string, MessageAttachment[]>>({});
+
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -94,34 +127,101 @@ export function ConversationView({
   const [showProblemForm, setShowProblemForm] = useState(false);
   const [deliveryFileName, setDeliveryFileName] = useState("");
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
+
+  const load = useCallback(async () => {
+    if (!actingUserId) return;
+    try {
+      const req = await getCustomRequestById(supabase, customRequestId);
+      if (!req) throw new Error("Pedido não encontrado.");
+      if (req.requesterId !== actingUserId && req.creatorId !== actingUserId) {
+        throw new Error("Usuário não tem permissão para acessar este pedido.");
+      }
+
+      const { data: convoRow } = await supabase
+        .from("conversations")
+        .select("*")
+        .eq("custom_request_id", req.id)
+        .single();
+      if (!convoRow) throw new Error("Conversa não encontrada.");
+      const convo: Conversation = {
+        id: convoRow.id,
+        customRequestId: convoRow.custom_request_id,
+        status: convoRow.status,
+        createdAt: convoRow.created_at,
+        updatedAt: convoRow.updated_at,
+        lastMessageAt: convoRow.last_message_at,
+      };
+
+      const [msgs, props, cso] = await Promise.all([
+        listMessagesForConversation(supabase, convo.id),
+        listProposalsForRequest(supabase, req.id),
+        getCustomServiceOrderByRequest(supabase, req.id),
+      ]);
+
+      const counterpartId = actingUserId === req.creatorId ? req.requesterId : req.creatorId;
+      const { data: counterpart } = await supabase
+        .from("profiles")
+        .select("display_name, username")
+        .eq("id", counterpartId)
+        .maybeSingle();
+
+      const deliveryMessages = msgs.filter((m) => m.type === "delivery");
+      const attachmentEntries = await Promise.all(
+        deliveryMessages.map(async (m) => [m.id, await listAttachmentsForMessage(supabase, m.id)] as const),
+      );
+
+      setRequest(req);
+      setConversation(convo);
+      setMessages(msgs.filter((m) => !m.deletedAt));
+      setProposals(props);
+      setCustomServiceOrder(cso);
+      setCounterpartName(counterpart?.display_name ?? counterpart?.username ?? "Usuário");
+      setAttachmentsByMessage(Object.fromEntries(attachmentEntries));
+      setLoadError(null);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Não foi possível carregar esta conversa.");
+    } finally {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actingUserId, customRequestId]);
 
   useEffect(() => {
-    userRepository.findAll().then(setUsers);
-  }, []);
+    // load() é assíncrona e só atualiza estado depois do primeiro await —
+    // padrão de busca de dados ao montar/trocar de pedido, recomendado pelos
+    // próprios docs do React (react.dev/learn/you-might-not-need-an-effect).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
+  }, [load]);
 
-  let ctx;
-  try {
-    ctx = services.conversationService.loadContext(actingUserId, customRequestId);
-  } catch (err) {
+  if (!actingUserId) {
     return (
       <div className="rounded-md border border-(--color-border) bg-(--color-surface) p-6 text-sm text-(--color-text-muted)">
-        {err instanceof Error ? err.message : "Não foi possível carregar esta conversa."}
+        Entre na sua conta para ver esta conversa.
       </div>
     );
   }
 
-  const { request, conversation, messages } = ctx;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-6 text-sm text-(--color-text-muted)">
+        <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
+        Carregando conversa…
+      </div>
+    );
+  }
+
+  if (loadError || !request || !conversation) {
+    return (
+      <div className="rounded-md border border-(--color-border) bg-(--color-surface) p-6 text-sm text-(--color-text-muted)">
+        {loadError ?? "Não foi possível carregar esta conversa."}
+      </div>
+    );
+  }
+
   const isCreator = actingUserId === request.creatorId;
   const isRequester = actingUserId === request.requesterId;
   const otherPartyLabel = isCreator ? "o comprador" : "o criador";
-
-  const proposals = services.proposalRepo.findByCustomRequest(request.id);
-  const customServiceOrder = services.customServiceOrderRepo.findByCustomRequest(request.id);
-
-  const usersById = new Map(users.map((u) => [u.id, u]));
-  const counterpart = usersById.get(isCreator ? request.requesterId : request.creatorId);
-  const counterpartName = counterpart?.displayName ?? "Usuário";
   const activeProposal = proposals.find((p) => p.status === "accepted" || p.status === "sent");
   const serviceLabel = activeProposal?.serviceType || request.description;
 
@@ -129,25 +229,26 @@ export function ConversationView({
     return proposals.find((p) => p.id === id);
   }
 
-  function handleSend(e: React.FormEvent) {
+  async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     try {
-      services.messageService.sendText(actingUserId, conversation.id, text);
+      await sendCustomMessage(supabase, { conversationId: conversation!.id, content: text });
       setText("");
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível enviar a mensagem.");
     }
   }
 
-  function handleCreateProposal(e: React.FormEvent) {
+  async function handleCreateProposal(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setBusy(true);
     try {
       const priceReais = Number(proposalDraft.price.replace(",", "."));
-      services.proposalService.create(actingUserId, {
-        customRequestId: request.id,
+      await createCustomProposal(supabase, {
+        customRequestId: request!.id,
         serviceType: proposalDraft.serviceType,
         description: proposalDraft.description,
         priceCents: Math.round(priceReais * 100),
@@ -155,6 +256,7 @@ export function ConversationView({
       });
       setShowProposalForm(false);
       setProposalDraft({ serviceType: "", description: "", price: "", deliveryDays: "" });
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível criar a proposta.");
     } finally {
@@ -162,19 +264,21 @@ export function ConversationView({
     }
   }
 
-  function handleAcceptProposal(proposalId: string) {
+  async function handleAcceptProposal(proposalId: string) {
     setError(null);
     try {
-      services.proposalService.accept(actingUserId, proposalId);
+      await acceptCustomProposal(supabase, proposalId);
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível aceitar a proposta.");
     }
   }
 
-  function handleRejectProposal(proposalId: string) {
+  async function handleRejectProposal(proposalId: string) {
     setError(null);
     try {
-      services.proposalService.reject(actingUserId, proposalId);
+      await rejectCustomProposal(supabase, proposalId);
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível recusar a proposta.");
     }
@@ -184,21 +288,33 @@ export function ConversationView({
     setError(null);
     setBusy(true);
     try {
-      await services.customOrderService.createOrderAndPayment(actingUserId, proposalId, "pix");
+      const cso = await createCustomServiceOrder(supabase, proposalId);
+      await paymentService.startCustomServiceCheckout(
+        {
+          id: cso.orderId,
+          buyerId: cso.requesterId,
+          items: [
+            {
+              productId: cso.proposalId,
+              productTitle: `${cso.serviceType} — pedido personalizado`,
+              creatorId: cso.creatorId,
+              unitPrice: cso.agreedAmountCents / 100,
+              quantity: 1,
+              subtotal: cso.agreedAmountCents / 100,
+            },
+          ],
+          total: cso.agreedAmountCents / 100,
+          currency: "BRL",
+          status: "pending",
+          createdAt: cso.createdAt,
+        },
+        "pix",
+      );
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível iniciar o pagamento.");
     } finally {
       setBusy(false);
-    }
-  }
-
-  function handlePaymentConfirmed() {
-    if (!customServiceOrder) return;
-    setError(null);
-    try {
-      services.customOrderService.confirmPaymentAndStart(actingUserId, customServiceOrder.id);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível confirmar o pagamento.");
     }
   }
 
@@ -208,11 +324,17 @@ export function ConversationView({
     setError(null);
     setBusy(true);
     try {
-      await services.customDeliveryService.sendDelivery(actingUserId, customServiceOrder.id, [
-        { fileName: deliveryFileName || "entrega-final.zip", mimeType: "application/zip", sizeBytes: 52_428_800 },
+      await sendCustomDelivery(supabase, customServiceOrder.id, [
+        {
+          fileName: deliveryFileName || "entrega-final.zip",
+          mimeType: "application/zip",
+          sizeBytes: 52_428_800,
+          storageKey: `mock://media-storage/${customServiceOrder.id}-${Date.now()}`,
+        },
       ]);
       setShowDeliveryForm(false);
       setDeliveryFileName("");
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível enviar a entrega.");
     } finally {
@@ -220,38 +342,50 @@ export function ConversationView({
     }
   }
 
-  function handleConfirmReceipt() {
+  async function handleConfirmReceipt() {
     if (!customServiceOrder) return;
     setError(null);
     try {
-      services.customDeliveryService.confirmReceipt(actingUserId, customServiceOrder.id);
+      await confirmCustomReceipt(supabase, customServiceOrder.id);
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível confirmar o recebimento.");
     }
   }
 
-  function handleReportProblem(e: React.FormEvent) {
+  async function handleReportProblem(e: React.FormEvent) {
     e.preventDefault();
     if (!customServiceOrder) return;
     setError(null);
     try {
-      services.customDeliveryService.reportProblem(actingUserId, customServiceOrder.id, problemReason);
+      await reportCustomOrderProblem(supabase, customServiceOrder.id, problemReason);
       setShowProblemForm(false);
       setProblemReason("");
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível relatar o problema.");
     }
   }
 
+  async function handleDeleteMessage(messageId: string) {
+    setError(null);
+    try {
+      await softDeleteCustomMessage(supabase, messageId);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível ocultar a mensagem.");
+    }
+  }
+
   function handleReportConversation(reason: ReportReason) {
     reportService.fileReport({
-      reporterId: actingUserId,
+      reporterId: actingUserId!,
       targetType: "conversation",
-      targetId: conversation.id,
+      targetId: conversation!.id,
       reason,
       description: "Denúncia enviada a partir da conversa de pedido personalizado.",
-      customRequestId: request.id,
-      conversationId: conversation.id,
+      customRequestId: request!.id,
+      conversationId: conversation!.id,
     });
     setReportSent(true);
   }
@@ -360,9 +494,11 @@ export function ConversationView({
               actingUserId={actingUserId}
               isRequester={isRequester}
               proposal={findProposal(message.metadata?.proposalId)}
+              attachments={attachmentsByMessage[message.id] ?? []}
               onAccept={handleAcceptProposal}
               onReject={handleRejectProposal}
               onPay={handlePayProposal}
+              onDelete={handleDeleteMessage}
               busy={busy}
             />
           ))
@@ -375,8 +511,8 @@ export function ConversationView({
         <PendingPaymentPanel
           customServiceOrderId={customServiceOrder.id}
           orderId={customServiceOrder.orderId}
-          paymentService={services.paymentService}
-          onPaid={handlePaymentConfirmed}
+          paymentService={paymentService}
+          onPaid={() => void load()}
         />
       ) : null}
 
@@ -469,7 +605,7 @@ export function ConversationView({
                     required
                     value={proposalDraft.serviceType}
                     onChange={(e) => setProposalDraft((d) => ({ ...d, serviceType: e.target.value }))}
-                    placeholder="Ex.: Ensaio fotográfico personalizado"
+                    placeholder="Ex.: Identidade visual personalizada"
                     className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                   />
                 </div>
@@ -566,24 +702,26 @@ function MessageItem({
   actingUserId,
   isRequester,
   proposal,
+  attachments,
   onAccept,
   onReject,
   onPay,
+  onDelete,
   busy,
 }: {
   message: Message;
   actingUserId: string;
   isRequester: boolean;
   proposal?: CustomProposal;
+  attachments: MessageAttachment[];
   onAccept: (proposalId: string) => void;
   onReject: (proposalId: string) => void;
   onPay: (proposalId: string) => void;
+  onDelete: (messageId: string) => void;
   busy: boolean;
 }) {
   if (message.type === "system") {
-    return (
-      <p className="text-center text-xs text-(--color-text-subtle)">{message.content}</p>
-    );
+    return <p className="text-center text-xs text-(--color-text-subtle)">{message.content}</p>;
   }
 
   if (message.type === "proposal" && proposal) {
@@ -638,7 +776,6 @@ function MessageItem({
   }
 
   if (message.type === "delivery") {
-    const attachments = messageAttachmentRepository.findByMessage(message.id);
     return (
       <div className="flex flex-col gap-2 self-center rounded-md border border-(--color-success) bg-(--color-surface) p-4 text-sm">
         <span className="font-medium text-(--color-text)">Entrega enviada</span>
@@ -655,16 +792,27 @@ function MessageItem({
   const isOwn = message.senderId === actingUserId;
   return (
     <div
-      className={`flex max-w-md flex-col gap-0.5 rounded-md px-3 py-2 text-sm ${
+      className={`group flex max-w-md flex-col gap-0.5 rounded-md px-3 py-2 text-sm ${
         isOwn
           ? "self-end bg-(--color-accent) text-white"
           : "self-start bg-(--color-surface) text-(--color-text)"
       }`}
     >
       <span>{message.content}</span>
-      <span className={`text-[10px] ${isOwn ? "text-white/70" : "text-(--color-text-subtle)"}`}>
-        {formatDateTime(message.createdAt)}
-      </span>
+      <div className="flex items-center gap-2">
+        <span className={`text-[10px] ${isOwn ? "text-white/70" : "text-(--color-text-subtle)"}`}>
+          {formatDateTime(message.createdAt)}
+        </span>
+        {isOwn ? (
+          <button
+            type="button"
+            onClick={() => onDelete(message.id)}
+            className="text-[10px] text-white/70 opacity-0 hover:underline group-hover:opacity-100"
+          >
+            Ocultar
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -55,12 +55,12 @@ export async function confirmPaymentFromWebhook(params: {
   mpPaymentId: string;
   status: PaymentStatus;
   rawStatus: string;
-}): Promise<{ updated: boolean }> {
+}): Promise<{ updated: boolean; kind: "product" | "custom_service" | null }> {
   const supabase = createServiceClient();
 
   const { data: existing } = await supabase
     .from("payment_confirmations")
-    .select("id, status")
+    .select("id, status, kind")
     .eq("order_id", params.orderId)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -72,12 +72,12 @@ export async function confirmPaymentFromWebhook(params: {
     console.error(
       `[payment_confirmations] webhook para order_id=${params.orderId} sem checkout pendente correspondente.`,
     );
-    return { updated: false };
+    return { updated: false, kind: null };
   }
 
   // Pagamento já confirmado antes (reenvio de notificação) — não reprocessa.
   if (existing.status === "paid" && params.status === "paid") {
-    return { updated: false };
+    return { updated: false, kind: existing.kind };
   }
 
   const { error } = await supabase
@@ -92,7 +92,7 @@ export async function confirmPaymentFromWebhook(params: {
     .eq("id", existing.id);
 
   if (error) throw new Error(`Falha ao confirmar pagamento: ${error.message}`);
-  return { updated: true };
+  return { updated: true, kind: existing.kind };
 }
 
 export interface PaymentConfirmationRow {
@@ -104,6 +104,7 @@ export interface PaymentConfirmationRow {
   creatorAmountCents: number;
   currency: string;
   confirmedAt: string | null;
+  kind: "product" | "custom_service";
 }
 
 /**
@@ -117,7 +118,7 @@ export async function getConfirmationForViewer(orderId: string): Promise<Payment
   const { data } = await supabase
     .from("payment_confirmations")
     .select(
-      "order_id, mp_payment_id, status, gross_amount_cents, platform_fee_cents, creator_amount_cents, currency, confirmed_at",
+      "order_id, mp_payment_id, status, gross_amount_cents, platform_fee_cents, creator_amount_cents, currency, confirmed_at, kind",
     )
     .eq("order_id", orderId)
     .order("created_at", { ascending: false })
@@ -134,6 +135,7 @@ export async function getConfirmationForViewer(orderId: string): Promise<Payment
     creatorAmountCents: data.creator_amount_cents,
     currency: data.currency,
     confirmedAt: data.confirmed_at,
+    kind: data.kind,
   };
 }
 

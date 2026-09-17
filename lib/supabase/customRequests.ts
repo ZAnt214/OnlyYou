@@ -1,0 +1,573 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type {
+  CustomRequest,
+  CustomRequestStatus,
+  Conversation,
+  ConversationStatus,
+  Message,
+  MessageType,
+  MessageAttachment,
+  CustomProposal,
+  CustomProposalStatus,
+  CustomServiceOrder,
+  CustomServiceOrderStatus,
+  Notification,
+  NotificationType,
+  Dispute,
+  DisputeStatus,
+} from "@/lib/types";
+
+/**
+ * Camada de acesso ao fluxo real (Supabase) de pedidos personalizados,
+ * conversa, propostas e contratação — substitui os repositórios mock
+ * client-side (lib/repositories/CustomRequestRepository e afins) que
+ * viviam só no localStorage do navegador (ver
+ * lib/mock-session/MockSessionProvider.tsx).
+ *
+ * Toda mutação passa pelas funções RPC do Postgres (migração
+ * custom_requests_chat_rpc*), nunca por INSERT/UPDATE direto nestas
+ * tabelas — a orquestração multi-tabela (criar pedido + conversa +
+ * mensagem + notificação, por exemplo) e a validação de transição de
+ * estado vivem no banco, não aqui. Este módulo só mapeia
+ * snake_case -> camelCase e chama supabase.rpc(...)/supabase.from(...).
+ *
+ * Funciona tanto com o client do navegador (lib/supabase/client.ts)
+ * quanto com o client de servidor (lib/supabase/server.ts) — quem chama
+ * decide qual client passar.
+ */
+
+// ===== Row types (snake_case, como o Postgres devolve) =====
+
+interface CustomRequestRow {
+  id: string;
+  requester_id: string;
+  creator_id: string;
+  description: string;
+  status: CustomRequestStatus;
+  created_at: string;
+  updated_at: string;
+  expires_at: string | null;
+  accepted_at: string | null;
+  declined_at: string | null;
+  cancelled_at: string | null;
+}
+
+interface ConversationRow {
+  id: string;
+  custom_request_id: string;
+  status: ConversationStatus;
+  created_at: string;
+  updated_at: string;
+  last_message_at: string;
+}
+
+interface MessageRow {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  type: MessageType;
+  content: string;
+  proposal_id: string | null;
+  custom_service_order_id: string | null;
+  created_at: string;
+  edited_at: string | null;
+  deleted_at: string | null;
+}
+
+interface MessageAttachmentRow {
+  id: string;
+  message_id: string;
+  custom_request_id: string;
+  uploader_id: string;
+  file_name: string;
+  mime_type: string;
+  size_bytes: number;
+  storage_key: string;
+  created_at: string;
+}
+
+interface CustomProposalRow {
+  id: string;
+  custom_request_id: string;
+  conversation_id: string;
+  creator_id: string;
+  requester_id: string;
+  service_type: string;
+  description: string;
+  price_cents: number;
+  currency: "BRL";
+  delivery_days: number;
+  delivery_deadline_at: string | null;
+  status: CustomProposalStatus;
+  created_at: string;
+  updated_at: string;
+  accepted_at: string | null;
+  rejected_at: string | null;
+  expires_at: string | null;
+}
+
+interface CustomServiceOrderRow {
+  id: string;
+  custom_request_id: string;
+  proposal_id: string;
+  order_id: string;
+  requester_id: string;
+  creator_id: string;
+  service_type: string;
+  description: string;
+  agreed_amount_cents: number;
+  currency: "BRL";
+  delivery_deadline_at: string;
+  status: CustomServiceOrderStatus;
+  created_at: string;
+  started_at: string | null;
+  delivered_at: string | null;
+  completed_at: string | null;
+  refunded_at: string | null;
+}
+
+interface NotificationRow {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  link_href: string | null;
+  read: boolean;
+  created_at: string;
+}
+
+interface DisputeRow {
+  id: string;
+  custom_service_order_id: string;
+  custom_request_id: string;
+  raised_by: string;
+  reason: string;
+  status: DisputeStatus;
+  created_at: string;
+  resolved_at: string | null;
+}
+
+// ===== Mappers =====
+
+function mapRequest(r: CustomRequestRow, conversationId: string): CustomRequest {
+  return {
+    id: r.id,
+    requesterId: r.requester_id,
+    creatorId: r.creator_id,
+    description: r.description,
+    status: r.status,
+    conversationId,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+    expiresAt: r.expires_at ?? undefined,
+    acceptedAt: r.accepted_at ?? undefined,
+    declinedAt: r.declined_at ?? undefined,
+    cancelledAt: r.cancelled_at ?? undefined,
+  };
+}
+
+function mapConversation(c: ConversationRow): Conversation {
+  return {
+    id: c.id,
+    customRequestId: c.custom_request_id,
+    status: c.status,
+    createdAt: c.created_at,
+    updatedAt: c.updated_at,
+    lastMessageAt: c.last_message_at,
+  };
+}
+
+function mapMessage(m: MessageRow): Message {
+  const metadata =
+    m.proposal_id || m.custom_service_order_id
+      ? {
+          proposalId: m.proposal_id ?? undefined,
+          customServiceOrderId: m.custom_service_order_id ?? undefined,
+        }
+      : undefined;
+  return {
+    id: m.id,
+    conversationId: m.conversation_id,
+    senderId: m.sender_id,
+    type: m.type,
+    content: m.content,
+    createdAt: m.created_at,
+    editedAt: m.edited_at ?? undefined,
+    deletedAt: m.deleted_at ?? undefined,
+    metadata,
+  };
+}
+
+function mapAttachment(a: MessageAttachmentRow): MessageAttachment {
+  return {
+    id: a.id,
+    messageId: a.message_id,
+    customRequestId: a.custom_request_id,
+    uploaderId: a.uploader_id,
+    fileName: a.file_name,
+    mimeType: a.mime_type,
+    size: a.size_bytes,
+    storageKey: a.storage_key,
+    createdAt: a.created_at,
+  };
+}
+
+function mapProposal(p: CustomProposalRow): CustomProposal {
+  return {
+    id: p.id,
+    customRequestId: p.custom_request_id,
+    conversationId: p.conversation_id,
+    creatorId: p.creator_id,
+    requesterId: p.requester_id,
+    serviceType: p.service_type,
+    description: p.description,
+    priceCents: p.price_cents,
+    currency: p.currency,
+    deliveryDays: p.delivery_days,
+    deliveryDeadlineAt: p.delivery_deadline_at ?? undefined,
+    status: p.status,
+    createdAt: p.created_at,
+    updatedAt: p.updated_at,
+    acceptedAt: p.accepted_at ?? undefined,
+    rejectedAt: p.rejected_at ?? undefined,
+    expiresAt: p.expires_at ?? undefined,
+  };
+}
+
+function mapCustomServiceOrder(o: CustomServiceOrderRow): CustomServiceOrder {
+  return {
+    id: o.id,
+    customRequestId: o.custom_request_id,
+    proposalId: o.proposal_id,
+    orderId: o.order_id,
+    requesterId: o.requester_id,
+    creatorId: o.creator_id,
+    serviceType: o.service_type,
+    description: o.description,
+    agreedAmountCents: o.agreed_amount_cents,
+    currency: o.currency,
+    deliveryDeadlineAt: o.delivery_deadline_at,
+    status: o.status,
+    createdAt: o.created_at,
+    startedAt: o.started_at ?? undefined,
+    deliveredAt: o.delivered_at ?? undefined,
+    completedAt: o.completed_at ?? undefined,
+    refundedAt: o.refunded_at ?? undefined,
+  };
+}
+
+function mapNotification(n: NotificationRow): Notification {
+  return {
+    id: n.id,
+    userId: n.user_id,
+    type: n.type,
+    title: n.title,
+    body: n.body,
+    linkHref: n.link_href ?? undefined,
+    read: n.read,
+    createdAt: n.created_at,
+  };
+}
+
+function mapDispute(d: DisputeRow): Dispute {
+  return {
+    id: d.id,
+    customServiceOrderId: d.custom_service_order_id,
+    customRequestId: d.custom_request_id,
+    raisedBy: d.raised_by,
+    reason: d.reason,
+    status: d.status,
+    createdAt: d.created_at,
+    resolvedAt: d.resolved_at ?? undefined,
+  };
+}
+
+function unwrap<T>(data: T | null, error: { message: string } | null): T {
+  if (error) throw new Error(error.message);
+  if (data === null) throw new Error("Registro não encontrado.");
+  return data;
+}
+
+// ===== Leituras =====
+
+export async function listCustomRequestsForRequester(
+  supabase: SupabaseClient,
+  requesterId: string,
+): Promise<CustomRequest[]> {
+  const { data, error } = await supabase
+    .from("custom_requests")
+    .select("*, conversations!inner(id)")
+    .eq("requester_id", requesterId)
+    .order("updated_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => mapRequest(row, row.conversations[0]?.id ?? row.conversations.id));
+}
+
+export async function listCustomRequestsForCreator(
+  supabase: SupabaseClient,
+  creatorId: string,
+): Promise<CustomRequest[]> {
+  const { data, error } = await supabase
+    .from("custom_requests")
+    .select("*, conversations!inner(id)")
+    .eq("creator_id", creatorId)
+    .order("updated_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => mapRequest(row, row.conversations[0]?.id ?? row.conversations.id));
+}
+
+export async function getCustomRequestById(
+  supabase: SupabaseClient,
+  requestId: string,
+): Promise<CustomRequest | null> {
+  const { data, error } = await supabase
+    .from("custom_requests")
+    .select("*, conversations!inner(id)")
+    .eq("id", requestId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return mapRequest(data, data.conversations[0]?.id ?? data.conversations.id);
+}
+
+export async function listMessagesForConversation(
+  supabase: SupabaseClient,
+  conversationId: string,
+): Promise<Message[]> {
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .eq("conversation_id", conversationId)
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapMessage);
+}
+
+export async function listProposalsForRequest(
+  supabase: SupabaseClient,
+  customRequestId: string,
+): Promise<CustomProposal[]> {
+  const { data, error } = await supabase
+    .from("custom_proposals")
+    .select("*")
+    .eq("custom_request_id", customRequestId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapProposal);
+}
+
+export async function getCustomServiceOrderByRequest(
+  supabase: SupabaseClient,
+  customRequestId: string,
+): Promise<CustomServiceOrder | null> {
+  const { data, error } = await supabase
+    .from("custom_service_orders")
+    .select("*")
+    .eq("custom_request_id", customRequestId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? mapCustomServiceOrder(data) : null;
+}
+
+export async function getCustomServiceOrderById(
+  supabase: SupabaseClient,
+  id: string,
+): Promise<CustomServiceOrder | null> {
+  const { data, error } = await supabase
+    .from("custom_service_orders")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? mapCustomServiceOrder(data) : null;
+}
+
+export async function listAttachmentsForMessage(
+  supabase: SupabaseClient,
+  messageId: string,
+): Promise<MessageAttachment[]> {
+  const { data, error } = await supabase
+    .from("message_attachments")
+    .select("*")
+    .eq("message_id", messageId)
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapAttachment);
+}
+
+export async function listNotificationsForUser(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<Notification[]> {
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapNotification);
+}
+
+export async function markNotificationRead(supabase: SupabaseClient, id: string): Promise<void> {
+  const { error } = await supabase.from("notifications").update({ read: true }).eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * Lista todas as conversas para a área de administração — só retorna
+ * linhas para quem tem "admin" em profiles.roles (policy is_admin()); para
+ * qualquer outro usuário autenticado, RLS restringe às próprias conversas
+ * mesmo que este código seja chamado por engano.
+ */
+export async function listAllConversationsForAdmin(supabase: SupabaseClient): Promise<
+  Array<{ conversation: Conversation; request: CustomRequest }>
+> {
+  const { data, error } = await supabase
+    .from("conversations")
+    .select("*, custom_requests!inner(*)")
+    .order("last_message_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => ({
+    conversation: mapConversation(row),
+    request: mapRequest(row.custom_requests, row.id),
+  }));
+}
+
+export async function listDisputesForOrder(
+  supabase: SupabaseClient,
+  customServiceOrderId: string,
+): Promise<Dispute[]> {
+  const { data, error } = await supabase
+    .from("disputes")
+    .select("*")
+    .eq("custom_service_order_id", customServiceOrderId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapDispute);
+}
+
+// ===== Escritas (sempre via função RPC — ver migração custom_requests_chat_rpc*) =====
+
+export async function createCustomRequest(
+  supabase: SupabaseClient,
+  params: { creatorId: string; description: string },
+): Promise<CustomRequest> {
+  const { data, error } = await supabase.rpc("create_custom_request", {
+    p_creator_id: params.creatorId,
+    p_description: params.description,
+  });
+  const row = unwrap(data, error) as CustomRequestRow;
+  const conversation = await getConversationRowByRequest(supabase, row.id);
+  return mapRequest(row, conversation.id);
+}
+
+async function getConversationRowByRequest(supabase: SupabaseClient, customRequestId: string) {
+  const { data, error } = await supabase
+    .from("conversations")
+    .select("*")
+    .eq("custom_request_id", customRequestId)
+    .single();
+  return unwrap(data, error) as ConversationRow;
+}
+
+export async function sendCustomMessage(
+  supabase: SupabaseClient,
+  params: { conversationId: string; content: string },
+): Promise<Message> {
+  const { data, error } = await supabase.rpc("send_custom_message", {
+    p_conversation_id: params.conversationId,
+    p_content: params.content,
+  });
+  return mapMessage(unwrap(data, error) as MessageRow);
+}
+
+export async function softDeleteCustomMessage(supabase: SupabaseClient, messageId: string): Promise<void> {
+  const { error } = await supabase.rpc("soft_delete_custom_message", { p_message_id: messageId });
+  if (error) throw new Error(error.message);
+}
+
+export async function createCustomProposal(
+  supabase: SupabaseClient,
+  params: {
+    customRequestId: string;
+    serviceType: string;
+    description: string;
+    priceCents: number;
+    deliveryDays: number;
+  },
+): Promise<CustomProposal> {
+  const { data, error } = await supabase.rpc("create_custom_proposal", {
+    p_custom_request_id: params.customRequestId,
+    p_service_type: params.serviceType,
+    p_description: params.description,
+    p_price_cents: params.priceCents,
+    p_delivery_days: params.deliveryDays,
+  });
+  return mapProposal(unwrap(data, error) as CustomProposalRow);
+}
+
+export async function acceptCustomProposal(supabase: SupabaseClient, proposalId: string): Promise<CustomProposal> {
+  const { data, error } = await supabase.rpc("accept_custom_proposal", { p_proposal_id: proposalId });
+  return mapProposal(unwrap(data, error) as CustomProposalRow);
+}
+
+export async function rejectCustomProposal(supabase: SupabaseClient, proposalId: string): Promise<CustomProposal> {
+  const { data, error } = await supabase.rpc("reject_custom_proposal", { p_proposal_id: proposalId });
+  return mapProposal(unwrap(data, error) as CustomProposalRow);
+}
+
+export async function createCustomServiceOrder(
+  supabase: SupabaseClient,
+  proposalId: string,
+): Promise<CustomServiceOrder> {
+  const { data, error } = await supabase.rpc("create_custom_service_order", { p_proposal_id: proposalId });
+  return mapCustomServiceOrder(unwrap(data, error) as CustomServiceOrderRow);
+}
+
+export interface DeliveryAttachmentInput {
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  storageKey: string;
+}
+
+export async function sendCustomDelivery(
+  supabase: SupabaseClient,
+  customServiceOrderId: string,
+  attachments: DeliveryAttachmentInput[],
+): Promise<CustomServiceOrder> {
+  const { data, error } = await supabase.rpc("send_custom_delivery", {
+    p_custom_service_order_id: customServiceOrderId,
+    p_attachments: attachments.map((a) => ({
+      file_name: a.fileName,
+      mime_type: a.mimeType,
+      size_bytes: a.sizeBytes,
+      storage_key: a.storageKey,
+    })),
+  });
+  return mapCustomServiceOrder(unwrap(data, error) as CustomServiceOrderRow);
+}
+
+export async function confirmCustomReceipt(
+  supabase: SupabaseClient,
+  customServiceOrderId: string,
+): Promise<CustomServiceOrder> {
+  const { data, error } = await supabase.rpc("confirm_custom_receipt", {
+    p_custom_service_order_id: customServiceOrderId,
+  });
+  return mapCustomServiceOrder(unwrap(data, error) as CustomServiceOrderRow);
+}
+
+export async function reportCustomOrderProblem(
+  supabase: SupabaseClient,
+  customServiceOrderId: string,
+  reason: string,
+): Promise<CustomServiceOrder> {
+  const { data, error } = await supabase.rpc("report_custom_order_problem", {
+    p_custom_service_order_id: customServiceOrderId,
+    p_reason: reason,
+  });
+  return mapCustomServiceOrder(unwrap(data, error) as CustomServiceOrderRow);
+}

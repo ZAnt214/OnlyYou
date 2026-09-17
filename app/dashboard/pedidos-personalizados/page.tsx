@@ -1,13 +1,12 @@
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { CustomRequestsList } from "@/components/CustomRequestsList";
 import { getCurrentUser } from "@/lib/supabase/session";
 
 export default async function DashboardCustomRequestsPage() {
-  // app/dashboard/layout.tsx já redireciona uma pessoa real sem papel de
-  // criadora para fora do painel, então aqui só resolve qual identidade
-  // usar (real, se logada; mock, como fallback de demo de sempre).
+  // Pedidos personalizados/chat agora vivem no Supabase (ver
+  // lib/supabase/customRequests.ts) — exigem conta real, sem fallback
+  // mock: passar null faz CustomRequestsList pedir login em vez de tentar
+  // ler dados de um id mock que não existe nas tabelas reais.
   const realUser = await getCurrentUser();
-  const creator = realUser ?? (await userRepository.findMockCurrentCreator());
 
   return (
     <div className="flex flex-col gap-6">
@@ -17,7 +16,7 @@ export default async function DashboardCustomRequestsPage() {
           Pedidos de conteúdo personalizado feitos pelos seus compradores.
         </p>
       </div>
-      <CustomRequestsList userId={creator.id} role="creator" />
+      <CustomRequestsList userId={realUser?.id ?? null} role="creator" />
     </div>
   );
 }

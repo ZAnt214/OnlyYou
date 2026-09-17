@@ -1,14 +1,23 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell } from "lucide-react";
-import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
-import { useCustomOrderServices } from "@/lib/services/useCustomOrderServices";
+import { createClient } from "@/lib/supabase/client";
+import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
+import { listNotificationsForUser } from "@/lib/supabase/customRequests";
 
 export function NotificationBell() {
-  const session = useMockSession();
-  const { notificationService } = useCustomOrderServices();
-  const unread = notificationService.unreadCount(session.currentUserId);
+  const { userId } = useCurrentUserId();
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (!userId) return;
+    const supabase = createClient();
+    listNotificationsForUser(supabase, userId)
+      .then((notifications) => setUnread(notifications.filter((n) => !n.read).length))
+      .catch(() => setUnread(0));
+  }, [userId]);
 
   return (
     <Link

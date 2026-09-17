@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { fetchMercadoPagoPayment, mapMercadoPagoStatus } from "@/lib/payments/MercadoPagoMarketplaceProvider";
 import { confirmPaymentFromWebhook } from "@/lib/payments/paymentConfirmations";
+import { activateCustomServiceOrderAfterPayment } from "@/lib/payments/activateCustomServiceOrder";
 
 /**
  * Recebe as notificações (webhook) do Mercado Pago.
@@ -37,12 +38,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true });
     }
 
-    await confirmPaymentFromWebhook({
+    const mappedStatus = mapMercadoPagoStatus(payment.status);
+    const { kind } = await confirmPaymentFromWebhook({
       orderId: payment.externalReference,
       mpPaymentId: payment.id,
-      status: mapMercadoPagoStatus(payment.status),
+      status: mappedStatus,
       rawStatus: payment.status,
     });
+
+    if (kind === "custom_service" && mappedStatus === "paid") {
+      await activateCustomServiceOrderAfterPayment(payment.externalReference);
+    }
   } catch (error) {
     console.error("[mercadopago/webhook]", error);
     // Mesmo em erro, respondemos 2xx: o Mercado Pago reenvia notificações
