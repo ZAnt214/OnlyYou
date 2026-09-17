@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { AgeGate } from "@/components/AgeGate";
 import { createClient } from "@/lib/supabase/client";
 
 const USERNAME_PATTERN = /^[a-z0-9._]{3,30}$/;
 
 export default function CadastroPage() {
   const router = useRouter();
-  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -69,60 +67,56 @@ export default function CadastroPage() {
     <div className="mx-auto flex max-w-sm flex-col gap-6 px-4 py-16">
       <h1 className="text-xl font-semibold text-(--color-text)">Criar conta</h1>
 
-      {!ageConfirmed ? (
-        <AgeGate onConfirm={() => setAgeConfirmed(true)} />
-      ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-            Nome de usuário
-            <input
-              type="text"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value.toLowerCase())}
-              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-            Nome de exibição
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-            E-mail
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-            Senha
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
-            />
-          </label>
-          {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="mt-2 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
-          >
-            {submitting ? "Criando conta…" : "Criar conta"}
-          </button>
-        </form>
-      )}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+          Nome de usuário
+          <input
+            type="text"
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value.toLowerCase())}
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+          Nome de exibição
+          <input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+          E-mail
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+          Senha
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+          />
+        </label>
+        {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="mt-2 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+        >
+          {submitting ? "Criando conta…" : "Criar conta"}
+        </button>
+      </form>
 
       <p className="text-sm text-(--color-text-muted)">
         Já tem conta?{" "}

@@ -3,13 +3,13 @@ import { ShieldCheck, FileWarning, Fingerprint, Lock } from "lucide-react";
 const TOPICS = [
   {
     icon: Fingerprint,
-    title: "Verificação de idade e identidade",
-    body: "O acesso à plataforma exige confirmação de maioridade no cadastro. Verificação de identidade de criadores está em análise manual nesta fase.",
+    title: "Verificação de identidade",
+    body: "Verificação de identidade de criadores está em análise manual nesta fase, incluindo a conexão da conta de pagamento (Mercado Pago).",
   },
   {
     icon: FileWarning,
     title: "Denúncias",
-    body: "Qualquer produto ou perfil pode ser denunciado pelo menu \"•••\" > Denunciar. Denúncias urgentes (conteúdo ilegal ou envolvendo menor) recebem prioridade máxima.",
+    body: "Qualquer produto ou perfil pode ser denunciado pelo menu \"•••\" > Denunciar. Denúncias envolvendo conteúdo ilegal ou fraude recebem prioridade máxima.",
   },
   {
     icon: Lock,
@@ -44,9 +44,8 @@ export default function SegurancaPage() {
       </div>
 
       <div className="rounded-lg border border-(--color-border) bg-(--color-surface) p-4 text-sm text-(--color-text-muted)">
-        Esta é uma versão inicial da plataforma. Verificação de idade/identidade, moderação
-        operacional e antifraude ainda não têm implementação real — veja detalhes no README do
-        projeto.
+        Esta é uma versão inicial da plataforma. Verificação de identidade, moderação operacional
+        e antifraude ainda não têm implementação real — veja detalhes no README do projeto.
       </div>
     </div>
   );

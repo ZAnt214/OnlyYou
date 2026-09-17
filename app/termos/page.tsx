@@ -1,11 +1,11 @@
 const SECTIONS = [
   {
     title: "1. Elegibilidade",
-    body: "O uso do OnlyYou é restrito a pessoas maiores de 18 anos. O cadastro exige confirmação de data de nascimento.",
+    body: "O uso do OnlyYou exige uma conta cadastrada e verificada por e-mail.",
   },
   {
     title: "2. Publicação de conteúdo",
-    body: "Criadores são responsáveis por garantir que possuem todos os direitos e consentimentos necessários sobre o conteúdo publicado.",
+    body: "Criadores são responsáveis por garantir que possuem todos os direitos autorais e de propriedade intelectual necessários sobre o conteúdo publicado.",
   },
   {
     title: "3. Compras",
@@ -17,7 +17,7 @@ const SECTIONS = [
   },
   {
     title: "5. Conduta proibida",
-    body: "É proibida a publicação de conteúdo ilegal, envolvendo menores, não consensual ou obtido de forma fraudulenta.",
+    body: "É proibida a publicação de conteúdo ilegal, que viole direitos autorais de terceiros, ou obtido de forma fraudulenta.",
   },
   {
     title: "6. Moderação",

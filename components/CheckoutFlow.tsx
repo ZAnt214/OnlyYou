@@ -30,12 +30,12 @@ export function CheckoutFlow({ product }: { product: Product }) {
     setCreating(true);
     try {
       const newOrder = orderService.createOrderForProduct(session.currentUserId, product);
-      const newPayment = await paymentService.startPayment(newOrder, method);
+      const newPayment = await paymentService.startProductCheckout(newOrder, method);
       setOrder(newOrder);
       setPayment(newPayment);
       setStep("pending");
-    } catch {
-      setError("Não foi possível iniciar o pagamento no Mercado Pago. Tente novamente.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível iniciar o pagamento. Tente novamente.");
     } finally {
       setCreating(false);
     }

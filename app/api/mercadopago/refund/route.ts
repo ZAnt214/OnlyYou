@@ -1,16 +1,27 @@
 import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/supabase/session";
 import { getServerPaymentProvider } from "@/lib/payments/getServerPaymentProvider";
+import { markConfirmationRefunded } from "@/lib/payments/paymentConfirmations";
+import { userRepository } from "@/lib/repositories/UserRepository";
 
+/** Só admins podem acionar reembolso — nunca o comprador ou o criador direto. */
 export async function POST(request: Request) {
+  const realUser = await getCurrentUser();
+  const admin = realUser ?? (await userRepository.findMockCurrentAdmin());
+  if (!admin.roles.includes("admin")) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 403 });
+  }
+
   const body: unknown = await request.json().catch(() => null);
-  const paymentId = (body as { paymentId?: unknown } | null)?.paymentId;
-  if (typeof paymentId !== "string" || !paymentId) {
-    return NextResponse.json({ error: "paymentId é obrigatório." }, { status: 400 });
+  const b = body as { orderId?: unknown; mpPaymentId?: unknown } | null;
+  if (typeof b?.orderId !== "string" || typeof b?.mpPaymentId !== "string") {
+    return NextResponse.json({ error: "orderId e mpPaymentId são obrigatórios." }, { status: 400 });
   }
 
   try {
     const provider = getServerPaymentProvider();
-    await provider.refund(paymentId);
+    await provider.refund(b.mpPaymentId);
+    await markConfirmationRefunded(b.orderId);
     return NextResponse.json({ refunded: true });
   } catch (error) {
     console.error("[mercadopago/refund]", error);

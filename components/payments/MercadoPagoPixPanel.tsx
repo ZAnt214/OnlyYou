@@ -33,7 +33,7 @@ export function MercadoPagoPixPanel({ payment, paymentService, onPaid }: Mercado
 
     const interval = setInterval(async () => {
       try {
-        const updated = await paymentService.syncStatus(payment.id);
+        const updated = await paymentService.syncStatus(payment.orderId);
         if (cancelled) return;
         if (updated.status === "paid") {
           clearInterval(interval);
@@ -48,7 +48,7 @@ export function MercadoPagoPixPanel({ payment, paymentService, onPaid }: Mercado
       cancelled = true;
       clearInterval(interval);
     };
-  }, [payment.id, payment.status, paymentService]);
+  }, [payment.id, payment.orderId, payment.status, paymentService]);
 
   async function handleCopy() {
     if (!payment.checkoutQrCode) return;

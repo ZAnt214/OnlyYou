@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { getServerPaymentProvider } from "@/lib/payments/getServerPaymentProvider";
+import { fetchMercadoPagoPayment, mapMercadoPagoStatus } from "@/lib/payments/MercadoPagoMarketplaceProvider";
+import { confirmPaymentFromWebhook } from "@/lib/payments/paymentConfirmations";
 
 /**
- * Recebe as notificações (IPN/webhook) do Mercado Pago.
+ * Recebe as notificações (webhook) do Mercado Pago.
  *
- * Este protótipo não tem persistência real no servidor (pedidos/pagamentos
- * vivem no mock-session do navegador), então este endpoint apenas valida a
- * assinatura e confirma a notificação junto à API do Mercado Pago — a
- * confirmação efetiva do fluxo acontece por polling client-side em
- * /api/mercadopago/status (ver MercadoPagoPixPanel e a página de retorno do
- * checkout). Em produção, é aqui que o status seria persistido no banco.
+ * Nunca confia no corpo da notificação: usa apenas o id do pagamento
+ * recebido para buscar o registro real na API do Mercado Pago (com o token
+ * da própria integradora, que enxerga qualquer pagamento criado dentro do
+ * seu ecossistema OAuth), e só então grava o status/valor confirmados em
+ * payment_confirmations — a autoridade real usada por toda a aplicação.
  */
 export async function POST(request: Request) {
   const rawBody = await request.text();
@@ -20,18 +20,44 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
   }
 
-  const payload: unknown = rawBody ? JSON.parse(rawBody) : null;
+  const payload = safeParse(rawBody);
+  const type = payload?.type ?? payload?.topic;
+  const mpPaymentId = payload?.data?.id;
+
+  if (type !== "payment" || !mpPaymentId) {
+    // Outros tipos de notificação (merchant_order etc.) não são relevantes
+    // para a confirmação de pagamento — reconhecemos sem processar.
+    return NextResponse.json({ received: true });
+  }
 
   try {
-    const provider = getServerPaymentProvider();
-    await provider.handleWebhook(payload);
+    const payment = await fetchMercadoPagoPayment(String(mpPaymentId));
+    if (!payment || !payment.externalReference) {
+      console.error(`[mercadopago/webhook] pagamento ${mpPaymentId} não encontrado ou sem external_reference.`);
+      return NextResponse.json({ received: true });
+    }
+
+    await confirmPaymentFromWebhook({
+      orderId: payment.externalReference,
+      mpPaymentId: payment.id,
+      status: mapMercadoPagoStatus(payment.status),
+      rawStatus: payment.status,
+    });
   } catch (error) {
     console.error("[mercadopago/webhook]", error);
-    // Mesmo em erro, respondemos 200: o Mercado Pago reenvia notificações
-    // que não retornam 2xx, e sem persistência não há nada a reprocessar.
+    // Mesmo em erro, respondemos 2xx: o Mercado Pago reenvia notificações
+    // que não retornam 2xx, e o próximo reenvio reprocessa do zero.
   }
 
   return NextResponse.json({ received: true });
+}
+
+function safeParse(rawBody: string): { type?: string; topic?: string; data?: { id?: string } } | null {
+  try {
+    return rawBody ? JSON.parse(rawBody) : null;
+  } catch {
+    return null;
+  }
 }
 
 function isSignatureValid(request: Request, rawBody: string, secret: string): boolean {

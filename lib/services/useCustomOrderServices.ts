@@ -20,7 +20,6 @@ import { NotificationService } from "./NotificationService";
 import { OrderService } from "./OrderService";
 import { PaymentService } from "./PaymentService";
 import { WalletService } from "./WalletService";
-import { paymentProvider } from "@/lib/payments/getPaymentProvider";
 
 /**
  * Reúne os serviços do fluxo de pedidos personalizados
@@ -42,7 +41,7 @@ export function useCustomOrderServices() {
 
   return useMemo(() => {
     const orderService = new OrderService(orderRepo);
-    const paymentService = new PaymentService(paymentRepo, paymentProvider);
+    const paymentService = new PaymentService(paymentRepo);
     const walletService = new WalletService(saleRepo);
 
     return {

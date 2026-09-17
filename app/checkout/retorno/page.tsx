@@ -50,11 +50,11 @@ function CheckoutReturnContent() {
   const [outcome, setOutcome] = useState<Outcome>(syncOutcome ?? "checking");
 
   useEffect(() => {
-    if (syncOutcome || !order || !localPayment || !mpPaymentId) return;
+    if (syncOutcome || !order || !localPayment || !mpPaymentId || !orderId) return;
 
     let cancelled = false;
     paymentService
-      .confirmFromMercadoPagoReturn(localPayment.id, mpPaymentId)
+      .syncStatus(orderId, mpPaymentId)
       .then((confirmed) => {
         if (cancelled) return;
         if (confirmed.status === "paid") {

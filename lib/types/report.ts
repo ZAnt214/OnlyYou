@@ -6,8 +6,6 @@ export type ReportPriority = "low" | "normal" | "high" | "urgent";
 
 export type ReportReason =
   | "illegal_content"
-  | "minor_content"
-  | "non_consensual_content"
   | "stolen_content"
   | "copyright_violation"
   | "fake_profile"
@@ -35,8 +33,6 @@ export interface Report {
 
 export const REPORT_REASON_LABELS: Record<ReportReason, string> = {
   illegal_content: "Conteúdo ilegal",
-  minor_content: "Conteúdo envolvendo menor",
-  non_consensual_content: "Conteúdo não consensual",
   stolen_content: "Conteúdo roubado",
   copyright_violation: "Violação de direitos autorais",
   fake_profile: "Perfil falso",
