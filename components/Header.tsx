@@ -30,7 +30,7 @@ const NAV_LINKS = [
 export function Header({ creatorUsername }: { creatorUsername: string }) {
   const ACCOUNT_LINKS = [
     { href: "/biblioteca", label: "Biblioteca", icon: Library },
-    { href: "/pedidos", label: "Minhas solicitações", icon: MessageSquare },
+    { href: "/pedidos", label: "Mensagens", icon: MessageSquare },
     { href: "/notificacoes", label: "Notificações", icon: Bell },
     { href: "/favoritos", label: "Favoritos", icon: Heart },
     { href: `/criadores/${creatorUsername}`, label: "Área do criador", icon: LayoutDashboard },
