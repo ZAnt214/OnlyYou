@@ -6,6 +6,7 @@ import { MessageSquare } from "lucide-react";
 import { useCustomOrderServices } from "@/lib/services/useCustomOrderServices";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { StatusBadge } from "@/components/StatusBadge";
+import { EmptyState } from "@/components/EmptyState";
 import type { User } from "@/lib/types";
 
 function formatBRLFromCents(cents: number): string {
@@ -43,16 +44,20 @@ export function CustomRequestsList({
 
   if (requests.length === 0) {
     return (
-      <p className="text-sm text-(--color-text-muted)">
-        {role === "creator"
-          ? "Nenhum pedido personalizado recebido ainda."
-          : "Você ainda não fez nenhum pedido de conteúdo personalizado."}
-      </p>
+      <EmptyState
+        icon={MessageSquare}
+        title="Nenhuma mensagem ainda"
+        description={
+          role === "creator"
+            ? "Pedidos personalizados recebidos de clientes aparecem aqui."
+            : "Pedidos personalizados que você fizer a profissionais aparecem aqui."
+        }
+      />
     );
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       {requests.map((request) => {
         const proposal = proposalRepo
           .findByCustomRequest(request.id)
@@ -66,7 +71,7 @@ export function CustomRequestsList({
           <Link
             key={request.id}
             href={`${basePath}/${request.id}`}
-            className="flex flex-col gap-2 rounded-lg border border-(--color-border) p-4 hover:border-(--color-accent) sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+            className="flex flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-colors hover:border-(--color-accent) sm:flex-row sm:items-center sm:justify-between sm:gap-4"
           >
             <div className="flex min-w-0 flex-col gap-0.5">
               <div className="flex items-center gap-2">
@@ -84,7 +89,7 @@ export function CustomRequestsList({
                   : ""}
               </p>
             </div>
-            <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-md border border-(--color-border) px-3 py-1.5 text-sm text-(--color-text) sm:self-auto">
+            <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border border-(--color-border) px-3 py-1.5 text-sm text-(--color-text) sm:self-auto">
               <MessageSquare size={14} strokeWidth={1.5} />
               Conversar
             </span>

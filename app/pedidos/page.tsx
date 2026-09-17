@@ -7,9 +7,9 @@ export default function MeusPedidosPage() {
   const session = useMockSession();
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold text-(--color-text)">Mensagens</h1>
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-4">
+      <div className="flex flex-col gap-1 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-center">
+        <h1 className="text-base font-bold text-(--color-text)">Mensagens</h1>
         <p className="text-sm text-(--color-text-muted)">
           Suas conversas e pedidos personalizados com profissionais da plataforma.
         </p>
