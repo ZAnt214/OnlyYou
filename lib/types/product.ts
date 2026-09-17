@@ -13,6 +13,13 @@ export type ProductType =
   | "exclusive"
   | "custom_service"
   | "consulting"
+  | "marketing"
+  | "social_media"
+  | "programming"
+  | "web_development"
+  | "ui_ux"
+  | "copywriting"
+  | "translation"
   | "other";
 
 export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
@@ -30,6 +37,13 @@ export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
   exclusive: "Conteúdo exclusivo",
   custom_service: "Serviços personalizados",
   consulting: "Consultorias",
+  marketing: "Marketing",
+  social_media: "Social Media",
+  programming: "Programação",
+  web_development: "Desenvolvimento web",
+  ui_ux: "UI/UX",
+  copywriting: "Redação e copywriting",
+  translation: "Tradução",
   other: "Outros",
 };
 

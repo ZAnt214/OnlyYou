@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Library, Heart, LayoutDashboard } from "lucide-react";
+import { Home, Search, Library, MessageSquare, LayoutDashboard } from "lucide-react";
 
 export function MobileNav({ creatorUsername }: { creatorUsername: string }) {
   const pathname = usePathname();
@@ -11,7 +11,7 @@ export function MobileNav({ creatorUsername }: { creatorUsername: string }) {
     { href: "/", label: "Início", icon: Home },
     { href: "/descobrir", label: "Descobrir", icon: Search },
     { href: "/biblioteca", label: "Biblioteca", icon: Library },
-    { href: "/favoritos", label: "Favoritos", icon: Heart },
+    { href: "/pedidos", label: "Mensagens", icon: MessageSquare },
     {
       href: `/criadores/${creatorUsername}`,
       label: "Criador",

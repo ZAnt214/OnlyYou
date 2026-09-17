@@ -10,6 +10,10 @@ Este repositório contém o **primeiro scaffold real** da plataforma: interface 
 arquitetura de domínio e dados simulados (mock) cobrindo o fluxo principal
 **Criador → Produto → Compra → Entrega → Biblioteca → Vendas**.
 
+> O produto foi renomeado de OnlyYou para Jobê. O repositório GitHub (`ZAnt214/OnlyYou`) e o
+> projeto Supabase (`onlyyou`) mantêm o nome técnico original — renomear esses recursos de
+> infraestrutura é uma ação administrativa fora do escopo deste código.
+
 ## Stack
 
 - [Next.js 15+](https://nextjs.org) (App Router) + TypeScript

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import type { ProductType } from "@/lib/types";
 import { moderationService } from "@/lib/moderation/ModerationService";
+import { categories } from "@/lib/data/categories";
 
 const STEPS = ["Informações", "Conteúdo", "Venda", "Revisão"];
 
@@ -108,20 +109,11 @@ export default function NovoProdutoPage() {
                 onChange={(e) => update("category", e.target.value)}
                 className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
               >
-                <option value="fotos">Fotos</option>
-                <option value="videos">Vídeos</option>
-                <option value="packs-digitais">Packs digitais</option>
-                <option value="arte">Arte</option>
-                <option value="design">Design</option>
-                <option value="musica">Música</option>
-                <option value="gaming">Gaming</option>
-                <option value="tutoriais">Tutoriais</option>
-                <option value="educacao">Educação</option>
-                <option value="ebooks">E-books</option>
-                <option value="templates">Templates</option>
-                <option value="conteudo-exclusivo">Conteúdo exclusivo</option>
-                <option value="servicos-personalizados">Serviços personalizados</option>
-                <option value="consultorias">Consultorias</option>
+                {categories.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
             </Field>
           </div>
@@ -149,6 +141,13 @@ export default function NovoProdutoPage() {
                 <option value="exclusive">Conteúdo exclusivo</option>
                 <option value="custom_service">Serviço personalizado</option>
                 <option value="consulting">Consultoria</option>
+                <option value="marketing">Marketing</option>
+                <option value="social_media">Social Media</option>
+                <option value="programming">Programação</option>
+                <option value="web_development">Desenvolvimento web</option>
+                <option value="ui_ux">UI/UX</option>
+                <option value="copywriting">Redação e copywriting</option>
+                <option value="translation">Tradução</option>
                 <option value="other">Outro</option>
               </select>
             </Field>

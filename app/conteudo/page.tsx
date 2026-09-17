@@ -5,9 +5,9 @@ export default function ConteudoPage() {
     <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8">
       <h1 className="text-xl font-semibold text-(--color-text)">Política de conteúdo</h1>
       <p className="text-sm text-(--color-text-muted)">
-        Todo conteúdo publicado no Jobê é destinado exclusivamente a maiores de 18 anos e
-        precisa envolver apenas participantes que consentiram de forma verificável com a
-        publicação e a venda do material.
+        Todo produto e serviço publicado no Jobê precisa ser autoral ou devidamente licenciado.
+        Não é permitido revender material de terceiros sem autorização nem prometer entregas que
+        não serão cumpridas.
       </p>
       <div className="flex flex-col gap-2">
         <h2 className="text-sm font-medium text-(--color-text)">Conteúdo proibido</h2>
@@ -23,8 +23,8 @@ export default function ConteudoPage() {
         </ul>
       </div>
       <p className="text-sm text-(--color-text-muted)">
-        Produtos denunciados entram em fila de análise. Casos de conteúdo ilegal ou envolvendo
-        menor têm prioridade máxima e podem resultar em remoção imediata e suspensão da conta.
+        Produtos e serviços denunciados entram em fila de análise. Casos de conteúdo ilegal ou
+        fraude têm prioridade máxima e podem resultar em remoção imediata e suspensão da conta.
       </p>
     </div>
   );

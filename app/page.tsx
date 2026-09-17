@@ -25,6 +25,14 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-4">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-xl font-semibold text-(--color-text)">Encontre quem faz</h1>
+        <p className="text-sm text-(--color-text-muted)">
+          Produtos digitais e serviços publicados por profissionais que definem o próprio preço.
+          Não achou pronto? Peça um trabalho personalizado direto com quem faz.
+        </p>
+      </div>
+
       <BecomeCreatorBanner href="/dashboard" />
 
       {feed.slice(0, 2).map((p) => (
