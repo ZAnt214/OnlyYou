@@ -20,9 +20,6 @@ import { NotificationService } from "./NotificationService";
 import { OrderService } from "./OrderService";
 import { PaymentService } from "./PaymentService";
 import { WalletService } from "./WalletService";
-import { MockPaymentProvider } from "@/lib/payments/PaymentProvider";
-
-const paymentProvider = new MockPaymentProvider();
 
 /**
  * Reúne os serviços do fluxo de pedidos personalizados
@@ -44,7 +41,7 @@ export function useCustomOrderServices() {
 
   return useMemo(() => {
     const orderService = new OrderService(orderRepo);
-    const paymentService = new PaymentService(paymentRepo, paymentProvider);
+    const paymentService = new PaymentService(paymentRepo);
     const walletService = new WalletService(saleRepo);
 
     return {
@@ -82,6 +79,7 @@ export function useCustomOrderServices() {
         notificationRepo,
       ),
       notificationService: new NotificationService(notificationRepo),
+      paymentService,
       proposalRepo,
       customServiceOrderRepo,
     };

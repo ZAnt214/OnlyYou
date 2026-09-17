@@ -7,6 +7,8 @@ import type { Product, Order, Payment, PaymentMethod } from "@/lib/types";
 import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
 import { useCheckoutServices } from "@/lib/services/useCheckoutServices";
 import { PriceTag } from "@/components/PriceTag";
+import { MercadoPagoPixPanel } from "@/components/payments/MercadoPagoPixPanel";
+import { finalizeProductCheckout } from "@/lib/checkout/finalizeCheckout";
 
 type Step = "review" | "pending" | "done";
 
@@ -18,27 +20,37 @@ export function CheckoutFlow({ product }: { product: Product }) {
   const [method, setMethod] = useState<PaymentMethod>("pix");
   const [order, setOrder] = useState<Order | null>(null);
   const [payment, setPayment] = useState<Payment | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const unitPrice = product.promoPrice ?? product.price;
 
   async function handleCreateOrder() {
-    const newOrder = orderService.createOrderForProduct(session.currentUserId, product);
-    const newPayment = await paymentService.startPayment(newOrder, method);
-    setOrder(newOrder);
-    setPayment(newPayment);
-    setStep("pending");
+    setError(null);
+    setCreating(true);
+    try {
+      const newOrder = orderService.createOrderForProduct(session.currentUserId, product);
+      const newPayment = await paymentService.startProductCheckout(newOrder, method);
+      setOrder(newOrder);
+      setPayment(newPayment);
+      setStep("pending");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível iniciar o pagamento. Tente novamente.");
+    } finally {
+      setCreating(false);
+    }
   }
 
-  function handleConfirmPayment() {
-    if (!order || !payment) return;
-    const confirmedPayment = paymentService.confirmPayment(payment.id);
-    orderService.markPaid(order.id);
-    walletService.registerSaleFromPayment(order, confirmedPayment);
-    entitlementService.grantFromOrder({
+  function handlePaid(confirmedPayment: Payment) {
+    if (!order) return;
+    finalizeProductCheckout({
+      order,
+      payment: confirmedPayment,
       userId: session.currentUserId,
       productId: product.id,
-      orderId: order.id,
-      paymentId: confirmedPayment.id,
+      orderService,
+      walletService,
+      entitlementService,
     });
     setStep("done");
   }
@@ -69,17 +81,9 @@ export function CheckoutFlow({ product }: { product: Product }) {
           Pedido {order?.id} criado. Pagamento com status{" "}
           <span className="font-medium text-(--color-warning)">pendente</span>.
         </p>
-        <p className="text-xs text-(--color-text-subtle)">
-          Nesta fase de mock não há gateway real — use o botão abaixo para simular a confirmação
-          do pagamento (equivalente ao webhook do provedor).
-        </p>
-        <button
-          type="button"
-          onClick={handleConfirmPayment}
-          className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
-        >
-          Simular confirmação do pagamento
-        </button>
+        {payment ? (
+          <MercadoPagoPixPanel payment={payment} paymentService={paymentService} onPaid={handlePaid} />
+        ) : null}
       </div>
     );
   }
@@ -126,12 +130,15 @@ export function CheckoutFlow({ product }: { product: Product }) {
         </div>
       </div>
 
+      {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
+
       <button
         type="button"
         onClick={handleCreateOrder}
-        className="rounded-md bg-(--color-accent) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+        disabled={creating}
+        className="rounded-md bg-(--color-accent) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
       >
-        Finalizar compra
+        {creating ? "Iniciando pagamento..." : "Finalizar compra"}
       </button>
     </div>
   );

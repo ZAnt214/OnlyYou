@@ -9,9 +9,6 @@ import { OrderService } from "./OrderService";
 import { PaymentService } from "./PaymentService";
 import { WalletService } from "./WalletService";
 import { EntitlementService } from "./EntitlementService";
-import { MockPaymentProvider } from "@/lib/payments/PaymentProvider";
-
-const paymentProvider = new MockPaymentProvider();
 
 /**
  * Reúne os serviços necessários para o fluxo de checkout
@@ -27,7 +24,7 @@ export function useCheckoutServices() {
   return useMemo(
     () => ({
       orderService: new OrderService(orderRepo),
-      paymentService: new PaymentService(paymentRepo, paymentProvider),
+      paymentService: new PaymentService(paymentRepo),
       walletService: new WalletService(saleRepo),
       entitlementService: new EntitlementService(entitlementRepo, paymentRepo),
     }),

@@ -12,7 +12,7 @@ export const customRequests: CustomRequest[] = [
     requesterId: "user-b02",
     creatorId: "user-c02",
     description:
-      "Gostaria de um ensaio temático de 10 fotos, estilo noturno, com roupa específica que posso descrever em mais detalhes.",
+      "Gostaria de um pack de 10 ilustrações temáticas, estilo minimalista, com paleta de cores que posso descrever em mais detalhes.",
     status: "pending",
     conversationId: "conv-1",
     createdAt: "2025-09-12T19:30:00.000Z",

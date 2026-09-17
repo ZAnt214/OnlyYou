@@ -1,11 +1,35 @@
-export type ProductType = "photo" | "video" | "pack" | "bundle" | "custom" | "other";
+export type ProductType =
+  | "photo"
+  | "video"
+  | "digital_pack"
+  | "art"
+  | "design"
+  | "music"
+  | "gaming"
+  | "tutorial"
+  | "education"
+  | "ebook"
+  | "template"
+  | "exclusive"
+  | "custom_service"
+  | "consulting"
+  | "other";
 
 export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
   photo: "Fotos",
   video: "Vídeos",
-  pack: "Packs",
-  bundle: "Bundles",
-  custom: "Conteúdo personalizado",
+  digital_pack: "Packs digitais",
+  art: "Arte",
+  design: "Design",
+  music: "Música",
+  gaming: "Gaming",
+  tutorial: "Tutoriais",
+  education: "Educação",
+  ebook: "E-books",
+  template: "Templates",
+  exclusive: "Conteúdo exclusivo",
+  custom_service: "Serviços personalizados",
+  consulting: "Consultorias",
   other: "Outros",
 };
 

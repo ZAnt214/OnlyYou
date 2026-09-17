@@ -1,63 +1,64 @@
-// TODO(integração):
-// Selecionar e validar formalmente um processador de pagamentos
-// compatível com o modelo específico do OnlyYou (marketplace de
-// conteúdo adulto, venda individual, divisão de comissões, saques
-// para criadores, chargebacks, reembolsos) antes de qualquer
-// integração real. A disponibilidade de processamento depende das
-// políticas atuais do provedor, da jurisdição, do tipo de conteúdo,
-// do modelo comercial e da aprovação da conta — não presumir que
-// um gateway genérico (Stripe/PayPal/Mercado Pago padrão) aceita
-// este modelo sem validação formal. Exemplos de provedores
-// especializados a avaliar (não decididos): CCBill, Segpay, Epoch,
-// Verotel.
+// Processador de pagamentos: Mercado Pago, no modelo de marketplace (split
+// automático entre OnlyYou e o criador via conta conectada por OAuth). Ver
+// lib/payments/MercadoPagoMarketplaceProvider.ts para a implementação real e
+// lib/payments/getServerPaymentProvider.ts para a seleção mock/real.
 
-import type { Payment, PaymentMethod, PaymentStatus } from "@/lib/types";
+import type { PaymentMethod, PaymentStatus } from "@/lib/types";
 
 export interface CreateCheckoutInput {
+  /** Id do pedido interno — vira `external_reference` no Mercado Pago. */
   orderId: string;
+  /** Valor em reais, calculado pelo servidor — nunca vindo do cliente. */
   amount: number;
   method: PaymentMethod;
+  description?: string;
+  payerEmail?: string;
+  /** Access token OAuth do criador conectado — o pagamento é criado em nome dele. */
+  sellerAccessToken: string;
+  /** Parte retida pela plataforma (reais), descontada automaticamente pelo Mercado Pago. */
+  marketplaceFeeAmount: number;
 }
 
 export interface CreateCheckoutResult {
+  /** Id real do pagamento (Pix) ou da preference (Checkout Pro). */
   paymentId: string;
   status: PaymentStatus;
+  /** URL de checkout hospedado pelo Mercado Pago (cartão/boleto — Checkout Pro). */
+  redirectUrl?: string;
+  /** Copia-e-cola do Pix. */
+  qrCode?: string;
+  /** QR code do Pix em base64 (image/png). */
+  qrCodeBase64?: string;
+  expiresAt?: string;
 }
 
 export interface PaymentProvider {
   createCheckout(input: CreateCheckoutInput): Promise<CreateCheckoutResult>;
-  getPaymentStatus(paymentId: string): Promise<PaymentStatus>;
-  handleWebhook(payload: unknown): Promise<void>;
-  refund(paymentId: string): Promise<void>;
+  getPaymentStatus(mpPaymentId: string): Promise<PaymentStatus>;
+  refund(mpPaymentId: string): Promise<void>;
 }
 
 /**
- * Implementação simulada: nenhuma cobrança real acontece. O pagamento nasce
- * "pending" e é confirmado manualmente pela pessoa usuária (simulando o
- * webhook de confirmação) através de PaymentService.confirmPayment().
+ * Implementação simulada usada como fallback de desenvolvimento quando
+ * PAYMENT_PROVIDER=mock ou quando as credenciais do Mercado Pago não estão
+ * configuradas (ver getServerPaymentProvider). Nenhuma cobrança real
+ * acontece: nasce "pending" e nunca muda de status sozinha — em dev, use
+ * PAYMENT_PROVIDER=mock e confirme manualmente via SQL/dashboard se precisar
+ * testar o caminho "paid" sem credenciais reais.
  */
 export class MockPaymentProvider implements PaymentProvider {
   async createCheckout(input: CreateCheckoutInput): Promise<CreateCheckoutResult> {
     return {
-      paymentId: `pay-${input.orderId}-${Date.now()}`,
+      paymentId: `mock-${input.orderId}-${Date.now()}`,
       status: "pending",
     };
   }
 
-  async getPaymentStatus(paymentId: string): Promise<PaymentStatus> {
-    void paymentId;
-    // Em um provedor real, isso consultaria a API do gateway de pagamento.
+  async getPaymentStatus(): Promise<PaymentStatus> {
     return "pending";
   }
 
-  async handleWebhook(payload: unknown): Promise<void> {
-    void payload;
-    // Em um provedor real, isso validaria a assinatura do webhook e
-    // atualizaria o status do pagamento correspondente.
-  }
-
-  async refund(paymentId: string): Promise<void> {
-    void paymentId;
+  async refund(): Promise<void> {
     // Em um provedor real, isso acionaria o estorno junto ao gateway.
   }
 }
@@ -65,5 +66,3 @@ export class MockPaymentProvider implements PaymentProvider {
 export function isPaidStatus(status: PaymentStatus): boolean {
   return status === "paid";
 }
-
-export type { Payment };

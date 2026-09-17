@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { LayoutDashboard, Flag, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Flag, MessageSquare, CreditCard } from "lucide-react";
 import { requireAdmin } from "@/lib/security/adminAuth";
 
 const NAV = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
+  { href: "/admin/pagamentos", label: "Pagamentos", icon: CreditCard },
   { href: "/admin/denuncias", label: "Denúncias", icon: Flag },
   { href: "/admin/conversas", label: "Conversas", icon: MessageSquare },
 ];

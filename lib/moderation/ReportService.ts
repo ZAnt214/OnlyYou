@@ -14,9 +14,9 @@ export class ReportService {
     conversationId?: string;
   }): Promise<Report> {
     const priority: Report["priority"] =
-      params.reason === "minor_content" || params.reason === "illegal_content"
+      params.reason === "illegal_content"
         ? "urgent"
-        : params.reason === "non_consensual_content" || params.reason === "stolen_content"
+        : params.reason === "stolen_content" || params.reason === "fraud"
           ? "high"
           : "normal";
 

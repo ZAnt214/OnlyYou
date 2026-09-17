@@ -1,8 +1,9 @@
 # OnlyYou
 
-OnlyYou é um marketplace de conteúdo adulto (+18). Criadores publicam produtos digitais
-individuais — fotos, vídeos, packs, bundles e conteúdo personalizado — e definem o próprio
-preço. Compradores adquirem cada produto individualmente e recebem acesso na própria
+OnlyYou é um marketplace de criadores, conteúdos e serviços digitais — fotos, vídeos, packs
+digitais, arte, design, música, gaming, tutoriais, educação, e-books, templates, conteúdo
+exclusivo, serviços personalizados e consultorias. Criadores publicam produtos e definem o
+próprio preço; compradores adquirem cada produto individualmente e recebem acesso na própria
 biblioteca assim que o pagamento é confirmado.
 
 Este repositório contém o **primeiro scaffold real** da plataforma: interface completa,
@@ -42,7 +43,7 @@ lib/
   data/              # fixtures mock tipadas (produtos, criadores, pedidos...)
   repositories/      # 1 interface + 1 Mock*Repository por entidade
   services/          # regras de negócio orquestrando repositórios/providers
-  payments/          # PaymentProvider e MediaStorageProvider (mock) + TODOs de integração
+  payments/          # PaymentProvider (Mercado Pago) e MediaStorageProvider (mock) + TODOs de integração
   access/            # regras de liberação de conteúdo (content-release)
   moderation/        # ModerationService, ReportService
   security/          # configuração de revenue share, AuditLogRepository
@@ -51,8 +52,17 @@ lib/
 
 Quando chegar a hora de conectar um banco de dados real, o trabalho é escrever
 `DatabaseProductRepository implements ProductRepository` (por exemplo) e trocar a instância
-usada — nenhuma página muda. O mesmo vale para `RealPaymentProvider implements PaymentProvider`
-no lugar de `MockPaymentProvider`.
+usada — nenhuma página muda. Pagamentos já seguem esse padrão: `MercadoPagoMarketplaceProvider
+implements PaymentProvider` é o provider real (usado pelas API routes), com `MockPaymentProvider`
+mantido como fallback de desenvolvimento. A seleção é explícita via `PAYMENT_PROVIDER=mock|
+mercadopago` (`lib/payments/getServerPaymentProvider.ts`); sem a variável, usa Mercado Pago se
+`MERCADOPAGO_ACCESS_TOKEN` estiver configurado, senão cai para o mock — a ausência de
+credenciais nunca derruba a aplicação.
+
+Diferente do resto do domínio (que continua 100% mock/client-side), os dados de pagamento têm
+uma autoridade real no servidor: um projeto Supabase dedicado guarda os tokens OAuth de cada
+criador conectado e o resultado confirmado de cada pagamento (ver "Mercado Pago: marketplace,
+OAuth e split" abaixo). É a única parte do domínio com persistência real nesta fase.
 
 ### Repositórios de leitura vs. repositórios com mutação
 
@@ -65,28 +75,69 @@ no lugar de `MockPaymentProvider`.
   sobre o estado central mantido por `MockSessionProvider` — nunca acessam `localStorage`
   diretamente.
 
-## Como funciona o checkout mock (Order → Payment → Sale → Entitlement)
+## Mercado Pago: marketplace, OAuth e split
 
-Não há banco de dados nem gateway de pagamento reais nesta fase. O fluxo de compra é simulado
-assim:
+OnlyYou processa pagamentos como um **marketplace** do Mercado Pago: cada criador conecta a
+própria conta via OAuth, e cada venda é criada em nome dele, com a comissão da plataforma
+retida automaticamente pelo Mercado Pago (`marketplace_fee`/`application_fee`) — o dinheiro do
+comprador nunca passa por uma conta única do OnlyYou.
+
+### Conectar a conta do criador (OAuth)
+
+```
+Painel do criador → /dashboard/pagamentos → "Conectar Mercado Pago"
+→ GET /api/mercadopago/oauth/authorize (exige sessão Supabase real; assina um "state" HMAC)
+→ redireciona para auth.mercadopago.com (o criador autoriza no ambiente do Mercado Pago)
+→ GET /api/mercadopago/oauth/callback (valida o state, confirma que é a mesma sessão que
+  iniciou o fluxo, troca o code por tokens em POST /oauth/token)
+→ tokens salvos em creator_mercadopago_accounts (Supabase, só service role lê/escreve)
+→ espelho público sem tokens em creator_mercadopago_status (o criador e o checkout enxergam
+  "conectado: sim/não" sem nunca tocar no token)
+```
+
+`access_token`/`refresh_token` nunca chegam ao navegador — nem em `NEXT_PUBLIC_*`, nem em
+localStorage, nem em nenhuma resposta de API. `getValidCreatorAccessToken()`
+(`lib/payments/creatorMercadoPagoAccount.ts`) renova o token automaticamente quando está perto
+de expirar, sempre a partir de código server-only.
+
+### Checkout (Order → Payment → Sale → Entitlement)
 
 1. **Order**: ao clicar em "Finalizar compra", `OrderService` cria um `Order` com status
    `pending`, guardando um *snapshot* do preço no momento da compra (`OrderItem`).
-2. **Payment**: `PaymentService` chama `MockPaymentProvider.createCheckout()`, que cria um
-   `Payment` com status `pending` — nenhuma cobrança real acontece.
-3. **Confirmação**: a tela de checkout tem um botão "Simular confirmação do pagamento", que
-   equivale ao webhook de confirmação de um provedor real. Isso muda o `Payment` para `paid`.
-4. **Sale**: `WalletService` registra uma `Sale` (snapshot financeiro) aplicando o split de
-   receita configurado (ver abaixo).
+2. **Payment**: `PaymentService.startProductCheckout()` chama `POST /api/mercadopago/checkout`
+   passando só `orderId`/`productId`/`method` — **nunca o valor**. A rota resolve o produto e o
+   criador no servidor (`productRepository`), calcula o split a partir de
+   `platformConfig` e busca o access token do criador conectado; se ele não tiver conectado o
+   Mercado Pago, o checkout é recusado com 409 antes de qualquer chamada ao gateway. Só então
+   `MercadoPagoMarketplaceProvider` (server-only) cria a cobrança em nome do criador: Pix vira
+   um pagamento com QR code/copia-e-cola, cartão/boleto viram uma Preference do Checkout Pro. O
+   resultado é gravado imediatamente em `payment_confirmations` (Supabase) como `pending`.
+3. **Confirmação (sempre no servidor)**: para Pix, `MercadoPagoPixPanel` faz polling de
+   `GET /api/mercadopago/status?orderId=...`. Para cartão/boleto, a pessoa é redirecionada ao
+   Checkout Pro e volta para `/checkout/retorno` — que **nunca trata o retorno do navegador
+   como prova de pagamento** (nem `payment_id` na URL, nem status "success"): sempre reconsulta
+   o status real. `POST /api/mercadopago/webhook` recebe as notificações do Mercado Pago,
+   ignora o corpo recebido e busca o pagamento de novo diretamente na API antes de gravar
+   qualquer coisa — idempotente por `order_id` (reenviar a mesma notificação não duplica
+   linha nem repete o processamento; ver `confirmPaymentFromWebhook` em
+   `lib/payments/paymentConfirmations.ts`).
+4. **Sale**: assim que o `Payment` local reflete `paid` (via `syncStatus`, nunca antes),
+   `WalletService` registra uma `Sale` (snapshot financeiro) aplicando o split de receita
+   configurado (ver abaixo).
 5. **Entitlement**: `EntitlementService` só concede o `Entitlement` (o que libera o produto na
    biblioteca) **se o `Payment` associado estiver `paid`** — a criação do `Order` sozinha nunca
    libera conteúdo. Essa regra está implementada em código, não só em documentação.
 
-Todo esse estado (`orders`, `payments`, `sales`, `entitlements`, `withdrawals`, favoritos) é
-mantido por `lib/mock-session/MockSessionProvider.tsx`, que hidrata a partir do `localStorage`
-no carregamento e persiste a cada mudança — assim o fluxo sobrevive a navegação e reload da
-página **durante a sessão do navegador**. Essa persistência é client-side e vale apenas para
-esta fase de mock; não substitui um banco de dados real.
+### O que é real e o que ainda é mock nesse fluxo
+
+`Order`/`Payment`/`Sale`/`Entitlement` continuam vivendo no mock-session do navegador (mesmo
+padrão de sempre, `lib/mock-session/MockSessionProvider.tsx`) — é o que a UI lê para montar
+biblioteca, pedidos e carteira. A **autoridade real** sobre "esse pagamento foi de fato
+aprovado" é a tabela `payment_confirmations` no Supabase, escrita só pelo backend a partir de
+uma resposta verificada da API do Mercado Pago; o mock local é sincronizado a partir dela
+(`PaymentService.syncStatus`), nunca o contrário. Isso é o suficiente para nunca liberar
+conteúdo por engano, mas **não** substitui um banco de dados real para o restante do domínio —
+ver "Limitações e integrações futuras".
 
 ## Pedidos personalizados, conversa e propostas
 
@@ -137,9 +188,11 @@ Perfil do criador → "Pedir conteúdo personalizado" → CustomRequestService.c
 → Requester aceita (ProposalService.accept) → proposal.status = accepted,
   request.status = accepted → card mostra "Pagar proposta"
 → CustomOrderService.createOrderAndPayment() reaproveita OrderService.createOrderForCustomProposal()
-  + PaymentService.startPayment() (o MESMO MockPaymentProvider do checkout de produto) →
+  + PaymentService.startCustomServiceCheckout() (o MESMO provider Mercado Pago do checkout de
+  produto — mas aqui valor/criador vêm da CustomProposal aceita no mock-session, não são
+  revalidados no servidor como no checkout de produto; ver limitação abaixo) →
   CustomServiceOrder (awaiting_payment)
-→ "Simular confirmação do pagamento" (mesmo padrão do CheckoutFlow.tsx) →
+→ MercadoPagoPixPanel faz polling do pagamento Pix real (mesmo padrão do CheckoutFlow.tsx) →
   CustomOrderService.confirmPaymentAndStart(): PaymentService.confirmPayment() →
   OrderService.markPaid() → WalletService.registerSaleFromPayment() (Sale via platformConfig)
   → CustomServiceOrder → in_progress, deliveryDeadlineAt calculado a partir de
@@ -185,6 +238,13 @@ visualização de uma conversa específica grava um `AuditLog` (`action: "view_c
 
 ### Novos `// TODO(integração)`
 
+- **Valor/criador do pedido personalizado não são validados no servidor.** Diferente do
+  checkout de produto (onde `productRepository` resolve preço e criador no backend), a
+  `CustomProposal` aceita só existe no mock-session do navegador — não há como o servidor
+  conferi-la de forma independente hoje. `POST /api/mercadopago/checkout` (kind
+  `custom_service`) confia no valor/criador que o cliente envia. Corrigir isso exige mover
+  `CustomRequest`/`CustomProposal` para uma tabela real (mesmo padrão usado para
+  `payment_confirmations`), fora do escopo desta mudança.
 - **Rate limiting** na criação de pedidos, envio de mensagens e propostas — nada disso é
   limitado nesta fase (comentário em `CustomRequestService`/`MessageService`).
 - **Verificação de prazo (cron)**: não há nenhuma rotina server-side que confira
@@ -208,21 +268,27 @@ export const platformConfig = {
 };
 ```
 
-Esse é o único lugar onde esses percentuais devem existir — `WalletService` é o único
-consumidor que calcula `platformFee`/`creatorAmount` a partir dele, e nenhum outro módulo
-deve hardcodar `0.8`/`0.2`.
+Esse é o único lugar onde esses percentuais devem existir. Dois consumidores calculam a partir
+dele, sempre em centavos (nunca ponto flutuante como autoridade): `WalletService` (o `Sale`
+mock exibido na carteira/vendas) e `POST /api/mercadopago/checkout` (o `marketplace_fee`/
+`application_fee` real enviado ao Mercado Pago, que efetivamente retém a comissão no momento do
+pagamento). Nenhum outro módulo deve hardcodar `0.8`/`0.2`.
 
 ## Deploy no Vercel
 
 1. No painel da Vercel, escolha **Import Git Repository** e selecione este repositório
    (`ZAnt214/OnlyYou`).
 2. Nenhuma configuração adicional é necessária — é um projeto Next.js padrão (zero-config).
-3. A partir desta versão, `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-   (ver seção "Autenticação (Supabase)" abaixo) precisam ser configuradas em **Project
-   Settings → Environment Variables** na Vercel para o cadastro/login funcionarem no site
-   publicado — sem elas o build passa, mas as páginas `/entrar` e `/cadastro` falham em
-   runtime. As demais variáveis de `.env.example` seguem sem uso até as respectivas
-   integrações serem implementadas.
+3. `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (ver seção
+   "Autenticação (Supabase)" abaixo) precisam ser configuradas em **Project Settings →
+   Environment Variables** na Vercel para o cadastro/login funcionarem no site publicado — sem
+   elas o build passa, mas as páginas `/entrar` e `/cadastro` falham em runtime.
+4. Para pagamentos reais, configure também `SUPABASE_SERVICE_ROLE_KEY`,
+   `MERCADOPAGO_CLIENT_ID`, `MERCADOPAGO_CLIENT_SECRET`, `MERCADOPAGO_REDIRECT_URI`,
+   `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`, `NEXT_PUBLIC_APP_URL` (a URL
+   pública real do deploy) e `AUTH_SECRET` — ver comentários em `.env.example` para o que cada
+   uma faz e onde encontrá-la no painel do Mercado Pago. Sem elas, os pagamentos caem
+   automaticamente no `MockPaymentProvider` (checkout simulado, nunca cobra de verdade).
 
 ## Autenticação (Supabase)
 
@@ -267,23 +333,30 @@ feito.
 Esta é a primeira versão pública do produto — um scaffold de interface e arquitetura. Ela
 **não tem**:
 
-- **Pagamentos reais.** `MockPaymentProvider` simula o fluxo pending → paid manualmente. A
-  escolha de um processador de pagamentos compatível com o modelo específico do OnlyYou
-  (marketplace de conteúdo adulto, venda individual, divisão de comissões, saques para
-  criadores, chargebacks, reembolsos) ainda precisa ser validada formalmente antes de qualquer
-  integração real. A disponibilidade de processamento depende das políticas atuais do
-  provedor, da jurisdição, do tipo de conteúdo, do modelo comercial e da aprovação da conta —
-  não se deve presumir que um gateway genérico (Stripe/PayPal/Mercado Pago padrão) aceita este
-  modelo sem essa validação. Exemplos de provedores especializados a avaliar (não decididos):
-  CCBill, Segpay, Epoch, Verotel.
-- **Banco de dados real.** Todos os dados vivem em fixtures TypeScript (`lib/data/`) mais o
-  estado de sessão em `localStorage`.
+- **Produtos do catálogo mock não pertencem a criadores reais.** O checkout de produto já
+  resolve criador/valor no servidor e recusa a venda se o criador não tiver conectado o
+  Mercado Pago (ver seção acima) — mas os produtos de `lib/data/products.ts` referenciam ids
+  mock (`user-c01` etc.), não perfis Supabase reais, e a criação de produto
+  (`/dashboard/produtos/novo`) ainda não persiste em lugar nenhum além de um toast de sucesso.
+  Ou seja: com os dados de demonstração, todo checkout de produto vai corretamente cair em "409
+  — criador não conectado", por design. Para testar o fluxo ponta a ponta é preciso: uma conta
+  Supabase real com papel `creator`, conectar o Mercado Pago por ela, e um produto cujo
+  `creatorId` seja o `id` dessa conta (hoje isso só é possível editando `lib/data/products.ts`
+  manualmente, já que a criação de produto não está ligada a `profiles`).
+- **Split para criadores usa o Mercado Pago (`marketplace_fee`/`application_fee`), mas o saque
+  em si não.** A comissão da plataforma já é retida automaticamente pelo Mercado Pago no
+  momento do pagamento; o valor do criador fica na própria conta dele — o OnlyYou não
+  intermedia esse saque. `WithdrawalRepository` continua só um registro mock do *pedido* de
+  saque, sem nenhuma integração bancária real.
+- **Banco de dados real só para pagamentos.** `payment_confirmations`,
+  `creator_mercadopago_accounts` e `creator_mercadopago_status` vivem num projeto Supabase real
+  (com RLS). Todo o resto (produtos, pedidos, vendas, entitlements, pedidos personalizados)
+  continua em fixtures TypeScript (`lib/data/`) mais o estado de sessão em `localStorage`.
 - **Autenticação real só no login/cadastro em si** (ver seção "Autenticação (Supabase)"
   acima) — criar conta e entrar/sair já usa Supabase Auth de verdade, mas essa identidade
   ainda não está conectada ao resto do app: dashboard, produtos, pedidos, carteira e admin
-  continuam usando o usuário mock fixo de `lib/data/users.ts`.
-- **Verificação real de idade.** O `AgeGate` no cadastro é uma confirmação visual de data de
-  nascimento, não uma verificação documental — claramente insuficiente para fins legais.
+  continuam usando o usuário mock fixo de `lib/data/users.ts` (a única exceção é a conexão do
+  Mercado Pago, que exige sessão real — ver `/dashboard/pagamentos`).
 - **Verificação real de identidade de criadores.** `verificationStatus` é apenas um campo de
   dado; não há fluxo de verificação operacional.
 - **Armazenamento, streaming e watermarking real de mídia.** `MockMediaStorageProvider` guarda
@@ -303,9 +376,10 @@ Esta é a primeira versão pública do produto — um scaffold de interface e ar
 
 Ver `app/` para o roteamento completo (App Router): marketplace público (`/`, `/descobrir`,
 `/categorias/[slug]`, `/criadores`, `/criadores/[username]`, `/produto/[id]`), conta
-(`/entrar`, `/cadastro`, `/checkout/[productId]`, `/biblioteca`, `/favoritos`, `/pedidos`,
-`/pedidos/[id]`, `/notificacoes`), institucional (`/sobre`, `/termos`, `/privacidade`,
-`/conteudo`, `/seguranca`), área do criador (`/dashboard/*`, incluindo
-`/dashboard/pedidos-personalizados` e `/dashboard/pedidos-personalizados/[id]`) e a área de
-administração (`/admin/*`, incluindo `/admin/conversas` e `/admin/conversas/[id]`), gateada
-por `requireAdmin()`.
+(`/entrar`, `/cadastro`, `/checkout/[productId]`, `/checkout/retorno`, `/biblioteca`,
+`/favoritos`, `/pedidos`, `/pedidos/[id]`, `/notificacoes`), institucional (`/sobre`, `/termos`,
+`/privacidade`, `/conteudo`, `/seguranca`), área do criador (`/dashboard/*`, incluindo
+`/dashboard/pedidos-personalizados`, `/dashboard/pedidos-personalizados/[id]` e
+`/dashboard/pagamentos` — conexão com o Mercado Pago) e a área de administração (`/admin/*`,
+incluindo `/admin/pagamentos`, `/admin/conversas` e `/admin/conversas/[id]`), gateada por
+`requireAdmin()`.

@@ -9,15 +9,15 @@ export const creators: User[] = [
     roles: ["creator"],
     createdAt: "2024-02-10T12:00:00.000Z",
     creatorProfile: {
-      bio: "Ensaios autorais e conteúdo exclusivo. Publico semanalmente.",
+      bio: "Presets e cursos de edição de fotos. Publico semanalmente.",
       followers: 18420,
       verificationStatus: "verified",
       rating: 4.8,
       ratingCount: 612,
       productCount: 4,
-      offerings: ["Ensaio fotográfico personalizado", "Vídeo personalizado", "Roteiro sob encomenda"],
+      offerings: ["Pack de presets personalizado", "Consultoria de edição", "Curso sob encomenda"],
       offeringsDescription:
-        "Produzo conteúdo personalizado sob encomenda a partir de uma descrição ou roteiro enviado por você.",
+        "Produzo conteúdo personalizado sob encomenda a partir de uma descrição ou briefing enviado por você.",
     },
   },
   {
@@ -28,14 +28,14 @@ export const creators: User[] = [
     roles: ["creator", "buyer"],
     createdAt: "2023-11-04T12:00:00.000Z",
     creatorProfile: {
-      bio: "Fotografia sensual em estúdio próprio. Respondo mensagens em até 24h.",
+      bio: "Fotografia de produto em estúdio próprio. Respondo mensagens em até 24h.",
       followers: 25310,
       verificationStatus: "verified",
       rating: 4.9,
       ratingCount: 894,
       productCount: 3,
-      offerings: ["Ensaio fotográfico personalizado"],
-      offeringsDescription: "Ensaios temáticos sob encomenda, em estúdio próprio.",
+      offerings: ["Sessão de fotos personalizada"],
+      offeringsDescription: "Sessões temáticas sob encomenda, em estúdio próprio.",
     },
   },
   {
@@ -78,7 +78,7 @@ export const creators: User[] = [
     roles: ["creator"],
     createdAt: "2023-06-18T12:00:00.000Z",
     creatorProfile: {
-      bio: "Criadora full-time desde 2023. Packs temáticos mensais.",
+      bio: "Criadora full-time desde 2023. Templates e packs temáticos mensais.",
       followers: 41200,
       verificationStatus: "verified",
       rating: 4.7,
@@ -126,7 +126,7 @@ export const creators: User[] = [
     roles: ["creator"],
     createdAt: "2024-05-30T12:00:00.000Z",
     creatorProfile: {
-      bio: "Ensaios noturnos e conteúdo em série. Assinantes recebem prévias.",
+      bio: "Ilustrações e arte digital em série mensal. Assinantes recebem prévias.",
       followers: 13750,
       verificationStatus: "verified",
       rating: 4.6,

@@ -21,8 +21,8 @@ interface FormState {
 const initialState: FormState = {
   title: "",
   description: "",
-  category: "packs",
-  type: "pack",
+  category: "packs-digitais",
+  type: "digital_pack",
   price: "",
   promoPrice: "",
   fileCount: 0,
@@ -89,7 +89,7 @@ export default function NovoProdutoPage() {
               <input
                 value={form.title}
                 onChange={(e) => update("title", e.target.value)}
-                placeholder="Ex.: Pack Privado #08"
+                placeholder="Ex.: Pack de templates para redes sociais"
                 className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
               />
             </Field>
@@ -110,10 +110,18 @@ export default function NovoProdutoPage() {
               >
                 <option value="fotos">Fotos</option>
                 <option value="videos">Vídeos</option>
-                <option value="packs">Packs</option>
-                <option value="ensaios">Ensaios</option>
-                <option value="conteudo-personalizado">Conteúdo personalizado</option>
-                <option value="bundles">Bundles</option>
+                <option value="packs-digitais">Packs digitais</option>
+                <option value="arte">Arte</option>
+                <option value="design">Design</option>
+                <option value="musica">Música</option>
+                <option value="gaming">Gaming</option>
+                <option value="tutoriais">Tutoriais</option>
+                <option value="educacao">Educação</option>
+                <option value="ebooks">E-books</option>
+                <option value="templates">Templates</option>
+                <option value="conteudo-exclusivo">Conteúdo exclusivo</option>
+                <option value="servicos-personalizados">Serviços personalizados</option>
+                <option value="consultorias">Consultorias</option>
               </select>
             </Field>
           </div>
@@ -129,9 +137,18 @@ export default function NovoProdutoPage() {
               >
                 <option value="photo">Foto</option>
                 <option value="video">Vídeo</option>
-                <option value="pack">Pack</option>
-                <option value="bundle">Bundle</option>
-                <option value="custom">Personalizado</option>
+                <option value="digital_pack">Pack digital</option>
+                <option value="art">Arte</option>
+                <option value="design">Design</option>
+                <option value="music">Música</option>
+                <option value="gaming">Gaming</option>
+                <option value="tutorial">Tutorial</option>
+                <option value="education">Educação</option>
+                <option value="ebook">E-book</option>
+                <option value="template">Template</option>
+                <option value="exclusive">Conteúdo exclusivo</option>
+                <option value="custom_service">Serviço personalizado</option>
+                <option value="consulting">Consultoria</option>
                 <option value="other">Outro</option>
               </select>
             </Field>

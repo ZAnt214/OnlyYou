@@ -3,9 +3,11 @@ export default function SobrePage() {
     <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-8 text-sm text-(--color-text-muted)">
       <h1 className="text-xl font-semibold text-(--color-text)">Sobre o OnlyYou</h1>
       <p>
-        OnlyYou é um marketplace de conteúdo adulto. Criadores publicam produtos digitais —
-        fotos, vídeos, packs e bundles — e definem o próprio preço. Compradores adquirem cada
-        produto individualmente e recebem acesso na própria biblioteca.
+        OnlyYou é um marketplace de criadores, conteúdos e serviços digitais. Criadores publicam
+        fotos, vídeos, packs digitais, arte, design, música, conteúdo de gaming, tutoriais,
+        material educacional, e-books, templates e serviços personalizados — e definem o próprio
+        preço. Compradores adquirem cada produto individualmente e recebem acesso na própria
+        biblioteca.
       </p>
       <p>
         Diferente de um modelo de assinatura, aqui a compra é por produto: você paga pelo

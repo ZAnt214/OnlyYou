@@ -43,7 +43,7 @@ export const messages: Message[] = [
     senderId: "user-b02",
     type: "text",
     content:
-      "Gostaria de um ensaio temático de 10 fotos, estilo noturno, com roupa específica que posso descrever em mais detalhes.",
+      "Gostaria de um pack de 10 ilustrações temáticas, estilo minimalista, com paleta de cores que posso descrever em mais detalhes.",
     createdAt: "2025-09-12T19:30:05.000Z",
   },
 

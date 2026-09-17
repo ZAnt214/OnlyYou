@@ -61,7 +61,7 @@ export const orders: Order[] = [
     items: [
       {
         productId: "prod-002",
-        productTitle: "Ensaio Noturno — Vol. 2",
+        productTitle: "Curso em Vídeo — Edição Avançada Vol. 2",
         creatorId: "user-c01",
         unitPrice: 44.9,
         quantity: 1,
@@ -79,7 +79,7 @@ export const orders: Order[] = [
     items: [
       {
         productId: "prod-004",
-        productTitle: "Bundle Completo — Verão",
+        productTitle: "Pack Completo de Design — Verão",
         creatorId: "user-c02",
         unitPrice: 99.9,
         quantity: 1,
@@ -97,7 +97,7 @@ export const orders: Order[] = [
     items: [
       {
         productId: "prod-013",
-        productTitle: "Ensaio Noturno — Vol. 1",
+        productTitle: "Curso em Vídeo — Motion Design Vol. 1",
         creatorId: "user-c08",
         unitPrice: 54.9,
         quantity: 1,

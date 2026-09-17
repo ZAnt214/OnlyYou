@@ -17,7 +17,14 @@ import { useCustomOrderServices } from "@/lib/services/useCustomOrderServices";
 import { messageAttachmentRepository } from "@/lib/repositories/MessageAttachmentRepository";
 import { reportService } from "@/lib/moderation/ReportService";
 import { StatusBadge } from "@/components/StatusBadge";
-import { REPORT_REASON_LABELS, type ReportReason, type Message, type CustomProposal } from "@/lib/types";
+import { MercadoPagoPixPanel } from "@/components/payments/MercadoPagoPixPanel";
+import {
+  REPORT_REASON_LABELS,
+  type ReportReason,
+  type Message,
+  type CustomProposal,
+  type Payment,
+} from "@/lib/types";
 
 function formatBRLFromCents(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -25,6 +32,39 @@ function formatBRLFromCents(cents: number): string {
 
 function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
+function PendingPaymentPanel({
+  customServiceOrderId,
+  orderId,
+  paymentService,
+  onPaid,
+}: {
+  customServiceOrderId: string;
+  orderId: string;
+  paymentService: ReturnType<typeof useCustomOrderServices>["paymentService"];
+  onPaid: () => void;
+}) {
+  const payment = paymentService.findByOrder(orderId);
+
+  return (
+    <div className="flex flex-col gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-4 text-sm">
+      <p className="text-(--color-text)">
+        Pedido {customServiceOrderId} criado. Pagamento com status{" "}
+        <span className="font-medium text-(--color-warning)">pendente</span>.
+      </p>
+      {payment ? (
+        <MercadoPagoPixPanel
+          payment={payment}
+          paymentService={paymentService}
+          onPaid={(paid: Payment) => {
+            void paid;
+            onPaid();
+          }}
+        />
+      ) : null}
+    </div>
+  );
 }
 
 export function ConversationView({
@@ -139,7 +179,7 @@ export function ConversationView({
     }
   }
 
-  function handleConfirmPayment() {
+  function handlePaymentConfirmed() {
     if (!customServiceOrder) return;
     setError(null);
     try {
@@ -316,23 +356,12 @@ export function ConversationView({
       {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
 
       {customServiceOrder?.status === "awaiting_payment" && isRequester ? (
-        <div className="flex flex-col gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-4 text-sm">
-          <p className="text-(--color-text)">
-            Pedido {customServiceOrder.id} criado. Pagamento com status{" "}
-            <span className="font-medium text-(--color-warning)">pendente</span>.
-          </p>
-          <p className="text-xs text-(--color-text-subtle)">
-            Nesta fase de mock não há gateway real — use o botão abaixo para simular a confirmação
-            do pagamento (equivalente ao webhook do provedor), assim como no checkout de produto.
-          </p>
-          <button
-            type="button"
-            onClick={handleConfirmPayment}
-            className="self-start rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
-          >
-            Simular confirmação do pagamento
-          </button>
-        </div>
+        <PendingPaymentPanel
+          customServiceOrderId={customServiceOrder.id}
+          orderId={customServiceOrder.orderId}
+          paymentService={services.paymentService}
+          onPaid={handlePaymentConfirmed}
+        />
       ) : null}
 
       {customServiceOrder?.status === "delivered" && isRequester ? (

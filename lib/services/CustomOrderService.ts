@@ -52,7 +52,7 @@ export class CustomOrderService {
     if (existing) return existing;
 
     const order = this.orderService.createOrderForCustomProposal(actingUserId, proposal);
-    const payment = await this.paymentService.startPayment(order, method);
+    const payment = await this.paymentService.startCustomServiceCheckout(order, method, proposal.creatorId);
 
     const customServiceOrder: CustomServiceOrder = {
       id: `cso-${Date.now()}`,

@@ -1,7 +1,7 @@
 const SECTIONS = [
   {
     title: "1. Dados coletados",
-    body: "Coletamos dados de cadastro, histórico de compras e informações necessárias para verificação de idade e identidade.",
+    body: "Coletamos dados de cadastro, histórico de compras e informações necessárias para processar pagamentos e prevenir fraude.",
   },
   {
     title: "2. Uso dos dados",

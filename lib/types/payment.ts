@@ -17,4 +17,9 @@ export interface Payment {
   method: PaymentMethod;
   createdAt: string;
   confirmedAt?: string;
+  /** Dados de checkout do Mercado Pago capturados na criação (efêmeros). */
+  checkoutRedirectUrl?: string;
+  checkoutQrCode?: string;
+  checkoutQrCodeBase64?: string;
+  checkoutExpiresAt?: string;
 }

@@ -11,6 +11,7 @@ import {
   BarChart3,
   Settings,
   MessageSquare,
+  CreditCard,
 } from "lucide-react";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { getCurrentUser } from "@/lib/supabase/session";
@@ -31,6 +32,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     { href: "/dashboard/produtos", label: "Produtos", icon: Package },
     { href: "/dashboard/vendas", label: "Vendas", icon: Receipt },
     { href: "/dashboard/pedidos-personalizados", label: "Pedidos personalizados", icon: MessageSquare },
+    { href: "/dashboard/pagamentos", label: "Pagamentos", icon: CreditCard },
     { href: "/dashboard/carteira", label: "Carteira", icon: Wallet },
     { href: "/dashboard/cupons", label: "Cupons", icon: Ticket },
     { href: "/dashboard/afiliados", label: "Afiliados", icon: Users, disabled: true },
