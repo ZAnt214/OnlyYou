@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import {
   Send,
   Paperclip,
@@ -127,6 +128,11 @@ export function ConversationView({
   const [showProblemForm, setShowProblemForm] = useState(false);
   const [deliveryFileName, setDeliveryFileName] = useState("");
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
+  const [otherTyping, setOtherTyping] = useState(false);
+
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypingSentAtRef = useRef(0);
 
   const load = useCallback(async () => {
     if (!actingUserId) return;
@@ -193,6 +199,50 @@ export function ConversationView({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
+
+  // Novas mensagens (e qualquer transição de estado do pedido, já que toda
+  // transição relevante — proposta, aceite, recusa, entrega, confirmação —
+  // grava uma linha em `messages`, ver migração custom_requests_chat_rpc*)
+  // chegam via Postgres Changes, escopado à conversa atual e filtrado pelas
+  // mesmas policies de RLS de `participants_select_messages`. O mesmo canal
+  // carrega o indicador de "digitando…" via broadcast (efêmero, não grava
+  // nada no banco).
+  useEffect(() => {
+    if (!conversation) return;
+    const channel = supabase
+      .channel(`conversation:${conversation.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages", filter: `conversation_id=eq.${conversation.id}` },
+        () => {
+          void load();
+        },
+      )
+      .on("broadcast", { event: "typing" }, ({ payload }) => {
+        if (!payload || payload.userId === actingUserId) return;
+        setOtherTyping(true);
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => setOtherTyping(false), 3000);
+      })
+      .subscribe();
+
+    channelRef.current = channel;
+    return () => {
+      channelRef.current = null;
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      void supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversation?.id, actingUserId]);
+
+  function handleTextChange(value: string) {
+    setText(value);
+    const now = Date.now();
+    if (channelRef.current && now - lastTypingSentAtRef.current > 2000) {
+      lastTypingSentAtRef.current = now;
+      void channelRef.current.send({ type: "broadcast", event: "typing", payload: { userId: actingUserId } });
+    }
+  }
 
   if (!actingUserId) {
     return (
@@ -676,21 +726,26 @@ export function ConversationView({
       {isClosed ? (
         <p className="text-center text-xs text-(--color-text-subtle)">Esta conversa está encerrada.</p>
       ) : (
-        <form onSubmit={handleSend} className="flex items-center gap-2">
-          <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Escreva uma mensagem"
-            className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
-          />
-          <button
-            type="submit"
-            disabled={!text.trim()}
-            className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
-          >
-            <Send size={14} strokeWidth={1.5} />
-            Enviar
-          </button>
+        <form onSubmit={handleSend} className="flex flex-col gap-1">
+          {otherTyping ? (
+            <p className="px-1 text-xs text-(--color-text-subtle)">{counterpartName} está digitando…</p>
+          ) : null}
+          <div className="flex items-center gap-2">
+            <input
+              value={text}
+              onChange={(e) => handleTextChange(e.target.value)}
+              placeholder="Escreva uma mensagem"
+              className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={!text.trim()}
+              className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+            >
+              <Send size={14} strokeWidth={1.5} />
+              Enviar
+            </button>
+          </div>
         </form>
       )}
     </div>
