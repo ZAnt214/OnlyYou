@@ -21,7 +21,7 @@ export function MobileNav({ creatorUsername }: { creatorUsername: string }) {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-(--color-border) bg-(--color-bg) md:hidden">
+    <nav className="fixed inset-x-0 bottom-3 z-20 mx-auto flex w-fit gap-1 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) p-1.5 shadow-lg shadow-black/10 md:hidden">
       {TABS.map((tab) => {
         const prefixes = tab.matchPrefixes ?? [tab.href];
         const active =
@@ -30,12 +30,14 @@ export function MobileNav({ creatorUsername }: { creatorUsername: string }) {
           <Link
             key={tab.href}
             href={tab.href}
-            className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] ${
-              active ? "text-(--color-accent)" : "text-(--color-text-muted)"
+            aria-label={tab.label}
+            className={`flex items-center justify-center rounded-(--radius-pill) p-3 transition-colors ${
+              active
+                ? "bg-(--color-accent-soft) text-(--color-accent)"
+                : "text-(--color-text-muted)"
             }`}
           >
-            <tab.icon size={18} strokeWidth={1.5} />
-            {tab.label}
+            <tab.icon size={20} strokeWidth={1.75} />
           </Link>
         );
       })}
