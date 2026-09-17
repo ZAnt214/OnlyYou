@@ -828,9 +828,6 @@ function MessageItem({
         ) : null}
         {isRequester && proposal.status === "accepted" ? (
           <div className="flex flex-col gap-2 border-t border-(--color-border) pt-3">
-            <p className="text-sm text-(--color-text-muted)">
-              Proposta aceita. Para iniciar o serviço, conclua o pagamento.
-            </p>
             <button
               type="button"
               disabled={busy}
