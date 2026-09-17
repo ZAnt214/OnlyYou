@@ -1,5 +1,5 @@
 // Processador de pagamentos: Mercado Pago, no modelo de marketplace (split
-// automático entre OnlyYou e o criador via conta conectada por OAuth). Ver
+// automático entre Jobê e o criador via conta conectada por OAuth). Ver
 // lib/payments/MercadoPagoMarketplaceProvider.ts para a implementação real e
 // lib/payments/getServerPaymentProvider.ts para a seleção mock/real.
 

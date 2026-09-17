@@ -1,9 +1,9 @@
-# Design system do OnlyYou
+# Design system do Jobê
 
-O visual do OnlyYou é inspirado no **Privacy.com.br** (plataforma de assinatura de criadores):
-fundo creme quente, accent laranja, cards bem arredondados e nav inferior em pill flutuante.
-**Toda UI nova ou alterada deve seguir estas regras — sem exceção**, mesmo quando não for
-pedido explicitamente.
+O Jobê usa layout de rede social de criadores (feed de coluna única, cards de post, nav
+inferior em pill flutuante) com paleta própria: fundo cinza-névoa frio, cards brancos e
+laranja como cor de marca. **Toda UI nova ou alterada deve seguir estas regras — sem
+exceção**, mesmo quando não for pedido explicitamente.
 
 ## Regra de ouro: nunca usar cor "crua"
 
@@ -17,7 +17,7 @@ Tokens disponíveis (`app/globals.css`):
 
 | Token | Uso |
 |---|---|
-| `--color-bg` | fundo geral da página (creme) |
+| `--color-bg` | fundo geral da página (cinza-névoa frio) |
 | `--color-surface` | fundo de cards/painéis (branco) |
 | `--color-surface-2` | fundo secundário (hover, seções alternadas) |
 | `--color-border` | bordas e divisores |
@@ -29,7 +29,7 @@ Tokens disponíveis (`app/globals.css`):
 | `--radius-pill` (`999px`) | botões, badges, nav flutuante |
 
 A escala padrão do Tailwind (`rounded-lg/xl/2xl/3xl`) já foi sobrescrita no `@theme` para ser
-mais arredondada (estilo Privacy). **Não crie uma escala paralela** — continue usando
+mais arredondada. **Não crie uma escala paralela** — continue usando
 `rounded-lg`, `rounded-xl`, `rounded-2xl`, `rounded-3xl`, `rounded-full` normalmente; eles já
 saem no raio certo.
 
@@ -46,8 +46,22 @@ saem no raio certo.
   da tela, só ícones, item ativo com `bg-(--color-accent-soft) text-(--color-accent)`. Qualquer
   nova aba entra nesse mesmo padrão, não numa barra reta com labels.
 - **Badge de verificado**: usa o token `--color-verified` (azul), intencionalmente separado do
-  `--color-accent` laranja — mantém a semântica de verificação (tipo Twitter/Meta) vista no site
-  de referência, sem confundir com CTAs.
+  `--color-accent` laranja — mantém a semântica de verificação (tipo Twitter/Meta) sem confundir
+  com CTAs.
+- **Feed** (`components/FeedPostCard.tsx`): coluna única `max-w-2xl` centralizada; card com
+  cabeçalho de criador (avatar + nome + verificado + @handle + tempo + `⋯`), legenda, mídia
+  preenchendo a largura (`MediaPlaceholder` com `flush`), barra de ações e linha de métricas.
+- **Estado vazio** (`components/EmptyState.tsx`): ícone em círculo `bg-(--color-surface-2)`,
+  título forte e texto de apoio — nunca um parágrafo solto de "nada encontrado".
+- **Chips de filtro**: pill; ativo com `bg-(--color-accent-soft) text-(--color-accent)` e borda
+  transparente, inativo com borda `--color-border` sobre `--color-surface`.
+- **Título de página interna**: barra em card branco `rounded-2xl` com o texto centralizado.
+
+## Nome da plataforma
+
+A plataforma se chama **Jobê**. O repositório no GitHub (`ZAnt214/OnlyYou`), o projeto na
+Vercel (`only-you`) e o projeto no Supabase (`onlyyou`) mantêm os nomes antigos — não trocar
+essas referências de infraestrutura em documentação ou código.
 
 ## Ao adicionar qualquer tela, componente ou feature nova
 

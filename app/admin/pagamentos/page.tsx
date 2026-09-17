@@ -74,7 +74,7 @@ export default async function AdminPagamentosPage() {
           <p className="text-lg font-semibold text-(--color-text)">{formatBRLFromCents(totalGrossCents)}</p>
         </div>
         <div className="rounded-lg border border-(--color-border) p-4">
-          <p className="text-xs text-(--color-text-subtle)">Comissão OnlyYou</p>
+          <p className="text-xs text-(--color-text-subtle)">Comissão Jobê</p>
           <p className="text-lg font-semibold text-(--color-text)">
             {formatBRLFromCents(totalPlatformFeeCents)}
           </p>

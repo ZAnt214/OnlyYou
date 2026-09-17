@@ -49,7 +49,7 @@ import { createClient } from "@/lib/supabase/client";
  * React para esse caso, e evita re-renderizações em cascata.
  */
 
-const STORAGE_KEY = "onlyyou:mock-session:v1";
+const STORAGE_KEY = "jobe:mock-session:v1";
 
 export interface MockSessionState {
   currentUserId: string;

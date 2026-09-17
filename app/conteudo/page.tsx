@@ -5,7 +5,7 @@ export default function ConteudoPage() {
     <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8">
       <h1 className="text-xl font-semibold text-(--color-text)">Política de conteúdo</h1>
       <p className="text-sm text-(--color-text-muted)">
-        Todo conteúdo publicado no OnlyYou é destinado exclusivamente a maiores de 18 anos e
+        Todo conteúdo publicado no Jobê é destinado exclusivamente a maiores de 18 anos e
         precisa envolver apenas participantes que consentiram de forma verificável com a
         publicação e a venda do material.
       </p>

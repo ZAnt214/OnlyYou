@@ -93,7 +93,7 @@ export function CustomOrderForm({ creator }: { creator: User }) {
         />
       </div>
       <p className="text-xs text-(--color-text-subtle)">
-        Mantenha toda a conversa e o pagamento dentro do OnlyYou — é o que garante a proteção da
+        Mantenha toda a conversa e o pagamento dentro do Jobê — é o que garante a proteção da
         plataforma em caso de problema com a entrega.
       </p>
       {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}

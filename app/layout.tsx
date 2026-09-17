@@ -15,8 +15,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "OnlyYou — Marketplace de conteúdo",
-    template: "%s · OnlyYou",
+    default: "Jobê — Marketplace de conteúdo",
+    template: "%s · Jobê",
   },
   description:
     "Marketplace onde criadores publicam conteúdo e definem o preço, e compradores adquirem individualmente o que desejam.",

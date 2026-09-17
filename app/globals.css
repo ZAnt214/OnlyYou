@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #faf5ec;
+  --color-bg: #f5f6f8;
   --color-surface: #ffffff;
-  --color-surface-2: #f2ece0;
-  --color-border: #e8ddc9;
-  --color-text: #1a1a1a;
-  --color-text-muted: #6b6459;
-  --color-text-subtle: #9a9284;
+  --color-surface-2: #eceef2;
+  --color-border: #e4e7ec;
+  --color-text: #16181d;
+  --color-text-muted: #5f6570;
+  --color-text-subtle: #8b919c;
   --color-accent: #f5821f;
   --color-accent-hover: #dd6f10;
   --color-accent-soft: #fdead6;
@@ -20,21 +20,18 @@
 }
 
 /*
- * O OnlyYou não segue o tema claro/escuro do sistema operacional — o site
- * de referência (Privacy) sempre abre no visual claro por padrão, com um
- * toggle próprio de "Modo escuro" dentro do app para quem quiser ativar
- * manualmente. Por isso não há aqui um `@media (prefers-color-scheme:
- * dark)`: a paleta escura só entra via `data-theme="dark"` no <html>,
- * setado por esse toggle (ainda não implementado na UI).
+ * O Jobê não segue o tema claro/escuro do sistema operacional: o app sempre
+ * abre no visual claro, e a paleta escura só entra via `data-theme="dark"`
+ * no <html>, setado por um toggle manual (ainda não implementado na UI).
  */
 :root[data-theme="dark"] {
-  --color-bg: #14120e;
-  --color-surface: #1e1b16;
-  --color-surface-2: #262219;
-  --color-border: #362f22;
-  --color-text: #f2ede2;
-  --color-text-muted: #b0a795;
-  --color-text-subtle: #7d7566;
+  --color-bg: #101216;
+  --color-surface: #181b21;
+  --color-surface-2: #21252d;
+  --color-border: #2e333d;
+  --color-text: #eceef2;
+  --color-text-muted: #a2a9b6;
+  --color-text-subtle: #737a87;
   --color-accent: #f5821f;
   --color-accent-hover: #ff9a40;
   --color-accent-soft: #3a2712;

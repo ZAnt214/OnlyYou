@@ -63,7 +63,7 @@ export function Header({ creatorUsername }: { creatorUsername: string }) {
     <header className="sticky top-0 z-20 border-b border-(--color-border) bg-(--color-bg)">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
         <Link href="/" className="text-xl font-bold tracking-tight text-(--color-text)">
-          OnlyYou<span className="text-(--color-accent)">.</span>
+          Jobê<span className="text-(--color-accent)">.</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

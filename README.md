@@ -1,6 +1,6 @@
-# OnlyYou
+# Jobê
 
-OnlyYou é um marketplace de criadores, conteúdos e serviços digitais — fotos, vídeos, packs
+Jobê é um marketplace de criadores, conteúdos e serviços digitais — fotos, vídeos, packs
 digitais, arte, design, música, gaming, tutoriais, educação, e-books, templates, conteúdo
 exclusivo, serviços personalizados e consultorias. Criadores publicam produtos e definem o
 próprio preço; compradores adquirem cada produto individualmente e recebem acesso na própria
@@ -77,10 +77,10 @@ OAuth e split" abaixo). É a única parte do domínio com persistência real nes
 
 ## Mercado Pago: marketplace, OAuth e split
 
-OnlyYou processa pagamentos como um **marketplace** do Mercado Pago: cada criador conecta a
+Jobê processa pagamentos como um **marketplace** do Mercado Pago: cada criador conecta a
 própria conta via OAuth, e cada venda é criada em nome dele, com a comissão da plataforma
 retida automaticamente pelo Mercado Pago (`marketplace_fee`/`application_fee`) — o dinheiro do
-comprador nunca passa por uma conta única do OnlyYou.
+comprador nunca passa por uma conta única do Jobê.
 
 ### Conectar a conta do criador (OAuth)
 
@@ -277,7 +277,7 @@ pagamento). Nenhum outro módulo deve hardcodar `0.8`/`0.2`.
 ## Deploy no Vercel
 
 1. No painel da Vercel, escolha **Import Git Repository** e selecione este repositório
-   (`ZAnt214/OnlyYou`).
+   (`ZAnt214/OnlyYou` — o repositório mantém o nome antigo).
 2. Nenhuma configuração adicional é necessária — é um projeto Next.js padrão (zero-config).
 3. `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (ver seção
    "Autenticação (Supabase)" abaixo) precisam ser configuradas em **Project Settings →
@@ -345,7 +345,7 @@ Esta é a primeira versão pública do produto — um scaffold de interface e ar
   manualmente, já que a criação de produto não está ligada a `profiles`).
 - **Split para criadores usa o Mercado Pago (`marketplace_fee`/`application_fee`), mas o saque
   em si não.** A comissão da plataforma já é retida automaticamente pelo Mercado Pago no
-  momento do pagamento; o valor do criador fica na própria conta dele — o OnlyYou não
+  momento do pagamento; o valor do criador fica na própria conta dele — o Jobê não
   intermedia esse saque. `WithdrawalRepository` continua só um registro mock do *pedido* de
   saque, sem nenhuma integração bancária real.
 - **Banco de dados real só para pagamentos.** `payment_confirmations`,
