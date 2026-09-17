@@ -57,11 +57,11 @@ export default async function DescobrirPage({
             name="q"
             defaultValue={q}
             placeholder="Buscar produtos, tags ou descrições"
-            className="w-full rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="w-full rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) px-4 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
           />
           <button
             type="submit"
-            className="rounded-md border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface)"
+            className="rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
           >
             Buscar
           </button>
