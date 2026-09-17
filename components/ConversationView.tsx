@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Send,
   Paperclip,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useCustomOrderServices } from "@/lib/services/useCustomOrderServices";
 import { messageAttachmentRepository } from "@/lib/repositories/MessageAttachmentRepository";
+import { userRepository } from "@/lib/repositories/UserRepository";
 import { reportService } from "@/lib/moderation/ReportService";
 import { StatusBadge } from "@/components/StatusBadge";
 import { MercadoPagoPixPanel } from "@/components/payments/MercadoPagoPixPanel";
@@ -24,6 +25,7 @@ import {
   type Message,
   type CustomProposal,
   type Payment,
+  type User,
 } from "@/lib/types";
 
 function formatBRLFromCents(cents: number): string {
@@ -92,6 +94,11 @@ export function ConversationView({
   const [showProblemForm, setShowProblemForm] = useState(false);
   const [deliveryFileName, setDeliveryFileName] = useState("");
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    userRepository.findAll().then(setUsers);
+  }, []);
 
   let ctx;
   try {
@@ -111,6 +118,12 @@ export function ConversationView({
 
   const proposals = services.proposalRepo.findByCustomRequest(request.id);
   const customServiceOrder = services.customServiceOrderRepo.findByCustomRequest(request.id);
+
+  const usersById = new Map(users.map((u) => [u.id, u]));
+  const counterpart = usersById.get(isCreator ? request.requesterId : request.creatorId);
+  const counterpartName = counterpart?.displayName ?? "Usuário";
+  const activeProposal = proposals.find((p) => p.status === "accepted" || p.status === "sent");
+  const serviceLabel = activeProposal?.serviceType || request.description;
 
   function findProposal(id?: string): CustomProposal | undefined {
     return proposals.find((p) => p.id === id);
@@ -249,9 +262,12 @@ export function ConversationView({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-(--color-border) p-3">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-(--color-text-muted)">Pedido {request.id}</span>
-          <StatusBadge status={request.status} />
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-medium text-(--color-text)">{counterpartName}</span>
+            <StatusBadge status={request.status} />
+          </div>
+          <span className="truncate text-xs text-(--color-text-muted)">{serviceLabel}</span>
         </div>
         <div className="relative">
           <button
