@@ -14,7 +14,7 @@ export default function MeusPedidosPage() {
           Suas conversas e pedidos personalizados com profissionais da plataforma.
         </p>
       </div>
-      <CustomRequestsList userId={userId} role="requester" />
+      <CustomRequestsList userId={userId} role="all" />
     </div>
   );
 }

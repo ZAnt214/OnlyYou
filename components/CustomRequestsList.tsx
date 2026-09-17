@@ -23,21 +23,28 @@ interface RequestRow {
   proposal: CustomProposal | undefined;
   customServiceOrder: CustomServiceOrder | null;
   counterpartName: string;
+  /** Papel do usuário atuando NESTE pedido específico — necessário quando
+   * `role="all"` mescla pedidos enviados e recebidos na mesma lista, já que
+   * a mesma conta pode ser criadora em um pedido e compradora em outro. */
+  myRole: "creator" | "requester";
 }
 
 /**
- * Lista de pedidos personalizados, reusada tanto no painel do criador
- * (/dashboard/pedidos-personalizados) quanto na área do comprador
- * (/pedidos) — só muda o papel do usuário atuando e a rota de destino do
- * botão "Conversar". Lê direto do Supabase (RLS já restringe às linhas do
- * próprio usuário) — ver lib/supabase/customRequests.ts.
+ * Lista de pedidos personalizados, reusada no painel do criador
+ * (/dashboard/pedidos-personalizados, role="creator"), na área geral de
+ * mensagens (/pedidos, role="all") e, no futuro, em qualquer filtro
+ * exclusivo de "pedidos que eu fiz" (role="requester"). `role="all"` busca
+ * os dois lados e mescla — necessário porque a mesma conta pode ser
+ * criadora e compradora ao mesmo tempo (ver caso @noisyboy). Lê direto do
+ * Supabase (RLS já restringe às linhas do próprio usuário) — ver
+ * lib/supabase/customRequests.ts.
  */
 export function CustomRequestsList({
   userId,
   role,
 }: {
   userId: string | null;
-  role: "creator" | "requester";
+  role: "creator" | "requester" | "all";
 }) {
   const [rows, setRows] = useState<RequestRow[] | null>(null);
 
@@ -46,21 +53,18 @@ export function CustomRequestsList({
     let cancelled = false;
     const supabase = createClient();
 
-    async function load() {
-      const requests =
-        role === "creator"
-          ? await listCustomRequestsForCreator(supabase, userId!)
-          : await listCustomRequestsForRequester(supabase, userId!);
-
-      const built = await Promise.all(
+    async function buildRows(requests: CustomRequest[]) {
+      return Promise.all(
         requests.map(async (request) => {
+          const myRole: "creator" | "requester" = request.creatorId === userId ? "creator" : "requester";
+          const counterpartId = myRole === "creator" ? request.requesterId : request.creatorId;
           const [proposals, customServiceOrder, counterpart] = await Promise.all([
             listProposalsForRequest(supabase, request.id),
             getCustomServiceOrderByRequest(supabase, request.id),
             supabase
               .from("profiles")
               .select("display_name, username")
-              .eq("id", role === "creator" ? request.requesterId : request.creatorId)
+              .eq("id", counterpartId)
               .maybeSingle()
               .then((r) => r.data),
           ]);
@@ -70,10 +74,24 @@ export function CustomRequestsList({
             proposal,
             customServiceOrder,
             counterpartName: counterpart?.display_name ?? counterpart?.username ?? "Usuário",
+            myRole,
           };
         }),
       );
+    }
 
+    async function load() {
+      const requests =
+        role === "creator"
+          ? await listCustomRequestsForCreator(supabase, userId!)
+          : role === "requester"
+            ? await listCustomRequestsForRequester(supabase, userId!)
+            : [
+                ...(await listCustomRequestsForCreator(supabase, userId!)),
+                ...(await listCustomRequestsForRequester(supabase, userId!)),
+              ].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+
+      const built = await buildRows(requests);
       if (!cancelled) setRows(built);
     }
 
@@ -82,8 +100,6 @@ export function CustomRequestsList({
       cancelled = true;
     };
   }, [userId, role]);
-
-  const basePath = role === "creator" ? "/dashboard/pedidos-personalizados" : "/pedidos";
 
   if (!userId) {
     return (
@@ -120,7 +136,9 @@ export function CustomRequestsList({
         description={
           role === "creator"
             ? "Pedidos personalizados recebidos de clientes aparecem aqui."
-            : "Pedidos personalizados que você fizer a profissionais aparecem aqui."
+            : role === "requester"
+              ? "Pedidos personalizados que você fizer a profissionais aparecem aqui."
+              : "Pedidos personalizados que você fizer ou receber aparecem aqui."
         }
       />
     );
@@ -128,16 +146,16 @@ export function CustomRequestsList({
 
   return (
     <div className="flex flex-col gap-3">
-      {rows.map(({ request, proposal, customServiceOrder, counterpartName }) => (
+      {rows.map(({ request, proposal, customServiceOrder, counterpartName, myRole }) => (
         <Link
           key={request.id}
-          href={`${basePath}/${request.id}`}
+          href={`${myRole === "creator" ? "/dashboard/pedidos-personalizados" : "/pedidos"}/${request.id}`}
           className="flex flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-colors hover:border-(--color-accent) sm:flex-row sm:items-center sm:justify-between sm:gap-4"
         >
           <div className="flex min-w-0 flex-col gap-0.5">
             <div className="flex items-center gap-2">
               <span className="font-medium text-(--color-text)">
-                {role === "creator" ? counterpartName : `Pedido para ${counterpartName}`}
+                {myRole === "creator" ? counterpartName : `Pedido para ${counterpartName}`}
               </span>
               <StatusBadge status={request.status} />
             </div>
