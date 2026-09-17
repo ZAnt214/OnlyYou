@@ -2,6 +2,7 @@ import { productRepository } from "@/lib/repositories/ProductRepository";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { categoryRepository } from "@/lib/repositories/CategoryRepository";
 import { ProductCard } from "@/components/ProductCard";
+import { CreatorCard } from "@/components/CreatorCard";
 import { EmptyState } from "@/components/EmptyState";
 import Link from "next/link";
 import { Search } from "lucide-react";
@@ -40,6 +41,18 @@ export default async function DescobrirPage({
   }
 
   const nameById = new Map(creators.map((c) => [c.id, c.displayName]));
+
+  // A busca de produtos (título/descrição/tags) não encontra um criador sem
+  // produto publicado — comparar também username/nome mantém a promessa do
+  // placeholder ("Buscar conteúdos, tags ou criadores").
+  const qNormalized = q.trim().toLowerCase();
+  const matchingCreators = qNormalized
+    ? creators.filter(
+        (c) =>
+          c.username.toLowerCase().includes(qNormalized) ||
+          c.displayName.toLowerCase().includes(qNormalized),
+      )
+    : [];
 
   function buildQuery(overrides: Record<string, string>) {
     const params = new URLSearchParams({ q, categoria, sort, ofertas, ...overrides });
@@ -96,12 +109,25 @@ export default async function DescobrirPage({
         </Chip>
       </div>
 
+      {matchingCreators.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-(--color-text-muted)">Criadores</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {matchingCreators.map((c) => (
+              <CreatorCard key={c.id} creator={c} />
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {products.length === 0 ? (
-        <EmptyState
-          icon={Search}
-          title="Nada encontrado"
-          description="Tente outra busca ou remova os filtros aplicados."
-        />
+        matchingCreators.length === 0 ? (
+          <EmptyState
+            icon={Search}
+            title="Nada encontrado"
+            description="Tente outra busca ou remova os filtros aplicados."
+          />
+        ) : null
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {products.map((p) => (
