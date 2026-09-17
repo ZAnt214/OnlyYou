@@ -10,6 +10,8 @@ import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
 import { createCustomRequest } from "@/lib/supabase/customRequests";
 import { isEligibleForCustomRequests } from "@/lib/services/CustomRequestService";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export function CustomOrderForm({ creator }: { creator: User }) {
   const router = useRouter();
   const { userId, loading } = useCurrentUserId();
@@ -24,6 +26,10 @@ export function CustomOrderForm({ creator }: { creator: User }) {
   // única barreira.
   if (!isEligibleForCustomRequests(creator)) return null;
   if (loading) return null;
+  // Pedido personalizado grava em uma tabela real (creator_id é uuid). Um
+  // criador de demonstração (lib/data/users.ts, ids tipo "user-c04") não
+  // existe em profiles, então nunca pode receber um pedido de verdade.
+  if (!UUID_RE.test(creator.id)) return null;
 
   if (!userId) {
     return (
