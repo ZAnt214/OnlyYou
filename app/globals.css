@@ -14,6 +14,7 @@
   --color-success: #1f9d55;
   --color-warning: #b58a1a;
   --color-danger: #c0392b;
+  --color-verified: #3b82f6;
   --radius-card: 1.25rem;
   --radius-pill: 999px;
 }
@@ -33,6 +34,7 @@
     --color-success: #4c9a5b;
     --color-warning: #c9a33b;
     --color-danger: #c9484e;
+    --color-verified: #5b9bf7;
   }
 }
 
@@ -50,6 +52,7 @@
   --color-success: #4c9a5b;
   --color-warning: #c9a33b;
   --color-danger: #c9484e;
+  --color-verified: #5b9bf7;
 }
 
 @theme inline {
@@ -66,9 +69,17 @@
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);
+  --color-verified: var(--color-verified);
   --radius-card: var(--radius-card);
   --radius-pill: var(--radius-pill);
   --font-sans: var(--font-inter);
+
+  /* Softer, more rounded scale (Privacy-inspired) — applies to every
+     existing and future `rounded-*` utility across the app. */
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
 }
 
 body {
