@@ -27,6 +27,8 @@ import {
   createCustomProposal,
   acceptCustomProposal,
   rejectCustomProposal,
+  cancelCustomProposal,
+  expireUnpaidCustomProposal,
   createCustomServiceOrder,
   sendCustomDelivery,
   confirmCustomReceipt,
@@ -124,11 +126,30 @@ export function ConversationView({
         lastMessageAt: convoRow.last_message_at,
       };
 
-      const [msgs, props, cso] = await Promise.all([
+      let [msgs, props, cso] = await Promise.all([
         listMessagesForConversation(supabase, convo.id),
         listProposalsForRequest(supabase, req.id),
         getCustomServiceOrderByRequest(supabase, req.id),
       ]);
+
+      // Não há cron: quem abre a conversa depois do prazo é quem materializa
+      // a expiração de uma proposta aceita e nunca paga. A RPC é idempotente
+      // e valida o prazo de novo no banco.
+      const overdue = props.find(
+        (p) =>
+          p.status === "accepted" &&
+          p.paymentDueAt &&
+          new Date(p.paymentDueAt).getTime() < Date.now() &&
+          (!cso || cso.status === "awaiting_payment"),
+      );
+      if (overdue) {
+        await expireUnpaidCustomProposal(supabase, overdue.id);
+        [msgs, props, cso] = await Promise.all([
+          listMessagesForConversation(supabase, convo.id),
+          listProposalsForRequest(supabase, req.id),
+          getCustomServiceOrderByRequest(supabase, req.id),
+        ]);
+      }
 
       const counterpartId = actingUserId === req.creatorId ? req.requesterId : req.creatorId;
       const { data: counterpart } = await supabase
@@ -297,6 +318,20 @@ export function ConversationView({
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível recusar a proposta.");
+    }
+  }
+
+  async function handleCancelProposal(proposalId: string) {
+    setError(null);
+    setBusy(true);
+    try {
+      await cancelCustomProposal(supabase, proposalId);
+      setShowPaymentForm(false);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível cancelar a proposta.");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -499,8 +534,14 @@ export function ConversationView({
               onAccept={handleAcceptProposal}
               onReject={handleRejectProposal}
               onPay={handlePayProposal}
+              onCancel={handleCancelProposal}
               onDelete={handleDeleteMessage}
               busy={busy}
+              hasServiceOrder={
+                customServiceOrder?.proposalId === message.metadata?.proposalId &&
+                customServiceOrder?.status === "awaiting_payment"
+              }
+              canCancel={!customServiceOrder || customServiceOrder.status === "awaiting_payment"}
             />
           ))
         )}
@@ -520,6 +561,12 @@ export function ConversationView({
             <p className="text-(--color-text-muted)">
               Pagamento pendente. Conclua para o criador iniciar o serviço.
             </p>
+            {customServiceOrder.paymentDueAt ? (
+              <p className="flex items-center gap-1.5 text-xs text-(--color-warning)">
+                <Clock size={12} strokeWidth={1.5} />
+                Prazo para pagar: {formatDateTime(customServiceOrder.paymentDueAt)}
+              </p>
+            ) : null}
             <button
               type="button"
               onClick={() => setShowPaymentForm(true)}
@@ -733,8 +780,11 @@ function MessageItem({
   onAccept,
   onReject,
   onPay,
+  onCancel,
   onDelete,
   busy,
+  hasServiceOrder,
+  canCancel,
 }: {
   message: Message;
   actingUserId: string;
@@ -744,8 +794,13 @@ function MessageItem({
   onAccept: (proposalId: string) => void;
   onReject: (proposalId: string) => void;
   onPay: (proposalId: string) => void;
+  onCancel: (proposalId: string) => void;
   onDelete: (messageId: string) => void;
   busy: boolean;
+  /** Já existe contratação para esta proposta (pagamento em andamento). */
+  hasServiceOrder: boolean;
+  /** O criador ainda pode retirar esta proposta (nada foi pago). */
+  canCancel: boolean;
 }) {
   if (message.type === "system") {
     return <p className="text-center text-xs text-(--color-text-subtle)">{message.content}</p>;
@@ -790,7 +845,14 @@ function MessageItem({
             </button>
           </div>
         ) : null}
-        {isRequester && proposal.status === "accepted" ? (
+        {proposal.status === "accepted" && proposal.paymentDueAt ? (
+          <p className="text-xs text-(--color-text-subtle)">
+            Pagamento até {formatDateTime(proposal.paymentDueAt)}
+          </p>
+        ) : null}
+        {/* O botão de pagar some assim que a contratação existe: daí em diante
+            quem conduz o pagamento é o painel de Pix, no rodapé da conversa. */}
+        {isRequester && proposal.status === "accepted" && !hasServiceOrder ? (
           <div className="flex flex-col gap-2 border-t border-(--color-border) pt-3">
             <button
               type="button"
@@ -801,6 +863,17 @@ function MessageItem({
               Pagar proposta
             </button>
           </div>
+        ) : null}
+        {!isRequester && canCancel ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onCancel(proposal.id)}
+            className="flex items-center justify-center gap-1.5 rounded-full border border-(--color-border) px-3 py-2 text-sm text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-60"
+          >
+            <XCircle size={14} strokeWidth={1.5} />
+            Cancelar proposta
+          </button>
         ) : null}
       </div>
     );

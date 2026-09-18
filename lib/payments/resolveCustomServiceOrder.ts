@@ -7,6 +7,9 @@ export interface ResolvedCustomServiceOrder {
   creatorId: string;
   amountCents: number;
   description: string;
+  /** Prazo de pagamento herdado da proposta (ISO), quando houver. */
+  paymentDueAt: string | null;
+  status: string;
 }
 
 /**
@@ -24,7 +27,7 @@ export async function resolveCustomServiceOrderForBuyer(
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("custom_service_orders")
-    .select("order_id, requester_id, creator_id, agreed_amount_cents, service_type")
+    .select("order_id, requester_id, creator_id, agreed_amount_cents, service_type, payment_due_at, status")
     .eq("order_id", orderId)
     .maybeSingle();
 
@@ -37,5 +40,7 @@ export async function resolveCustomServiceOrderForBuyer(
     creatorId: data.creator_id,
     amountCents: data.agreed_amount_cents,
     description: `${data.service_type} — pedido personalizado`,
+    paymentDueAt: data.payment_due_at,
+    status: data.status,
   };
 }

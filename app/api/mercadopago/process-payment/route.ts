@@ -43,6 +43,17 @@ export async function POST(request: Request) {
   if (!order) {
     return NextResponse.json({ error: "Pedido personalizado não encontrado." }, { status: 404 });
   }
+  if (order.status !== "awaiting_payment") {
+    return NextResponse.json({ error: "Este pedido não está aguardando pagamento." }, { status: 409 });
+  }
+  // O prazo também é checado no banco (create_custom_service_order), mas quem
+  // deixa a tela aberta passando do prazo só bate aqui.
+  if (order.paymentDueAt && new Date(order.paymentDueAt).getTime() < Date.now()) {
+    return NextResponse.json(
+      { error: "O prazo para pagar esta proposta expirou. Peça uma nova proposta na conversa." },
+      { status: 409 },
+    );
+  }
 
   const grossAmountCents = order.amountCents;
   const platformFeeCents = Math.round(grossAmountCents * platformConfig.platformRevenueShare);

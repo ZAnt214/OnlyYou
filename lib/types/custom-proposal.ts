@@ -31,6 +31,9 @@ export interface CustomProposal {
   acceptedAt?: string;
   rejectedAt?: string;
   expiresAt?: string;
+  /** Prazo para o comprador pagar depois de aceitar (ISO). Passou disso, a
+   * proposta expira e o pedido volta para negociação. */
+  paymentDueAt?: string;
 }
 
 export const CUSTOM_PROPOSAL_STATUS_LABELS: Record<CustomProposalStatus, string> = {

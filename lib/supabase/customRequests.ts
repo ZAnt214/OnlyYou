@@ -104,6 +104,7 @@ interface CustomProposalRow {
   accepted_at: string | null;
   rejected_at: string | null;
   expires_at: string | null;
+  payment_due_at: string | null;
 }
 
 interface CustomServiceOrderRow {
@@ -118,6 +119,7 @@ interface CustomServiceOrderRow {
   agreed_amount_cents: number;
   currency: "BRL";
   delivery_deadline_at: string;
+  payment_due_at: string | null;
   status: CustomServiceOrderStatus;
   created_at: string;
   started_at: string | null;
@@ -232,6 +234,7 @@ function mapProposal(p: CustomProposalRow): CustomProposal {
     acceptedAt: p.accepted_at ?? undefined,
     rejectedAt: p.rejected_at ?? undefined,
     expiresAt: p.expires_at ?? undefined,
+    paymentDueAt: p.payment_due_at ?? undefined,
   };
 }
 
@@ -248,6 +251,7 @@ function mapCustomServiceOrder(o: CustomServiceOrderRow): CustomServiceOrder {
     agreedAmountCents: o.agreed_amount_cents,
     currency: o.currency,
     deliveryDeadlineAt: o.delivery_deadline_at,
+    paymentDueAt: o.payment_due_at ?? undefined,
     status: o.status,
     createdAt: o.created_at,
     startedAt: o.started_at ?? undefined,
@@ -515,6 +519,30 @@ export async function acceptCustomProposal(supabase: SupabaseClient, proposalId:
 
 export async function rejectCustomProposal(supabase: SupabaseClient, proposalId: string): Promise<CustomProposal> {
   const { data, error } = await supabase.rpc("reject_custom_proposal", { p_proposal_id: proposalId });
+  return mapProposal(unwrap(data, error) as CustomProposalRow);
+}
+
+/** Criador retira uma proposta que ainda não foi paga. */
+export async function cancelCustomProposal(
+  supabase: SupabaseClient,
+  proposalId: string,
+): Promise<CustomProposal> {
+  const { data, error } = await supabase.rpc("cancel_custom_proposal", { p_proposal_id: proposalId });
+  return mapProposal(unwrap(data, error) as CustomProposalRow);
+}
+
+/**
+ * Materializa a expiração de uma proposta aceita e não paga no prazo. Não há
+ * cron: quem abre a conversa depois do prazo é quem dispara isso. Idempotente
+ * — chamar antes do prazo (ou de novo depois) não muda nada.
+ */
+export async function expireUnpaidCustomProposal(
+  supabase: SupabaseClient,
+  proposalId: string,
+): Promise<CustomProposal> {
+  const { data, error } = await supabase.rpc("expire_unpaid_custom_proposal", {
+    p_proposal_id: proposalId,
+  });
   return mapProposal(unwrap(data, error) as CustomProposalRow);
 }
 

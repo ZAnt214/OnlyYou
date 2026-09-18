@@ -27,6 +27,8 @@ export interface CustomServiceOrder {
   agreedAmountCents: number;
   currency: "BRL";
   deliveryDeadlineAt: string;
+  /** Herdado da proposta: até quando o pagamento pode ser concluído (ISO). */
+  paymentDueAt?: string;
   status: CustomServiceOrderStatus;
   createdAt: string;
   startedAt?: string;
