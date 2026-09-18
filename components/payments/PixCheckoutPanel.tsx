@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Check, Copy, Loader2, QrCode } from "lucide-react";
 
 interface PixData {
+  paymentId?: string;
   qrCode?: string;
   qrCodeBase64?: string;
 }
@@ -45,7 +46,7 @@ export function PixCheckoutPanel({ orderId, onPaid }: { orderId: string; onPaid:
       onPaid();
       return true;
     }
-    setPix({ qrCode: data.qrCode, qrCodeBase64: data.qrCodeBase64 });
+    setPix({ paymentId: data.paymentId, qrCode: data.qrCode, qrCodeBase64: data.qrCodeBase64 });
     return true;
   }
 
@@ -82,13 +83,20 @@ export function PixCheckoutPanel({ orderId, onPaid }: { orderId: string; onPaid:
     }
   }
 
-  // Enquanto o Pix não é pago, o status real é consultado no servidor —
-  // o navegador nunca decide sozinho que o pagamento caiu.
+  // Enquanto o Pix não é pago, o status real é consultado no servidor — o
+  // navegador nunca decide sozinho que o pagamento caiu. Envia o
+  // paymentId para que a rota confira direto na API do Mercado Pago a
+  // cada tentativa, em vez de só esperar passivamente o webhook: o
+  // webhook pode demorar minutos para chegar, e sem essa checagem ativa a
+  // tela fica com o botão de pagar visível por todo esse tempo mesmo com
+  // o pagamento já aprovado.
   useEffect(() => {
     if (!pix) return;
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/mercadopago/status?orderId=${encodeURIComponent(orderId)}`);
+        const params = new URLSearchParams({ orderId });
+        if (pix.paymentId) params.set("mpPaymentId", pix.paymentId);
+        const res = await fetch(`/api/mercadopago/status?${params.toString()}`);
         if (!res.ok) return;
         const data = await res.json();
         if (data.paid) {
