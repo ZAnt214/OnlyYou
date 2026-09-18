@@ -361,6 +361,13 @@ export async function listProposalsForRequest(
   return (data ?? []).map(mapProposal);
 }
 
+/**
+ * Um pedido pode acumular mais de um `custom_service_order` ao longo do
+ * tempo: cada proposta cancelada e re-enviada gera uma nova order (ver
+ * cancel_custom_proposal). A mais recente é sempre a relevante pra tela —
+ * daí o order+limit(1) em vez de .maybeSingle(), que quebraria com
+ * "multiple (or no) rows returned" assim que existisse uma segunda linha.
+ */
 export async function getCustomServiceOrderByRequest(
   supabase: SupabaseClient,
   customRequestId: string,
@@ -369,6 +376,8 @@ export async function getCustomServiceOrderByRequest(
     .from("custom_service_orders")
     .select("*")
     .eq("custom_request_id", customRequestId)
+    .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
   if (error) throw new Error(error.message);
   return data ? mapCustomServiceOrder(data) : null;
