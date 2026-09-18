@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/supabase/session";
-import { createPaymentFromBrick } from "@/lib/payments/MercadoPagoProvider";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createPixPaymentForBuyer } from "@/lib/payments/MercadoPagoProvider";
 import { resolveCustomServiceOrderForBuyer } from "@/lib/payments/resolveCustomServiceOrder";
 import { createPendingConfirmation } from "@/lib/payments/paymentConfirmations";
 import { activateCustomServiceOrderAfterPayment } from "@/lib/payments/activateCustomServiceOrder";
@@ -8,11 +9,11 @@ import { isPaidStatus } from "@/lib/payments/PaymentProvider";
 import { platformConfig } from "@/lib/security/config";
 
 /**
- * Recebe o formData do Payment Brick e cria a cobrança de verdade. O valor e
- * o criador nunca vêm do cliente: são resolvidos aqui a partir de
- * custom_service_orders (RLS + checagem de requester_id). Do formData só
- * aproveitamos o que é legitimamente do pagador — meio de pagamento e dados
- * pessoais que o próprio Mercado Pago coletou no formulário.
+ * Gera o Pix de um pedido personalizado e devolve QR code + copia-e-cola
+ * para exibir na própria conversa. O valor e o criador nunca vêm do cliente:
+ * são resolvidos aqui a partir de custom_service_orders (RLS + checagem de
+ * requester_id). Do comprador só entra o CPF — o e-mail vem da sessão real,
+ * não de nada que o navegador informe.
  */
 export async function POST(request: Request) {
   const buyer = await getCurrentUser();
@@ -21,12 +22,21 @@ export async function POST(request: Request) {
   }
 
   const body: unknown = await request.json().catch(() => null);
-  const parsed = body as { orderId?: unknown; formData?: unknown } | null;
+  const parsed = body as { orderId?: unknown; cpf?: unknown } | null;
   if (typeof parsed?.orderId !== "string" || !parsed.orderId) {
     return NextResponse.json({ error: "orderId é obrigatório." }, { status: 400 });
   }
-  if (!parsed.formData || typeof parsed.formData !== "object") {
-    return NextResponse.json({ error: "Dados de pagamento incompletos." }, { status: 400 });
+
+  const cpfDigits = typeof parsed.cpf === "string" ? parsed.cpf.replace(/\D/g, "") : "";
+  if (cpfDigits.length !== 11) {
+    return NextResponse.json({ error: "Informe um CPF válido (11 dígitos)." }, { status: 400 });
+  }
+
+  const supabase = await createServerClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const payerEmail = authData.user?.email;
+  if (!payerEmail) {
+    return NextResponse.json({ error: "Sua conta não tem e-mail para o pagamento." }, { status: 400 });
   }
 
   const order = await resolveCustomServiceOrderForBuyer(parsed.orderId, buyer.id);
@@ -39,10 +49,13 @@ export async function POST(request: Request) {
   const creatorAmountCents = grossAmountCents - platformFeeCents;
 
   try {
-    const payment = await createPaymentFromBrick(parsed.formData as Record<string, unknown>, {
+    const payment = await createPixPaymentForBuyer({
       orderId: order.orderId,
       amount: grossAmountCents / 100,
       description: order.description,
+      payerEmail,
+      payerFirstName: buyer.displayName,
+      payerCpf: cpfDigits,
     });
 
     await createPendingConfirmation({
@@ -54,15 +67,11 @@ export async function POST(request: Request) {
       platformFeeCents,
       creatorAmountCents,
       currency: "BRL",
-      method: typeof (parsed.formData as Record<string, unknown>).payment_method_id === "string"
-        ? String((parsed.formData as Record<string, unknown>).payment_method_id)
-        : "unknown",
+      method: "pix",
       kind: "custom_service",
       status: payment.status,
     });
 
-    // Cartão aprovado na hora já libera o pedido; Pix nasce pendente e é
-    // liberado pelo webhook/polling quando o pagamento cair.
     if (isPaidStatus(payment.status)) {
       await activateCustomServiceOrderAfterPayment(order.orderId);
     }
@@ -70,14 +79,13 @@ export async function POST(request: Request) {
     return NextResponse.json({
       status: payment.status,
       paymentId: payment.paymentId,
-      statusDetail: payment.statusDetail,
       qrCode: payment.qrCode,
       qrCodeBase64: payment.qrCodeBase64,
       expiresAt: payment.expiresAt,
     });
   } catch (error) {
     console.error("[mercadopago/process-payment]", error);
-    const message = error instanceof Error ? error.message : "Não foi possível processar o pagamento.";
+    const message = error instanceof Error ? error.message : "Não foi possível gerar o Pix.";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

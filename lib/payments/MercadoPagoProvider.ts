@@ -50,61 +50,7 @@ function webhookUrlOrNull(): string | null {
   }
 }
 
-/**
- * Chave pública da mesma aplicação do Mercado Pago — usada pelo Payment
- * Brick no navegador (é pública por natureza, diferente do access token).
- */
-export function getMercadoPagoPublicKey(): string | null {
-  return process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY?.trim() || null;
-}
-
-/**
- * Cria a preference que inicializa o Payment Brick. O Brick é o formulário
- * oficial do Mercado Pago renderizado dentro do site: é ele que coleta os
- * dados reais do pagador (e-mail, CPF) exigidos para um pagamento Pix em
- * produção. Criar o pagamento direto em /v1/payments com um pagador
- * inventado faz o Mercado Pago recusar com "Unauthorized use of live
- * credentials" — por isso todo pagamento passa pelo Brick.
- */
-export async function createBrickPreference(input: {
-  orderId: string;
-  amount: number;
-  description: string;
-  payerEmail?: string;
-}): Promise<{ preferenceId: string }> {
-  const base = appUrl();
-  const res = await fetch(`${MP_API}/checkout/preferences`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${platformAccessToken()}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      items: [
-        {
-          id: input.orderId,
-          title: input.description.slice(0, 256),
-          quantity: 1,
-          unit_price: round2(input.amount),
-          currency_id: "BRL",
-        },
-      ],
-      external_reference: input.orderId.slice(0, 64),
-      payer: input.payerEmail ? { email: input.payerEmail } : undefined,
-      notification_url: webhookUrlOrNull() ?? undefined,
-      back_urls: {
-        success: `${base}/checkout/retorno?orderId=${input.orderId}`,
-        failure: `${base}/checkout/retorno?orderId=${input.orderId}`,
-        pending: `${base}/checkout/retorno?orderId=${input.orderId}`,
-      },
-    }),
-  });
-
-  const data = await parseOrThrow(res, "Falha ao preparar o pagamento no Mercado Pago.");
-  return { preferenceId: String(data.id) };
-}
-
-export interface BrickPaymentResult {
+export interface PixPaymentResult {
   paymentId: string;
   status: PaymentStatus;
   rawStatus: string;
@@ -115,15 +61,23 @@ export interface BrickPaymentResult {
 }
 
 /**
- * Cria o pagamento a partir do formData que o Payment Brick devolve. O valor
- * e a referência do pedido são SEMPRE sobrescritos com o que o servidor
- * resolveu no banco — o navegador escolhe só o meio de pagamento e os dados
- * do próprio pagador, nunca quanto vai pagar.
+ * Cria um pagamento Pix direto (checkout transparente): o QR code e o
+ * copia-e-cola voltam na resposta e são exibidos na própria conversa — sem
+ * formulário do Mercado Pago e sem envio por e-mail. Valor e pedido vêm
+ * sempre do servidor; do comprador só usamos a identidade real da conta
+ * (e-mail da sessão) e o CPF que ele informa, que o Mercado Pago exige para
+ * Pix.
  */
-export async function createPaymentFromBrick(
-  formData: Record<string, unknown>,
-  options: { orderId: string; amount: number; description: string },
-): Promise<BrickPaymentResult> {
+export async function createPixPaymentForBuyer(options: {
+  orderId: string;
+  amount: number;
+  description: string;
+  payerEmail: string;
+  payerFirstName?: string;
+  payerCpf: string;
+}): Promise<PixPaymentResult> {
+  const cpf = options.payerCpf.replace(/\D/g, "");
+
   const res = await fetch(`${MP_API}/v1/payments`, {
     method: "POST",
     headers: {
@@ -132,11 +86,16 @@ export async function createPaymentFromBrick(
       "X-Idempotency-Key": `${options.orderId}-${Date.now()}`.slice(0, 64),
     },
     body: JSON.stringify({
-      ...formData,
       transaction_amount: round2(options.amount),
+      payment_method_id: "pix",
       external_reference: options.orderId.slice(0, 64),
       description: options.description.slice(0, 256),
       notification_url: webhookUrlOrNull() ?? undefined,
+      payer: {
+        email: options.payerEmail,
+        first_name: options.payerFirstName,
+        identification: { type: "CPF", number: cpf },
+      },
     }),
   });
 

@@ -34,7 +34,7 @@ import {
 } from "@/lib/supabase/customRequests";
 import { reportService } from "@/lib/moderation/ReportService";
 import { StatusBadge } from "@/components/StatusBadge";
-import { MercadoPagoPaymentBrick } from "@/components/payments/MercadoPagoPaymentBrick";
+import { PixCheckoutPanel } from "@/components/payments/PixCheckoutPanel";
 import {
   REPORT_REASON_LABELS,
   type ReportReason,
@@ -90,9 +90,9 @@ export function ConversationView({
   const [showProblemForm, setShowProblemForm] = useState(false);
   const [deliveryFileName, setDeliveryFileName] = useState("");
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
-  // O formulário do Mercado Pago só monta depois de um clique explícito —
-  // senão ele reaparece sozinho a cada visita à conversa enquanto o pedido
-  // estiver aguardando pagamento.
+  // O painel de Pix só aparece depois de um clique explícito — senão ele
+  // reabriria sozinho a cada visita à conversa enquanto o pedido estiver
+  // aguardando pagamento.
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [otherTyping, setOtherTyping] = useState(false);
 
@@ -511,7 +511,7 @@ export function ConversationView({
 
       {customServiceOrder?.status === "awaiting_payment" && isRequester ? (
         showPaymentForm ? (
-          <MercadoPagoPaymentBrick
+          <PixCheckoutPanel
             orderId={customServiceOrder.orderId}
             onPaid={() => void load()}
           />
