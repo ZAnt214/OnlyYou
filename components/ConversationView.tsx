@@ -32,11 +32,9 @@ import {
   confirmCustomReceipt,
   reportCustomOrderProblem,
 } from "@/lib/supabase/customRequests";
-import { PaymentService } from "@/lib/services/PaymentService";
-import { usePaymentRepository } from "@/lib/repositories/PaymentRepository";
 import { reportService } from "@/lib/moderation/ReportService";
 import { StatusBadge } from "@/components/StatusBadge";
-import { MercadoPagoPixPanel } from "@/components/payments/MercadoPagoPixPanel";
+import { MercadoPagoPaymentBrick } from "@/components/payments/MercadoPagoPaymentBrick";
 import {
   REPORT_REASON_LABELS,
   type ReportReason,
@@ -46,7 +44,6 @@ import {
   type CustomRequest,
   type Conversation,
   type CustomServiceOrder,
-  type Payment,
 } from "@/lib/types";
 
 function formatBRLFromCents(cents: number): string {
@@ -57,39 +54,6 @@ function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
 }
 
-function PendingPaymentPanel({
-  customServiceOrderId,
-  orderId,
-  paymentService,
-  onPaid,
-}: {
-  customServiceOrderId: string;
-  orderId: string;
-  paymentService: PaymentService;
-  onPaid: () => void;
-}) {
-  const payment = paymentService.findByOrder(orderId);
-
-  return (
-    <div className="flex flex-col gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-4 text-sm">
-      <p className="text-(--color-text)">
-        Pedido {customServiceOrderId} criado. Pagamento com status{" "}
-        <span className="font-medium text-(--color-warning)">pendente</span>.
-      </p>
-      {payment ? (
-        <MercadoPagoPixPanel
-          payment={payment}
-          paymentService={paymentService}
-          onPaid={(paid: Payment) => {
-            void paid;
-            onPaid();
-          }}
-        />
-      ) : null}
-    </div>
-  );
-}
-
 export function ConversationView({
   customRequestId,
   actingUserId,
@@ -98,8 +62,6 @@ export function ConversationView({
   actingUserId: string | null;
 }) {
   const supabase = createClient();
-  const paymentRepo = usePaymentRepository();
-  const [paymentService] = useState(() => new PaymentService(paymentRepo));
 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -334,32 +296,16 @@ export function ConversationView({
     }
   }
 
+  /**
+   * Só cria a contratação (custom_service_orders, status awaiting_payment).
+   * O pagamento em si acontece no Payment Brick que aparece logo abaixo na
+   * conversa — é ele que coleta os dados do pagador e gera o Pix.
+   */
   async function handlePayProposal(proposalId: string) {
     setError(null);
     setBusy(true);
     try {
-      const cso = await createCustomServiceOrder(supabase, proposalId);
-      await paymentService.startCustomServiceCheckout(
-        {
-          id: cso.orderId,
-          buyerId: cso.requesterId,
-          items: [
-            {
-              productId: cso.proposalId,
-              productTitle: `${cso.serviceType} — pedido personalizado`,
-              creatorId: cso.creatorId,
-              unitPrice: cso.agreedAmountCents / 100,
-              quantity: 1,
-              subtotal: cso.agreedAmountCents / 100,
-            },
-          ],
-          total: cso.agreedAmountCents / 100,
-          currency: "BRL",
-          status: "pending",
-          createdAt: cso.createdAt,
-        },
-        "pix",
-      );
+      await createCustomServiceOrder(supabase, proposalId);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível iniciar o pagamento.");
@@ -559,10 +505,8 @@ export function ConversationView({
       {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
 
       {customServiceOrder?.status === "awaiting_payment" && isRequester ? (
-        <PendingPaymentPanel
-          customServiceOrderId={customServiceOrder.id}
+        <MercadoPagoPaymentBrick
           orderId={customServiceOrder.orderId}
-          paymentService={paymentService}
           onPaid={() => void load()}
         />
       ) : null}

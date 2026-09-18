@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/supabase/session";
-import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getServerPaymentProvider } from "@/lib/payments/getServerPaymentProvider";
 import { createPendingConfirmation } from "@/lib/payments/paymentConfirmations";
 import { productRepository } from "@/lib/repositories/ProductRepository";
@@ -14,34 +13,25 @@ interface ProductCheckoutBody {
   productId: string;
 }
 
-interface CustomServiceCheckoutBody {
-  orderId: string;
-  method: PaymentMethod;
-  kind: "custom_service";
-}
-
-type CheckoutBody = ProductCheckoutBody | CustomServiceCheckoutBody;
-
-function isValidBody(body: unknown): body is CheckoutBody {
+function isValidBody(body: unknown): body is ProductCheckoutBody {
   if (!body || typeof body !== "object") return false;
   const b = body as Record<string, unknown>;
   if (typeof b.orderId !== "string" || !b.orderId) return false;
   if (b.method !== "pix" && b.method !== "credit_card" && b.method !== "boleto") return false;
-  if (b.kind === "product") return typeof b.productId === "string" && !!b.productId;
-  if (b.kind === "custom_service") return true;
-  return false;
+  return b.kind === "product" && typeof b.productId === "string" && !!b.productId;
 }
 
 /**
- * Cria um checkout Mercado Pago na conta única da plataforma — todo
- * pagamento cai na conta do Jobê, nunca na de um criador (sem OAuth/split
- * por criador; o repasse é feito por fora, como saldo em carteira + saque
- * manual, ver lib/supabase/wallet.ts). O valor e o criador NUNCA vêm
- * confiados do cliente: para produtos do catálogo são resolvidos a partir
- * de productRepository; para pedidos personalizados (kind "custom_service"),
- * são resolvidos aqui a partir da proposta aceita (RLS restringe a linha ao
- * próprio solicitante) — o cliente só informa qual proposta está pagando,
- * nunca o valor.
+ * Checkout de PRODUTO do catálogo (conta única da plataforma — todo
+ * pagamento cai na conta do Jobê; o repasse ao criador é saldo em carteira +
+ * saque manual, ver lib/supabase/wallet.ts). Valor e criador são sempre
+ * resolvidos no servidor a partir de productRepository, nunca vindos do
+ * cliente.
+ *
+ * Pedido personalizado NÃO passa por aqui: usa o Payment Brick
+ * (/api/mercadopago/brick-session + /api/mercadopago/process-payment), que é
+ * o formulário oficial do Mercado Pago e coleta os dados reais do pagador —
+ * sem isso o Mercado Pago recusa o Pix em conta de produção.
  */
 export async function POST(request: Request) {
   const buyer = await getCurrentUser();
@@ -57,38 +47,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Corpo da requisição inválido." }, { status: 400 });
   }
 
-  let amount: number;
-  let creatorId: string;
-  let description: string;
-
-  if (body.kind === "product") {
-    const product = await productRepository.findById(body.productId);
-    if (!product || product.status !== "approved") {
-      return NextResponse.json({ error: "Produto não encontrado ou indisponível." }, { status: 404 });
-    }
-    amount = product.promoPrice ?? product.price;
-    creatorId = product.creatorId;
-    description = product.title;
-  } else {
-    // Client Supabase autenticado (cookies da sessão) — RLS garante que só
-    // enxergamos a proposta/pedido se buyer.id for o requester_id da linha,
-    // então o 404 abaixo já cobre tanto "não existe" quanto "não é seu".
-    const supabase = await createServerClient();
-    const { data: cso, error: csoError } = await supabase
-      .from("custom_service_orders")
-      .select("order_id, requester_id, creator_id, agreed_amount_cents, service_type")
-      .eq("order_id", body.orderId)
-      .maybeSingle();
-    if (csoError || !cso) {
-      return NextResponse.json({ error: "Pedido personalizado não encontrado." }, { status: 404 });
-    }
-    if (cso.requester_id !== buyer.id) {
-      return NextResponse.json({ error: "Pedido personalizado não encontrado." }, { status: 404 });
-    }
-    amount = cso.agreed_amount_cents / 100;
-    creatorId = cso.creator_id;
-    description = `${cso.service_type} — pedido personalizado`;
+  const product = await productRepository.findById(body.productId);
+  if (!product || product.status !== "approved") {
+    return NextResponse.json({ error: "Produto não encontrado ou indisponível." }, { status: 404 });
   }
+  const amount = product.promoPrice ?? product.price;
+  const creatorId = product.creatorId;
+  const description = product.title;
 
   const grossAmountCents = Math.round(amount * 100);
   const platformFeeCents = Math.round(grossAmountCents * platformConfig.platformRevenueShare);

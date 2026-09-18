@@ -41,23 +41,6 @@ export class PaymentService {
     return this.savePaymentFromCheckout(order, method, result);
   }
 
-  /**
-   * Pedidos personalizados: orderId é o id de um custom_service_orders já
-   * criado (via create_custom_service_order, ver lib/supabase/customRequests.ts)
-   * a partir de uma proposta aceita. O servidor resolve valor/criador a
-   * partir dessa linha (RLS garante que é do próprio solicitante) — nunca
-   * confia em nada vindo do cliente aqui.
-   */
-  async startCustomServiceCheckout(order: Order, method: PaymentMethod): Promise<Payment> {
-    const result = await this.postCheckout({
-      orderId: order.id,
-      method,
-      kind: "custom_service",
-    });
-
-    return this.savePaymentFromCheckout(order, method, result);
-  }
-
   private async postCheckout(body: Record<string, unknown>): Promise<CheckoutApiResult> {
     const response = await fetch("/api/mercadopago/checkout", {
       method: "POST",
