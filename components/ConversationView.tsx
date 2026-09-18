@@ -90,6 +90,10 @@ export function ConversationView({
   const [showProblemForm, setShowProblemForm] = useState(false);
   const [deliveryFileName, setDeliveryFileName] = useState("");
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
+  // O formulário do Mercado Pago só monta depois de um clique explícito —
+  // senão ele reaparece sozinho a cada visita à conversa enquanto o pedido
+  // estiver aguardando pagamento.
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [otherTyping, setOtherTyping] = useState(false);
 
   const channelRef = useRef<RealtimeChannel | null>(null);
@@ -306,6 +310,7 @@ export function ConversationView({
     setBusy(true);
     try {
       await createCustomServiceOrder(supabase, proposalId);
+      setShowPaymentForm(true);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível iniciar o pagamento.");
@@ -505,10 +510,25 @@ export function ConversationView({
       {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
 
       {customServiceOrder?.status === "awaiting_payment" && isRequester ? (
-        <MercadoPagoPaymentBrick
-          orderId={customServiceOrder.orderId}
-          onPaid={() => void load()}
-        />
+        showPaymentForm ? (
+          <MercadoPagoPaymentBrick
+            orderId={customServiceOrder.orderId}
+            onPaid={() => void load()}
+          />
+        ) : (
+          <div className="flex flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-sm shadow-sm">
+            <p className="text-(--color-text-muted)">
+              Pagamento pendente. Conclua para o criador iniciar o serviço.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowPaymentForm(true)}
+              className="w-fit rounded-full bg-(--color-accent) px-5 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+            >
+              Pagar agora
+            </button>
+          </div>
+        )
       ) : null}
 
       {customServiceOrder?.status === "delivered" && isRequester ? (

@@ -24,8 +24,30 @@ function platformAccessToken(): string {
   return requiredEnv("MERCADOPAGO_ACCESS_TOKEN");
 }
 
+/**
+ * Base pública do app, normalizada. O valor vem de uma variável de ambiente
+ * colada à mão no painel de deploy, então espaço/quebra de linha no fim e
+ * protocolo faltando são erros comuns — e o Mercado Pago recusa a cobrança
+ * inteira com "notification_url attribute must be url valid" quando a URL
+ * sai malformada. Normalizar aqui é mais seguro do que confiar no valor.
+ */
 function appUrl(): string {
-  return requiredEnv("NEXT_PUBLIC_APP_URL").replace(/\/$/, "");
+  const raw = requiredEnv("NEXT_PUBLIC_APP_URL").trim().replace(/\/+$/, "");
+  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+}
+
+/**
+ * URL do webhook, ou null se a base configurada não formar uma URL válida.
+ * Nesse caso a cobrança é criada sem notification_url: o pagamento continua
+ * funcionando (a UI confirma pelo polling de /api/mercadopago/status), em vez
+ * de falhar inteiro por causa de uma variável mal colada.
+ */
+function webhookUrlOrNull(): string | null {
+  try {
+    return new URL("/api/mercadopago/webhook", appUrl()).toString();
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -69,7 +91,7 @@ export async function createBrickPreference(input: {
       ],
       external_reference: input.orderId.slice(0, 64),
       payer: input.payerEmail ? { email: input.payerEmail } : undefined,
-      notification_url: `${base}/api/mercadopago/webhook`,
+      notification_url: webhookUrlOrNull() ?? undefined,
       back_urls: {
         success: `${base}/checkout/retorno?orderId=${input.orderId}`,
         failure: `${base}/checkout/retorno?orderId=${input.orderId}`,
@@ -114,7 +136,7 @@ export async function createPaymentFromBrick(
       transaction_amount: round2(options.amount),
       external_reference: options.orderId.slice(0, 64),
       description: options.description.slice(0, 256),
-      notification_url: `${appUrl()}/api/mercadopago/webhook`,
+      notification_url: webhookUrlOrNull() ?? undefined,
     }),
   });
 
@@ -160,7 +182,7 @@ export class MercadoPagoProvider implements PaymentProvider {
         description: input.description ?? `Pedido ${input.orderId}`,
         payment_method_id: "pix",
         external_reference: input.orderId,
-        notification_url: `${requiredEnv("NEXT_PUBLIC_APP_URL")}/api/mercadopago/webhook`,
+        notification_url: webhookUrlOrNull() ?? undefined,
         payer: { email: input.payerEmail ?? "comprador@jobe.app" },
       }),
     });
@@ -178,7 +200,7 @@ export class MercadoPagoProvider implements PaymentProvider {
   }
 
   private async createPreference(input: CreateCheckoutInput): Promise<CreateCheckoutResult> {
-    const appUrl = requiredEnv("NEXT_PUBLIC_APP_URL");
+    const base = appUrl();
 
     const res = await fetch(`${MP_API}/checkout/preferences`, {
       method: "POST",
@@ -203,12 +225,12 @@ export class MercadoPagoProvider implements PaymentProvider {
             ? { excluded_payment_types: [{ id: "credit_card" }, { id: "debit_card" }] }
             : { excluded_payment_types: [{ id: "ticket" }] },
         back_urls: {
-          success: `${appUrl}/checkout/retorno?orderId=${input.orderId}`,
-          failure: `${appUrl}/checkout/retorno?orderId=${input.orderId}`,
-          pending: `${appUrl}/checkout/retorno?orderId=${input.orderId}`,
+          success: `${base}/checkout/retorno?orderId=${input.orderId}`,
+          failure: `${base}/checkout/retorno?orderId=${input.orderId}`,
+          pending: `${base}/checkout/retorno?orderId=${input.orderId}`,
         },
         auto_return: "approved",
-        notification_url: `${appUrl}/api/mercadopago/webhook`,
+        notification_url: webhookUrlOrNull() ?? undefined,
       }),
     });
 
