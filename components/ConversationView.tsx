@@ -758,6 +758,20 @@ export function ConversationView({
   );
 }
 
+const PAYMENT_CONFIRMED_CONTENT = "Pagamento confirmado. Pedido em produção.";
+
+/**
+ * A mensagem de pagamento confirmado (inserida uma única vez, pelo
+ * servidor, em activateCustomServiceOrderAfterPayment) é a mesma linha na
+ * conversa compartilhada — mas o texto exibido muda por papel: quem pagou
+ * lê a confirmação do próprio pagamento, quem recebe lê que já pode
+ * produzir. Outras mensagens (entrega confirmada etc.) passam direto.
+ */
+function paymentConfirmedText(content: string, isRequester: boolean): string {
+  if (content !== PAYMENT_CONFIRMED_CONTENT) return content;
+  return isRequester ? content : "Pagamento recebido. Você já pode iniciar a produção deste pedido.";
+}
+
 function TypingBubble() {
   return (
     <div className="flex items-center gap-1 self-start rounded-md bg-(--color-surface) px-3 py-2.5">
@@ -804,11 +818,13 @@ function MessageItem({
     // seguem discretos — só marcos que fecham uma etapa do pedido
     // (pagamento confirmado, entrega confirmada) ganham destaque, porque
     // são a confirmação de que algo real aconteceu (dinheiro, produto).
+    // Mesmo card usado pra "Entrega enviada" (border-success + bg-surface) —
+    // não um selo verde saturado, que fugiria da paleta discreta do app.
     if (message.metadata?.customServiceOrderId) {
       return (
-        <div className="flex items-center justify-center gap-2 self-center rounded-full border border-(--color-success) bg-(--color-surface-2) px-4 py-2 text-sm font-medium text-(--color-success)">
-          <CheckCircle2 size={16} strokeWidth={1.5} />
-          {message.content}
+        <div className="flex items-center gap-2 self-center rounded-2xl border border-(--color-success) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text)">
+          <CheckCircle2 size={16} className="shrink-0 text-(--color-success)" strokeWidth={1.5} />
+          {paymentConfirmedText(message.content, isRequester)}
         </div>
       );
     }
