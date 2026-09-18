@@ -325,7 +325,7 @@ export function ConversationView({
     setError(null);
     setBusy(true);
     try {
-      await cancelCustomProposal(supabase, proposalId);
+      await cancelCustomProposal(proposalId);
       setShowPaymentForm(false);
       await load();
     } catch (err) {

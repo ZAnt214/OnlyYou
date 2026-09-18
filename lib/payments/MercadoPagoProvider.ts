@@ -143,6 +143,31 @@ export async function createPixPaymentForBuyer(options: {
 }
 
 /**
+ * Cancela um Pix ainda pendente no Mercado Pago (`status: cancelled`) — o
+ * código/QR já entregue ao comprador deixa de poder ser pago. Só funciona
+ * enquanto o pagamento está `pending`; a própria API do Mercado Pago recusa
+ * cancelar algo já aprovado, o que é a proteção certa: quem chama isso deve
+ * SEMPRE checar o status real (fetchMercadoPagoPayment) antes, nunca confiar
+ * que o pagamento ainda está pendente só porque nosso banco ainda diz isso.
+ */
+export async function cancelPixPayment(mpPaymentId: string): Promise<void> {
+  const res = await fetch(`${MP_API}/v1/payments/${mpPaymentId}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${platformAccessToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status: "cancelled" }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      (typeof err.message === "string" && err.message) || "Falha ao cancelar o Pix no Mercado Pago.",
+    );
+  }
+}
+
+/**
  * Provedor real de pagamentos via Mercado Pago, conta única da plataforma.
  * Só deve ser importado em código de servidor — nunca em um componente de
  * cliente. Ver app/api/mercadopago/checkout/route.ts (validação de

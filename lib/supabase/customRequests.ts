@@ -522,13 +522,24 @@ export async function rejectCustomProposal(supabase: SupabaseClient, proposalId:
   return mapProposal(unwrap(data, error) as CustomProposalRow);
 }
 
-/** Criador retira uma proposta que ainda não foi paga. */
-export async function cancelCustomProposal(
-  supabase: SupabaseClient,
-  proposalId: string,
-): Promise<CustomProposal> {
-  const { data, error } = await supabase.rpc("cancel_custom_proposal", { p_proposal_id: proposalId });
-  return mapProposal(unwrap(data, error) as CustomProposalRow);
+/**
+ * Criador retira uma proposta que ainda não foi paga. Diferente das outras
+ * mutações desta tabela, isso NÃO chama a RPC direto do navegador: passa
+ * por /api/mercadopago/cancel-proposal (server-only) porque, se já existe um
+ * Pix pendente, ele é uma cobrança de verdade no Mercado Pago — cancelar só
+ * no nosso banco deixaria o código ainda pagável. A rota confere o status
+ * real antes de cancelar (cobre o comprador pagar no instante do
+ * cancelamento) e só então chama esta mesma RPC no servidor.
+ */
+export async function cancelCustomProposal(proposalId: string): Promise<CustomProposal> {
+  const res = await fetch("/api/mercadopago/cancel-proposal", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ proposalId }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error ?? "Não foi possível cancelar a proposta.");
+  return mapProposal(data.proposal as CustomProposalRow);
 }
 
 /**
