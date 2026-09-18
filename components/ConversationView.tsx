@@ -537,10 +537,7 @@ export function ConversationView({
               onCancel={handleCancelProposal}
               onDelete={handleDeleteMessage}
               busy={busy}
-              hasServiceOrder={
-                customServiceOrder?.proposalId === message.metadata?.proposalId &&
-                customServiceOrder?.status === "awaiting_payment"
-              }
+              hasServiceOrder={customServiceOrder?.proposalId === message.metadata?.proposalId}
               canCancel={!customServiceOrder || customServiceOrder.status === "awaiting_payment"}
             />
           ))
@@ -803,6 +800,18 @@ function MessageItem({
   canCancel: boolean;
 }) {
   if (message.type === "system") {
+    // Eventos de negociação (proposta enviada/aceita/recusada/cancelada)
+    // seguem discretos — só marcos que fecham uma etapa do pedido
+    // (pagamento confirmado, entrega confirmada) ganham destaque, porque
+    // são a confirmação de que algo real aconteceu (dinheiro, produto).
+    if (message.metadata?.customServiceOrderId) {
+      return (
+        <div className="flex items-center justify-center gap-2 self-center rounded-full border border-(--color-success) bg-(--color-surface-2) px-4 py-2 text-sm font-medium text-(--color-success)">
+          <CheckCircle2 size={16} strokeWidth={1.5} />
+          {message.content}
+        </div>
+      );
+    }
     return <p className="text-center text-xs text-(--color-text-subtle)">{message.content}</p>;
   }
 
