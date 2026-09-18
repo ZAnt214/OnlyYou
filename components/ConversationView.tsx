@@ -822,8 +822,8 @@ function MessageItem({
     // não um selo verde saturado, que fugiria da paleta discreta do app.
     if (message.metadata?.customServiceOrderId) {
       return (
-        <div className="flex items-center gap-2 self-center rounded-2xl border border-(--color-success) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text)">
-          <CheckCircle2 size={16} className="shrink-0 text-(--color-success)" strokeWidth={1.5} />
+        <div className="flex items-center gap-2 self-center rounded-2xl border border-(--color-accent) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text)">
+          <CheckCircle2 size={16} className="shrink-0 text-(--color-accent)" strokeWidth={1.5} />
           {paymentConfirmedText(message.content, isRequester)}
         </div>
       );
@@ -906,7 +906,7 @@ function MessageItem({
 
   if (message.type === "delivery") {
     return (
-      <div className="flex flex-col gap-2 self-center rounded-md border border-(--color-success) bg-(--color-surface) p-4 text-sm">
+      <div className="flex flex-col gap-2 self-center rounded-md border border-(--color-accent) bg-(--color-surface) p-4 text-sm">
         <span className="font-medium text-(--color-text)">Entrega enviada</span>
         {attachments.map((att) => (
           <span key={att.id} className="flex items-center gap-1.5 text-(--color-text-muted)">

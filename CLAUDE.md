@@ -23,7 +23,7 @@ Tokens disponíveis (`app/globals.css`):
 | `--color-border` | bordas e divisores |
 | `--color-text` / `--color-text-muted` / `--color-text-subtle` | hierarquia de texto |
 | `--color-accent` / `--color-accent-hover` / `--color-accent-soft` | laranja — CTAs, preços, estado ativo |
-| `--color-success` / `--color-warning` / `--color-danger` | estados semânticos |
+| `--color-success` / `--color-warning` / `--color-danger` | estados semânticos (ver nota abaixo sobre `--color-success`) |
 | `--color-verified` | selo de criador verificado (azul, separado do accent) |
 | `--radius-card` (`1.25rem`) | cards e painéis maiores |
 | `--radius-pill` (`999px`) | botões, badges, nav flutuante |
@@ -40,8 +40,15 @@ saem no raio certo.
   shadow-black/10`, nunca sombra escura pesada).
 - **Botões primários/CTA**: pill (`rounded-full`), fundo `bg-(--color-accent)`, texto branco,
   hover `bg-(--color-accent-hover)`. Botões secundários: outline com `border-(--color-border)`.
-- **Badges de desconto/sucesso**: pill verde suave usando `--color-success` sobre fundo claro
-  derivado dele (não usar `green-500` do Tailwind).
+- **Badges/indicadores de status positivo** (aceita, aprovado, pago, verificado — exceto o
+  selo de verificado, que usa `--color-verified` —, ativo, concluído, entrega enviada,
+  pagamento confirmado etc.): usam o mesmo padrão do chip ativo/CTA —
+  `bg-(--color-accent-soft) text-(--color-accent)` (ou borda `--color-accent` em cards) —
+  **não** `--color-success`/verde. Decisão explícita do usuário (verde destoa da paleta
+  laranja+cinza do Jobê): não reintroduzir verde em UI nova sem confirmar antes.
+  `--color-success` continua existindo como token só para os casos em que `--color-warning`/
+  `--color-danger` já convivem lado a lado e um terceiro tom é indispensável — na dúvida, usar
+  laranja.
 - **Navegação inferior mobile** (`components/MobileNav.tsx`): pill flutuante ancorada ao fundo
   da tela, só ícones, item ativo com `bg-(--color-accent-soft) text-(--color-accent)`. Qualquer
   nova aba entra nesse mesmo padrão, não numa barra reta com labels.

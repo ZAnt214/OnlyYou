@@ -1,8 +1,11 @@
 type Tone = "neutral" | "positive" | "warning" | "negative";
 
+// "positive" usa o mesmo padrão dos chips ativos (bg-accent-soft +
+// text-accent) em vez de --color-success: verde destoa da paleta
+// laranja+cinza do Jobê. Ver CLAUDE.md — não reintroduzir verde aqui.
 const TONE_CLASSES: Record<Tone, string> = {
   neutral: "bg-(--color-surface-2) text-(--color-text-muted)",
-  positive: "bg-(--color-surface-2) text-(--color-success)",
+  positive: "bg-(--color-accent-soft) text-(--color-accent)",
   warning: "bg-(--color-surface-2) text-(--color-warning)",
   negative: "bg-(--color-surface-2) text-(--color-danger)",
 };
