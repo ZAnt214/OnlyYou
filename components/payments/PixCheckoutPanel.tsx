@@ -24,28 +24,57 @@ function formatCpf(value: string): string {
  */
 export function PixCheckoutPanel({ orderId, onPaid }: { orderId: string; onPaid: () => void }) {
   const [cpf, setCpf] = useState("");
+  const [checkingExisting, setCheckingExisting] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pix, setPix] = useState<PixData | null>(null);
   const [copied, setCopied] = useState(false);
+
+  async function requestPix(withCpf: string): Promise<boolean> {
+    const res = await fetch("/api/mercadopago/process-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, cpf: withCpf }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      if (data.needsCpf) return false;
+      throw new Error(data.error ?? "Não foi possível gerar o Pix.");
+    }
+    if (data.status === "paid") {
+      onPaid();
+      return true;
+    }
+    setPix({ qrCode: data.qrCode, qrCodeBase64: data.qrCodeBase64 });
+    return true;
+  }
+
+  // Reabrir a conversa não deve pedir o CPF de novo se já existe um Pix
+  // pendente para este pedido — o servidor devolve o mesmo QR sem exigir
+  // CPF quando isso acontece (ver /api/mercadopago/process-payment).
+  useEffect(() => {
+    let cancelled = false;
+    // requestPix() é assíncrona e só atualiza estado depois do primeiro
+    // await — padrão de busca de dados ao montar, recomendado pelos próprios
+    // docs do React (react.dev/learn/you-might-not-need-an-effect).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    requestPix("")
+      .catch(() => false)
+      .finally(() => {
+        if (!cancelled) setCheckingExisting(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]);
 
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setGenerating(true);
     try {
-      const res = await fetch("/api/mercadopago/process-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, cpf }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error ?? "Não foi possível gerar o Pix.");
-      if (data.status === "paid") {
-        onPaid();
-        return;
-      }
-      setPix({ qrCode: data.qrCode, qrCodeBase64: data.qrCodeBase64 });
+      await requestPix(cpf);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível gerar o Pix.");
     } finally {
@@ -78,6 +107,15 @@ export function PixCheckoutPanel({ orderId, onPaid }: { orderId: string; onPaid:
     await navigator.clipboard.writeText(pix.qrCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  if (checkingExisting) {
+    return (
+      <div className="flex items-center justify-center gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-sm text-(--color-text-muted) shadow-sm">
+        <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
+        Verificando pagamento…
+      </div>
+    );
   }
 
   if (pix) {

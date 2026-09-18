@@ -22,24 +22,52 @@ export interface PendingConfirmationInput {
  * Registrado no momento da criação do checkout (sempre no servidor, nunca a
  * partir do retorno do navegador) — é a única forma de o webhook, mais
  * tarde, saber a quem um pagamento pertence e qual split aplicar.
+ *
+ * Idempotente por mp_payment_id: o Mercado Pago devolve o MESMO pagamento
+ * quando o mesmo Pix é pedido de novo, e nesse caso a linha já existe. Com
+ * `ignoreDuplicates` a segunda chamada não faz nada — em particular, não
+ * rebaixa para "pending" um pagamento que o webhook já confirmou.
  */
 export async function createPendingConfirmation(input: PendingConfirmationInput): Promise<void> {
   const supabase = createServiceClient();
-  const { error } = await supabase.from("payment_confirmations").insert({
-    order_id: input.orderId,
-    mp_payment_id: input.mpPaymentId,
-    mp_preference_id: input.mpPreferenceId,
-    buyer_id: input.buyerId,
-    creator_id: input.creatorId,
-    status: input.status,
-    gross_amount_cents: input.grossAmountCents,
-    platform_fee_cents: input.platformFeeCents,
-    creator_amount_cents: input.creatorAmountCents,
-    currency: input.currency,
-    method: input.method,
-    kind: input.kind,
-  });
+  const { error } = await supabase.from("payment_confirmations").upsert(
+    {
+      order_id: input.orderId,
+      mp_payment_id: input.mpPaymentId,
+      mp_preference_id: input.mpPreferenceId,
+      buyer_id: input.buyerId,
+      creator_id: input.creatorId,
+      status: input.status,
+      gross_amount_cents: input.grossAmountCents,
+      platform_fee_cents: input.platformFeeCents,
+      creator_amount_cents: input.creatorAmountCents,
+      currency: input.currency,
+      method: input.method,
+      kind: input.kind,
+    },
+    { onConflict: "mp_payment_id", ignoreDuplicates: true },
+  );
   if (error) throw new Error(`Falha ao registrar pagamento pendente: ${error.message}`);
+}
+
+/**
+ * Pagamento pendente mais recente de um pedido, se houver — usado para
+ * reaproveitar o Pix já gerado em vez de criar outro a cada clique.
+ */
+export async function findPendingConfirmation(
+  orderId: string,
+): Promise<{ mpPaymentId: string } | null> {
+  const supabase = createServiceClient();
+  const { data } = await supabase
+    .from("payment_confirmations")
+    .select("mp_payment_id")
+    .eq("order_id", orderId)
+    .in("status", ["pending", "processing"])
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return data ? { mpPaymentId: data.mp_payment_id } : null;
 }
 
 /**

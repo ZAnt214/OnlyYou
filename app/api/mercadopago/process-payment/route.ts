@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/supabase/session";
 import { createClient as createServerClient } from "@/lib/supabase/server";
-import { createPixPaymentForBuyer } from "@/lib/payments/MercadoPagoProvider";
+import { createPixPaymentForBuyer, getPendingPixPayment } from "@/lib/payments/MercadoPagoProvider";
 import { resolveCustomServiceOrderForBuyer } from "@/lib/payments/resolveCustomServiceOrder";
-import { createPendingConfirmation } from "@/lib/payments/paymentConfirmations";
+import { createPendingConfirmation, findPendingConfirmation } from "@/lib/payments/paymentConfirmations";
 import { activateCustomServiceOrderAfterPayment } from "@/lib/payments/activateCustomServiceOrder";
 import { isPaidStatus } from "@/lib/payments/PaymentProvider";
 import { platformConfig } from "@/lib/security/config";
@@ -28,16 +28,6 @@ export async function POST(request: Request) {
   }
 
   const cpfDigits = typeof parsed.cpf === "string" ? parsed.cpf.replace(/\D/g, "") : "";
-  if (cpfDigits.length !== 11) {
-    return NextResponse.json({ error: "Informe um CPF válido (11 dígitos)." }, { status: 400 });
-  }
-
-  const supabase = await createServerClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const payerEmail = authData.user?.email;
-  if (!payerEmail) {
-    return NextResponse.json({ error: "Sua conta não tem e-mail para o pagamento." }, { status: 400 });
-  }
 
   const order = await resolveCustomServiceOrderForBuyer(parsed.orderId, buyer.id);
   if (!order) {
@@ -58,6 +48,39 @@ export async function POST(request: Request) {
   const grossAmountCents = order.amountCents;
   const platformFeeCents = Math.round(grossAmountCents * platformConfig.platformRevenueShare);
   const creatorAmountCents = grossAmountCents - platformFeeCents;
+
+  // Se já existe um Pix pendente para este pedido, devolve o mesmo QR em vez
+  // de abrir outra cobrança — clicar de novo (ou reabrir a conversa) não deve
+  // gerar um segundo Pix, e nesse caso nem pedimos o CPF de novo.
+  const pending = await findPendingConfirmation(order.orderId);
+  if (pending) {
+    const existing = await getPendingPixPayment(pending.mpPaymentId).catch(() => null);
+    if (existing) {
+      return NextResponse.json({
+        status: existing.status,
+        paymentId: existing.paymentId,
+        qrCode: existing.qrCode,
+        qrCodeBase64: existing.qrCodeBase64,
+        expiresAt: existing.expiresAt,
+      });
+    }
+  }
+
+  // Só aqui o CPF passa a ser obrigatório: é um Pix novo. `needsCpf` diz ao
+  // painel para mostrar o campo em vez de tratar isso como erro.
+  if (cpfDigits.length !== 11) {
+    return NextResponse.json(
+      { error: "Informe um CPF válido (11 dígitos).", needsCpf: true },
+      { status: 400 },
+    );
+  }
+
+  const supabase = await createServerClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const payerEmail = authData.user?.email;
+  if (!payerEmail) {
+    return NextResponse.json({ error: "Sua conta não tem e-mail para o pagamento." }, { status: 400 });
+  }
 
   try {
     const payment = await createPixPaymentForBuyer({

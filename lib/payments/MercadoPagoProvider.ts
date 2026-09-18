@@ -61,6 +61,35 @@ export interface PixPaymentResult {
 }
 
 /**
+ * Relê um Pix já criado (id vindo de payment_confirmations, nunca do
+ * navegador) para reaproveitar o mesmo QR code quando a pessoa volta à
+ * conversa — em vez de gerar uma cobrança nova a cada clique. Retorna null
+ * se o pagamento não existe mais ou já saiu de pendente.
+ */
+export async function getPendingPixPayment(mpPaymentId: string): Promise<PixPaymentResult | null> {
+  const res = await fetch(`${MP_API}/v1/payments/${mpPaymentId}`, {
+    headers: { Authorization: `Bearer ${platformAccessToken()}` },
+  });
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const status = mapMercadoPagoStatus(data.status);
+  if (status !== "pending" && status !== "processing") return null;
+
+  const tx = data.point_of_interaction?.transaction_data;
+  if (typeof tx?.qr_code !== "string") return null;
+
+  return {
+    paymentId: String(data.id),
+    status,
+    rawStatus: String(data.status || ""),
+    qrCode: tx.qr_code,
+    qrCodeBase64: typeof tx.qr_code_base64 === "string" ? tx.qr_code_base64 : undefined,
+    expiresAt: data.date_of_expiration ?? undefined,
+  };
+}
+
+/**
  * Cria um pagamento Pix direto (checkout transparente): o QR code e o
  * copia-e-cola voltam na resposta e são exibidos na própria conversa — sem
  * formulário do Mercado Pago e sem envio por e-mail. Valor e pedido vêm
