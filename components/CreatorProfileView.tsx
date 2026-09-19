@@ -117,12 +117,15 @@ export function CreatorProfileView({
             </Link>
           </div>
         ) : (
-          <button
-            type="button"
-            className="w-fit rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
-          >
-            Seguir
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <CustomOrderForm creator={creator} />
+            <button
+              type="button"
+              className="w-fit rounded-(--radius-pill) border border-(--color-border) px-4 py-2.5 text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
+            >
+              Seguir
+            </button>
+          </div>
         )}
 
         <div className="grid grid-cols-2 border-y border-(--color-border) text-sm">
@@ -208,21 +211,6 @@ export function CreatorProfileView({
               </div>
             ))}
           </div>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-2 border-t border-(--color-border) pt-6">
-        <h2 className="text-base font-semibold text-(--color-text)">Conteúdo personalizado</h2>
-        <p className="max-w-2xl text-sm text-(--color-text-muted)">
-          Peça um conteúdo feito sob encomenda para {creator.displayName}. O criador decide se
-          aceita, e vocês combinam os detalhes antes da entrega.
-        </p>
-        {isOwnProfile ? (
-          <p className="text-sm text-(--color-text-subtle)">
-            Assim aparece para os compradores no seu perfil.
-          </p>
-        ) : (
-          <CustomOrderForm creator={creator} />
         )}
       </div>
     </div>
