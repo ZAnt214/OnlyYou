@@ -63,6 +63,17 @@ saem no raio certo.
 - **Chips de filtro**: pill; ativo com `bg-(--color-accent-soft) text-(--color-accent)` e borda
   transparente, inativo com borda `--color-border` sobre `--color-surface`.
 - **Título de página interna**: barra em card branco `rounded-2xl` com o texto centralizado.
+- **Cards de mensagem na conversa** (`components/ConversationView.tsx`, `MessageItem`):
+  qualquer card de mensagem (proposta, entrega, marco de pedido) usa `w-full max-w-sm
+  self-center rounded-2xl` como a proposta — nunca um card sem `max-w-*` (fica desproporcional,
+  esticando pra largura toda do painel em telas maiores; foi o caso do card "Entrega enviada").
+- **Mensagens de marco de pedido** (pagamento confirmado, entrega confirmada — identificadas
+  por `message.metadata.customServiceOrderId`, ver `mapMessage` em `lib/supabase/customRequests.ts`):
+  é UMA linha só no banco/conversa compartilhada, mas o texto exibido deve mudar por papel
+  (`isRequester`) sempre que o conteúdo descrever algo específico de um dos lados ("seu
+  pagamento foi confirmado" não faz sentido pra quem recebeu o pagamento). Ver
+  `orderMilestoneText()` em `ConversationView.tsx` — toda mensagem de marco nova precisa de um
+  par de textos ali, não reaproveitar o texto genérico do banco pros dois lados.
 
 ## Nome da plataforma
 

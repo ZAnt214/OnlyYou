@@ -759,17 +759,25 @@ export function ConversationView({
 }
 
 const PAYMENT_CONFIRMED_CONTENT = "Pagamento confirmado. Pedido em produção.";
+const DELIVERY_CONFIRMED_CONTENT = "Entrega confirmada pelo comprador. Pedido concluído.";
 
 /**
- * A mensagem de pagamento confirmado (inserida uma única vez, pelo
- * servidor, em activateCustomServiceOrderAfterPayment) é a mesma linha na
- * conversa compartilhada — mas o texto exibido muda por papel: quem pagou
- * lê a confirmação do próprio pagamento, quem recebe lê que já pode
- * produzir. Outras mensagens (entrega confirmada etc.) passam direto.
+ * Marcos de pedido (pagamento confirmado, entrega confirmada) são gravados
+ * como UMA linha na conversa compartilhada — mas o texto certo depende de
+ * quem está lendo: "seu pagamento foi confirmado" só faz sentido pra quem
+ * pagou, não pra quem recebeu. Toda mensagem nova desse tipo (identificada
+ * por metadata.customServiceOrderId, ver mapMessage) precisa de um par de
+ * textos aqui, um por papel — nunca reaproveitar o texto genérico do banco
+ * pros dois lados.
  */
-function paymentConfirmedText(content: string, isRequester: boolean): string {
-  if (content !== PAYMENT_CONFIRMED_CONTENT) return content;
-  return isRequester ? content : "Pagamento recebido. Você já pode iniciar a produção deste pedido.";
+function orderMilestoneText(content: string, isRequester: boolean): string {
+  if (content === PAYMENT_CONFIRMED_CONTENT) {
+    return isRequester ? content : "Pagamento recebido. Você já pode iniciar a produção deste pedido.";
+  }
+  if (content === DELIVERY_CONFIRMED_CONTENT) {
+    return isRequester ? content : "O comprador confirmou o recebimento. Pedido concluído.";
+  }
+  return content;
 }
 
 function TypingBubble() {
@@ -824,7 +832,7 @@ function MessageItem({
       return (
         <div className="flex items-center gap-2 self-center rounded-2xl border border-(--color-accent) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text)">
           <CheckCircle2 size={16} className="shrink-0 text-(--color-accent)" strokeWidth={1.5} />
-          {paymentConfirmedText(message.content, isRequester)}
+          {orderMilestoneText(message.content, isRequester)}
         </div>
       );
     }
@@ -906,7 +914,7 @@ function MessageItem({
 
   if (message.type === "delivery") {
     return (
-      <div className="flex flex-col gap-2 self-center rounded-md border border-(--color-accent) bg-(--color-surface) p-4 text-sm">
+      <div className="flex w-full max-w-sm flex-col gap-2 self-center rounded-2xl border border-(--color-accent) bg-(--color-surface) p-4 text-sm shadow-sm">
         <span className="font-medium text-(--color-text)">Entrega enviada</span>
         {attachments.map((att) => (
           <span key={att.id} className="flex items-center gap-1.5 text-(--color-text-muted)">
