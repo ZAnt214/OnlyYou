@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import {
   Send,
@@ -15,6 +16,7 @@ import {
   PlusCircle,
   Loader2,
   Star,
+  ArrowLeft,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -70,9 +72,12 @@ function formatDateTime(iso: string): string {
 export function ConversationView({
   customRequestId,
   actingUserId,
+  backHref,
 }: {
   customRequestId: string;
   actingUserId: string | null;
+  /** Para onde o botão de voltar do cabeçalho leva — a tela abre em tela cheia. */
+  backHref: string;
 }) {
   const supabase = createClient();
 
@@ -218,9 +223,9 @@ export function ConversationView({
     void load();
   }, [load]);
 
-  // O painel de mensagens agora rola dentro de si mesmo (max-h-[60vh] +
-  // overflow-y-auto) em vez de esticar a página toda — sem isso, mensagem
-  // nova nasceria fora da área visível sem nenhum indício de que chegou.
+  // A região central da conversa rola dentro de si mesma (ver o
+  // overflow-y-auto logo abaixo do cabeçalho) — sem isso, mensagem nova
+  // nasceria fora da área visível sem nenhum indício de que chegou.
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ block: "end" });
   }, [messages]);
@@ -491,16 +496,25 @@ export function ConversationView({
   const isClosed = conversation.status === "closed";
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex h-full min-h-0 flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-(--color-border) p-3">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium text-(--color-text)">{counterpartName}</span>
-            <StatusBadge status={request.status} />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="truncate text-xs text-(--color-text-muted)">{serviceLabel}</span>
-            <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
+        <div className="flex min-w-0 items-center gap-2">
+          <Link
+            href={backHref}
+            aria-label="Voltar"
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-(--color-text-muted) hover:bg-(--color-surface-2)"
+          >
+            <ArrowLeft size={18} strokeWidth={1.5} />
+          </Link>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-medium text-(--color-text)">{counterpartName}</span>
+              <StatusBadge status={request.status} />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="truncate text-xs text-(--color-text-muted)">{serviceLabel}</span>
+              <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
+            </div>
           </div>
         </div>
         <div className="relative">
@@ -556,6 +570,12 @@ export function ConversationView({
         </div>
       </div>
 
+      {/* Header e o campo de digitar (mais abaixo) ficam fixos — só esta
+          região central rola, com a conversa ocupando a tela inteira como
+          uma página própria (ver app/pedidos/[id] e
+          app/dashboard/pedidos-personalizados/[id], que envolvem este
+          componente num container fixed inset-0). */}
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
       <div className="rounded-md border border-(--color-border) bg-(--color-surface) p-3 text-xs text-(--color-text-muted)">
         Mantenha toda a conversa, os combinados e o pagamento dentro do Jobê. É isso que garante
         a proteção da plataforma em caso de problema com a entrega ou o pagamento.
@@ -583,7 +603,7 @@ export function ConversationView({
         </div>
       ) : null}
 
-      <div className="flex max-h-[60vh] flex-col gap-3 overflow-y-auto rounded-md border border-(--color-border) p-4">
+      <div className="flex flex-col gap-3 rounded-md border border-(--color-border) p-4">
         {messages.length === 0 ? (
           <p className="text-sm text-(--color-text-muted)">Nenhuma mensagem ainda.</p>
         ) : (
@@ -807,6 +827,7 @@ export function ConversationView({
           Avaliar pedido
         </button>
       ) : null}
+      </div>
 
       {isClosed ? (
         <p className="text-center text-xs text-(--color-text-subtle)">Esta conversa está encerrada.</p>

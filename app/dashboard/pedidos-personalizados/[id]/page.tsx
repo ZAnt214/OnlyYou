@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { ConversationView } from "@/components/ConversationView";
 import { getCurrentUser } from "@/lib/supabase/session";
 
@@ -13,16 +11,18 @@ export default async function DashboardCustomRequestConversationPage({
   // exige conta real, sem fallback mock.
   const realUser = await getCurrentUser();
 
+  // Tela cheia como uma página própria (cobre até a sidebar do dashboard,
+  // que continua montada por trás) — botão de voltar vive no cabeçalho do
+  // próprio ConversationView.
   return (
-    <div className="flex max-w-2xl flex-col gap-4">
-      <Link
-        href="/dashboard/pedidos-personalizados"
-        className="flex w-fit items-center gap-1.5 text-sm text-(--color-text-muted) hover:text-(--color-text)"
-      >
-        <ArrowLeft size={14} strokeWidth={1.5} />
-        Voltar
-      </Link>
-      <ConversationView customRequestId={id} actingUserId={realUser?.id ?? null} />
+    <div className="fixed inset-0 z-30 flex justify-center bg-(--color-bg)">
+      <div className="flex h-full w-full max-w-2xl flex-col px-4 py-4">
+        <ConversationView
+          customRequestId={id}
+          actingUserId={realUser?.id ?? null}
+          backHref="/dashboard/pedidos-personalizados"
+        />
+      </div>
     </div>
   );
 }

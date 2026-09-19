@@ -1,8 +1,6 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
 import { ConversationView } from "@/components/ConversationView";
 
@@ -10,16 +8,14 @@ export default function MeuPedidoConversationPage() {
   const params = useParams<{ id: string }>();
   const { userId } = useCurrentUserId();
 
+  // Tela cheia como uma página própria (cobre header/nav do site, que
+  // continuam montados por trás) — botão de voltar vive no cabeçalho do
+  // próprio ConversationView.
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-8">
-      <Link
-        href="/pedidos"
-        className="flex w-fit items-center gap-1.5 text-sm text-(--color-text-muted) hover:text-(--color-text)"
-      >
-        <ArrowLeft size={14} strokeWidth={1.5} />
-        Voltar
-      </Link>
-      <ConversationView customRequestId={params.id} actingUserId={userId} />
+    <div className="fixed inset-0 z-30 flex justify-center bg-(--color-bg)">
+      <div className="flex h-full w-full max-w-2xl flex-col px-4 py-4">
+        <ConversationView customRequestId={params.id} actingUserId={userId} backHref="/pedidos" />
+      </div>
     </div>
   );
 }
