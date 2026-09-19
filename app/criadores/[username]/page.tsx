@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LayoutDashboard } from "lucide-react";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { CreatorProfileView } from "@/components/CreatorProfileView";
@@ -49,21 +47,12 @@ export default async function CreatorProfilePage({
   // sem precisar de um caminho separado pro fallback de demo.
   const reviews = await listCustomOrderReviewsForUser(await createServerClient(), creator.id);
 
+  // O acesso ao painel e o aviso de "visão pública" saíram daqui — viraram
+  // um item no menu "⋯" do dono do perfil (ProfileOwnerMenu), junto de
+  // "Editar informações do perfil", em vez de uma faixa fixa no topo da
+  // página competindo com o próprio perfil.
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
-      {isOwnProfile ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-(--color-border) bg-(--color-surface) px-4 py-2.5 text-sm text-(--color-text-muted)">
-          <span>Esta é a visualização pública do seu perfil — é o que os compradores veem.</span>
-          <Link
-            href="/dashboard"
-            className="flex flex-shrink-0 items-center gap-1.5 rounded-(--radius-pill) border border-(--color-border) px-4 py-2 text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
-          >
-            <LayoutDashboard size={14} strokeWidth={1.5} />
-            Painel do criador
-          </Link>
-        </div>
-      ) : null}
-
       <CreatorProfileView creator={creator} products={products} reviews={reviews} isOwnProfile={isOwnProfile} />
     </div>
   );
