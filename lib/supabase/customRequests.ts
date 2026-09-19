@@ -11,6 +11,7 @@ import type {
   CustomProposalStatus,
   CustomServiceOrder,
   CustomServiceOrderStatus,
+  CustomOrderReview,
   Notification,
   NotificationType,
   Dispute,
@@ -618,4 +619,53 @@ export async function reportCustomOrderProblem(
     p_reason: reason,
   });
   return mapCustomServiceOrder(unwrap(data, error) as CustomServiceOrderRow);
+}
+
+interface CustomOrderReviewRow {
+  id: string;
+  custom_service_order_id: string;
+  reviewer_id: string;
+  reviewee_id: string;
+  rating: number;
+  comment: string;
+  created_at: string;
+}
+
+function mapCustomOrderReview(r: CustomOrderReviewRow): CustomOrderReview {
+  return {
+    id: r.id,
+    customServiceOrderId: r.custom_service_order_id,
+    reviewerId: r.reviewer_id,
+    revieweeId: r.reviewee_id,
+    rating: r.rating,
+    comment: r.comment,
+    createdAt: r.created_at,
+  };
+}
+
+/** As duas avaliações (se existirem) de um pedido — a própria e a do outro lado. */
+export async function listCustomOrderReviews(
+  supabase: SupabaseClient,
+  customServiceOrderId: string,
+): Promise<CustomOrderReview[]> {
+  const { data, error } = await supabase
+    .from("custom_order_reviews")
+    .select("*")
+    .eq("custom_service_order_id", customServiceOrderId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapCustomOrderReview);
+}
+
+export async function submitCustomOrderReview(
+  supabase: SupabaseClient,
+  customServiceOrderId: string,
+  rating: number,
+  comment: string,
+): Promise<CustomOrderReview> {
+  const { data, error } = await supabase.rpc("submit_custom_order_review", {
+    p_custom_service_order_id: customServiceOrderId,
+    p_rating: rating,
+    p_comment: comment,
+  });
+  return mapCustomOrderReview(unwrap(data, error) as CustomOrderReviewRow);
 }

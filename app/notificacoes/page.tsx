@@ -18,6 +18,7 @@ const TYPE_LABELS: Record<string, string> = {
   CUSTOM_SERVICE_STARTED: "Serviço iniciado",
   CUSTOM_DELIVERY_SENT: "Entrega enviada",
   CUSTOM_SERVICE_COMPLETED: "Pedido concluído",
+  CUSTOM_ORDER_REVIEWED: "Nova avaliação",
   CUSTOM_SERVICE_EXPIRED: "Pedido expirado",
   CUSTOM_REFUND_CREATED: "Reembolso registrado",
   CUSTOM_DISPUTE_CREATED: "Problema relatado",

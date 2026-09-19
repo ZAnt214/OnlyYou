@@ -14,6 +14,7 @@ import {
   Clock,
   PlusCircle,
   Loader2,
+  Star,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -33,10 +34,13 @@ import {
   sendCustomDelivery,
   confirmCustomReceipt,
   reportCustomOrderProblem,
+  listCustomOrderReviews,
+  submitCustomOrderReview,
 } from "@/lib/supabase/customRequests";
 import { reportService } from "@/lib/moderation/ReportService";
 import { StatusBadge } from "@/components/StatusBadge";
 import { PixCheckoutPanel } from "@/components/payments/PixCheckoutPanel";
+import { CustomOrderReviewModal } from "@/components/CustomOrderReviewModal";
 import {
   REPORT_REASON_LABELS,
   type ReportReason,
@@ -46,7 +50,13 @@ import {
   type CustomRequest,
   type Conversation,
   type CustomServiceOrder,
+  type CustomOrderReview,
 } from "@/lib/types";
+
+/** Pedido já passou pela entrega — ponto em que a avaliação mútua faz sentido. */
+function isReviewable(status: CustomServiceOrder["status"]): boolean {
+  return status === "delivered" || status === "completed";
+}
 
 function formatBRLFromCents(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -97,6 +107,15 @@ export function ConversationView({
   // aguardando pagamento.
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [otherTyping, setOtherTyping] = useState(false);
+
+  const [myReview, setMyReview] = useState<CustomOrderReview | null>(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  // O modal de avaliação abre sozinho uma vez quando o pedido vira
+  // entregue — não a cada load() (disparado por toda mensagem nova via
+  // realtime), senão reabriria repetidamente enquanto a pessoa conversa.
+  const autoReviewPromptShownRef = useRef(false);
 
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -163,6 +182,11 @@ export function ConversationView({
         deliveryMessages.map(async (m) => [m.id, await listAttachmentsForMessage(supabase, m.id)] as const),
       );
 
+      const myReviewRow =
+        cso && isReviewable(cso.status)
+          ? (await listCustomOrderReviews(supabase, cso.id)).find((r) => r.reviewerId === actingUserId) ?? null
+          : null;
+
       setRequest(req);
       setConversation(convo);
       setMessages(msgs.filter((m) => !m.deletedAt));
@@ -170,6 +194,7 @@ export function ConversationView({
       setCustomServiceOrder(cso);
       setCounterpartName(counterpart?.display_name ?? counterpart?.username ?? "Usuário");
       setAttachmentsByMessage(Object.fromEntries(attachmentEntries));
+      setMyReview(myReviewRow);
       setLoadError(null);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Não foi possível carregar esta conversa.");
@@ -186,6 +211,14 @@ export function ConversationView({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (autoReviewPromptShownRef.current) return;
+    if (!customServiceOrder || !isReviewable(customServiceOrder.status) || myReview) return;
+    autoReviewPromptShownRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setShowReviewModal(true);
+  }, [customServiceOrder, myReview]);
 
   // Novas mensagens (e qualquer transição de estado do pedido, já que toda
   // transição relevante — proposta, aceite, recusa, entrega, confirmação —
@@ -386,6 +419,21 @@ export function ConversationView({
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível confirmar o recebimento.");
+    }
+  }
+
+  async function handleSubmitReview(rating: number, comment: string) {
+    if (!customServiceOrder) return;
+    setReviewBusy(true);
+    setReviewError(null);
+    try {
+      const review = await submitCustomOrderReview(supabase, customServiceOrder.id, rating, comment);
+      setMyReview(review);
+      setShowReviewModal(false);
+    } catch (err) {
+      setReviewError(err instanceof Error ? err.message : "Não foi possível enviar a avaliação.");
+    } finally {
+      setReviewBusy(false);
     }
   }
 
@@ -732,6 +780,17 @@ export function ConversationView({
         </div>
       ) : null}
 
+      {customServiceOrder && isReviewable(customServiceOrder.status) && !myReview && !showReviewModal ? (
+        <button
+          type="button"
+          onClick={() => setShowReviewModal(true)}
+          className="flex w-fit items-center gap-1.5 self-center rounded-full border border-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-accent) hover:bg-(--color-accent-soft)"
+        >
+          <Star size={14} strokeWidth={1.5} />
+          Avaliar pedido
+        </button>
+      ) : null}
+
       {isClosed ? (
         <p className="text-center text-xs text-(--color-text-subtle)">Esta conversa está encerrada.</p>
       ) : (
@@ -754,6 +813,19 @@ export function ConversationView({
           </div>
         </form>
       )}
+
+      {showReviewModal ? (
+        <CustomOrderReviewModal
+          counterpartName={counterpartName}
+          busy={reviewBusy}
+          error={reviewError}
+          onDismiss={() => {
+            setShowReviewModal(false);
+            setReviewError(null);
+          }}
+          onSubmit={handleSubmitReview}
+        />
+      ) : null}
     </div>
   );
 }
