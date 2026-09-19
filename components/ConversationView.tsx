@@ -42,6 +42,7 @@ import {
 import { reportService } from "@/lib/moderation/ReportService";
 import { StatusBadge } from "@/components/StatusBadge";
 import { RatingStars } from "@/components/RatingStars";
+import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { PixCheckoutPanel } from "@/components/payments/PixCheckoutPanel";
 import { CustomOrderReviewModal } from "@/components/CustomOrderReviewModal";
 import {
@@ -309,6 +310,7 @@ export function ConversationView({
 
   const isCreator = actingUserId === request.creatorId;
   const isRequester = actingUserId === request.requesterId;
+  const counterpartId = isCreator ? request.requesterId : request.creatorId;
   const otherPartyLabel = isCreator ? "o comprador" : "o criador";
   const activeProposal = proposals.find((p) => p.status === "accepted" || p.status === "sent");
   const serviceLabel = activeProposal?.serviceType || request.description;
@@ -506,6 +508,12 @@ export function ConversationView({
           >
             <ArrowLeft size={18} strokeWidth={1.5} />
           </Link>
+          <MediaPlaceholder
+            seed={counterpartId}
+            kind="avatar"
+            className="h-9 w-9 flex-shrink-0"
+            label={counterpartName}
+          />
           <div className="flex min-w-0 flex-col gap-0.5">
             <div className="flex items-center gap-2 text-sm">
               <span className="font-medium text-(--color-text)">{counterpartName}</span>
