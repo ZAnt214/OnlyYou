@@ -123,6 +123,7 @@ export function ConversationView({
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTypingSentAtRef = useRef(0);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const load = useCallback(async () => {
     if (!actingUserId) return;
@@ -216,6 +217,13 @@ export function ConversationView({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
+
+  // O painel de mensagens agora rola dentro de si mesmo (max-h-[60vh] +
+  // overflow-y-auto) em vez de esticar a página toda — sem isso, mensagem
+  // nova nasceria fora da área visível sem nenhum indício de que chegou.
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ block: "end" });
+  }, [messages]);
 
   useEffect(() => {
     if (autoReviewPromptShownRef.current) return;
@@ -575,7 +583,7 @@ export function ConversationView({
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-3 rounded-md border border-(--color-border) p-4">
+      <div className="flex max-h-[60vh] flex-col gap-3 overflow-y-auto rounded-md border border-(--color-border) p-4">
         {messages.length === 0 ? (
           <p className="text-sm text-(--color-text-muted)">Nenhuma mensagem ainda.</p>
         ) : (
@@ -599,6 +607,7 @@ export function ConversationView({
           ))
         )}
         {otherTyping ? <TypingBubble /> : null}
+        <div ref={messagesEndRef} />
       </div>
 
       {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
