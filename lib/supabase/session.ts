@@ -43,6 +43,24 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 /**
+ * Só o id do usuário autenticado, sem buscar a linha de `profiles` — pra
+ * quando o chamador só precisa comparar "é esta pessoa mesma?" (ex.:
+ * isOwnProfile) e a busca completa de getCurrentUser() seria uma consulta
+ * ao banco desperdiçada. getClaims() já valida o JWT localmente; não faz
+ * nenhuma ida a mais à rede além dessa validação.
+ */
+export async function getCurrentUserId(): Promise<string | null> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getClaims();
+    if (error || !data?.claims?.sub) return null;
+    return data.claims.sub;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Busca pública de um perfil por username (usada na página de perfil do
  * criador). RLS permite SELECT público em `profiles`, então não depende de
  * haver sessão. Retorna `null` se não existir (nunca lança).

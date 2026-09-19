@@ -3,7 +3,7 @@ import { userRepository } from "@/lib/repositories/UserRepository";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { CreatorProfileView } from "@/components/CreatorProfileView";
 import { BecomeCreatorPrompt } from "@/components/BecomeCreatorPrompt";
-import { getCurrentUser, getProfileByUsername } from "@/lib/supabase/session";
+import { getCurrentUserId, getProfileByUsername } from "@/lib/supabase/session";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { listCustomOrderReviewsForUser } from "@/lib/supabase/customRequests";
 import { listPortfolioForCreator } from "@/lib/supabase/portfolio";
@@ -15,15 +15,21 @@ export default async function CreatorProfilePage({
 }) {
   const { username } = await params;
 
+  // getProfileByUsername e getCurrentUserId são buscas independentes (uma
+  // pelo username da URL, outra pela sessão de quem está olhando) — rodar
+  // em paralelo em vez de uma esperar a outra corta um round-trip inteiro
+  // do tempo até a página aparecer.
+  const [realProfile, currentUserId] = await Promise.all([
+    getProfileByUsername(username),
+    getCurrentUserId(),
+  ]);
   // Verifica primeiro se existe um perfil real com este username; se não
   // houver, cai para os criadores mock (comportamento de demo inalterado).
-  const realProfile = await getProfileByUsername(username);
   const creator = realProfile ?? (await userRepository.findByUsername(username));
   if (!creator) notFound();
 
-  const currentUser = await getCurrentUser();
-  const isOwnProfile = currentUser
-    ? currentUser.id === creator.id
+  const isOwnProfile = currentUserId
+    ? currentUserId === creator.id
     : creator.id === (await userRepository.findMockCurrentCreator()).id;
 
   // Pessoa real, logada, vendo o próprio perfil, mas ainda não é criadora
@@ -42,12 +48,13 @@ export default async function CreatorProfilePage({
     notFound();
   }
 
-  const products = await productRepository.findByCreator(creator.id);
   // Avaliações e portfólio reais só existem pra perfis reais — um
   // creator.id mock não bate com nenhuma linha, então as listas vêm vazias
-  // sem precisar de um caminho separado pro fallback de demo.
+  // sem precisar de um caminho separado pro fallback de demo. As três
+  // buscas não dependem uma da outra — em paralelo em vez de em fila.
   const supabase = await createServerClient();
-  const [reviews, portfolio] = await Promise.all([
+  const [products, reviews, portfolio] = await Promise.all([
+    productRepository.findByCreator(creator.id),
     listCustomOrderReviewsForUser(supabase, creator.id),
     listPortfolioForCreator(supabase, creator.id),
   ]);
