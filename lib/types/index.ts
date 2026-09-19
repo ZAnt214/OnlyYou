@@ -11,6 +11,7 @@ export * from "./conversation";
 export * from "./custom-proposal";
 export * from "./custom-service-order";
 export * from "./custom-order-review";
+export * from "./portfolio";
 export * from "./notification";
 export * from "./dispute";
 export * from "./misc";

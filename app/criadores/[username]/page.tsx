@@ -6,6 +6,7 @@ import { BecomeCreatorPrompt } from "@/components/BecomeCreatorPrompt";
 import { getCurrentUser, getProfileByUsername } from "@/lib/supabase/session";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { listCustomOrderReviewsForUser } from "@/lib/supabase/customRequests";
+import { listPortfolioForCreator } from "@/lib/supabase/portfolio";
 
 export default async function CreatorProfilePage({
   params,
@@ -42,17 +43,27 @@ export default async function CreatorProfilePage({
   }
 
   const products = await productRepository.findByCreator(creator.id);
-  // Avaliações reais (custom_order_reviews) só existem pra perfis reais —
-  // um creator.id mock não bate com nenhuma linha, então a lista vem vazia
+  // Avaliações e portfólio reais só existem pra perfis reais — um
+  // creator.id mock não bate com nenhuma linha, então as listas vêm vazias
   // sem precisar de um caminho separado pro fallback de demo.
-  const reviews = await listCustomOrderReviewsForUser(await createServerClient(), creator.id);
+  const supabase = await createServerClient();
+  const [reviews, portfolio] = await Promise.all([
+    listCustomOrderReviewsForUser(supabase, creator.id),
+    listPortfolioForCreator(supabase, creator.id),
+  ]);
 
   // O acesso ao painel saiu de uma faixa fixa no topo da página e virou um
   // botão de destaque junto de "Editar perfil" (ver CreatorProfileView) —
   // bem visível pro dono, sem competir com o resto do perfil.
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
-      <CreatorProfileView creator={creator} products={products} reviews={reviews} isOwnProfile={isOwnProfile} />
+      <CreatorProfileView
+        creator={creator}
+        products={products}
+        reviews={reviews}
+        portfolio={portfolio}
+        isOwnProfile={isOwnProfile}
+      />
     </div>
   );
 }

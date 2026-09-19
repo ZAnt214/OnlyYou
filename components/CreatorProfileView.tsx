@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Pencil, Images, Star, Users, LayoutDashboard } from "lucide-react";
-import type { CustomOrderReviewWithReviewer, Product, User } from "@/lib/types";
+import type { CustomOrderReviewWithReviewer, PortfolioItem, Product, User } from "@/lib/types";
 import { PRODUCT_TYPE_LABELS } from "@/lib/types";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
@@ -8,12 +8,15 @@ import { RatingStars } from "@/components/RatingStars";
 import { ProductCard } from "@/components/ProductCard";
 import { ReportMenu } from "@/components/ReportMenu";
 import { CustomOrderForm } from "@/components/CustomOrderForm";
+import { PortfolioSection } from "@/components/PortfolioSection";
 
 interface CreatorProfileViewProps {
   creator: User;
   products: Product[];
   /** Avaliações recebidas em pedidos personalizados — exibidas publicamente. */
   reviews?: CustomOrderReviewWithReviewer[];
+  /** Trabalhos já realizados que o criador escolheu exibir no perfil. */
+  portfolio?: PortfolioItem[];
   /**
    * O perfil é a mesma tela para quem visita e para o próprio criador —
    * como em redes sociais como o TikTok. `isOwnProfile` só troca as ações
@@ -27,6 +30,7 @@ export function CreatorProfileView({
   creator,
   products,
   reviews = [],
+  portfolio = [],
   isOwnProfile = false,
 }: CreatorProfileViewProps) {
   const profile = creator.creatorProfile;
@@ -172,6 +176,10 @@ export function CreatorProfileView({
             ))}
           </div>
         )}
+      </div>
+
+      <div className="border-t border-(--color-border) pt-6">
+        <PortfolioSection initialItems={portfolio} isOwnProfile={isOwnProfile} />
       </div>
 
       <div className="flex flex-col gap-3 border-t border-(--color-border) pt-6">
