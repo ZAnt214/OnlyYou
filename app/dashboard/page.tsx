@@ -11,6 +11,7 @@ import { getCreatorBalance } from "@/lib/supabase/wallet";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatCard } from "@/components/StatCard";
 import { StatusBadge } from "@/components/StatusBadge";
+import { DashboardLoading } from "@/components/DashboardLoading";
 import {
   DollarSign,
   Package,
@@ -73,9 +74,7 @@ export default function DashboardOverviewPage() {
     })();
   }, []);
 
-  if (!creator) return null;
-
-  const sales = saleRepo.findByCreator(creator.id);
+  const sales = creator ? saleRepo.findByCreator(creator.id) : [];
   const totalVendas = sales.reduce((sum, s) => sum + s.grossAmount, 0);
   const produtosVendidos = new Set(sales.map((s) => s.productId)).size;
 
@@ -88,6 +87,10 @@ export default function DashboardOverviewPage() {
 
   const topProducts = [...products].sort((a, b) => b.salesCount - a.salesCount).slice(0, 5);
 
+  // Os cards de navegação não dependem de nenhum dado assíncrono — não faz
+  // sentido travar eles atrás do carregamento de identidade/saldo, que é
+  // exatamente o que a pessoa clicaria pra fugir dessa tela. Só as
+  // estatísticas abaixo esperam `creator`.
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
@@ -119,6 +122,10 @@ export default function DashboardOverviewPage() {
         )}
       </div>
 
+      {!creator ? (
+        <DashboardLoading />
+      ) : (
+        <>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Vendas totais" value={formatBRL(totalVendas)} icon={DollarSign} />
         <StatCard label="Produtos vendidos" value={String(produtosVendidos)} icon={Package} />
@@ -198,6 +205,8 @@ export default function DashboardOverviewPage() {
           </table>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 }

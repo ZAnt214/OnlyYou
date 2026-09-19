@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { Coupon, User } from "@/lib/types";
 import { couponRepository } from "@/lib/repositories/CouponRepository";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
+import { DashboardLoading } from "@/components/DashboardLoading";
 
 export default function DashboardCuponsPage() {
   const [creator, setCreator] = useState<User | null>(null);
@@ -17,7 +18,7 @@ export default function DashboardCuponsPage() {
     })();
   }, []);
 
-  if (!creator) return null;
+  if (!creator) return <DashboardLoading />;
 
   return (
     <div className="flex flex-col gap-6">
@@ -48,7 +49,7 @@ export default function DashboardCuponsPage() {
                     <span
                       className={`rounded-md px-2 py-0.5 text-xs ${
                         c.active
-                          ? "bg-(--color-surface-2) text-(--color-success)"
+                          ? "bg-(--color-accent-soft) text-(--color-accent)"
                           : "bg-(--color-surface-2) text-(--color-text-muted)"
                       }`}
                     >

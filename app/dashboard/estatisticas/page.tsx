@@ -6,6 +6,7 @@ import { productRepository } from "@/lib/repositories/ProductRepository";
 import { useSaleRepository } from "@/lib/repositories/SaleRepository";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatCard } from "@/components/StatCard";
+import { DashboardLoading } from "@/components/DashboardLoading";
 import { TrendingUp, Star, Eye } from "lucide-react";
 
 export default function DashboardEstatisticasPage() {
@@ -21,7 +22,7 @@ export default function DashboardEstatisticasPage() {
     })();
   }, []);
 
-  if (!creator) return null;
+  if (!creator) return <DashboardLoading />;
 
   const sales = saleRepo.findByCreator(creator.id);
   const avgTicket = sales.length ? sales.reduce((s, v) => s + v.grossAmount, 0) / sales.length : 0;

@@ -8,6 +8,7 @@ import { useSaleRepository } from "@/lib/repositories/SaleRepository";
 import { useOrderRepository } from "@/lib/repositories/OrderRepository";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatusBadge } from "@/components/StatusBadge";
+import { DashboardLoading } from "@/components/DashboardLoading";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -29,7 +30,7 @@ export default function DashboardVendasPage() {
     })();
   }, []);
 
-  if (!creator) return null;
+  if (!creator) return <DashboardLoading />;
 
   const sales = saleRepo.findByCreator(creator.id);
   const productById = new Map(products.map((p) => [p.id, p]));
