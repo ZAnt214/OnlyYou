@@ -19,6 +19,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/uploadFile";
 import {
   getCustomRequestById,
   listMessagesForConversation,
@@ -110,8 +111,9 @@ export function ConversationView({
   const [blocked, setBlocked] = useState(false);
   const [problemReason, setProblemReason] = useState("");
   const [showProblemForm, setShowProblemForm] = useState(false);
-  const [deliveryFileName, setDeliveryFileName] = useState("");
+  const [deliveryFile, setDeliveryFile] = useState<File | null>(null);
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
+  const [uploadingDelivery, setUploadingDelivery] = useState(false);
   // O painel de Pix só aparece depois de um clique explícito — senão ele
   // reabriria sozinho a cada visita à conversa enquanto o pedido estiver
   // aguardando pagamento.
@@ -415,25 +417,29 @@ export function ConversationView({
 
   async function handleSendDelivery(e: React.FormEvent) {
     e.preventDefault();
-    if (!customServiceOrder) return;
+    if (!customServiceOrder || !deliveryFile) return;
     setError(null);
     setBusy(true);
+    setUploadingDelivery(true);
     try {
+      const fileUrl = await uploadFile(deliveryFile);
+      setUploadingDelivery(false);
       await sendCustomDelivery(supabase, customServiceOrder.id, [
         {
-          fileName: deliveryFileName || "entrega-final.zip",
-          mimeType: "application/zip",
-          sizeBytes: 52_428_800,
-          storageKey: `mock://media-storage/${customServiceOrder.id}-${Date.now()}`,
+          fileName: deliveryFile.name,
+          mimeType: deliveryFile.type || "application/octet-stream",
+          sizeBytes: deliveryFile.size,
+          storageKey: fileUrl,
         },
       ]);
       setShowDeliveryForm(false);
-      setDeliveryFileName("");
+      setDeliveryFile(null);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível enviar a entrega.");
     } finally {
       setBusy(false);
+      setUploadingDelivery(false);
     }
   }
 
@@ -727,22 +733,26 @@ export function ConversationView({
           {showDeliveryForm ? (
             <form onSubmit={handleSendDelivery} className="flex flex-col gap-2">
               <label htmlFor="delivery-file" className="text-sm font-medium text-(--color-text)">
-                Arquivo da entrega (simulado — nenhum upload real nesta fase)
+                Arquivo da entrega
               </label>
               <input
                 id="delivery-file"
-                value={deliveryFileName}
-                onChange={(e) => setDeliveryFileName(e.target.value)}
-                placeholder="entrega-final.zip"
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                type="file"
+                onChange={(e) => setDeliveryFile(e.target.files?.[0] ?? null)}
+                required
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-(--color-accent) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white"
               />
               <button
                 type="submit"
-                disabled={busy}
+                disabled={busy || !deliveryFile}
                 className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
               >
-                <Paperclip size={14} strokeWidth={1.5} />
-                Confirmar envio da entrega
+                {uploadingDelivery ? (
+                  <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <Paperclip size={14} strokeWidth={1.5} />
+                )}
+                {uploadingDelivery ? "Enviando arquivo…" : "Confirmar envio da entrega"}
               </button>
             </form>
           ) : (
@@ -1046,12 +1056,26 @@ function MessageItem({
     return (
       <div className="flex w-full max-w-sm flex-col gap-2 self-center rounded-2xl border border-(--color-accent) bg-(--color-surface) p-4 text-sm shadow-sm">
         <span className="font-medium text-(--color-text)">Entrega enviada</span>
-        {attachments.map((att) => (
-          <span key={att.id} className="flex items-center gap-1.5 text-(--color-text-muted)">
-            <Paperclip size={12} strokeWidth={1.5} />
-            {att.fileName} · {(att.size / 1024 / 1024).toFixed(1)} MB
-          </span>
-        ))}
+        {attachments.map((att) =>
+          att.storageKey.startsWith("http") ? (
+            <a
+              key={att.id}
+              href={att.storageKey}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-(--color-accent) hover:underline"
+            >
+              <Paperclip size={12} strokeWidth={1.5} />
+              {att.fileName} · {(att.size / 1024 / 1024).toFixed(1)} MB
+            </a>
+          ) : (
+            // Entregas antigas, de antes do upload real — sem link possível.
+            <span key={att.id} className="flex items-center gap-1.5 text-(--color-text-muted)">
+              <Paperclip size={12} strokeWidth={1.5} />
+              {att.fileName} · {(att.size / 1024 / 1024).toFixed(1)} MB
+            </span>
+          ),
+        )}
       </div>
     );
   }

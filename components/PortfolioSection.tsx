@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Briefcase, ExternalLink, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Briefcase, ExternalLink, Loader2, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { createPortfolioItem, deletePortfolioItem, updatePortfolioItem } from "@/lib/supabase/portfolio";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
+import { uploadFile } from "@/lib/uploadFile";
 import type { PortfolioItem } from "@/lib/types";
 
 interface FormState {
@@ -55,6 +56,37 @@ export function PortfolioSection({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewingItem, setViewingItem] = useState<PortfolioItem | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+
+  async function handleCoverUpload(file: File) {
+    setUploadingCover(true);
+    setError(null);
+    try {
+      const url = await uploadFile(file);
+      setForm((f) => ({ ...f, imageUrl: url }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível enviar a imagem.");
+    } finally {
+      setUploadingCover(false);
+    }
+  }
+
+  async function handleGalleryUpload(files: FileList) {
+    setUploadingGallery(true);
+    setError(null);
+    try {
+      const urls = await Promise.all(Array.from(files).map(uploadFile));
+      setForm((f) => ({
+        ...f,
+        galleryText: [f.galleryText, ...urls].filter(Boolean).join("\n"),
+      }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível enviar as imagens.");
+    } finally {
+      setUploadingGallery(false);
+    }
+  }
 
   function openCreate() {
     setEditingId(null);
@@ -306,14 +338,33 @@ export function PortfolioSection({
                 />
               </label>
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-                Link da imagem de capa (opcional)
-                <input
-                  value={form.imageUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
-                  type="url"
-                  placeholder="https://…"
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
-                />
+                Imagem de capa (opcional)
+                <div className="flex items-center gap-2">
+                  <input
+                    value={form.imageUrl}
+                    onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                    type="url"
+                    placeholder="https://… ou envie um arquivo"
+                    className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  />
+                  <label className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface-2)">
+                    {uploadingCover ? (
+                      <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
+                    ) : (
+                      <Upload size={14} strokeWidth={1.5} />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) void handleCoverUpload(file);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
               </label>
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
                 Mais imagens do trabalho (uma por linha, opcional)
@@ -324,6 +375,24 @@ export function PortfolioSection({
                   placeholder={"https://…\nhttps://…"}
                   className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                 />
+                <label className="flex w-fit cursor-pointer items-center gap-1.5 text-xs font-medium text-(--color-accent) hover:underline">
+                  {uploadingGallery ? (
+                    <Loader2 size={12} className="animate-spin" strokeWidth={1.5} />
+                  ) : (
+                    <Upload size={12} strokeWidth={1.5} />
+                  )}
+                  Enviar arquivos
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.length) void handleGalleryUpload(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
               </label>
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
                 Link para ver o trabalho (opcional)

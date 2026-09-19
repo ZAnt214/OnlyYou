@@ -211,9 +211,10 @@ Perfil do criador → "Pedir conteúdo personalizado" → CustomRequestService.c
   a chamada não repete a transição nem duplica a Sale.
 → Conversa mostra o prazo e o aviso de que a falta de entrega no prazo pode levar a
   cancelamento/reembolso pelas regras da plataforma (sem prometer reembolso automático)
-→ Criador clica "Enviar entrega" (CustomDeliveryService.sendDelivery) → anexa metadado mock
-  de mídia (MessageAttachment, via MockMediaStorageProvider — nenhum arquivo real) → mensagem
-  type "delivery" → CustomServiceOrder/CustomRequest → delivered, Notification
+→ Criador clica "Enviar entrega" (CustomDeliveryService.sendDelivery) → arquivo real sobe pro
+  Vercel Blob (lib/uploadFile.ts + app/api/upload/route.ts) e o metadado (MessageAttachment)
+  guarda a URL pública real → mensagem type "delivery" → CustomServiceOrder/CustomRequest →
+  delivered, Notification
 → Comprador "Confirma recebimento" (CustomDeliveryService.confirmReceipt) → completed,
   AuditLog ("custom_order.completed"), conversa é fechada — ou "Relata problema"
   (CustomDeliveryService.reportProblem) → Dispute + status "disputed" nos dois lados
@@ -263,8 +264,11 @@ visualização de uma conversa específica grava um `AuditLog` (`action: "view_c
 - **Refund real**: "reembolsado"/"disputed" são apenas transições de status; nenhuma reversão
   financeira acontece de fato (reaproveita o mesmo `TODO(integração)` de
   `PaymentProvider.refund()`).
-- **Armazenamento/streaming privado de mídia**: a entrega reaproveita
-  `MockMediaStorageProvider` — mesmas limitações já documentadas para produtos.
+- **Armazenamento de arquivo real**: entregas de pedido e imagens de portfólio já sobem pro
+  Vercel Blob (público, sem controle de acesso por download) — falta streaming/URL assinada
+  privada e watermarking, que continuam como TODO em `lib/payments/MediaStorageProvider.ts`
+  (interface especulativa, ainda não usada por nenhum fluxo real). Produtos continuam sem
+  upload real de imagem (mock).
 - **Autenticação/autorização real** da área `/admin/*` — ver `lib/security/adminAuth.ts`.
 
 ## Divisão de receita (revenue share)
@@ -369,10 +373,11 @@ Esta é a primeira versão pública do produto — um scaffold de interface e ar
   parte o usuário mock fixo de `lib/data/users.ts` quando não há sessão real.
 - **Verificação real de identidade de criadores.** `verificationStatus` é apenas um campo de
   dado; não há fluxo de verificação operacional.
-- **Armazenamento, streaming e watermarking real de mídia.** `MockMediaStorageProvider` guarda
-  só metadados simulados — nenhum arquivo real é enviado, transformado ou servido. Não há
-  qualquer implementação de DRM nesta fase; o que existe é apenas "proteção de mídia e
-  controle de acesso" em nível de placeholder.
+- **Upload real de arquivo já existe** (Vercel Blob, `lib/uploadFile.ts` + `app/api/upload/route.ts`)
+  para entrega de pedido personalizado e imagens de portfólio — mas é armazenamento público
+  simples, sem streaming, URL assinada/privada ou watermarking. `MediaStorageProvider.ts`
+  continua sendo só uma interface especulativa pra isso, não usada por nenhum fluxo real ainda.
+  Produtos ainda não têm upload real de imagem (mock).
 - **Moderação operacional real.** `ModerationService`/fila de denúncias em `/admin/denuncias`
   são esqueletos de UI e regras de transição de status, sem operação humana real por trás.
 - **Antifraude real.**
