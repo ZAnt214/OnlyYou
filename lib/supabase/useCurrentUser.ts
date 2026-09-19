@@ -17,9 +17,15 @@ export function useCurrentUserId(): { userId: string | null; loading: boolean } 
     const supabase = createClient();
     let cancelled = false;
 
-    supabase.auth.getUser().then(({ data }) => {
+    // getSession() lê do armazenamento local em vez de ir ao servidor de
+    // auth a cada mount — cada tela que usa este hook fazia essa ida e
+    // volta de rede de novo, mesmo tendo acabado de resolver a mesma
+    // sessão na tela anterior (getUser() sempre revalida contra o
+    // servidor; aqui isso não é uma decisão de autorização, então não
+    // precisa).
+    supabase.auth.getSession().then(({ data }) => {
       if (cancelled) return;
-      setUserId(data.user?.id ?? null);
+      setUserId(data.session?.user?.id ?? null);
       setLoading(false);
     });
 
