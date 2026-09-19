@@ -381,21 +381,27 @@ export function ConversationView({
 
   async function handleAcceptProposal(proposalId: string) {
     setError(null);
+    setBusy(true);
     try {
       await acceptCustomProposal(supabase, proposalId);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível aceitar a proposta.");
+    } finally {
+      setBusy(false);
     }
   }
 
   async function handleRejectProposal(proposalId: string) {
     setError(null);
+    setBusy(true);
     try {
       await rejectCustomProposal(supabase, proposalId);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível recusar a proposta.");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -490,6 +496,7 @@ export function ConversationView({
     e.preventDefault();
     if (!customServiceOrder) return;
     setError(null);
+    setBusy(true);
     try {
       await reportCustomOrderProblem(supabase, customServiceOrder.id, problemReason);
       setShowProblemForm(false);
@@ -497,16 +504,21 @@ export function ConversationView({
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível relatar o problema.");
+    } finally {
+      setBusy(false);
     }
   }
 
   async function handleDeleteMessage(messageId: string) {
     setError(null);
+    setBusy(true);
     try {
       await softDeleteCustomMessage(supabase, messageId);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível ocultar a mensagem.");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -737,7 +749,8 @@ export function ConversationView({
               />
               <button
                 type="submit"
-                className="self-start rounded-md border border-(--color-danger) px-4 py-1.5 text-sm font-medium text-(--color-danger) hover:bg-(--color-surface)"
+                disabled={busy}
+                className="self-start rounded-md border border-(--color-danger) px-4 py-1.5 text-sm font-medium text-(--color-danger) hover:bg-(--color-surface) disabled:opacity-60"
               >
                 Enviar relato
               </button>
@@ -1020,16 +1033,22 @@ function MessageItem({
           <div className="flex gap-2">
             <button
               type="button"
+              disabled={busy}
               onClick={() => onAccept(proposal.id)}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
             >
-              <CheckCircle2 size={14} strokeWidth={1.5} />
+              {busy ? (
+                <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
+              ) : (
+                <CheckCircle2 size={14} strokeWidth={1.5} />
+              )}
               Aceitar
             </button>
             <button
               type="button"
+              disabled={busy}
               onClick={() => onReject(proposal.id)}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface-2)"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface-2) disabled:opacity-60"
             >
               <XCircle size={14} strokeWidth={1.5} />
               Recusar
@@ -1115,8 +1134,9 @@ function MessageItem({
         {isOwn ? (
           <button
             type="button"
+            disabled={busy}
             onClick={() => onDelete(message.id)}
-            className="text-[10px] text-white/70 opacity-0 hover:underline group-hover:opacity-100"
+            className="text-[10px] text-white/70 opacity-0 hover:underline group-hover:opacity-100 disabled:opacity-60"
           >
             Ocultar
           </button>
