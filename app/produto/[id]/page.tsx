@@ -12,6 +12,19 @@ import { ProductCard } from "@/components/ProductCard";
 import { ProductPurchaseArea } from "@/components/ProductPurchaseArea";
 import { FavoriteButton } from "@/components/FavoriteButton";
 
+/**
+ * Todo dado desta página vem de repositório mock (arrays compilados no
+ * bundle — produto, criador e avaliações), então não há o que buscar por
+ * request: pré-renderizar deixa cada /produto/[id] servir da CDN em vez de
+ * acordar uma função serverless. Isso importa porque a home e as listagens
+ * têm vários links de produto, e o Next faz prefetch de todos eles — nos
+ * logs da Vercel era uma invocação serverless por produto visível na tela.
+ */
+export async function generateStaticParams() {
+  const products = await productRepository.findAll();
+  return products.map((product) => ({ id: product.id }));
+}
+
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const product = await productRepository.findById(id);

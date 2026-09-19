@@ -19,6 +19,7 @@ import {
 import { categories } from "@/lib/data/categories";
 import { NotificationBell } from "@/components/NotificationBell";
 import { createClient } from "@/lib/supabase/client";
+import { useCreatorUsername } from "@/lib/supabase/useCreatorUsername";
 
 const NAV_LINKS = [
   { href: "/descobrir", label: "Descobrir" },
@@ -27,7 +28,9 @@ const NAV_LINKS = [
   { href: "/descobrir?ofertas=1", label: "Ofertas" },
 ];
 
-export function Header({ creatorUsername }: { creatorUsername: string }) {
+export function Header() {
+  const creatorUsername = useCreatorUsername();
+
   const ACCOUNT_LINKS = [
     { href: "/biblioteca", label: "Biblioteca", icon: Library },
     { href: "/pedidos", label: "Mensagens", icon: MessageSquare },

@@ -5,8 +5,6 @@ import { MockSessionProvider } from "@/lib/mock-session/MockSessionProvider";
 import { Header } from "@/components/Header";
 import { MobileNav } from "@/components/MobileNav";
 import { Footer } from "@/components/Footer";
-import { userRepository } from "@/lib/repositories/UserRepository";
-import { getCurrentUser } from "@/lib/supabase/session";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,22 +27,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Com uma sessão Supabase real, o link "Área do criador" aponta para o
-  // próprio perfil da pessoa (mesmo que ainda não seja criadora — a página
-  // de perfil mostra um convite para se tornar uma). Sem sessão, mantém o
-  // comportamento de demo de sempre (aponta para a criadora mock).
-  const realUser = await getCurrentUser();
-  const creatorUsername = realUser?.username ?? (await userRepository.findMockCurrentCreator()).username;
-
+/**
+ * NÃO ler cookies (getCurrentUser/next/headers) aqui. O layout raiz
+ * envolve todas as rotas do app: qualquer leitura de cookie neste ponto
+ * força TODA rota a ser renderizada dinamicamente a cada request — nem
+ * `/sobre`, `/termos` ou a home conseguem ser estáticas, e cada prefetch
+ * de `<Link>` vira uma invocação serverless completa em vez de um hit de
+ * CDN. O link de "Área do criador" que dependia disso agora é resolvido no
+ * cliente (useCreatorUsername), onde o custo é uma busca só, memoizada.
+ */
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-(--color-bg) text-(--color-text)">
         <MockSessionProvider>
-          <Header creatorUsername={creatorUsername} />
+          <Header />
           <main className="flex-1 pb-16 md:pb-0">{children}</main>
           <Footer />
-          <MobileNav creatorUsername={creatorUsername} />
+          <MobileNav />
         </MockSessionProvider>
       </body>
     </html>

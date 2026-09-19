@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Library, MessageSquare, LayoutDashboard } from "lucide-react";
+import { useCreatorUsername } from "@/lib/supabase/useCreatorUsername";
 
-export function MobileNav({ creatorUsername }: { creatorUsername: string }) {
+export function MobileNav() {
   const pathname = usePathname();
+  const creatorUsername = useCreatorUsername();
 
   const TABS = [
     { href: "/", label: "Início", icon: Home },

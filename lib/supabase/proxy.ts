@@ -11,6 +11,23 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
+  // Prefetch de <Link> não precisa (nem deve) renovar sessão: é uma
+  // requisição especulativa, que o Next dispara para TODO link visível na
+  // tela. Nos logs da Vercel isso aparece como dezenas de requisições por
+  // segundo ao abrir uma página — cada uma passando por aqui e pagando o
+  // getClaims() abaixo, que com JWT HS256 (o caso deste projeto) cai no
+  // getUser() do auth-js, ou seja, uma ida à rede ao servidor de auth do
+  // Supabase. Isso enfileirava o clique real do usuário atrás de uma
+  // enxurrada de chamadas especulativas.
+  const isPrefetch =
+    request.headers.get("next-router-prefetch") === "1" ||
+    request.headers.get("purpose") === "prefetch" ||
+    request.headers.get("x-purpose") === "prefetch" ||
+    request.headers.get("x-moz") === "prefetch";
+  if (isPrefetch) {
+    return supabaseResponse;
+  }
+
   // Sem credenciais do Supabase configuradas (ex.: preview/deploy sem as
   // env vars), o marketplace continua funcionando no modo mock — a
   // ausência de credenciais nunca pode derrubar todo o app via middleware.
