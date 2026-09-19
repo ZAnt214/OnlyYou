@@ -38,13 +38,15 @@ export function CreatorProfileView({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface)">
+      {/* Sem card/borda própria — capa, avatar, nome e stats fluem direto na
+          página, igual às seções de Produtos e Avaliações logo abaixo, em
+          vez de ficarem isolados numa caixa branca separada do resto. */}
+      <div className="flex flex-col gap-3">
         <div className="relative">
           <MediaPlaceholder
             seed={`${creator.id}-capa`}
-            className="aspect-[3/1] w-full"
+            className="aspect-[3/1] w-full rounded-2xl"
             label={`Capa de ${creator.displayName}`}
-            flush
           />
           <div className="absolute right-3 top-3 flex items-center gap-3 rounded-(--radius-pill) bg-(--color-surface) px-3 py-1.5 text-xs text-(--color-text-muted)">
             <span className="flex items-center gap-1">
@@ -62,62 +64,60 @@ export function CreatorProfileView({
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 px-4 pb-4">
-          <div className="relative -mt-10 flex items-end justify-between gap-3">
-            <MediaPlaceholder
-              seed={creator.id}
-              kind="avatar"
-              className="h-20 w-20 border-4 border-(--color-surface)"
-              label={creator.displayName}
-              flush
-            />
-            {isOwnProfile ? <ProfileOwnerMenu /> : <ReportMenu bare />}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-xl font-bold text-(--color-text)">{creator.displayName}</h1>
-              {profile.verificationStatus === "verified" ? <VerifiedBadge size={18} /> : null}
-            </div>
-            <span className="text-sm text-(--color-text-subtle)">@{creator.username}</span>
-          </div>
-
-          <p className="text-sm text-(--color-text-muted)">{profile.bio}</p>
-
-          {typesOffered.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {typesOffered.map((type) => (
-                <span
-                  key={type}
-                  className="rounded-(--radius-pill) bg-(--color-surface-2) px-3 py-1 text-xs text-(--color-text-muted)"
-                >
-                  {PRODUCT_TYPE_LABELS[type]}
-                </span>
-              ))}
-            </div>
-          ) : null}
-
-          <RatingStars rating={profile.rating} ratingCount={profile.ratingCount} />
-
-          {isOwnProfile ? (
-            <Link
-              href="/dashboard/configuracoes"
-              className="flex items-center justify-center gap-1.5 rounded-(--radius-pill) border border-(--color-border) px-4 py-2.5 text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
-            >
-              <Pencil size={14} strokeWidth={1.5} />
-              Editar perfil
-            </Link>
-          ) : (
-            <button
-              type="button"
-              className="rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
-            >
-              Seguir
-            </button>
-          )}
+        <div className="relative -mt-10 flex items-end justify-between gap-3 px-1">
+          <MediaPlaceholder
+            seed={creator.id}
+            kind="avatar"
+            className="h-20 w-20 border-4 border-(--color-bg)"
+            label={creator.displayName}
+            flush
+          />
+          {isOwnProfile ? <ProfileOwnerMenu /> : <ReportMenu bare />}
         </div>
 
-        <div className="grid grid-cols-2 border-t border-(--color-border) text-sm">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5">
+            <h1 className="text-xl font-bold text-(--color-text)">{creator.displayName}</h1>
+            {profile.verificationStatus === "verified" ? <VerifiedBadge size={18} /> : null}
+          </div>
+          <span className="text-sm text-(--color-text-subtle)">@{creator.username}</span>
+        </div>
+
+        <p className="text-sm text-(--color-text-muted)">{profile.bio}</p>
+
+        {typesOffered.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {typesOffered.map((type) => (
+              <span
+                key={type}
+                className="rounded-(--radius-pill) bg-(--color-surface-2) px-3 py-1 text-xs text-(--color-text-muted)"
+              >
+                {PRODUCT_TYPE_LABELS[type]}
+              </span>
+            ))}
+          </div>
+        ) : null}
+
+        <RatingStars rating={profile.rating} ratingCount={profile.ratingCount} />
+
+        {isOwnProfile ? (
+          <Link
+            href="/dashboard/configuracoes"
+            className="flex w-fit items-center justify-center gap-1.5 rounded-(--radius-pill) border border-(--color-border) px-4 py-2.5 text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
+          >
+            <Pencil size={14} strokeWidth={1.5} />
+            Editar perfil
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="w-fit rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+          >
+            Seguir
+          </button>
+        )}
+
+        <div className="grid grid-cols-2 border-y border-(--color-border) text-sm">
           <span className="flex items-center justify-center gap-2 border-b-2 border-(--color-accent) py-3 font-semibold text-(--color-accent)">
             <Images size={16} strokeWidth={1.5} />
             {profile.productCount} Produtos
