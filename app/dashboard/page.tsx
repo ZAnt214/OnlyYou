@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
+import type { LucideIcon } from "lucide-react";
 import type { Product, User } from "@/lib/types";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { useSaleRepository } from "@/lib/repositories/SaleRepository";
@@ -20,10 +21,23 @@ import {
   Users,
   BarChart3,
   Settings,
+  Loader2,
 } from "lucide-react";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+/**
+ * useLinkStatus só funciona num componente filho do Link (lê o estado de
+ * pendência daquele link específico via contexto) — por isso não dá pra
+ * chamar o hook direto no componente que renderiza o <Link>. Sem isso, o
+ * card ficava sem nenhum feedback entre o toque e a navegação terminar.
+ */
+function HubCardIcon({ icon: Icon }: { icon: LucideIcon }) {
+  const { pending } = useLinkStatus();
+  if (pending) return <Loader2 size={20} className="animate-spin text-(--color-accent)" strokeWidth={1.5} />;
+  return <Icon size={20} strokeWidth={1.5} className="text-(--color-accent)" />;
 }
 
 /**
@@ -96,9 +110,9 @@ export default function DashboardOverviewPage() {
             <Link
               key={section.href}
               href={section.href}
-              className="flex flex-col items-center gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-center text-sm text-(--color-text) shadow-sm hover:border-(--color-accent)"
+              className="flex flex-col items-center gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-center text-sm text-(--color-text) shadow-sm transition-transform hover:border-(--color-accent) active:scale-95 active:bg-(--color-surface-2)"
             >
-              <section.icon size={20} strokeWidth={1.5} className="text-(--color-accent)" />
+              <HubCardIcon icon={section.icon} />
               {section.label}
             </Link>
           ),
