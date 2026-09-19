@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import {
   Send,
@@ -78,10 +79,26 @@ export function ConversationView({
 }: {
   customRequestId: string;
   actingUserId: string | null;
-  /** Para onde o botão de voltar do cabeçalho leva — a tela abre em tela cheia. */
+  /**
+   * Destino do botão de voltar do cabeçalho só quando NÃO há de onde voltar
+   * no histórico (ex.: link direto de notificação) — a tela abre em tela
+   * cheia. No caso normal (veio de /pedidos ou de /dashboard/pedidos-
+   * personalizados clicando em "Conversar"), voltar usa o histórico de
+   * navegação de verdade, senão sempre cairia num destino fixo mesmo
+   * quando a pessoa entrou por um caminho diferente.
+   */
   backHref: string;
 }) {
   const supabase = createClient();
+  const router = useRouter();
+
+  function handleBack() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(backHref);
+    }
+  }
 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -513,13 +530,14 @@ export function ConversationView({
     <div className="flex h-full min-h-0 flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-(--color-border) p-3">
         <div className="flex min-w-0 items-center gap-2">
-          <Link
-            href={backHref}
+          <button
+            type="button"
+            onClick={handleBack}
             aria-label="Voltar"
             className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-(--color-text-muted) hover:bg-(--color-surface-2)"
           >
             <ArrowLeft size={18} strokeWidth={1.5} />
-          </Link>
+          </button>
           {counterpartProfileHref ? (
             <Link href={counterpartProfileHref} className="flex-shrink-0" aria-label={`Perfil de ${counterpartName}`}>
               <MediaPlaceholder seed={counterpartId} kind="avatar" className="h-9 w-9" label={counterpartName} />
