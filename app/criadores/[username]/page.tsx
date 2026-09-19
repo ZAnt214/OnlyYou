@@ -52,14 +52,14 @@ export default async function CreatorProfilePage({
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
       {isOwnProfile ? (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-(--color-border) bg-(--color-surface) px-4 py-2.5 text-sm text-(--color-text-muted)">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-(--color-border) bg-(--color-surface) px-4 py-2.5 text-sm text-(--color-text-muted)">
           <span>Esta é a visualização pública do seu perfil — é o que os compradores veem.</span>
           <Link
             href="/dashboard"
-            className="flex flex-shrink-0 items-center gap-1.5 font-medium text-(--color-text) hover:underline"
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-(--radius-pill) border border-(--color-border) px-4 py-2 text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
           >
             <LayoutDashboard size={14} strokeWidth={1.5} />
-            Ir para o painel
+            Painel do criador
           </Link>
         </div>
       ) : null}

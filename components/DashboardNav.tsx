@@ -33,7 +33,6 @@ export function DashboardNav({ creatorUsername }: { creatorUsername: string }) {
   const [open, setOpen] = useState(false);
 
   const NAV = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: `/criadores/${creatorUsername}`, label: "Meu perfil", icon: UserRound },
     { href: "/dashboard/produtos", label: "Produtos", icon: Package },
     { href: "/dashboard/vendas", label: "Vendas", icon: Receipt },
@@ -46,7 +45,11 @@ export function DashboardNav({ creatorUsername }: { creatorUsername: string }) {
   ];
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-  const activeItem = NAV.find((item) => isActive(item.href)) ?? NAV[0];
+  // A visão geral (/dashboard) não tem aba própria aqui — só se chega a ela
+  // pelo botão "Painel do criador" no próprio perfil (ver
+  // app/criadores/[username]/page.tsx). Sem essa aba, "/dashboard" exato
+  // não bate com nenhum item; o rótulo cai no fallback genérico abaixo.
+  const activeItem = NAV.find((item) => isActive(item.href));
 
   return (
     <aside className="flex-shrink-0 md:w-56">
@@ -60,8 +63,8 @@ export function DashboardNav({ creatorUsername }: { creatorUsername: string }) {
           className="flex w-full items-center justify-between gap-2 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2.5 text-sm font-medium text-(--color-text)"
         >
           <span className="flex items-center gap-2">
-            <activeItem.icon size={16} strokeWidth={1.5} />
-            {activeItem.label}
+            {activeItem ? <activeItem.icon size={16} strokeWidth={1.5} /> : <LayoutDashboard size={16} strokeWidth={1.5} />}
+            {activeItem?.label ?? "Painel do criador"}
           </span>
           <ChevronDown size={16} strokeWidth={1.5} className={open ? "rotate-180" : ""} />
         </button>
