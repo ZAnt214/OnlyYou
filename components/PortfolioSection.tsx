@@ -63,7 +63,7 @@ export function PortfolioSection({
     setUploadingCover(true);
     setError(null);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadFile(file, "portfolio-image");
       setForm((f) => ({ ...f, imageUrl: url }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível enviar a imagem.");
@@ -76,7 +76,7 @@ export function PortfolioSection({
     setUploadingGallery(true);
     setError(null);
     try {
-      const urls = await Promise.all(Array.from(files).map(uploadFile));
+      const urls = await Promise.all(Array.from(files).map((file) => uploadFile(file, "portfolio-image")));
       setForm((f) => ({
         ...f,
         galleryText: [f.galleryText, ...urls].filter(Boolean).join("\n"),

@@ -422,7 +422,7 @@ export function ConversationView({
     setBusy(true);
     setUploadingDelivery(true);
     try {
-      const fileUrl = await uploadFile(deliveryFile);
+      const fileUrl = await uploadFile(deliveryFile, "delivery");
       setUploadingDelivery(false);
       await sendCustomDelivery(supabase, customServiceOrder.id, [
         {
