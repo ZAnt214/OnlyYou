@@ -47,10 +47,9 @@ export default async function CreatorProfilePage({
   // sem precisar de um caminho separado pro fallback de demo.
   const reviews = await listCustomOrderReviewsForUser(await createServerClient(), creator.id);
 
-  // O acesso ao painel e o aviso de "visão pública" saíram daqui — viraram
-  // um item no menu "⋯" do dono do perfil (ProfileOwnerMenu), junto de
-  // "Editar informações do perfil", em vez de uma faixa fixa no topo da
-  // página competindo com o próprio perfil.
+  // O acesso ao painel saiu de uma faixa fixa no topo da página e virou um
+  // botão de destaque junto de "Editar perfil" (ver CreatorProfileView) —
+  // bem visível pro dono, sem competir com o resto do perfil.
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
       <CreatorProfileView creator={creator} products={products} reviews={reviews} isOwnProfile={isOwnProfile} />

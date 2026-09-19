@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Pencil, Images, Star, Users } from "lucide-react";
+import { Pencil, Images, Star, Users, LayoutDashboard } from "lucide-react";
 import type { CustomOrderReviewWithReviewer, Product, User } from "@/lib/types";
 import { PRODUCT_TYPE_LABELS } from "@/lib/types";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
@@ -7,7 +7,6 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { RatingStars } from "@/components/RatingStars";
 import { ProductCard } from "@/components/ProductCard";
 import { ReportMenu } from "@/components/ReportMenu";
-import { ProfileOwnerMenu } from "@/components/ProfileOwnerMenu";
 import { CustomOrderForm } from "@/components/CustomOrderForm";
 
 interface CreatorProfileViewProps {
@@ -72,7 +71,7 @@ export function CreatorProfileView({
             label={creator.displayName}
             flush
           />
-          {isOwnProfile ? <ProfileOwnerMenu /> : <ReportMenu bare />}
+          {isOwnProfile ? null : <ReportMenu bare />}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -101,13 +100,22 @@ export function CreatorProfileView({
         <RatingStars rating={profile.rating} ratingCount={profile.ratingCount} />
 
         {isOwnProfile ? (
-          <Link
-            href="/dashboard/configuracoes"
-            className="flex w-fit items-center justify-center gap-1.5 rounded-(--radius-pill) border border-(--color-border) px-4 py-2.5 text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
-          >
-            <Pencil size={14} strokeWidth={1.5} />
-            Editar perfil
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/dashboard"
+              className="flex w-fit items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+            >
+              <LayoutDashboard size={14} strokeWidth={1.5} />
+              Painel do criador
+            </Link>
+            <Link
+              href="/dashboard/configuracoes"
+              className="flex w-fit items-center justify-center gap-1.5 rounded-(--radius-pill) border border-(--color-border) px-4 py-2.5 text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
+            >
+              <Pencil size={14} strokeWidth={1.5} />
+              Editar perfil
+            </Link>
+          </div>
         ) : (
           <button
             type="button"
