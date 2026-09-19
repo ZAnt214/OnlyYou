@@ -11,6 +11,7 @@ import {
   getCustomServiceOrderByRequest,
 } from "@/lib/supabase/customRequests";
 import { StatusBadge } from "@/components/StatusBadge";
+import { RatingStars } from "@/components/RatingStars";
 import { EmptyState } from "@/components/EmptyState";
 import type { CustomRequest, CustomProposal, CustomServiceOrder } from "@/lib/types";
 
@@ -23,6 +24,8 @@ interface RequestRow {
   proposal: CustomProposal | undefined;
   customServiceOrder: CustomServiceOrder | null;
   counterpartName: string;
+  counterpartRating: number;
+  counterpartRatingCount: number;
   /** Papel do usuário atuando NESTE pedido específico — necessário quando
    * `role="all"` mescla pedidos enviados e recebidos na mesma lista, já que
    * a mesma conta pode ser criadora em um pedido e compradora em outro. */
@@ -63,7 +66,7 @@ export function CustomRequestsList({
             getCustomServiceOrderByRequest(supabase, request.id),
             supabase
               .from("profiles")
-              .select("display_name, username")
+              .select("display_name, username, rating, rating_count")
               .eq("id", counterpartId)
               .maybeSingle()
               .then((r) => r.data),
@@ -74,6 +77,8 @@ export function CustomRequestsList({
             proposal,
             customServiceOrder,
             counterpartName: counterpart?.display_name ?? counterpart?.username ?? "Usuário",
+            counterpartRating: counterpart?.rating ?? 0,
+            counterpartRatingCount: counterpart?.rating_count ?? 0,
             myRole,
           };
         }),
@@ -146,7 +151,16 @@ export function CustomRequestsList({
 
   return (
     <div className="flex flex-col gap-3">
-      {rows.map(({ request, proposal, customServiceOrder, counterpartName, myRole }) => (
+      {rows.map(
+        ({
+          request,
+          proposal,
+          customServiceOrder,
+          counterpartName,
+          counterpartRating,
+          counterpartRatingCount,
+          myRole,
+        }) => (
         <Link
           key={request.id}
           href={`${myRole === "creator" ? "/dashboard/pedidos-personalizados" : "/pedidos"}/${request.id}`}
@@ -159,6 +173,7 @@ export function CustomRequestsList({
               </span>
               <StatusBadge status={request.status} />
             </div>
+            <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
             <p className="truncate text-sm text-(--color-text-muted)">
               {proposal?.serviceType || request.description}
             </p>
@@ -175,7 +190,8 @@ export function CustomRequestsList({
             Conversar
           </span>
         </Link>
-      ))}
+        ),
+      )}
     </div>
   );
 }

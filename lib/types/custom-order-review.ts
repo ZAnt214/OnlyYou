@@ -12,3 +12,8 @@ export interface CustomOrderReview {
   comment: string;
   createdAt: string;
 }
+
+/** Avaliação recebida, com o nome de quem avaliou — para exibição pública no perfil. */
+export interface CustomOrderReviewWithReviewer extends CustomOrderReview {
+  reviewerName: string;
+}

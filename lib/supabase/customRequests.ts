@@ -12,6 +12,7 @@ import type {
   CustomServiceOrder,
   CustomServiceOrderStatus,
   CustomOrderReview,
+  CustomOrderReviewWithReviewer,
   Notification,
   NotificationType,
   Dispute,
@@ -654,6 +655,34 @@ export async function listCustomOrderReviews(
     .eq("custom_service_order_id", customServiceOrderId);
   if (error) throw new Error(error.message);
   return (data ?? []).map(mapCustomOrderReview);
+}
+
+interface CustomOrderReviewWithReviewerRow extends CustomOrderReviewRow {
+  reviewer: { display_name: string | null; username: string | null } | null;
+}
+
+/**
+ * Avaliações recebidas por um usuário (criador ou comprador), com nome de
+ * quem avaliou — é o que aparece publicamente no perfil (RLS de
+ * custom_order_reviews é pública para leitura, ver migração
+ * custom_order_reviews_public_and_profile_rating).
+ */
+export async function listCustomOrderReviewsForUser(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<CustomOrderReviewWithReviewer[]> {
+  const { data, error } = await supabase
+    .from("custom_order_reviews")
+    .select(
+      "id, custom_service_order_id, reviewer_id, reviewee_id, rating, comment, created_at, reviewer:profiles!custom_order_reviews_reviewer_id_fkey(display_name, username)",
+    )
+    .eq("reviewee_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as CustomOrderReviewWithReviewerRow[]).map((r) => ({
+    ...mapCustomOrderReview(r),
+    reviewerName: r.reviewer?.display_name ?? r.reviewer?.username ?? "Usuário",
+  }));
 }
 
 export async function submitCustomOrderReview(

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Pencil, Images, Star, Users } from "lucide-react";
-import type { Product, User } from "@/lib/types";
+import type { CustomOrderReviewWithReviewer, Product, User } from "@/lib/types";
 import { PRODUCT_TYPE_LABELS } from "@/lib/types";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
@@ -13,6 +13,8 @@ import { CustomOrderForm } from "@/components/CustomOrderForm";
 interface CreatorProfileViewProps {
   creator: User;
   products: Product[];
+  /** Avaliações recebidas em pedidos personalizados — exibidas publicamente. */
+  reviews?: CustomOrderReviewWithReviewer[];
   /**
    * O perfil é a mesma tela para quem visita e para o próprio criador —
    * como em redes sociais como o TikTok. `isOwnProfile` só troca as ações
@@ -22,7 +24,12 @@ interface CreatorProfileViewProps {
   isOwnProfile?: boolean;
 }
 
-export function CreatorProfileView({ creator, products, isOwnProfile = false }: CreatorProfileViewProps) {
+export function CreatorProfileView({
+  creator,
+  products,
+  reviews = [],
+  isOwnProfile = false,
+}: CreatorProfileViewProps) {
   const profile = creator.creatorProfile;
   if (!profile) return null;
 
@@ -151,6 +158,46 @@ export function CreatorProfileView({ creator, products, isOwnProfile = false }: 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {approved.map((p) => (
               <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-3 border-t border-(--color-border) pt-6">
+        <div className="flex items-center gap-3">
+          <h2 className="text-base font-semibold text-(--color-text)">Avaliações</h2>
+          <RatingStars rating={profile.rating} ratingCount={profile.ratingCount} />
+        </div>
+        {reviews.length === 0 ? (
+          <p className="text-sm text-(--color-text-muted)">Ainda não há avaliações.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {reviews.map((review) => (
+              <div
+                key={review.id}
+                className="flex flex-col gap-1.5 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium text-(--color-text)">{review.reviewerName}</span>
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((value) => (
+                      <Star
+                        key={value}
+                        size={14}
+                        strokeWidth={1.5}
+                        className={value <= review.rating ? "text-(--color-accent)" : "text-(--color-border)"}
+                        fill={value <= review.rating ? "currentColor" : "none"}
+                      />
+                    ))}
+                  </div>
+                </div>
+                {review.comment ? (
+                  <p className="text-sm text-(--color-text-muted)">{review.comment}</p>
+                ) : null}
+                <span className="text-xs text-(--color-text-subtle)">
+                  {new Date(review.createdAt).toLocaleDateString("pt-BR")}
+                </span>
+              </div>
             ))}
           </div>
         )}

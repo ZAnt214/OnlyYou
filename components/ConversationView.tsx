@@ -39,6 +39,7 @@ import {
 } from "@/lib/supabase/customRequests";
 import { reportService } from "@/lib/moderation/ReportService";
 import { StatusBadge } from "@/components/StatusBadge";
+import { RatingStars } from "@/components/RatingStars";
 import { PixCheckoutPanel } from "@/components/payments/PixCheckoutPanel";
 import { CustomOrderReviewModal } from "@/components/CustomOrderReviewModal";
 import {
@@ -83,6 +84,8 @@ export function ConversationView({
   const [proposals, setProposals] = useState<CustomProposal[]>([]);
   const [customServiceOrder, setCustomServiceOrder] = useState<CustomServiceOrder | null>(null);
   const [counterpartName, setCounterpartName] = useState("Usuário");
+  const [counterpartRating, setCounterpartRating] = useState(0);
+  const [counterpartRatingCount, setCounterpartRatingCount] = useState(0);
   const [attachmentsByMessage, setAttachmentsByMessage] = useState<Record<string, MessageAttachment[]>>({});
 
   const [text, setText] = useState("");
@@ -173,7 +176,7 @@ export function ConversationView({
       const counterpartId = actingUserId === req.creatorId ? req.requesterId : req.creatorId;
       const { data: counterpart } = await supabase
         .from("profiles")
-        .select("display_name, username")
+        .select("display_name, username, rating, rating_count")
         .eq("id", counterpartId)
         .maybeSingle();
 
@@ -193,6 +196,8 @@ export function ConversationView({
       setProposals(props);
       setCustomServiceOrder(cso);
       setCounterpartName(counterpart?.display_name ?? counterpart?.username ?? "Usuário");
+      setCounterpartRating(counterpart?.rating ?? 0);
+      setCounterpartRatingCount(counterpart?.rating_count ?? 0);
       setAttachmentsByMessage(Object.fromEntries(attachmentEntries));
       setMyReview(myReviewRow);
       setLoadError(null);
@@ -485,7 +490,10 @@ export function ConversationView({
             <span className="font-medium text-(--color-text)">{counterpartName}</span>
             <StatusBadge status={request.status} />
           </div>
-          <span className="truncate text-xs text-(--color-text-muted)">{serviceLabel}</span>
+          <div className="flex items-center gap-2">
+            <span className="truncate text-xs text-(--color-text-muted)">{serviceLabel}</span>
+            <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
+          </div>
         </div>
         <div className="relative">
           <button

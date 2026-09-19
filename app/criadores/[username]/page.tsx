@@ -6,6 +6,8 @@ import { productRepository } from "@/lib/repositories/ProductRepository";
 import { CreatorProfileView } from "@/components/CreatorProfileView";
 import { BecomeCreatorPrompt } from "@/components/BecomeCreatorPrompt";
 import { getCurrentUser, getProfileByUsername } from "@/lib/supabase/session";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { listCustomOrderReviewsForUser } from "@/lib/supabase/customRequests";
 
 export default async function CreatorProfilePage({
   params,
@@ -42,6 +44,10 @@ export default async function CreatorProfilePage({
   }
 
   const products = await productRepository.findByCreator(creator.id);
+  // Avaliações reais (custom_order_reviews) só existem pra perfis reais —
+  // um creator.id mock não bate com nenhuma linha, então a lista vem vazia
+  // sem precisar de um caminho separado pro fallback de demo.
+  const reviews = await listCustomOrderReviewsForUser(await createServerClient(), creator.id);
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
@@ -58,7 +64,7 @@ export default async function CreatorProfilePage({
         </div>
       ) : null}
 
-      <CreatorProfileView creator={creator} products={products} isOwnProfile={isOwnProfile} />
+      <CreatorProfileView creator={creator} products={products} reviews={reviews} isOwnProfile={isOwnProfile} />
     </div>
   );
 }
