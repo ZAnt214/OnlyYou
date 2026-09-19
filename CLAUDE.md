@@ -75,6 +75,32 @@ saem no raio certo.
   `orderMilestoneText()` em `ConversationView.tsx` — toda mensagem de marco nova precisa de um
   par de textos ali, não reaproveitar o texto genérico do banco pros dois lados.
 
+## Persistência de dados: sempre no banco real
+
+**Toda nova feature que precise guardar estado (avaliação, preferência, contador, configuração,
+histórico etc.) deve persistir no Supabase (Postgres) — nunca em mock in-memory
+(`lib/repositories/*Mock*`, `lib/data/*`), `localStorage` ou estado que morre com o reload.**
+Isso vale mesmo quando não for pedido explicitamente: se o dado precisa sobreviver a um
+refresh, a uma nova sessão, ou ser visto por outra pessoa (perfil público, avaliação, etc.), ele
+é candidato a virar tabela/coluna real, não um placeholder "por enquanto".
+
+Ao implementar isso:
+
+1. Modele a tabela e RLS (uma linha por autor/dono, `to authenticated`/`to public` conforme o
+   dado deva ser privado ou público — ver `custom_order_reviews` como referência: privado até o
+   dado precisar aparecer publicamente, então liberado com `to public using (true)`, mesmo
+   padrão de "profiles são públicos para leitura").
+2. Toda mutação passa por função RPC (`security invoker`, `set search_path to ''`), nunca
+   INSERT/UPDATE direto da API pública — mesmo padrão já usado em todo o fluxo de pedidos
+   personalizados (`lib/supabase/customRequests.ts`).
+3. Se a feature precisa de uma métrica agregada que já existe como coluna solta e nunca
+   alimentada (ex.: `profiles.rating`/`rating_count`, que ficaram "mortas" até a feature de
+   avaliação começar a recalculá-las), aproveite a coluna existente em vez de inventar uma
+   nova — mas rode `get_advisors` (security) depois de qualquer mudança de RLS/função.
+4. Só cai fora dessa regra: dado puramente de UI local sem valor de negócio (aba selecionada,
+   texto de um formulário ainda não enviado) — isso pode ficar em `useState`/`localStorage`
+   normalmente.
+
 ## Nome da plataforma
 
 A plataforma se chama **Jobê**. O repositório no GitHub (`ZAnt214/OnlyYou`), o projeto na
