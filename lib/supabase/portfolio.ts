@@ -15,6 +15,8 @@ interface PortfolioItemRow {
   description: string;
   external_url: string | null;
   image_url: string | null;
+  content: string;
+  gallery_urls: string[];
   position: number;
   created_at: string;
 }
@@ -27,6 +29,8 @@ function mapPortfolioItem(r: PortfolioItemRow): PortfolioItem {
     description: r.description,
     externalUrl: r.external_url ?? undefined,
     imageUrl: r.image_url ?? undefined,
+    content: r.content,
+    galleryUrls: r.gallery_urls ?? [],
     position: r.position,
     createdAt: r.created_at,
   };
@@ -35,6 +39,15 @@ function mapPortfolioItem(r: PortfolioItemRow): PortfolioItem {
 function unwrap<T>(data: T | null, error: { message: string } | null): T {
   if (error) throw new Error(error.message);
   return data as T;
+}
+
+export interface PortfolioItemInput {
+  title: string;
+  description: string;
+  externalUrl: string;
+  imageUrl: string;
+  content: string;
+  galleryUrls: string[];
 }
 
 export async function listPortfolioForCreator(
@@ -52,13 +65,15 @@ export async function listPortfolioForCreator(
 
 export async function createPortfolioItem(
   supabase: SupabaseClient,
-  input: { title: string; description: string; externalUrl: string; imageUrl: string },
+  input: PortfolioItemInput,
 ): Promise<PortfolioItem> {
   const { data, error } = await supabase.rpc("create_portfolio_item", {
     p_title: input.title,
     p_description: input.description,
     p_external_url: input.externalUrl,
     p_image_url: input.imageUrl,
+    p_content: input.content,
+    p_gallery_urls: input.galleryUrls,
   });
   return mapPortfolioItem(unwrap(data, error) as PortfolioItemRow);
 }
@@ -66,7 +81,7 @@ export async function createPortfolioItem(
 export async function updatePortfolioItem(
   supabase: SupabaseClient,
   id: string,
-  input: { title: string; description: string; externalUrl: string; imageUrl: string },
+  input: PortfolioItemInput,
 ): Promise<PortfolioItem> {
   const { data, error } = await supabase.rpc("update_portfolio_item", {
     p_id: id,
@@ -74,6 +89,8 @@ export async function updatePortfolioItem(
     p_description: input.description,
     p_external_url: input.externalUrl,
     p_image_url: input.imageUrl,
+    p_content: input.content,
+    p_gallery_urls: input.galleryUrls,
   });
   return mapPortfolioItem(unwrap(data, error) as PortfolioItemRow);
 }

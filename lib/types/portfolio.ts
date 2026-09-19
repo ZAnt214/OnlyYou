@@ -10,6 +10,10 @@ export interface PortfolioItem {
   description: string;
   externalUrl?: string;
   imageUrl?: string;
+  /** Texto completo do trabalho, mostrado só quando o card é expandido. */
+  content: string;
+  /** Imagens extras do trabalho completo, além de `imageUrl` (capa). */
+  galleryUrls: string[];
   position: number;
   createdAt: string;
 }
