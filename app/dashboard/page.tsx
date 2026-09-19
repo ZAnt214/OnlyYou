@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import type { Product, User } from "@/lib/types";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { useSaleRepository } from "@/lib/repositories/SaleRepository";
@@ -9,11 +10,38 @@ import { getCreatorBalance } from "@/lib/supabase/wallet";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatCard } from "@/components/StatCard";
 import { StatusBadge } from "@/components/StatusBadge";
-import { DollarSign, Package, Wallet } from "lucide-react";
+import {
+  DollarSign,
+  Package,
+  Wallet,
+  Receipt,
+  MessageSquare,
+  Ticket,
+  Users,
+  BarChart3,
+  Settings,
+} from "lucide-react";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
+
+/**
+ * O painel é hub-style: as seções vivem só aqui, como cards — não há mais
+ * nav/dropdown persistente em cada subpágina (ver DashboardBackLink, que
+ * só devolve pra este hub). "Meu perfil" fica de fora: já é acessível pelo
+ * cabeçalho/nav do site, essa lista é só o que é exclusivo do painel.
+ */
+const SECTIONS = [
+  { href: "/dashboard/produtos", label: "Produtos", icon: Package },
+  { href: "/dashboard/vendas", label: "Vendas", icon: Receipt },
+  { href: "/dashboard/pedidos-personalizados", label: "Pedidos personalizados", icon: MessageSquare },
+  { href: "/dashboard/carteira", label: "Carteira", icon: Wallet },
+  { href: "/dashboard/cupons", label: "Cupons", icon: Ticket },
+  { href: "/dashboard/afiliados", label: "Afiliados", icon: Users, disabled: true },
+  { href: "/dashboard/estatisticas", label: "Estatísticas", icon: BarChart3 },
+  { href: "/dashboard/configuracoes", label: "Configurações", icon: Settings },
+];
 
 export default function DashboardOverviewPage() {
   const saleRepo = useSaleRepository();
@@ -51,6 +79,30 @@ export default function DashboardOverviewPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-semibold text-(--color-text)">Dashboard</h1>
         <p className="text-sm text-(--color-text-muted)">Você recebe pelas vendas realizadas.</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {SECTIONS.map((section) =>
+          section.disabled ? (
+            <span
+              key={section.href}
+              title="Em breve"
+              className="flex flex-col items-center gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-center text-sm text-(--color-text-subtle)"
+            >
+              <section.icon size={20} strokeWidth={1.5} />
+              {section.label}
+            </span>
+          ) : (
+            <Link
+              key={section.href}
+              href={section.href}
+              className="flex flex-col items-center gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-center text-sm text-(--color-text) shadow-sm hover:border-(--color-accent)"
+            >
+              <section.icon size={20} strokeWidth={1.5} className="text-(--color-accent)" />
+              {section.label}
+            </Link>
+          ),
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
