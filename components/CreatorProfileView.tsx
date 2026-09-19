@@ -50,7 +50,7 @@ export function CreatorProfileView({
           <div className="absolute right-3 top-3 flex items-center gap-3 rounded-(--radius-pill) bg-(--color-surface) px-3 py-1.5 text-xs text-(--color-text-muted)">
             <span className="flex items-center gap-1">
               <Images size={14} strokeWidth={1.5} />
-              {profile.productCount}
+              {approved.length}
             </span>
             <span className="flex items-center gap-1">
               <Star size={14} strokeWidth={1.5} />
@@ -128,7 +128,7 @@ export function CreatorProfileView({
         <div className="grid grid-cols-2 border-y border-(--color-border) text-sm">
           <span className="flex items-center justify-center gap-2 border-b-2 border-(--color-accent) py-3 font-semibold text-(--color-accent)">
             <Images size={16} strokeWidth={1.5} />
-            {profile.productCount} Produtos
+            {approved.length} Produtos
           </span>
           <span className="flex items-center justify-center gap-2 border-b-2 border-transparent py-3 text-(--color-text-muted)">
             <Users size={16} strokeWidth={1.5} />
