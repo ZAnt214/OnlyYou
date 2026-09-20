@@ -9,6 +9,13 @@ export interface ProductRepository {
   search(query: string): Promise<Product[]>;
 }
 
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 export class MockProductRepository implements ProductRepository {
   async findAll(): Promise<Product[]> {
     return products;
@@ -27,13 +34,13 @@ export class MockProductRepository implements ProductRepository {
   }
 
   async search(query: string): Promise<Product[]> {
-    const q = query.trim().toLowerCase();
+    const q = normalizeSearchText(query.trim());
     if (!q) return products;
     return products.filter(
       (p) =>
-        p.title.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.tags.some((t) => t.toLowerCase().includes(q)),
+        normalizeSearchText(p.title).includes(q) ||
+        normalizeSearchText(p.description).includes(q) ||
+        p.tags.some((t) => normalizeSearchText(t).includes(q)),
     );
   }
 }

@@ -1,24 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import {
-  ArrowRight,
-  Briefcase,
-  Camera,
-  Clapperboard,
-  Code2,
-  Grid3x3,
-  Layers,
-  Megaphone,
-  Music,
-  Palette,
-  PenLine,
-  Search,
-  ShoppingBag,
-  SlidersHorizontal,
-  Video,
-  type LucideIcon,
-} from "lucide-react";
+import { Search, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import type { Category, Product } from "@/lib/types";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -27,19 +10,6 @@ const SORTS = [
   { value: "vendidos", label: "Mais vendidos" },
   { value: "recentes", label: "Novidades" },
 ] as const;
-
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  design: Palette,
-  programacao: Code2,
-  marketing: Megaphone,
-  musica: Music,
-  videos: Video,
-  "ui-ux": Layers,
-  "redacao-e-copywriting": PenLine,
-  consultorias: Briefcase,
-  fotos: Camera,
-  "cinema-e-series": Clapperboard,
-};
 
 type FilterState = { category: string; sort: string; offers: boolean };
 type ExploreContextValue = FilterState & {
@@ -127,14 +97,12 @@ export function ExploreCategories({
   otherCategories: Category[];
 }) {
   const { category, setCategory } = useExploreFilters();
+  const categories = [...popularCategories, ...otherCategories];
 
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-(--color-accent)">Explore por área</p>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-(--color-text)">Categorias populares</h2>
-        </div>
+    <section className="flex flex-col gap-2.5" aria-label="Categorias">
+      <div className="flex items-center justify-between gap-3 px-0.5">
+        <h2 className="text-sm font-semibold text-(--color-text)">Explore por categoria</h2>
         {category ? (
           <button type="button" onClick={() => setCategory("")} className="shrink-0 text-xs font-semibold text-(--color-accent) hover:underline">
             Limpar filtro
@@ -142,35 +110,9 @@ export function ExploreCategories({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-        {popularCategories.map((item) => {
-          const Icon = CATEGORY_ICONS[item.slug] ?? Grid3x3;
-          const active = category === item.slug;
-          return (
-            <button
-              type="button"
-              key={item.id}
-              onClick={() => setCategory(active ? "" : item.slug)}
-              aria-pressed={active}
-              className={`group flex min-h-28 flex-col justify-between rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-sm ${
-                active ? "border-(--color-accent) bg-(--color-accent-soft)" : "border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)"
-              }`}
-            >
-              <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? "bg-(--color-accent) text-white" : "bg-(--color-surface-2) text-(--color-text-muted) group-hover:text-(--color-accent)"}`}>
-                <Icon size={19} strokeWidth={1.75} />
-              </span>
-              <span className="flex w-full items-end justify-between gap-2">
-                <span className={`text-sm font-semibold leading-tight ${active ? "text-(--color-accent)" : "text-(--color-text)"}`}>{item.name}</span>
-                <ArrowRight size={15} className={active ? "text-(--color-accent)" : "text-(--color-text-subtle)"} />
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
+      <div className="no-scrollbar -mx-4 flex snap-x items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
         <FilterChip active={!category} onClick={() => setCategory("")}>Todas</FilterChip>
-        {otherCategories.map((item) => (
+        {categories.map((item) => (
           <FilterChip key={item.id} active={category === item.slug} onClick={() => setCategory(item.slug)}>{item.name}</FilterChip>
         ))}
       </div>

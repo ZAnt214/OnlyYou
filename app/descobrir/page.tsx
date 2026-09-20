@@ -37,6 +37,13 @@ const POPULAR_CATEGORY_SLUGS = [
   "consultorias",
 ];
 
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 export default async function DescobrirPage({
   searchParams,
 }: {
@@ -65,12 +72,12 @@ export default async function DescobrirPage({
   // A busca de produtos (título/descrição/tags) não encontra um criador sem
   // produto publicado — comparar também username/nome mantém a promessa do
   // placeholder ("Buscar conteúdos, tags ou criadores").
-  const qNormalized = q.trim().toLowerCase();
+  const qNormalized = normalizeSearchText(q.trim());
   const matchingCreators = qNormalized
     ? creators.filter(
         (c) =>
-          c.username.toLowerCase().includes(qNormalized) ||
-          c.displayName.toLowerCase().includes(qNormalized),
+          normalizeSearchText(c.username).includes(qNormalized) ||
+          normalizeSearchText(c.displayName).includes(qNormalized),
       )
     : creators.slice(0, 6);
 
@@ -222,4 +229,3 @@ function SectionHeading({
     </div>
   );
 }
-

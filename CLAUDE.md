@@ -116,3 +116,7 @@ essas referências de infraestrutura em documentação ou código.
 3. Rode `grep` por `#[0-9a-fA-F]\{3,6\}` e por classes de paleta Tailwind (`bg-red-`,
    `text-blue-`, etc.) nos arquivos que você tocou antes de considerar a tarefa pronta — o
    objetivo é manter o repo 100% livre de cor hardcoded (estado atual do projeto).
+4. **Atualize `AI_CHANGELOG.md` em toda alteração feita no site.** Registre a data, o objetivo,
+   os arquivos alterados, as decisões técnicas relevantes e as validações executadas. A entrada
+   mais recente fica no topo. Não finalize nem envie uma mudança de código sem atualizar esse
+   documento; ele é a continuidade obrigatória entre as IAs que trabalham no projeto.
