@@ -8,7 +8,7 @@ export function ProductCard({ product, creatorName }: { product: Product; creato
   return (
     <Link
       href={`/produto/${product.id}`}
-      className="group flex w-full flex-shrink-0 flex-col overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) transition-colors hover:border-(--color-accent)"
+      className="group flex w-full flex-shrink-0 flex-col overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm transition-all hover:border-(--color-accent) hover:shadow-lg hover:shadow-black/10"
     >
       <MediaPlaceholder
         seed={product.id}

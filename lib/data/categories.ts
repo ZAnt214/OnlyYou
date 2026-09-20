@@ -22,4 +22,22 @@ export const categories: Category[] = [
   { id: "cat-19", slug: "ui-ux", name: "UI/UX" },
   { id: "cat-20", slug: "redacao-e-copywriting", name: "Redação e copywriting" },
   { id: "cat-21", slug: "traducao", name: "Tradução" },
+  // Categorias descontraídas — vitrine de Explorar não é só trabalho, cabe
+  // também conteúdo casual/entretenimento pra a página ficar mais viva.
+  { id: "cat-22", slug: "memes", name: "Memes" },
+  { id: "cat-23", slug: "humor", name: "Humor" },
+  { id: "cat-24", slug: "curiosidades", name: "Curiosidades" },
+  { id: "cat-25", slug: "culinaria", name: "Receitas e culinária" },
+  { id: "cat-26", slug: "fitness", name: "Fitness e saúde" },
+  { id: "cat-27", slug: "moda-e-beleza", name: "Moda e beleza" },
+  { id: "cat-28", slug: "viagem", name: "Viagem" },
+  { id: "cat-29", slug: "pets", name: "Pets" },
+  { id: "cat-30", slug: "astrologia", name: "Astrologia" },
+  { id: "cat-31", slug: "motivacional", name: "Motivacional" },
+  { id: "cat-32", slug: "financas-pessoais", name: "Finanças pessoais" },
+  { id: "cat-33", slug: "diy-artesanato", name: "DIY e artesanato" },
+  { id: "cat-34", slug: "podcasts", name: "Podcasts" },
+  { id: "cat-35", slug: "livros", name: "Livros e literatura" },
+  { id: "cat-36", slug: "cinema-e-series", name: "Cinema e séries" },
+  { id: "cat-37", slug: "esportes", name: "Esportes" },
 ];

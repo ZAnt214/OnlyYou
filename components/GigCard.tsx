@@ -10,7 +10,7 @@ import { RequestGigButton } from "@/components/RequestGigButton";
  */
 export function GigCard({ gig, creatorName }: { gig: Gig; creatorName?: string }) {
   return (
-    <div className="flex w-full flex-col overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface)">
+    <div className="flex w-full flex-col overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm transition-shadow hover:shadow-lg hover:shadow-black/10">
       {gig.coverImageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={gig.coverImageUrl} alt={gig.title} className="aspect-square w-full object-cover" />
