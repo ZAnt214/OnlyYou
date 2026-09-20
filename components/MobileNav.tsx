@@ -27,7 +27,10 @@ export function MobileNav() {
   if (isConversationScreenPath(pathname)) return null;
 
   return (
-    <nav className="fixed inset-x-0 bottom-3 z-20 mx-auto flex w-fit gap-1 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) p-1.5 shadow-lg shadow-black/10 md:hidden">
+    <nav
+      aria-label="Navegação principal"
+      className="fixed inset-x-4 bottom-2 z-20 mx-auto flex max-w-sm items-center justify-around rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface)/95 px-2 py-1 shadow-lg shadow-black/10 backdrop-blur-md md:hidden"
+    >
       {TABS.map((tab) => {
         const prefixes = tab.matchPrefixes ?? [tab.href];
         const active =
@@ -37,13 +40,17 @@ export function MobileNav() {
             key={tab.href}
             href={tab.href}
             aria-label={tab.label}
-            className={`flex items-center justify-center rounded-(--radius-pill) p-3 transition-colors ${
+            aria-current={active ? "page" : undefined}
+            className={`relative flex h-11 w-12 items-center justify-center transition-colors ${
               active
-                ? "bg-(--color-accent-soft) text-(--color-accent)"
-                : "text-(--color-text-muted)"
+                ? "text-(--color-accent)"
+                : "text-(--color-text-muted) hover:text-(--color-text)"
             }`}
           >
-            <tab.icon size={20} strokeWidth={1.75} />
+            <tab.icon size={20} strokeWidth={active ? 2 : 1.65} />
+            {active ? (
+              <span className="absolute bottom-0.5 h-0.5 w-4 rounded-full bg-(--color-accent)" />
+            ) : null}
           </Link>
         );
       })}

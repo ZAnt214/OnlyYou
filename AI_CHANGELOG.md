@@ -3,6 +3,36 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Cabeçalho e navegação mobile mais leves
+
+### Objetivo
+
+- Integrar melhor o cabeçalho ao conteúdo e reduzir o peso visual da navegação inferior.
+- Evitar que controles redundantes e fundos grandes deem sensação de interface genérica ou
+  encubram o conteúdo no celular.
+
+### Mudanças
+
+- `components/Header.tsx`
+  - Cabeçalho passou a usar superfície translúcida e compacta, com assinatura laranja discreta
+    sob a marca e sem a linha divisória no mobile.
+  - Removido o atalho redundante de Explorar, já presente na navegação inferior.
+  - Notificações foram levadas ao cabeçalho mobile e o acesso à conta perdeu borda desnecessária.
+  - Menu mobile virou um painel flutuante compacto, com links em duas colunas e área rolável.
+  - Menus receberam `aria-expanded` para comunicar corretamente o estado a leitores de tela.
+- `components/MobileNav.tsx`
+  - Dock ficou mais baixo e ocupa uma largura previsível, com ícones melhor distribuídos.
+  - Estado ativo deixou de usar um círculo preenchido grande; agora usa cor e um traço curto.
+  - Adicionados nome acessível da navegação e `aria-current` na rota ativa.
+- `components/PageMain.tsx`
+  - Reserva inferior ajustada para impedir que a dock cubra o fim do conteúdo.
+
+### Validação
+
+- ESLint, TypeScript e build de produção.
+- Revisão de acessibilidade, estados ativos e áreas de toque no mobile.
+- Checagem de cores fixas nos arquivos alterados.
+
 ## 2026-09-20 — Categorias Elojob e Jogue comigo
 
 ### Objetivo
