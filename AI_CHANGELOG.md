@@ -3,6 +3,49 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Nova paleta: Atomic Orange + Ice Cream Blue
+
+### Objetivo
+
+- Atualizar a cor de marca do Jobê a pedido do usuário: "Atomic Orange" (`#FF5C23`) e "Ice Cream
+  Blue" (`#C8F3FF`).
+- Decisão confirmada com o usuário antes de mexer (impacto visual em todo o site): Atomic Orange
+  substitui `--color-accent` (óbvio — é a nova cor de marca); Ice Cream Blue substitui
+  especificamente `--color-accent-soft` (fundo dos chips/badges ativos), não `--color-verified`
+  nem um token à parte.
+
+### Mudanças
+
+- `app/globals.css`
+  - Tema claro: `--color-accent: #ff5c23` (era `#f5821f`); `--color-accent-hover: #e04a15`
+    (versão mais escura, mesma relação de contraste que já existia); `--color-accent-soft:
+    #c8f3ff` (era um pêssego bem claro derivado do laranja antigo — agora é o azul gelo).
+  - Tema escuro: `--color-accent: #ff5c23`; `--color-accent-hover: #ff7d4f` (versão mais clara,
+    mesma relação que já existia no escuro); `--color-accent-soft: #123540` (análogo escuro do
+    azul gelo — usar o mesmo tom claro de `#c8f3ff` como fundo no escuro ficaria estourado；
+    mantém o matiz, ajusta luminosidade pro tema).
+  - `--color-verified` (selo azul de verificado) e as cores semânticas
+    (success/warning/danger) não mudaram — continuam com os valores antigos, como confirmado.
+  - `grep` por hex antigo (`f5821f`, `dd6f10`, `fdead6`, `ff9a40`, `3a2712`) no repo inteiro:
+    nenhuma ocorrência fora de `globals.css` — a paleta já era 100% centralizada em tokens, sem
+    cor hardcoded em componente nenhum, então a troca não exigiu tocar em mais nenhum arquivo.
+
+### Ponto de atenção (não implementado — decisão de design, não bug)
+
+- `--color-accent-soft` (`#c8f3ff`) é usado como fundo de chip com **texto na cor
+  `--color-accent`** (`bg-(--color-accent-soft) text-(--color-accent)`, o padrão de badge
+  ativo/positivo do Jobê). No tema claro, laranja `#ff5c23` sobre azul gelo `#c8f3ff` tem
+  contraste baixo (abaixo do mínimo recomendado pra texto pequeno) — legível, mas menos nítido
+  que a combinação anterior (laranja sobre pêssego, mesma família de cor). Se algum badge
+  específico ficar difícil de ler na prática, a correção é ajustar só o tom do azul (mais escuro)
+  ou a cor do texto naquele componente, não reverter a decisão de paleta.
+
+### Validação
+
+- `tsc --noEmit`: sem erros (CSS não passa por TypeScript/ESLint, validado visualmente pela
+  ausência de qualquer outra ocorrência hardcoded no repo).
+- Teste visual pendente de confirmação do usuário.
+
 ## 2026-09-20 — Correção: comprador perdia acesso ao produto despublicado
 
 ### Objetivo
