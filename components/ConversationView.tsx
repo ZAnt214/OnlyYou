@@ -114,6 +114,8 @@ export function ConversationView({
   const [attachmentsByMessage, setAttachmentsByMessage] = useState<Record<string, MessageAttachment[]>>({});
 
   const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [confirmingReceipt, setConfirmingReceipt] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [showProposalForm, setShowProposalForm] = useState(false);
@@ -352,12 +354,15 @@ export function ConversationView({
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setSending(true);
     try {
       await sendCustomMessage(supabase, { conversationId: conversation!.id, content: text });
       setText("");
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível enviar a mensagem.");
+    } finally {
+      setSending(false);
     }
   }
 
@@ -474,11 +479,14 @@ export function ConversationView({
   async function handleConfirmReceipt() {
     if (!customServiceOrder) return;
     setError(null);
+    setConfirmingReceipt(true);
     try {
       await confirmCustomReceipt(supabase, customServiceOrder.id);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível confirmar o recebimento.");
+    } finally {
+      setConfirmingReceipt(false);
     }
   }
 
@@ -728,15 +736,21 @@ export function ConversationView({
             <button
               type="button"
               onClick={handleConfirmReceipt}
-              className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+              disabled={confirmingReceipt}
+              className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
             >
-              <CheckCircle2 size={14} strokeWidth={1.5} />
+              {confirmingReceipt ? (
+                <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
+              ) : (
+                <CheckCircle2 size={14} strokeWidth={1.5} />
+              )}
               Confirmar recebimento
             </button>
             <button
               type="button"
               onClick={() => setShowProblemForm((v) => !v)}
-              className="flex items-center gap-1.5 rounded-md border border-(--color-border) px-4 py-1.5 text-sm text-(--color-text) hover:bg-(--color-surface)"
+              disabled={confirmingReceipt}
+              className="flex items-center gap-1.5 rounded-md border border-(--color-border) px-4 py-1.5 text-sm text-(--color-text) hover:bg-(--color-surface) disabled:opacity-60"
             >
               <AlertTriangle size={14} strokeWidth={1.5} />
               Relatar problema
@@ -755,8 +769,9 @@ export function ConversationView({
               <button
                 type="submit"
                 disabled={busy}
-                className="self-start rounded-md border border-(--color-danger) px-4 py-1.5 text-sm font-medium text-(--color-danger) hover:bg-(--color-surface) disabled:opacity-60"
+                className="flex w-fit items-center gap-1.5 self-start rounded-md border border-(--color-danger) px-4 py-1.5 text-sm font-medium text-(--color-danger) hover:bg-(--color-surface) disabled:opacity-60"
               >
+                {busy ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
                 Enviar relato
               </button>
             </form>
@@ -857,8 +872,9 @@ export function ConversationView({
                 <button
                   type="submit"
                   disabled={busy}
-                  className="rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+                  className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
                 >
+                  {busy ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
                   Enviar proposta
                 </button>
                 <button
@@ -903,15 +919,20 @@ export function ConversationView({
             <input
               value={text}
               onChange={(e) => handleTextChange(e.target.value)}
+              disabled={sending}
               placeholder="Escreva uma mensagem"
-              className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+              className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none disabled:opacity-60"
             />
             <button
               type="submit"
-              disabled={!text.trim()}
+              disabled={!text.trim() || sending}
               className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
             >
-              <Send size={14} strokeWidth={1.5} />
+              {sending ? (
+                <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
+              ) : (
+                <Send size={14} strokeWidth={1.5} />
+              )}
               Enviar
             </button>
           </div>
@@ -1055,7 +1076,11 @@ function MessageItem({
               onClick={() => onReject(proposal.id)}
               className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface-2) disabled:opacity-60"
             >
-              <XCircle size={14} strokeWidth={1.5} />
+              {busy ? (
+                <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
+              ) : (
+                <XCircle size={14} strokeWidth={1.5} />
+              )}
               Recusar
             </button>
           </div>
@@ -1073,8 +1098,9 @@ function MessageItem({
               type="button"
               disabled={busy}
               onClick={() => onPay(proposal.id)}
-              className="w-full rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+              className="flex items-center justify-center gap-1.5 w-full rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
             >
+              {busy ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
               Pagar proposta
             </button>
           </div>
@@ -1086,7 +1112,11 @@ function MessageItem({
             onClick={() => onCancel(proposal.id)}
             className="flex items-center justify-center gap-1.5 rounded-full border border-(--color-border) px-3 py-2 text-sm text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-60"
           >
-            <XCircle size={14} strokeWidth={1.5} />
+            {busy ? (
+              <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
+            ) : (
+              <XCircle size={14} strokeWidth={1.5} />
+            )}
             Cancelar proposta
           </button>
         ) : null}
