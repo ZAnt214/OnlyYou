@@ -3,6 +3,39 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Correção: RLS bloqueava publicar produto
+
+### Objetivo
+
+- Reportado pelo usuário ao testar a fatia anterior: `new row violates row-level security policy
+  for table "products"` ao clicar em "Publicar produto" em `/dashboard/produtos/novo`.
+
+### Causa
+
+- A migração `products_orders_entitlements_schema` ativou RLS em `products` e `product_orders`
+  mas só criou policies de `SELECT`. `create_product`/`update_product`/`delete_product` e
+  `create_product_order` são `security invoker` (rodam com o privilégio de quem chama, igual às
+  RPCs de `gigs`) — sem policy de `INSERT`/`UPDATE`/`DELETE` para `authenticated`, o próprio
+  INSERT dentro da função era negado por padrão. `gigs` já tinha esse conjunto completo
+  (`creator_inserts_gigs`/`creator_updates_gigs`/`creator_deletes_gigs`); a migração de produtos
+  esqueceu de replicar o mesmo padrão.
+
+### Mudanças
+
+- Supabase (migração `products_and_product_orders_write_policies`): adiciona
+  `products_insert_own`/`products_update_own`/`products_delete_own` (`creator_id = auth.uid()`)
+  e `product_orders_insert_own` (`buyer_id = auth.uid()`) — mesmo modelo de `gigs`.
+  `product_entitlements` continua de propósito sem nenhuma policy de escrita para
+  `authenticated`: só o service role (webhook) concede acesso.
+- Nenhuma mudança de código — é só correção de policy no banco (não há migrations versionadas em
+  arquivo neste repo, ver nota em entradas anteriores), efeito imediato sem novo deploy.
+
+### Validação
+
+- `get_advisors` (security) checado depois da correção: nenhum alerta novo.
+- Reprodução manual pendente de confirmação do usuário (publicar um produto de teste deve
+  funcionar agora).
+
 ## 2026-09-20 — Produtos digitais: catálogo, compra e biblioteca reais
 
 ### Objetivo
