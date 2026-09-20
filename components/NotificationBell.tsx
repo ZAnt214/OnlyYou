@@ -22,14 +22,12 @@ export function NotificationBell() {
   return (
     <Link
       href="/notificacoes"
-      className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-(--color-text-muted) transition-colors hover:bg-(--color-surface-2) hover:text-(--color-text)"
+      className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--color-surface-2) text-(--color-text-muted) transition-colors hover:text-(--color-text) md:h-9 md:w-9"
       aria-label={unread > 0 ? `Notificações (${unread} não lidas)` : "Notificações"}
     >
       <Bell size={18} strokeWidth={1.5} />
       {unread > 0 ? (
-        <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-(--color-accent) px-1 text-[10px] font-medium leading-none text-white">
-          {unread > 9 ? "9+" : unread}
-        </span>
+        <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full border-2 border-(--color-surface) bg-(--color-accent)" />
       ) : null}
     </Link>
   );

@@ -145,7 +145,7 @@ export function Header() {
             ) : null}
           </div>
 
-          <div className="flex h-9 items-center md:hidden">
+          <div className="flex h-10 items-center md:hidden">
             <NotificationBell />
           </div>
 
@@ -153,7 +153,7 @@ export function Header() {
             <button
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-(--color-surface-2) text-xs font-semibold uppercase text-(--color-text-muted) transition-colors hover:text-(--color-text)"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-(--color-surface-2) text-xs font-semibold uppercase text-(--color-text-muted) transition-colors hover:text-(--color-text) md:h-9 md:w-9"
               aria-label="Menu da conta"
               aria-expanded={menuOpen}
             >

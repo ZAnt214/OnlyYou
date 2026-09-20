@@ -12,8 +12,9 @@ site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLA
 ### Mudanças
 
 - `components/NotificationBell.tsx`
-  - Área do sino igualada ao avatar em 36 px, com ícone centralizado e formato circular.
-  - Contador de notificações reposicionado dentro da mesma caixa de alinhamento.
+  - No mobile, sino e avatar usam círculos idênticos de 40 px, com os ícones centralizados.
+  - O contador textual que desequilibrava o alinhamento óptico foi substituído por um ponto
+    discreto; a quantidade continua informada no texto acessível do link.
 - `components/Header.tsx`
   - Contêiner mobile do sino passou a compartilhar a mesma altura e eixo vertical do avatar.
 
