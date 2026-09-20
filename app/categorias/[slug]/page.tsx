@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { productRepository } from "@/lib/repositories/ProductRepository";
 import { userRepository } from "@/lib/repositories/UserRepository";
+import { listApprovedProductsByCategory } from "@/lib/supabase/products";
 import { categoryRepository } from "@/lib/repositories/CategoryRepository";
 import { ProductCard } from "@/components/ProductCard";
 import { GigCard } from "@/components/GigCard";
@@ -51,11 +51,10 @@ export default async function CategoryPage({
     );
   }
 
-  const [products, creators] = await Promise.all([
-    productRepository.findByCategory(slug),
+  const [approved, creators] = await Promise.all([
+    listApprovedProductsByCategory(createPublicClient(), slug),
     userRepository.findCreators(),
   ]);
-  const approved = products.filter((p) => p.status === "approved");
   const nameById = new Map(creators.map((c) => [c.id, c.displayName]));
 
   return (

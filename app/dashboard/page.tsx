@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link, { useLinkStatus } from "next/link";
 import type { LucideIcon } from "lucide-react";
 import type { Product, User } from "@/lib/types";
-import { productRepository } from "@/lib/repositories/ProductRepository";
+import { listProductsForCreator } from "@/lib/supabase/products";
 import { useSaleRepository } from "@/lib/repositories/SaleRepository";
 import { createClient } from "@/lib/supabase/client";
 import { getCreatorBalance } from "@/lib/supabase/wallet";
@@ -70,8 +70,9 @@ export default function DashboardOverviewPage() {
     (async () => {
       const c = await getCurrentCreatorClient();
       setCreator(c);
-      setProducts(await productRepository.findByCreator(c.id));
-      const balance = await getCreatorBalance(createClient(), c.id);
+      const supabase = createClient();
+      setProducts(await listProductsForCreator(supabase, c.id));
+      const balance = await getCreatorBalance(supabase, c.id);
       setAvailable(balance.availableCents / 100);
     })();
   }, []);

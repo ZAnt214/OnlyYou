@@ -67,6 +67,15 @@ export interface Product {
   promoPrice?: number;
   coverImage: string;
   previewImages: string[];
+  /**
+   * Link real do arquivo entregue ao comprador — só vem preenchido quando
+   * quem pediu o produto é o próprio criador (painel) ou alguém com
+   * `product_entitlements` ativo (biblioteca). Nas listagens públicas
+   * (busca, categoria, perfil, detalhe do produto) vem sempre "": a
+   * consulta nem seleciona essa coluna, então o link nunca trafega para
+   * quem não pagou.
+   */
+  fileUrl: string;
   status: ProductStatus;
   rating: number;
   ratingCount: number;

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { userRepository } from "@/lib/repositories/UserRepository";
-import { productRepository } from "@/lib/repositories/ProductRepository";
+import { listProductsForCreator } from "@/lib/supabase/products";
 import { CreatorProfileView } from "@/components/CreatorProfileView";
 import { BecomeCreatorPrompt } from "@/components/BecomeCreatorPrompt";
 import { getCurrentUserId, getProfileByUsername } from "@/lib/supabase/session";
@@ -55,7 +55,7 @@ export default async function CreatorProfilePage({
   // buscas não dependem uma da outra — em paralelo em vez de em fila.
   const supabase = await createServerClient();
   const [products, reviews, portfolio, resumeEntries] = await Promise.all([
-    productRepository.findByCreator(creator.id),
+    listProductsForCreator(supabase, creator.id),
     listCustomOrderReviewsForUser(supabase, creator.id),
     listPortfolioForCreator(supabase, creator.id),
     listResumeForCreator(supabase, creator.id),

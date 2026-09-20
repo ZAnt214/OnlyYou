@@ -1,5 +1,5 @@
 import { userRepository } from "@/lib/repositories/UserRepository";
-import { productRepository } from "@/lib/repositories/ProductRepository";
+import { createServiceClient } from "@/lib/supabase/service";
 import { StatCard } from "@/components/StatCard";
 import { Users, UserCheck, Package, ShoppingCart, DollarSign } from "lucide-react";
 import { adminStatsRepository } from "@/lib/repositories/AdminStatsRepository";
@@ -11,10 +11,13 @@ function formatBRL(value: number): string {
 
 export default async function AdminOverviewPage() {
   await requireAdmin();
-  const [allUsers, creators, products, orderCount, totalRevenue] = await Promise.all([
+  const [allUsers, creators, productCount, orderCount, totalRevenue] = await Promise.all([
     userRepository.findAll(),
     userRepository.findCreators(),
-    productRepository.findAll(),
+    createServiceClient()
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .then(({ count }) => count ?? 0),
     adminStatsRepository.countOrders(),
     adminStatsRepository.totalGrossRevenue(),
   ]);
@@ -33,7 +36,7 @@ export default async function AdminOverviewPage() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard label="Usuários" value={String(allUsers.length)} icon={Users} />
         <StatCard label="Criadores" value={String(creators.length)} icon={UserCheck} />
-        <StatCard label="Produtos" value={String(products.length)} icon={Package} />
+        <StatCard label="Produtos" value={String(productCount)} icon={Package} />
         <StatCard label="Pedidos" value={String(orderCount)} icon={ShoppingCart} />
         <StatCard label="Receita (bruta)" value={formatBRL(totalRevenue)} icon={DollarSign} />
       </div>

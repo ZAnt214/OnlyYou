@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import type { Product, User } from "@/lib/types";
 import { userRepository } from "@/lib/repositories/UserRepository";
-import { productRepository } from "@/lib/repositories/ProductRepository";
+import { listProductsForCreator } from "@/lib/supabase/products";
 import { useSaleRepository } from "@/lib/repositories/SaleRepository";
 import { useOrderRepository } from "@/lib/repositories/OrderRepository";
+import { createClient } from "@/lib/supabase/client";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatusBadge } from "@/components/StatusBadge";
 import { DashboardLoading } from "@/components/DashboardLoading";
@@ -25,7 +26,7 @@ export default function DashboardVendasPage() {
     (async () => {
       const c = await getCurrentCreatorClient();
       setCreator(c);
-      setProducts(await productRepository.findByCreator(c.id));
+      setProducts(await listProductsForCreator(createClient(), c.id));
       setBuyers(await userRepository.findAll());
     })();
   }, []);

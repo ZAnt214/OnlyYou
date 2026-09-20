@@ -50,7 +50,7 @@ function sanitizeFileName(name: string): string {
   return (safe || "arquivo").slice(-120);
 }
 
-export type UploadKind = "delivery" | "portfolio-image";
+export type UploadKind = "delivery" | "portfolio-image" | "product-image" | "product-file";
 
 /**
  * Upload real de arquivo (Vercel Blob) direto do navegador — a rota
@@ -59,7 +59,8 @@ export type UploadKind = "delivery" | "portfolio-image";
  * definitiva do arquivo.
  */
 export async function uploadFile(file: File, kind: UploadKind): Promise<string> {
-  const toUpload = kind === "portfolio-image" ? await compressImageIfPossible(file) : file;
+  const toUpload =
+    kind === "portfolio-image" || kind === "product-image" ? await compressImageIfPossible(file) : file;
   const blob = await upload(sanitizeFileName(toUpload.name), toUpload, {
     access: "public",
     handleUploadUrl: "/api/upload",

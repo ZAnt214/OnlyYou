@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { productRepository } from "@/lib/repositories/ProductRepository";
+import { createPublicClient } from "@/lib/supabase/public";
+import { getPublicProductById } from "@/lib/supabase/products";
 import { CheckoutFlow } from "@/components/CheckoutFlow";
 
 export default async function CheckoutPage({
@@ -8,8 +9,9 @@ export default async function CheckoutPage({
   params: Promise<{ productId: string }>;
 }) {
   const { productId } = await params;
-  const product = await productRepository.findById(productId);
-  if (!product) notFound();
+  const supabase = createPublicClient();
+  const product = await getPublicProductById(supabase, productId);
+  if (!product || product.status !== "approved") notFound();
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-6 px-4 py-8">

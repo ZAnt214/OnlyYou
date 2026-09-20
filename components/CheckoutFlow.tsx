@@ -3,22 +3,38 @@
 import { useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, CreditCard, QrCode } from "lucide-react";
-import type { Product, Order, Payment, PaymentMethod } from "@/lib/types";
-import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
-import { useCheckoutServices } from "@/lib/services/useCheckoutServices";
+import type { Product, Payment, PaymentMethod } from "@/lib/types";
+import { createClient } from "@/lib/supabase/client";
+import { createProductOrder } from "@/lib/supabase/products";
 import { PriceTag } from "@/components/PriceTag";
 import { MercadoPagoPixPanel } from "@/components/payments/MercadoPagoPixPanel";
-import { finalizeProductCheckout } from "@/lib/checkout/finalizeCheckout";
 
 type Step = "review" | "pending" | "done";
 
+interface CheckoutApiResult {
+  paymentId: string;
+  status: Payment["status"];
+  redirectUrl?: string;
+  qrCode?: string;
+  qrCodeBase64?: string;
+  expiresAt?: string;
+}
+
+/**
+ * Checkout de produto — real de ponta a ponta: cria o pedido (RPC
+ * create_product_order, preço travado ali), gera o Pix/redirecionamento
+ * via /api/mercadopago/checkout e só considera "pago" quando
+ * /api/mercadopago/status confirma (que é quem também concede o acesso
+ * real na biblioteca, ver activateProductOrderAfterPayment). Não há mais
+ * nenhum passo local (Order/Sale/Entitlement mock) — o servidor é a única
+ * fonte de verdade.
+ */
 export function CheckoutFlow({ product }: { product: Product }) {
-  const session = useMockSession();
-  const { orderService, paymentService, walletService, entitlementService } = useCheckoutServices();
+  const supabase = createClient();
 
   const [step, setStep] = useState<Step>("review");
   const [method, setMethod] = useState<PaymentMethod>("pix");
-  const [order, setOrder] = useState<Order | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
   const [payment, setPayment] = useState<Payment | null>(null);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,10 +45,30 @@ export function CheckoutFlow({ product }: { product: Product }) {
     setError(null);
     setCreating(true);
     try {
-      const newOrder = orderService.createOrderForProduct(session.currentUserId, product);
-      const newPayment = await paymentService.startProductCheckout(newOrder, method);
-      setOrder(newOrder);
-      setPayment(newPayment);
+      const order = await createProductOrder(supabase, product.id);
+
+      const res = await fetch("/api/mercadopago/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id, method, kind: "product", productId: product.id }),
+      });
+      const result = (await res.json().catch(() => ({}))) as CheckoutApiResult & { error?: string };
+      if (!res.ok) throw new Error(result.error ?? "Não foi possível iniciar o pagamento.");
+
+      setOrderId(order.id);
+      setPayment({
+        id: result.paymentId,
+        orderId: order.id,
+        status: result.status,
+        amount: order.unitPriceCents / 100,
+        currency: "BRL",
+        method,
+        createdAt: new Date().toISOString(),
+        checkoutRedirectUrl: result.redirectUrl,
+        checkoutQrCode: result.qrCode,
+        checkoutQrCodeBase64: result.qrCodeBase64,
+        checkoutExpiresAt: result.expiresAt,
+      });
       setStep("pending");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível iniciar o pagamento. Tente novamente.");
@@ -41,24 +77,24 @@ export function CheckoutFlow({ product }: { product: Product }) {
     }
   }
 
-  function handlePaid(confirmedPayment: Payment) {
-    if (!order) return;
-    finalizeProductCheckout({
-      order,
-      payment: confirmedPayment,
-      userId: session.currentUserId,
-      productId: product.id,
-      orderService,
-      walletService,
-      entitlementService,
-    });
+  async function syncStatus(id: string, mpPaymentIdHint?: string): Promise<Payment> {
+    const params = new URLSearchParams({ orderId: id });
+    if (mpPaymentIdHint) params.set("mpPaymentId", mpPaymentIdHint);
+    const res = await fetch(`/api/mercadopago/status?${params.toString()}`);
+    if (!res.ok) throw new Error("Não foi possível consultar o status do pagamento.");
+    const data: { status: Payment["status"] } = await res.json();
+    if (!payment) throw new Error("Pagamento não encontrado.");
+    return { ...payment, status: data.status };
+  }
+
+  function handlePaid() {
     setStep("done");
   }
 
   if (step === "done") {
     return (
       <div className="flex flex-col items-center gap-4 rounded-lg border border-(--color-border) bg-(--color-surface) p-8 text-center">
-        <CheckCircle2 size={32} className="text-(--color-success)" strokeWidth={1.5} />
+        <CheckCircle2 size={32} className="text-(--color-accent)" strokeWidth={1.5} />
         <h2 className="text-lg font-semibold text-(--color-text)">Pagamento confirmado</h2>
         <p className="text-sm text-(--color-text-muted)">
           Seu conteúdo já está disponível na sua biblioteca.
@@ -73,17 +109,14 @@ export function CheckoutFlow({ product }: { product: Product }) {
     );
   }
 
-  if (step === "pending") {
+  if (step === "pending" && orderId && payment) {
     return (
       <div className="flex flex-col gap-4 rounded-lg border border-(--color-border) bg-(--color-surface) p-6">
         <h2 className="text-base font-semibold text-(--color-text)">Aguardando pagamento</h2>
         <p className="text-sm text-(--color-text-muted)">
-          Pedido {order?.id} criado. Pagamento com status{" "}
-          <span className="font-medium text-(--color-warning)">pendente</span>.
+          Pagamento com status <span className="font-medium text-(--color-warning)">pendente</span>.
         </p>
-        {payment ? (
-          <MercadoPagoPixPanel payment={payment} paymentService={paymentService} onPaid={handlePaid} />
-        ) : null}
+        <MercadoPagoPixPanel payment={payment} paymentService={{ syncStatus }} onPaid={handlePaid} />
       </div>
     );
   }

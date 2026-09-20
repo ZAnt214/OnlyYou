@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { Gig, Product, User } from "@/lib/types";
-import { productRepository } from "@/lib/repositories/ProductRepository";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { createPublicClient } from "@/lib/supabase/public";
 import { listActiveGigs } from "@/lib/supabase/gigs";
+import { listApprovedProducts } from "@/lib/supabase/products";
 import { listUsersByIds } from "@/lib/supabase/profile";
 import { ProductCard } from "@/components/ProductCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
@@ -21,16 +21,14 @@ export const revalidate = 60;
 
 export default async function HomePage() {
   const supabase = createPublicClient();
-  const [products, creators, gigs] = await Promise.all([
-    productRepository.findAll(),
+  const [approved, creators, gigs] = await Promise.all([
+    listApprovedProducts(supabase),
     userRepository.findCreators(),
     // Um problema pontual no Supabase nunca pode derrubar a home inteira
     // (nem travar o build/ISR) por causa de uma seção que é só um extra —
     // degrada pra "sem gigs no momento" em vez de propagar o erro.
     listActiveGigs(supabase, { limit: 12 }).catch(() => [] as Gig[]),
   ]);
-
-  const approved = products.filter((p) => p.status === "approved");
   const creatorById = new Map(creators.map((c) => [c.id, c]));
 
   // Gigs são de contas reais (Supabase) — seus criadores não estão na
