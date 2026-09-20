@@ -667,19 +667,22 @@ export function ConversationView({
         </div>
       </div>
 
-      {/* Header e o campo de digitar (mais abaixo) ficam fixos — só esta
-          região central rola, com a conversa ocupando a tela inteira como
-          uma página própria (ver app/pedidos/[id] e
-          app/dashboard/pedidos-personalizados/[id], que envolvem este
-          componente num container fixed inset-0). */}
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
-      <div className="rounded-md border border-(--color-border) bg-(--color-surface) p-3 text-xs text-(--color-text-muted)">
+      {/* Header e o campo de digitar (mais abaixo) ficam fixos, com a
+          conversa ocupando a tela inteira como uma página própria (ver
+          app/pedidos/[id] e app/dashboard/pedidos-personalizados/[id], que
+          envolvem este componente num container fixed inset-0). Quem rola
+          é só a caixa de mensagens logo abaixo (min-h-0 + overflow-y-auto
+          nela, não aqui) — sem isso a caixa não tinha altura própria e só
+          crescia sem parar conforme chegavam mensagens, empurrando aviso,
+          proposta e o campo de digitar pra baixo da tela. */}
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex-shrink-0 rounded-md border border-(--color-border) bg-(--color-surface) p-3 text-xs text-(--color-text-muted)">
         Mantenha toda a conversa, os combinados e o pagamento dentro do Jobê. É isso que garante
         a proteção da plataforma em caso de problema com a entrega ou o pagamento.
       </div>
 
       {customServiceOrder && ["in_progress", "delivered"].includes(customServiceOrder.status) ? (
-        <div className="flex items-start gap-2 rounded-md border border-(--color-warning) bg-(--color-surface) p-3 text-sm">
+        <div className="flex flex-shrink-0 items-start gap-2 rounded-md border border-(--color-warning) bg-(--color-surface) p-3 text-sm">
           <Clock size={16} className="mt-0.5 flex-shrink-0 text-(--color-warning)" strokeWidth={1.5} />
           <div>
             <p className="text-(--color-text)">
@@ -694,13 +697,13 @@ export function ConversationView({
       ) : null}
 
       {customServiceOrder?.status === "disputed" ? (
-        <div className="flex items-center gap-2 rounded-md border border-(--color-danger) bg-(--color-surface) p-3 text-sm text-(--color-danger)">
+        <div className="flex flex-shrink-0 items-center gap-2 rounded-md border border-(--color-danger) bg-(--color-surface) p-3 text-sm text-(--color-danger)">
           <AlertTriangle size={16} strokeWidth={1.5} />
           Um problema foi relatado neste pedido. Nossa equipe de moderação vai analisar.
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-3 rounded-md border border-(--color-border) p-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-(--color-border) p-4">
         {messages.length === 0 ? (
           <p className="text-sm text-(--color-text-muted)">Nenhuma mensagem ainda.</p>
         ) : (
@@ -728,16 +731,18 @@ export function ConversationView({
         <div ref={messagesEndRef} />
       </div>
 
-      {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
+      {error ? <p className="flex-shrink-0 text-sm text-(--color-danger)">{error}</p> : null}
 
       {customServiceOrder?.status === "awaiting_payment" && isRequester ? (
         showPaymentForm ? (
-          <PixCheckoutPanel
-            orderId={customServiceOrder.orderId}
-            onPaid={() => void load()}
-          />
+          <div className="flex-shrink-0">
+            <PixCheckoutPanel
+              orderId={customServiceOrder.orderId}
+              onPaid={() => void load()}
+            />
+          </div>
         ) : (
-          <div className="flex flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-sm shadow-sm">
+          <div className="flex flex-shrink-0 flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-sm shadow-sm">
             <p className="text-(--color-text-muted)">
               Pagamento pendente. Conclua para o criador iniciar o serviço.
             </p>
@@ -759,7 +764,7 @@ export function ConversationView({
       ) : null}
 
       {customServiceOrder?.status === "delivered" && isRequester ? (
-        <div className="flex flex-col gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-4 text-sm">
+        <div className="flex flex-shrink-0 flex-col gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-4 text-sm">
           <p className="font-medium text-(--color-text)">Conteúdo entregue</p>
           <div className="flex flex-wrap gap-2">
             <button
@@ -809,7 +814,7 @@ export function ConversationView({
       ) : null}
 
       {customServiceOrder?.status === "in_progress" && isCreator ? (
-        <div className="flex flex-col gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-4 text-sm">
+        <div className="flex flex-shrink-0 flex-col gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-4 text-sm">
           {showDeliveryForm ? (
             <form onSubmit={handleSendDelivery} className="flex flex-col gap-2">
               <label htmlFor="delivery-file" className="text-sm font-medium text-(--color-text)">
@@ -849,7 +854,7 @@ export function ConversationView({
       ) : null}
 
       {canCreateProposal ? (
-        <div className="flex flex-col gap-2 rounded-md border border-(--color-border) p-4">
+        <div className="flex flex-shrink-0 flex-col gap-2 rounded-md border border-(--color-border) p-4">
           {showProposalForm ? (
             <form onSubmit={handleCreateProposal} className="flex flex-col gap-3">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -932,7 +937,7 @@ export function ConversationView({
         <button
           type="button"
           onClick={() => setShowReviewModal(true)}
-          className="flex w-fit items-center gap-1.5 self-center rounded-full border border-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-accent) hover:bg-(--color-accent-soft)"
+          className="flex w-fit flex-shrink-0 items-center gap-1.5 self-center rounded-full border border-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-accent) hover:bg-(--color-accent-soft)"
         >
           <Star size={14} strokeWidth={1.5} />
           Avaliar pedido
