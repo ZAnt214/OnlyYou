@@ -29,25 +29,6 @@
   --color-verified: #3b82f6;
   --radius-card: 1.25rem;
   --radius-pill: 999px;
-
-  /*
-   * Tons decorativos só pra grades de categoria (Explorar) — dão variedade
-   * visual a uma vitrine com muitos itens sem virar cor de marca/CTA/status.
-   * Nunca usar em botão, badge de status ou qualquer estado "ativo": esses
-   * continuam exclusivamente --color-accent, por regra do design system.
-   */
-  --color-tag-rose: #fde2e4;
-  --color-tag-rose-fg: #c2185b;
-  --color-tag-amber: #fef3c7;
-  --color-tag-amber-fg: #b45309;
-  --color-tag-sky: #dbeafe;
-  --color-tag-sky-fg: #1d64d8;
-  --color-tag-violet: #ede9fe;
-  --color-tag-violet-fg: #6d28d9;
-  --color-tag-teal: #ccfbf1;
-  --color-tag-teal-fg: #0f766e;
-  --color-tag-pink: #fce7f3;
-  --color-tag-pink-fg: #a21caf;
 }
 
 /*
@@ -71,19 +52,6 @@
   --color-warning: #c9a33b;
   --color-danger: #c9484e;
   --color-verified: #5b9bf7;
-
-  --color-tag-rose: #3a1e22;
-  --color-tag-rose-fg: #f472b6;
-  --color-tag-amber: #3a2a12;
-  --color-tag-amber-fg: #fbbf24;
-  --color-tag-sky: #1e2a44;
-  --color-tag-sky-fg: #60a5fa;
-  --color-tag-violet: #2a2140;
-  --color-tag-violet-fg: #a78bfa;
-  --color-tag-teal: #123330;
-  --color-tag-teal-fg: #2dd4bf;
-  --color-tag-pink: #3a1a34;
-  --color-tag-pink-fg: #e879f9;
 }
 
 @theme inline {
@@ -101,18 +69,6 @@
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);
   --color-verified: var(--color-verified);
-  --color-tag-rose: var(--color-tag-rose);
-  --color-tag-rose-fg: var(--color-tag-rose-fg);
-  --color-tag-amber: var(--color-tag-amber);
-  --color-tag-amber-fg: var(--color-tag-amber-fg);
-  --color-tag-sky: var(--color-tag-sky);
-  --color-tag-sky-fg: var(--color-tag-sky-fg);
-  --color-tag-violet: var(--color-tag-violet);
-  --color-tag-violet-fg: var(--color-tag-violet-fg);
-  --color-tag-teal: var(--color-tag-teal);
-  --color-tag-teal-fg: var(--color-tag-teal-fg);
-  --color-tag-pink: var(--color-tag-pink);
-  --color-tag-pink-fg: var(--color-tag-pink-fg);
   --radius-card: var(--radius-card);
   --radius-pill: var(--radius-pill);
   --font-sans: var(--font-inter);
