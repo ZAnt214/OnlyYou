@@ -3,6 +3,36 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Teste de paleta: Midnight Blue + Neon Purple + Ice White
+
+### Objetivo
+
+- Mais um print de paleta pra testar (segundo teste seguido, mesmo processo de "ignorar
+  CLAUDE.md por enquanto" da entrada anterior): Midnight Blue `#1E1E2F`, Neon Purple `#8A2BE2`,
+  Ice White `#F4F6FC`. Substitui a paleta Dark Purple/Wisteria/Sunglow do teste anterior.
+
+### Mapeamento pros tokens
+
+- **Midnight Blue** → `--color-bg`/`--color-surface` (fundo geral e cards, com o card um tom
+  mais claro que o fundo pra dar separação) — continua dark-first, como o teste anterior.
+- **Neon Purple** → `--color-accent`/`--color-accent-hover` — CTAs, preços, estado ativo, no
+  lugar do dourado.
+- **Ice White** → `--color-text` (texto principal), usado no hex exato dado.
+- `--color-text-muted`/`--color-text-subtle`, `--color-surface-2`/`--color-border` e
+  `--color-accent-soft` foram derivados pra manter a mesma disciplina de contraste das entradas
+  anteriores (texto claro sobre fundo escuro, nunca claro sobre claro).
+- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` não mudaram.
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados (o escuro é uma versão ainda mais profunda
+  do mesmo esquema, mesma lógica das duas entradas anteriores).
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário.
+
 ## 2026-09-20 — Teste de paleta: Dark Purple + Wisteria + Sunglow
 
 ### Objetivo
