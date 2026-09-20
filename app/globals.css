@@ -1,6 +1,19 @@
 @import "tailwindcss";
 
 :root {
+  /*
+   * Sem isso, navegadores como o Chrome no Android tentam "adivinhar" se a
+   * página suporta tema escuro (o recurso de tema escuro forçado para
+   * sites) e reescrevem as cores sozinhos quando não encontram um esquema
+   * declarado — de forma inconsistente entre páginas do mesmo site (foi o
+   * caso da tela de conversa aparecendo escura enquanto o resto do app
+   * continuava claro). Isso nunca vem do nosso CSS: o tema escuro do Jobê
+   * só existe via `data-theme="dark"` manual (ver abaixo), nada no código
+   * seta isso ainda. Declarar `color-scheme: light` avisa o navegador que
+   * o app já cuida do próprio esquema de cor, então ele para de tentar
+   * inverter páginas por conta própria.
+   */
+  color-scheme: light;
   --color-bg: #f5f6f8;
   --color-surface: #ffffff;
   --color-surface-2: #eceef2;
@@ -25,6 +38,7 @@
  * no <html>, setado por um toggle manual (ainda não implementado na UI).
  */
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --color-bg: #101216;
   --color-surface: #181b21;
   --color-surface-2: #21252d;

@@ -79,7 +79,7 @@ export function GigFeedCard({ gig, creator }: { gig: Gig; creator?: User }) {
             {gig.deliveryDays} {gig.deliveryDays === 1 ? "dia" : "dias"}
           </span>
         ) : null}
-        <RequestGigButton gig={gig} className="ml-auto flex items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover)" />
+        <RequestGigButton gig={gig} className="flex items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover)" />
       </div>
     </article>
   );
