@@ -3,6 +3,25 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Alinhamento dos controles do cabeçalho
+
+### Objetivo
+
+- Corrigir o desalinhamento visual entre o sino de notificações e o avatar no mobile.
+
+### Mudanças
+
+- `components/NotificationBell.tsx`
+  - Área do sino igualada ao avatar em 36 px, com ícone centralizado e formato circular.
+  - Contador de notificações reposicionado dentro da mesma caixa de alinhamento.
+- `components/Header.tsx`
+  - Contêiner mobile do sino passou a compartilhar a mesma altura e eixo vertical do avatar.
+
+### Validação
+
+- ESLint, TypeScript e build de produção.
+- Checagem de cores fixas nos arquivos alterados.
+
 ## 2026-09-20 — Cabeçalho e navegação mobile mais leves
 
 ### Objetivo

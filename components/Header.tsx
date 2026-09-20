@@ -145,7 +145,7 @@ export function Header() {
             ) : null}
           </div>
 
-          <div className="md:hidden">
+          <div className="flex h-9 items-center md:hidden">
             <NotificationBell />
           </div>
 
