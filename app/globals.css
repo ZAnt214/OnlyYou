@@ -13,16 +13,16 @@
    * `data-theme="dark"` manual (ver abaixo), nada no código seta isso.
    */
   color-scheme: only light;
-  --color-bg: #f5f6f8;
+  --color-bg: #eaf8fc;
   --color-surface: #ffffff;
-  --color-surface-2: #eceef2;
-  --color-border: #e4e7ec;
+  --color-surface-2: #c8f3ff;
+  --color-border: #a9e2ef;
   --color-text: #16181d;
   --color-text-muted: #5f6570;
   --color-text-subtle: #8b919c;
   --color-accent: #ff5c23;
   --color-accent-hover: #e04a15;
-  --color-accent-soft: #c8f3ff;
+  --color-accent-soft: #ffe1d2;
   --color-success: #1f9d55;
   --color-warning: #b58a1a;
   --color-danger: #c0392b;
@@ -38,16 +38,16 @@
  */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-bg: #101216;
-  --color-surface: #181b21;
-  --color-surface-2: #21252d;
-  --color-border: #2e333d;
+  --color-bg: #0d1b20;
+  --color-surface: #15262c;
+  --color-surface-2: #1d3540;
+  --color-border: #2a4750;
   --color-text: #eceef2;
   --color-text-muted: #a2a9b6;
   --color-text-subtle: #737a87;
   --color-accent: #ff5c23;
   --color-accent-hover: #ff7d4f;
-  --color-accent-soft: #123540;
+  --color-accent-soft: #40200f;
   --color-success: #4c9a5b;
   --color-warning: #c9a33b;
   --color-danger: #c9484e;

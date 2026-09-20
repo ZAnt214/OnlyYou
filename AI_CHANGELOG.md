@@ -3,6 +3,52 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Redesenho da paleta: Ice Cream Blue ganha presença real
+
+### Objetivo
+
+- Usuário pediu explicitamente pra eu redesenhar a paleta com liberdade total ("pode colocar do
+  jeito que achar melhor, pode ignorar o CLAUDE.md nesse momento") — resposta direta ao ponto de
+  atenção que eu tinha levantado na entrada anterior: laranja sobre o azul gelo, usado só como
+  `--color-accent-soft`, tinha contraste baixo demais pra texto de badge, e o azul mal aparecia
+  no resto do site.
+
+### Decisão de design
+
+- **Atomic Orange continua a cor de marca** (`--color-accent`) — CTAs, preços, estado ativo,
+  como já estava.
+- **Ice Cream Blue passa a ter presença de verdade no site**, em vez de ficar restrito a um
+  token pequeno: vira a base do fundo geral (`--color-bg`, num tom bem claro) e das superfícies
+  secundárias/hover (`--color-surface-2`) nos dois temas. Cards continuam brancos
+  (`--color-surface`) — o contraste entre card branco e fundo azulado é o que dá a sensação de
+  "sorvete" (creme + laranja) em vez de cinza-névoa neutro.
+- **`--color-accent-soft` volta a ser um tom claro do próprio laranja** (não mais o azul) — troca
+  que resolve o problema de contraste: texto laranja em cima de pêssego claro tem a mesma
+  qualidade de legibilidade que o esquema original, só que com o novo tom de laranja.
+- `--color-verified` (selo azul de verificado) e as cores semânticas (success/warning/danger)
+  não mudaram.
+
+### Mudanças
+
+- `app/globals.css`
+  - Tema claro: `--color-bg: #eaf8fc` (era `#f5f6f8`, cinza neutro); `--color-surface-2: #c8f3ff`
+    (era `#eceef2`, cinza neutro — agora é o Ice Cream Blue puro); `--color-border: #a9e2ef`
+    (era `#e4e7ec`, ajustado pra combinar com o novo fundo/superfície); `--color-accent-soft:
+    #ffe1d2` (pêssego claro derivado do novo laranja, era o azul gelo na entrada anterior).
+  - Tema escuro: `--color-bg: #0d1b20`, `--color-surface: #15262c`, `--color-surface-2: #1d3540`
+    (análogos escuros da mesma família azul-petróleo, substituindo os cinzas neutros anteriores);
+    `--color-border: #2a4750`; `--color-accent-soft: #40200f` (marrom-pêssego escuro, mesma
+    lógica do claro).
+  - `--color-accent`/`--color-accent-hover` (o laranja em si) não mudaram nesta entrada — só a
+    entrada anterior já tinha trocado para `#ff5c23`.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário — como isso muda o fundo geral de toda
+  página (não só um token isolado), vale conferir várias telas (feed, dashboard, conversa) antes
+  de considerar fechado.
+
 ## 2026-09-20 — Nova paleta: Atomic Orange + Ice Cream Blue
 
 ### Objetivo
