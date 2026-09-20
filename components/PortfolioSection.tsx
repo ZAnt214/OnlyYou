@@ -306,7 +306,7 @@ export function PortfolioSection({
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3 overflow-y-auto p-5">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 overflow-y-auto p-5">
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
                 Título
                 <input
@@ -317,8 +317,13 @@ export function PortfolioSection({
                   className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                 />
               </label>
+
+              <FormSectionLabel>O que aparece na lista do portfólio</FormSectionLabel>
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-                Resumo (aparece no card)
+                Resumo curto
+                <span className="text-xs font-normal text-(--color-text-subtle)">
+                  Fica visível direto no card, embaixo da capa — sem precisar clicar.
+                </span>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
@@ -327,8 +332,14 @@ export function PortfolioSection({
                   className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                 />
               </label>
+
+              <FormSectionLabel>O que aparece só ao abrir o trabalho</FormSectionLabel>
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-                Trabalho completo (aparece ao abrir o card)
+                Trabalho completo
+                <span className="text-xs font-normal text-(--color-text-subtle)">
+                  Texto mais longo — contexto, processo, resultado. Só aparece quando alguém
+                  clica no card pra ver os detalhes.
+                </span>
                 <textarea
                   value={form.content}
                   onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
@@ -337,14 +348,19 @@ export function PortfolioSection({
                   className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                 />
               </label>
+
+              <FormSectionLabel>Imagens</FormSectionLabel>
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-                Imagem de capa (opcional)
+                Imagem de capa
+                <span className="text-xs font-normal text-(--color-text-subtle)">
+                  A foto principal — é a que aparece no card da lista.
+                </span>
                 <div className="flex items-center gap-2">
                   <input
                     value={form.imageUrl}
                     onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
                     type="url"
-                    placeholder="https://… ou envie um arquivo"
+                    placeholder="Cole um link https://… (opcional)"
                     className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                   />
                   <label className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface-2)">
@@ -365,9 +381,17 @@ export function PortfolioSection({
                     />
                   </label>
                 </div>
+                <span className="text-xs font-normal text-(--color-text-subtle)">
+                  Ou clique no ícone de upload pra enviar um arquivo do computador — o link
+                  acima é preenchido automaticamente.
+                </span>
               </label>
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-                Mais imagens do trabalho (uma por linha, opcional)
+                Mais imagens
+                <span className="text-xs font-normal text-(--color-text-subtle)">
+                  Fotos extras da galeria — aparecem só na tela de detalhes, não no card. Uma
+                  por linha se for colar links.
+                </span>
                 <textarea
                   value={form.galleryText}
                   onChange={(e) => setForm((f) => ({ ...f, galleryText: e.target.value }))}
@@ -375,13 +399,13 @@ export function PortfolioSection({
                   placeholder={"https://…\nhttps://…"}
                   className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                 />
-                <label className="flex w-fit cursor-pointer items-center gap-1.5 text-xs font-medium text-(--color-accent) hover:underline">
+                <label className="flex w-fit cursor-pointer items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-1.5 text-xs font-medium text-(--color-text) hover:bg-(--color-surface-2)">
                   {uploadingGallery ? (
                     <Loader2 size={12} className="animate-spin" strokeWidth={1.5} />
                   ) : (
                     <Upload size={12} strokeWidth={1.5} />
                   )}
-                  Enviar arquivos
+                  Ou envie arquivos do computador
                   <input
                     type="file"
                     accept="image/*"
@@ -394,13 +418,20 @@ export function PortfolioSection({
                   />
                 </label>
               </label>
+
+              <FormSectionLabel>Link externo</FormSectionLabel>
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-                Link para ver o trabalho (opcional)
+                Link para ver o trabalho
+                <span className="text-xs font-normal text-(--color-text-subtle)">
+                  Se o trabalho está publicado em outro lugar (Behance, Instagram, site
+                  próprio), cole o link aqui — vira um botão &quot;Ver trabalho&quot; na tela de
+                  detalhes.
+                </span>
                 <input
                   value={form.externalUrl}
                   onChange={(e) => setForm((f) => ({ ...f, externalUrl: e.target.value }))}
                   type="url"
-                  placeholder="https://…"
+                  placeholder="https://… (opcional)"
                   className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                 />
               </label>
@@ -420,5 +451,14 @@ export function PortfolioSection({
         </div>
       ) : null}
     </div>
+  );
+}
+
+/** Divide o formulário em blocos (o que aparece na lista vs. só no detalhe, imagens, link) — pra não virar uma lista única de campos sem hierarquia. */
+function FormSectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="-mb-1 border-t border-(--color-border) pt-3 text-xs font-semibold uppercase tracking-wide text-(--color-text-subtle)">
+      {children}
+    </p>
   );
 }
