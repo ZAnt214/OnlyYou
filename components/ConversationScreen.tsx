@@ -43,6 +43,31 @@ function useVisualViewport(): { height: number | null; offsetTop: number } {
 }
 
 /**
+ * Trava o scroll do documento (html/body) enquanto esta tela está montada.
+ * Ajustar altura/posição via visualViewport (acima) não bastou sozinho —
+ * o Android ainda tentava rolar a PÁGINA pra trazer o campo focado pra
+ * vista, e esse scroll competia com o reposicionamento do painel `fixed`,
+ * causando a sobreposição. Sem nenhum ancestral rolável fora da própria
+ * caixa de mensagens (que já tem overflow-y-auto própria), o navegador não
+ * tem mais o que rolar — só a caixa de mensagens reage ao foco, como em
+ * qualquer chat de verdade.
+ */
+function useLockBodyScroll() {
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const previousHtmlOverflow = html.style.overflow;
+    const previousBodyOverflow = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = previousHtmlOverflow;
+      body.style.overflow = previousBodyOverflow;
+    };
+  }, []);
+}
+
+/**
  * Tela cheia da conversa (cobre header/nav do site, que continuam montados
  * por trás) — usada tanto por app/pedidos/[id] quanto por
  * app/dashboard/pedidos-personalizados/[id]. Compartilhado pra manter a
@@ -60,6 +85,7 @@ export function ConversationScreen({
   backHref: string;
 }) {
   const { height: viewportHeight, offsetTop } = useVisualViewport();
+  useLockBodyScroll();
 
   return (
     <div
