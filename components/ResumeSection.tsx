@@ -243,7 +243,7 @@ export function ResumeSection({
 
   return (
     <div className="flex flex-col gap-6">
-      <h2 className="text-base font-semibold text-(--color-text)">Currículo</h2>
+      <h2 className="text-base font-semibold text-(--color-text)">Career Profile</h2>
 
       {renderList("education", education)}
       {renderList("certification", certifications)}
