@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CreatorProfile, Role, User, VerificationStatus } from "@/lib/types";
 
 /**
@@ -69,4 +70,18 @@ export function mapProfileRowToUser(row: ProfileRow): User {
     createdAt: row.created_at,
     creatorProfile,
   };
+}
+
+/**
+ * Busca em lote os perfis de uma lista de ids reais — usada quando um
+ * criador real aparece num feed/lista construída em cima de dados que não
+ * têm o `User` embutido (ex.: gigs), diferente dos criadores mock, que já
+ * vêm prontos de `userRepository.findCreators()`. Leitura pública (RLS
+ * permite SELECT a qualquer um em `profiles`).
+ */
+export async function listUsersByIds(supabase: SupabaseClient, ids: string[]): Promise<User[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await supabase.from("profiles").select("*").in("id", ids);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => mapProfileRowToUser(row as ProfileRow));
 }

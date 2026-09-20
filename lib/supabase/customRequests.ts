@@ -467,11 +467,12 @@ export async function listDisputesForOrder(
 
 export async function createCustomRequest(
   supabase: SupabaseClient,
-  params: { creatorId: string; description: string },
+  params: { creatorId: string; description: string; sourceGigId?: string },
 ): Promise<CustomRequest> {
   const { data, error } = await supabase.rpc("create_custom_request", {
     p_creator_id: params.creatorId,
     p_description: params.description,
+    p_source_gig_id: params.sourceGigId ?? null,
   });
   const row = unwrap(data, error) as CustomRequestRow;
   const conversation = await getConversationRowByRequest(supabase, row.id);

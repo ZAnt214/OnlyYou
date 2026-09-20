@@ -18,6 +18,7 @@ import {
   Wallet,
   Receipt,
   MessageSquare,
+  Megaphone,
   Ticket,
   Users,
   BarChart3,
@@ -49,6 +50,7 @@ function HubCardIcon({ icon: Icon }: { icon: LucideIcon }) {
  */
 const SECTIONS = [
   { href: "/dashboard/produtos", label: "Produtos", icon: Package },
+  { href: "/dashboard/servicos", label: "Serviços", icon: Megaphone },
   { href: "/dashboard/vendas", label: "Vendas", icon: Receipt },
   { href: "/dashboard/pedidos-personalizados", label: "Pedidos personalizados", icon: MessageSquare },
   { href: "/dashboard/carteira", label: "Carteira", icon: Wallet },

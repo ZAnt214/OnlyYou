@@ -1,7 +1,11 @@
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { categoryRepository } from "@/lib/repositories/CategoryRepository";
+import { createPublicClient } from "@/lib/supabase/public";
+import { searchActiveGigs } from "@/lib/supabase/gigs";
+import { listUsersByIds } from "@/lib/supabase/profile";
 import { ProductCard } from "@/components/ProductCard";
+import { GigCard } from "@/components/GigCard";
 import { CreatorCard } from "@/components/CreatorCard";
 import { EmptyState } from "@/components/EmptyState";
 import Link from "next/link";
@@ -19,11 +23,23 @@ export default async function DescobrirPage({
   searchParams: Promise<{ q?: string; categoria?: string; sort?: string; ofertas?: string }>;
 }) {
   const { q = "", categoria = "", sort = "", ofertas = "" } = await searchParams;
-  const [allProducts, creators, categories] = await Promise.all([
+  const supabase = createPublicClient();
+  const [allProducts, creators, categories, gigs] = await Promise.all([
     productRepository.search(q),
     userRepository.findCreators(),
     categoryRepository.findAll(),
+    // Gigs não têm categoria/ofertas ainda — só entram numa busca de
+    // verdade, senão a página sem filtro nenhum listaria todo anúncio
+    // ativo da plataforma aqui em cima dos produtos. Um problema pontual
+    // no Supabase degrada pra "sem serviços encontrados", não quebra a
+    // busca inteira.
+    q.trim() ? searchActiveGigs(supabase, q).catch(() => []) : Promise.resolve([]),
   ]);
+  const gigCreatorNameById = new Map(
+    (await listUsersByIds(supabase, [...new Set(gigs.map((g) => g.creatorId))]).catch(() => [])).map(
+      (c) => [c.id, c.displayName],
+    ),
+  );
 
   let products = allProducts.filter(
     (p) =>
@@ -120,8 +136,19 @@ export default async function DescobrirPage({
         </div>
       ) : null}
 
+      {gigs.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-(--color-text-muted)">Serviços</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {gigs.map((g) => (
+              <GigCard key={g.id} gig={g} creatorName={gigCreatorNameById.get(g.creatorId)} />
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {products.length === 0 ? (
-        matchingCreators.length === 0 ? (
+        matchingCreators.length === 0 && gigs.length === 0 ? (
           <EmptyState
             icon={Search}
             title="Nada encontrado"

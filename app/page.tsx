@@ -1,22 +1,52 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import type { Gig, Product, User } from "@/lib/types";
 import { productRepository } from "@/lib/repositories/ProductRepository";
 import { userRepository } from "@/lib/repositories/UserRepository";
+import { createPublicClient } from "@/lib/supabase/public";
+import { listActiveGigs } from "@/lib/supabase/gigs";
+import { listUsersByIds } from "@/lib/supabase/profile";
 import { ProductCard } from "@/components/ProductCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
+import { GigFeedCard } from "@/components/GigFeedCard";
 import { TopCreatorCard } from "@/components/TopCreatorCard";
 import { BecomeCreatorBanner } from "@/components/BecomeCreatorBanner";
 
+// Revalida a cada minuto: gigs são conteúdo real publicado por criadores,
+// então a home não pode ficar 100% estática (precisa refletir anúncios
+// novos), mas também não precisa virar uma função serverless em toda
+// visita — ISR serve do cache na maior parte do tempo e regenera em
+// segundo plano.
+export const revalidate = 60;
+
 export default async function HomePage() {
-  const [products, creators] = await Promise.all([
+  const supabase = createPublicClient();
+  const [products, creators, gigs] = await Promise.all([
     productRepository.findAll(),
     userRepository.findCreators(),
+    // Um problema pontual no Supabase nunca pode derrubar a home inteira
+    // (nem travar o build/ISR) por causa de uma seção que é só um extra —
+    // degrada pra "sem gigs no momento" em vez de propagar o erro.
+    listActiveGigs(supabase, { limit: 12 }).catch(() => [] as Gig[]),
   ]);
 
   const approved = products.filter((p) => p.status === "approved");
   const creatorById = new Map(creators.map((c) => [c.id, c]));
 
-  const feed = [...approved].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  // Gigs são de contas reais (Supabase) — seus criadores não estão na
+  // lista mock de `userRepository.findCreators()`, então precisam ser
+  // buscados à parte pra o cabeçalho do card (nome, avatar, verificado).
+  const gigCreators = await listUsersByIds(
+    supabase,
+    [...new Set(gigs.map((g) => g.creatorId))],
+  ).catch(() => [] as User[]);
+  gigCreators.forEach((c) => creatorById.set(c.id, c));
+
+  type FeedItem = { kind: "product"; data: Product } | { kind: "gig"; data: Gig };
+  const feed: FeedItem[] = [
+    ...approved.map((data): FeedItem => ({ kind: "product", data })),
+    ...gigs.map((data): FeedItem => ({ kind: "gig", data })),
+  ].sort((a, b) => (a.data.createdAt < b.data.createdAt ? 1 : -1));
   const maisVendidos = [...approved].sort((a, b) => b.salesCount - a.salesCount).slice(0, 6);
   const ofertas = approved.filter((p) => p.promoPrice != null).slice(0, 6);
   const topCreators = [...creators]
@@ -35,8 +65,8 @@ export default async function HomePage() {
 
       <BecomeCreatorBanner href="/dashboard" />
 
-      {feed.slice(0, 2).map((p) => (
-        <FeedPostCard key={p.id} product={p} creator={creatorById.get(p.creatorId)} />
+      {feed.slice(0, 2).map((item) => (
+        <FeedItemCard key={item.data.id} item={item} creatorById={creatorById} />
       ))}
 
       <Section title="Top Creators" href="/criadores">
@@ -47,8 +77,8 @@ export default async function HomePage() {
         </Row>
       </Section>
 
-      {feed.slice(2, 6).map((p) => (
-        <FeedPostCard key={p.id} product={p} creator={creatorById.get(p.creatorId)} />
+      {feed.slice(2, 6).map((item) => (
+        <FeedItemCard key={item.data.id} item={item} creatorById={creatorById} />
       ))}
 
       <Section title="Mais vendidos" href="/descobrir?sort=vendidos">
@@ -77,11 +107,24 @@ export default async function HomePage() {
         </Section>
       ) : null}
 
-      {feed.slice(6).map((p) => (
-        <FeedPostCard key={p.id} product={p} creator={creatorById.get(p.creatorId)} />
+      {feed.slice(6).map((item) => (
+        <FeedItemCard key={item.data.id} item={item} creatorById={creatorById} />
       ))}
     </div>
   );
+}
+
+function FeedItemCard({
+  item,
+  creatorById,
+}: {
+  item: { kind: "product"; data: Product } | { kind: "gig"; data: Gig };
+  creatorById: Map<string, User>;
+}) {
+  if (item.kind === "gig") {
+    return <GigFeedCard gig={item.data} creator={creatorById.get(item.data.creatorId)} />;
+  }
+  return <FeedPostCard product={item.data} creator={creatorById.get(item.data.creatorId)} />;
 }
 
 function Section({

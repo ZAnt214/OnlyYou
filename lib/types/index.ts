@@ -13,6 +13,7 @@ export * from "./custom-service-order";
 export * from "./custom-order-review";
 export * from "./portfolio";
 export * from "./resume";
+export * from "./gig";
 export * from "./notification";
 export * from "./dispute";
 export * from "./misc";
