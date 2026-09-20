@@ -3,6 +3,54 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Teste de paleta: Dark Purple + Wisteria + Sunglow
+
+### Objetivo
+
+- Usuário mandou print de uma paleta de 3 cores (dominante/secundária/accent) pra testar no
+  site: Dark Purple `#210B2C` (dominante), Wisteria `#BC96E6` (secundária), Sunglow `#FFD166`
+  (accent). Substitui a paleta laranja+azul-gelo da entrada anterior — troca explícita, não uma
+  adição.
+
+### Mapeamento pros tokens
+
+- **Dark Purple** → `--color-bg`/`--color-surface` (fundo geral e cards, num tom levemente mais
+  claro que o fundo pra dar separação) — o site passa a abrir com fundo escuro por padrão em vez
+  de claro (decisão explícita do usuário pra este teste; `color-scheme: only light` permanece
+  como estava, não afeta a estética, só o hint de widgets nativos do navegador).
+- **Sunglow** → `--color-accent`/`--color-accent-hover` — CTAs, preços, estado ativo, no lugar
+  do laranja.
+- **Wisteria** → em vez de virar fundo de painel (`--color-surface-2`), virou a cor do **texto
+  secundário** (`--color-text-muted`). Motivo: como o fundo agora é bem escuro e o texto
+  primário é quase branco, usar Wisteria (claro) como fundo de painel deixaria qualquer texto
+  claro em cima dele ilegível (claro sobre claro). Como cor de texto direto sobre o fundo roxo
+  escuro, o contraste é ótimo e a cor aparece de verdade em nomes de usuário, legendas,
+  horários — muito mais visível do que confinada a um painel que quase não aparece na tela.
+  `--color-text-subtle` ganhou uma versão mais escura/dessaturada do mesmo Wisteria, mantendo a
+  hierarquia de texto.
+- `--color-surface-2`/`--color-border` ficaram numa família de roxo intermediária (nem tão
+  escura quanto o fundo, nem clara como o Wisteria) — mantém painéis/hover/divisores legíveis
+  com o texto claro que já existe em todo o app.
+- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` não mudaram.
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima (o escuro é uma versão
+  ainda mais profunda do mesmo esquema, já que a paleta em si já nasceu escura).
+
+### Ponto de atenção
+
+- `--color-warning` (dourado-acastanhado, `#b58a1a`) ficou visualmente próximo do novo
+  `--color-accent` (Sunglow, `#ffd166`) — os dois lêem como "dourado". Não mudei porque não fazia
+  parte da paleta pedida, mas se causar confusão entre "aviso" e "call-to-action" na prática, é
+  candidato a ajuste.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário — é uma mudança de identidade bem mais radical
+  que a anterior (site inteiro passa a ter fundo escuro).
+
 ## 2026-09-20 — Redesenho da paleta: Ice Cream Blue ganha presença real
 
 ### Objetivo
