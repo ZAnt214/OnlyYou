@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Library, MessageSquare, LayoutDashboard } from "lucide-react";
 import { useCreatorUsername } from "@/lib/supabase/useCreatorUsername";
+import { isConversationScreenPath } from "@/lib/isConversationScreenPath";
 
 export function MobileNav() {
   const pathname = usePathname();
@@ -21,6 +22,9 @@ export function MobileNav() {
       matchPrefixes: [`/criadores/${creatorUsername}`, "/dashboard"],
     },
   ];
+
+  // Tela de conversa é tela cheia de verdade — sem nav do site por trás.
+  if (isConversationScreenPath(pathname)) return null;
 
   return (
     <nav className="fixed inset-x-0 bottom-3 z-20 mx-auto flex w-fit gap-1 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) p-1.5 shadow-lg shadow-black/10 md:hidden">

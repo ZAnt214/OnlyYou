@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { isConversationScreenPath } from "@/lib/isConversationScreenPath";
 import {
   Search,
   LayoutDashboard,
@@ -44,6 +45,7 @@ export function Header() {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const supabase = createClient();
@@ -61,6 +63,9 @@ export function Header() {
     router.push("/");
     router.refresh();
   }
+
+  // Tela de conversa é tela cheia de verdade — sem header do site por trás.
+  if (isConversationScreenPath(pathname)) return null;
 
   return (
     <header className="sticky top-0 z-20 border-b border-(--color-border) bg-(--color-bg)">

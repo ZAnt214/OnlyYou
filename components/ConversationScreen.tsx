@@ -4,72 +4,42 @@ import { useEffect, useState } from "react";
 import { ConversationView } from "@/components/ConversationView";
 
 /**
- * Altura E posição reais da área visível (descontando o teclado, quando
- * aberto), lidas direto de `window.visualViewport`. Só ajustar a altura
- * (primeira tentativa) não resolveu: no Android, quando o teclado abre e um
- * campo dentro de um elemento `fixed` ganha foco, o navegador rola a
- * PÁGINA pra tentar trazer o campo pra vista — isso desloca o *visual*
- * viewport (o que a pessoa realmente vê) pra baixo, mas um elemento
- * `position: fixed` continua ancorado ao *layout* viewport (que não se
- * move). Resultado: a tela "escorregava" pra cima em relação ao que estava
- * visível, sobrepondo cabeçalho e mensagens. `visualViewport.offsetTop` é
- * exatamente esse deslocamento — aplicado em `top`, o container passa a
- * seguir o viewport visual de verdade, não só o de layout.
+ * Altura real visível (descontando o teclado, quando aberto), lida direto
+ * de `window.visualViewport`. Antes esta tela usava `position: fixed`
+ * pra cobrir o header/nav do site por trás — só que um elemento `fixed`
+ * fica ancorado ao viewport de *layout*, não ao *visual* (o que a pessoa
+ * realmente vê), e o Android desloca um em relação ao outro ao focar um
+ * campo dentro de um `fixed` pra tentar trazê-lo pra vista. Isso causava
+ * sobreposição de conteúdo mesmo já compensando altura e `offsetTop`.
+ * A correção de raiz foi header/footer/nav sumirem sozinhos nesta rota
+ * (ver Header/Footer/MobileNav + isConversationScreenPath) — sem nada
+ * pra "cobrir", este container volta a ser um bloco normal do documento,
+ * e o problema de `fixed` deixa de existir por completo.
  */
-function useVisualViewport(): { height: number | null; offsetTop: number } {
+function useVisualViewportHeight(): number | null {
   const [height, setHeight] = useState<number | null>(null);
-  const [offsetTop, setOffsetTop] = useState(0);
 
   useEffect(() => {
     const vv = window.visualViewport;
 
     function update() {
       setHeight(vv ? vv.height : window.innerHeight);
-      setOffsetTop(vv ? vv.offsetTop : 0);
     }
 
     update();
     vv?.addEventListener("resize", update);
-    vv?.addEventListener("scroll", update);
     window.addEventListener("resize", update);
     return () => {
       vv?.removeEventListener("resize", update);
-      vv?.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
   }, []);
 
-  return { height, offsetTop };
+  return height;
 }
 
 /**
- * Trava o scroll do documento (html/body) enquanto esta tela está montada.
- * Ajustar altura/posição via visualViewport (acima) não bastou sozinho —
- * o Android ainda tentava rolar a PÁGINA pra trazer o campo focado pra
- * vista, e esse scroll competia com o reposicionamento do painel `fixed`,
- * causando a sobreposição. Sem nenhum ancestral rolável fora da própria
- * caixa de mensagens (que já tem overflow-y-auto própria), o navegador não
- * tem mais o que rolar — só a caixa de mensagens reage ao foco, como em
- * qualquer chat de verdade.
- */
-function useLockBodyScroll() {
-  useEffect(() => {
-    const html = document.documentElement;
-    const body = document.body;
-    const previousHtmlOverflow = html.style.overflow;
-    const previousBodyOverflow = body.style.overflow;
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-    return () => {
-      html.style.overflow = previousHtmlOverflow;
-      body.style.overflow = previousBodyOverflow;
-    };
-  }, []);
-}
-
-/**
- * Tela cheia da conversa (cobre header/nav do site, que continuam montados
- * por trás) — usada tanto por app/pedidos/[id] quanto por
+ * Tela cheia da conversa — usada tanto por app/pedidos/[id] quanto por
  * app/dashboard/pedidos-personalizados/[id]. Compartilhado pra manter a
  * mesma lógica de altura nos dois lugares em vez de duplicar.
  */
@@ -84,25 +54,19 @@ export function ConversationScreen({
   authLoading?: boolean;
   backHref: string;
 }) {
-  const { height: viewportHeight, offsetTop } = useVisualViewport();
-  useLockBodyScroll();
+  const viewportHeight = useVisualViewportHeight();
 
   return (
     <div
-      className="fixed inset-x-0 z-30 flex justify-center bg-(--color-bg)"
-      style={{
-        top: `${offsetTop}px`,
-        height: viewportHeight ? `${viewportHeight}px` : "100dvh",
-      }}
+      className="mx-auto flex w-full max-w-2xl flex-col px-4 py-4"
+      style={{ height: viewportHeight ? `${viewportHeight}px` : "100dvh" }}
     >
-      <div className="flex h-full w-full max-w-2xl flex-col px-4 py-4">
-        <ConversationView
-          customRequestId={customRequestId}
-          actingUserId={actingUserId}
-          authLoading={authLoading}
-          backHref={backHref}
-        />
-      </div>
+      <ConversationView
+        customRequestId={customRequestId}
+        actingUserId={actingUserId}
+        authLoading={authLoading}
+        backHref={backHref}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { MockSessionProvider } from "@/lib/mock-session/MockSessionProvider";
 import { Header } from "@/components/Header";
 import { MobileNav } from "@/components/MobileNav";
 import { Footer } from "@/components/Footer";
+import { PageMain } from "@/components/PageMain";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -48,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col bg-(--color-bg) text-(--color-text)">
         <MockSessionProvider>
           <Header />
-          <main className="flex-1 pb-16 md:pb-0">{children}</main>
+          <PageMain>{children}</PageMain>
           <Footer />
           <MobileNav />
         </MockSessionProvider>
