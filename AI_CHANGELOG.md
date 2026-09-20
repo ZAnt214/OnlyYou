@@ -3,6 +3,46 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Categorias Elojob e Jogue comigo
+
+### Objetivo
+
+- Criar duas categorias gamer completas dentro do fluxo real de serviços.
+- Permitir que preço, duração, jogo e progressão de elo sejam cadastrados e persistidos.
+
+### Mudanças
+
+- Supabase `gigs`
+  - Adicionadas as colunas `category`, `game`, `platform`, `session_minutes`, `current_rank` e
+    `target_rank` pela migration `add_gaming_service_categories`.
+  - RPCs `create_gig` e `update_gig` recriadas como `security invoker`, com `search_path` vazio,
+    acesso exclusivo a `authenticated` e validações específicas por categoria.
+  - Jogue comigo exige jogo e sessão mínima de 15 minutos; Elojob exige jogo, elo atual, elo
+    desejado e prazo.
+- `app/dashboard/servicos/page.tsx`
+  - O formulário ganhou seletor de categoria e campos condicionais para os dois serviços gamer.
+  - Jogue comigo cadastra preço por sessão e duração em minutos.
+  - Elojob cadastra preço, jogo, plataforma/servidor, elo atual, elo desejado e prazo.
+- `lib/types/gig.ts` e `lib/supabase/gigs.ts`
+  - Tipos, mapeamento, leitura, pesquisa e mutações atualizados para os novos dados.
+- `lib/data/categories.ts`, `app/descobrir/page.tsx` e `components/ExploreFilters.tsx`
+  - Elojob e Jogue comigo adicionados às categorias em destaque da página Explorar.
+  - O filtro agora exibe apenas os serviços da categoria gamer selecionada.
+- `app/categorias/[slug]/page.tsx`
+  - As duas categorias ganharam páginas próprias com serviços reais do Supabase.
+- `components/GigCard.tsx`, `components/GigFeedCard.tsx` e `components/RequestGigButton.tsx`
+  - Cards mostram jogo, sessão ou progressão de elo.
+  - A solicitação enviada para a conversa inclui automaticamente os detalhes gamer.
+
+### Validação
+
+- ESLint, TypeScript e build de produção.
+- Migration aplicada e colunas conferidas no projeto Supabase `onlyyou`.
+- RPC testada em transação com rollback para Jogue comigo e Elojob.
+- Advisors de segurança e desempenho executados; nenhum novo alerta ligado às colunas ou RPCs.
+- Permanecem avisos anteriores do projeto sobre duas funções `security definer`, proteção de
+  senhas vazadas, índices e políticas RLS não relacionados a esta mudança.
+
 ## 2026-09-20 — Cards de produtos reorganizados
 
 ### Objetivo

@@ -52,9 +52,17 @@ export function RequestGigButton({
     setSubmitting(true);
     try {
       const supabase = createClient();
-      const description = note.trim()
-        ? `Quero contratar: ${gig.title}\n\n${note.trim()}`
-        : `Quero contratar: ${gig.title}`;
+      const serviceDetails = [
+        gig.game ? `Jogo: ${gig.game}` : null,
+        gig.platform ? `Plataforma/servidor: ${gig.platform}` : null,
+        gig.sessionMinutes ? `Duração: ${gig.sessionMinutes} minutos` : null,
+        gig.currentRank && gig.targetRank ? `Elo: ${gig.currentRank} → ${gig.targetRank}` : null,
+      ].filter(Boolean);
+      const description = [
+        `Quero contratar: ${gig.title}`,
+        serviceDetails.length ? serviceDetails.join("\n") : null,
+        note.trim() || null,
+      ].filter(Boolean).join("\n\n");
       const request = await createCustomRequest(supabase, {
         creatorId: gig.creatorId,
         description,

@@ -2,8 +2,9 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Search } from "lucide-react";
-import type { Category, Product } from "@/lib/types";
+import type { Category, Gig, Product } from "@/lib/types";
 import { ProductCard } from "@/components/ProductCard";
+import { GigCard } from "@/components/GigCard";
 
 const SORTS = [
   { value: "", label: "Relevância" },
@@ -173,6 +174,54 @@ export function ExploreProducts({ products, creatorNames }: { products: Product[
       </div>
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {visibleProducts.map((product) => <ProductCard key={product.id} product={product} creatorName={creatorNames[product.creatorId]} />)}
+      </div>
+    </section>
+  );
+}
+
+export function ExploreGigs({
+  gigs,
+  creatorNames,
+  searching,
+}: {
+  gigs: Gig[];
+  creatorNames: Record<string, string>;
+  searching: boolean;
+}) {
+  const { category } = useExploreFilters();
+  const selectedGigCategory =
+    category === "elojob" ? "elojob" : category === "jogue-comigo" ? "play_together" : null;
+  const visibleGigs = selectedGigCategory
+    ? gigs.filter((gig) => gig.category === selectedGigCategory)
+    : category
+      ? []
+      : gigs;
+
+  if (!visibleGigs.length) return null;
+  return (
+    <section className="flex flex-col gap-3">
+      <div className="border-t border-(--color-border) pt-5">
+        <h2 className="text-xl font-bold tracking-tight text-(--color-text)">
+          {selectedGigCategory === "elojob"
+            ? "Serviços de Elojob"
+            : selectedGigCategory === "play_together"
+              ? "Jogue com profissionais"
+              : searching
+                ? "Serviços encontrados"
+                : "Serviços para tirar ideias do papel"}
+        </h2>
+        <p className="mt-1 text-sm leading-relaxed text-(--color-text-muted)">
+          {selectedGigCategory === "play_together"
+            ? "Escolha o jogo, confira a duração da sessão e encontre sua próxima companhia de equipe."
+            : selectedGigCategory === "elojob"
+              ? "Compare jogo, elo atual, objetivo, prazo e preço antes de solicitar."
+              : "Compare opções e encontre o profissional certo para o que você precisa."}
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {visibleGigs.map((gig) => (
+          <GigCard key={gig.id} gig={gig} creatorName={creatorNames[gig.creatorId]} />
+        ))}
       </div>
     </section>
   );

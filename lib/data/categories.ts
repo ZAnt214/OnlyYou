@@ -40,4 +40,6 @@ export const categories: Category[] = [
   { id: "cat-35", slug: "livros", name: "Livros e literatura" },
   { id: "cat-36", slug: "cinema-e-series", name: "Cinema e séries" },
   { id: "cat-37", slug: "esportes", name: "Esportes" },
+  { id: "cat-38", slug: "elojob", name: "Elojob" },
+  { id: "cat-39", slug: "jogue-comigo", name: "Jogue comigo" },
 ];

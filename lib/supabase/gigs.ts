@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Gig } from "@/lib/types";
+import type { Gig, GigCategory } from "@/lib/types";
 
 /**
  * Gigs (anúncios de serviço "vou fazer X pra você") — aparecem no feed
@@ -14,6 +14,12 @@ interface GigRow {
   creator_id: string;
   title: string;
   description: string;
+  category: GigCategory;
+  game: string | null;
+  platform: string | null;
+  session_minutes: number | null;
+  current_rank: string | null;
+  target_rank: string | null;
   price_cents: number;
   delivery_days: number | null;
   cover_image_url: string | null;
@@ -28,6 +34,12 @@ function mapGig(r: GigRow): Gig {
     creatorId: r.creator_id,
     title: r.title,
     description: r.description,
+    category: r.category,
+    game: r.game ?? undefined,
+    platform: r.platform ?? undefined,
+    sessionMinutes: r.session_minutes ?? undefined,
+    currentRank: r.current_rank ?? undefined,
+    targetRank: r.target_rank ?? undefined,
     priceCents: r.price_cents,
     deliveryDays: r.delivery_days,
     coverImageUrl: r.cover_image_url ?? undefined,
@@ -48,6 +60,12 @@ export interface GigInput {
   priceCents: number;
   deliveryDays: number | null;
   coverImageUrl: string;
+  category: GigCategory;
+  game: string;
+  platform: string;
+  sessionMinutes: number | null;
+  currentRank: string;
+  targetRank: string;
 }
 
 /** Feed/busca pública — só gigs ativos, mais recentes primeiro. */
@@ -65,6 +83,20 @@ export async function listActiveGigs(
   return (data ?? []).map(mapGig);
 }
 
+export async function listActiveGigsByCategory(
+  supabase: SupabaseClient,
+  category: Exclude<GigCategory, "general">,
+): Promise<Gig[]> {
+  const { data, error } = await supabase
+    .from("gigs")
+    .select("*")
+    .eq("status", "active")
+    .eq("category", category)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapGig);
+}
+
 /** Busca por texto no título/descrição — usada em /descobrir. */
 export async function searchActiveGigs(supabase: SupabaseClient, query: string): Promise<Gig[]> {
   const q = query.trim();
@@ -73,7 +105,7 @@ export async function searchActiveGigs(supabase: SupabaseClient, query: string):
     .from("gigs")
     .select("*")
     .eq("status", "active")
-    .or(`title.ilike.%${q}%,description.ilike.%${q}%`)
+    .or(`title.ilike.%${q}%,description.ilike.%${q}%,game.ilike.%${q}%,platform.ilike.%${q}%,current_rank.ilike.%${q}%,target_rank.ilike.%${q}%`)
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return (data ?? []).map(mapGig);
@@ -97,6 +129,12 @@ export async function createGig(supabase: SupabaseClient, input: GigInput): Prom
     p_price_cents: input.priceCents,
     p_delivery_days: input.deliveryDays,
     p_cover_image_url: input.coverImageUrl,
+    p_category: input.category,
+    p_game: input.game,
+    p_platform: input.platform,
+    p_session_minutes: input.sessionMinutes,
+    p_current_rank: input.currentRank,
+    p_target_rank: input.targetRank,
   });
   return mapGig(unwrap(data, error) as GigRow);
 }
@@ -114,6 +152,12 @@ export async function updateGig(
     p_delivery_days: input.deliveryDays,
     p_cover_image_url: input.coverImageUrl,
     p_status: input.status,
+    p_category: input.category,
+    p_game: input.game,
+    p_platform: input.platform,
+    p_session_minutes: input.sessionMinutes,
+    p_current_rank: input.currentRank,
+    p_target_rank: input.targetRank,
   });
   return mapGig(unwrap(data, error) as GigRow);
 }

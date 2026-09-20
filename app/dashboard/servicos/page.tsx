@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Clock, Loader2, Megaphone, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
-import type { Gig, User } from "@/lib/types";
+import { GIG_CATEGORY_LABELS, type Gig, type GigCategory, type User } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { createGig, deleteGig, listGigsForCreator, updateGig, type GigInput } from "@/lib/supabase/gigs";
@@ -18,6 +18,12 @@ interface FormState {
   deliveryDays: string;
   coverImageUrl: string;
   status: "active" | "paused";
+  category: GigCategory;
+  game: string;
+  platform: string;
+  sessionMinutes: string;
+  currentRank: string;
+  targetRank: string;
 }
 
 const EMPTY_FORM: FormState = {
@@ -27,6 +33,12 @@ const EMPTY_FORM: FormState = {
   deliveryDays: "",
   coverImageUrl: "",
   status: "active",
+  category: "general",
+  game: "",
+  platform: "",
+  sessionMinutes: "",
+  currentRank: "",
+  targetRank: "",
 };
 
 function centsToInput(cents: number): string {
@@ -85,6 +97,12 @@ export default function DashboardServicosPage() {
       deliveryDays: gig.deliveryDays ? String(gig.deliveryDays) : "",
       coverImageUrl: gig.coverImageUrl ?? "",
       status: gig.status,
+      category: gig.category,
+      game: gig.game ?? "",
+      platform: gig.platform ?? "",
+      sessionMinutes: gig.sessionMinutes ? String(gig.sessionMinutes) : "",
+      currentRank: gig.currentRank ?? "",
+      targetRank: gig.targetRank ?? "",
     });
     setError(null);
     setShowForm(true);
@@ -111,8 +129,14 @@ export default function DashboardServicosPage() {
       title: form.title,
       description: form.description,
       priceCents: inputToCents(form.price),
-      deliveryDays: form.deliveryDays.trim() ? Number(form.deliveryDays) : null,
+      deliveryDays: form.category !== "play_together" && form.deliveryDays.trim() ? Number(form.deliveryDays) : null,
       coverImageUrl: form.coverImageUrl,
+      category: form.category,
+      game: form.game,
+      platform: form.platform,
+      sessionMinutes: form.sessionMinutes.trim() ? Number(form.sessionMinutes) : null,
+      currentRank: form.currentRank,
+      targetRank: form.targetRank,
     };
     try {
       if (editingId) {
@@ -139,6 +163,12 @@ export default function DashboardServicosPage() {
         priceCents: gig.priceCents,
         deliveryDays: gig.deliveryDays,
         coverImageUrl: gig.coverImageUrl ?? "",
+        category: gig.category,
+        game: gig.game ?? "",
+        platform: gig.platform ?? "",
+        sessionMinutes: gig.sessionMinutes ?? null,
+        currentRank: gig.currentRank ?? "",
+        targetRank: gig.targetRank ?? "",
         status: gig.status === "active" ? "paused" : "active",
       });
       setGigs((prev) => prev.map((g) => (g.id === gig.id ? updated : g)));
@@ -209,6 +239,7 @@ export default function DashboardServicosPage() {
               )}
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="truncate text-sm font-medium text-(--color-text)">{gig.title}</span>
+                <span className="text-xs font-medium text-(--color-accent)">{GIG_CATEGORY_LABELS[gig.category]}</span>
                 <div className="flex items-center gap-2 text-xs text-(--color-text-subtle)">
                   <PriceTag price={gig.priceCents / 100} size="sm" />
                   {gig.deliveryDays ? (
@@ -279,6 +310,86 @@ export default function DashboardServicosPage() {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3 overflow-y-auto p-5">
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+                Categoria do serviço
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as GigCategory }))}
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                >
+                  <option value="general">Serviço geral</option>
+                  <option value="elojob">Elojob</option>
+                  <option value="play_together">Jogue comigo</option>
+                </select>
+              </label>
+
+              {form.category !== "general" ? (
+                <div className="flex flex-col gap-3 rounded-xl bg-(--color-surface-2) p-3">
+                  <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+                    Jogo
+                    <input
+                      value={form.game}
+                      onChange={(e) => setForm((f) => ({ ...f, game: e.target.value }))}
+                      required
+                      placeholder="Ex.: Fortnite, Valorant ou League of Legends"
+                      className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+                    Plataforma, servidor ou região
+                    <input
+                      value={form.platform}
+                      onChange={(e) => setForm((f) => ({ ...f, platform: e.target.value }))}
+                      placeholder="Ex.: PC · Brasil ou PlayStation"
+                      className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    />
+                  </label>
+
+                  {form.category === "elojob" ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+                        Elo atual
+                        <input
+                          value={form.currentRank}
+                          onChange={(e) => setForm((f) => ({ ...f, currentRank: e.target.value }))}
+                          required
+                          placeholder="Ex.: Prata 2"
+                          className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+                        Elo desejado
+                        <input
+                          value={form.targetRank}
+                          onChange={(e) => setForm((f) => ({ ...f, targetRank: e.target.value }))}
+                          required
+                          placeholder="Ex.: Diamante"
+                          className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+                      Duração da sessão (minutos)
+                      <input
+                        value={form.sessionMinutes}
+                        onChange={(e) => setForm((f) => ({ ...f, sessionMinutes: e.target.value }))}
+                        required
+                        min={15}
+                        step={15}
+                        type="number"
+                        inputMode="numeric"
+                        placeholder="Ex.: 60"
+                        className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                      />
+                      <span className="text-xs text-(--color-text-subtle)">
+                        O preço informado abaixo será cobrado por essa duração.
+                      </span>
+                    </label>
+                  )}
+                </div>
+              ) : null}
+
+              <label className="flex flex-col gap-1 text-sm text-(--color-text)">
                 O que você vai fazer
                 <span className="text-xs font-normal text-(--color-text-subtle)">
                   Escreva em primeira pessoa — é assim que aparece no feed.
@@ -303,7 +414,7 @@ export default function DashboardServicosPage() {
               </label>
               <div className="flex gap-2">
                 <label className="flex flex-1 flex-col gap-1 text-sm text-(--color-text)">
-                  Preço a partir de (R$)
+                  {form.category === "play_together" ? "Preço da sessão (R$)" : "Preço a partir de (R$)"}
                   <input
                     value={form.price}
                     onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
@@ -319,7 +430,9 @@ export default function DashboardServicosPage() {
                     value={form.deliveryDays}
                     onChange={(e) => setForm((f) => ({ ...f, deliveryDays: e.target.value }))}
                     inputMode="numeric"
-                    placeholder="Ex.: 5"
+                    placeholder={form.category === "play_together" ? "Não se aplica" : "Ex.: 5"}
+                    disabled={form.category === "play_together"}
+                    required={form.category === "elojob"}
                     className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                   />
                 </label>

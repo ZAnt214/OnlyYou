@@ -4,13 +4,13 @@ import { categoryRepository } from "@/lib/repositories/CategoryRepository";
 import { createPublicClient } from "@/lib/supabase/public";
 import { searchActiveGigs } from "@/lib/supabase/gigs";
 import { listUsersByIds } from "@/lib/supabase/profile";
-import { GigCard } from "@/components/GigCard";
 import { CreatorCard } from "@/components/CreatorCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LiveExploreSearch } from "@/components/LiveExploreSearch";
 import {
   ExploreCategories,
   ExploreFilterProvider,
+  ExploreGigs,
   ExploreProducts,
   ExploreResultSummary,
   ExploreSortFilters,
@@ -22,6 +22,8 @@ import { Search } from "lucide-react";
 // tem dezenas de opções, mas listar tudo de cara polui a página. O resto
 // continua acessível pelos chips logo abaixo.
 const POPULAR_CATEGORY_SLUGS = [
+  "jogue-comigo",
+  "elojob",
   "design",
   "programacao",
   "marketing",
@@ -61,6 +63,7 @@ export default async function DescobrirPage({
       (c) => [c.id, c.displayName],
     ),
   );
+  const gigCreatorNames = Object.fromEntries(gigCreatorNameById);
 
   const products = allProducts.filter((p) => p.status === "approved");
 
@@ -141,19 +144,7 @@ export default async function DescobrirPage({
         </section>
       ) : null}
 
-      {gigs.length > 0 ? (
-        <section className="flex flex-col gap-3">
-          <SectionHeading
-            title={qNormalized ? "Serviços encontrados" : "Serviços para tirar ideias do papel"}
-            description="Compare opções e encontre o profissional certo para o que você precisa."
-          />
-          <div className="grid grid-cols-2 gap-3">
-            {gigs.map((g) => (
-              <GigCard key={g.id} gig={g} creatorName={gigCreatorNameById.get(g.creatorId)} />
-            ))}
-          </div>
-        </section>
-      ) : null}
+      <ExploreGigs gigs={gigs} creatorNames={gigCreatorNames} searching={Boolean(qNormalized)} />
 
       {products.length > 0 ? (
         <ExploreProducts products={products} creatorNames={creatorNames} />

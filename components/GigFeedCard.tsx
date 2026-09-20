@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Clock } from "lucide-react";
-import type { Gig, User } from "@/lib/types";
+import { GIG_CATEGORY_LABELS, type Gig, type User } from "@/lib/types";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { PriceTag } from "@/components/PriceTag";
@@ -55,10 +55,18 @@ export function GigFeedCard({ gig, creator }: { gig: Gig; creator?: User }) {
 
       <div className="px-4 pb-3 pt-2">
         <span className="mb-1 inline-block w-fit rounded-md bg-(--color-accent-soft) px-2 py-0.5 text-xs font-medium text-(--color-accent)">
-          Serviço
+          {GIG_CATEGORY_LABELS[gig.category]}
         </span>
         <h3 className="text-sm font-semibold text-(--color-text)">{gig.title}</h3>
         <p className="mt-1 line-clamp-2 text-sm text-(--color-text-muted)">{gig.description}</p>
+        {gig.game ? (
+          <p className="mt-2 text-xs font-medium text-(--color-text-muted)">
+            {gig.game}
+            {gig.platform ? ` · ${gig.platform}` : ""}
+            {gig.category === "play_together" && gig.sessionMinutes ? ` · ${gig.sessionMinutes} minutos` : ""}
+            {gig.category === "elojob" && gig.currentRank && gig.targetRank ? ` · ${gig.currentRank} → ${gig.targetRank}` : ""}
+          </p>
+        ) : null}
       </div>
 
       {gig.coverImageUrl ? (

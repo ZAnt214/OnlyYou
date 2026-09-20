@@ -1,4 +1,4 @@
-import type { Gig } from "@/lib/types";
+import { GIG_CATEGORY_LABELS, type Gig } from "@/lib/types";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { PriceTag } from "@/components/PriceTag";
 import { RequestGigButton } from "@/components/RequestGigButton";
@@ -23,6 +23,11 @@ export function GigCard({ gig, creatorName }: { gig: Gig; creatorName?: string }
         </span>
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3">
+        {gig.category !== "general" ? (
+          <span className="w-fit text-[10px] font-semibold uppercase tracking-wide text-(--color-accent)">
+            {GIG_CATEGORY_LABELS[gig.category]}
+          </span>
+        ) : null}
         {creatorName ? (
           <div className="flex items-center gap-1.5">
             <MediaPlaceholder seed={gig.creatorId} kind="avatar" className="h-5 w-5" label={creatorName} />
@@ -30,6 +35,13 @@ export function GigCard({ gig, creatorName }: { gig: Gig; creatorName?: string }
           </div>
         ) : null}
         <h3 className="line-clamp-2 text-sm font-semibold text-(--color-text)">{gig.title}</h3>
+        {gig.game ? (
+          <p className="truncate text-xs text-(--color-text-muted)">
+            {gig.game}
+            {gig.category === "play_together" && gig.sessionMinutes ? ` · ${gig.sessionMinutes} min` : ""}
+            {gig.category === "elojob" && gig.currentRank && gig.targetRank ? ` · ${gig.currentRank} → ${gig.targetRank}` : ""}
+          </p>
+        ) : null}
         <div className="mt-auto pt-1">
           <RequestGigButton
             gig={gig}
