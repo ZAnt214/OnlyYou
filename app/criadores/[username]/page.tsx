@@ -7,6 +7,7 @@ import { getCurrentUserId, getProfileByUsername } from "@/lib/supabase/session";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { listCustomOrderReviewsForUser } from "@/lib/supabase/customRequests";
 import { listPortfolioForCreator } from "@/lib/supabase/portfolio";
+import { listResumeForCreator } from "@/lib/supabase/resume";
 
 export default async function CreatorProfilePage({
   params,
@@ -53,10 +54,11 @@ export default async function CreatorProfilePage({
   // sem precisar de um caminho separado pro fallback de demo. As três
   // buscas não dependem uma da outra — em paralelo em vez de em fila.
   const supabase = await createServerClient();
-  const [products, reviews, portfolio] = await Promise.all([
+  const [products, reviews, portfolio, resumeEntries] = await Promise.all([
     productRepository.findByCreator(creator.id),
     listCustomOrderReviewsForUser(supabase, creator.id),
     listPortfolioForCreator(supabase, creator.id),
+    listResumeForCreator(supabase, creator.id),
   ]);
 
   // O acesso ao painel saiu de uma faixa fixa no topo da página e virou um
@@ -69,6 +71,7 @@ export default async function CreatorProfilePage({
         products={products}
         reviews={reviews}
         portfolio={portfolio}
+        resumeEntries={resumeEntries}
         isOwnProfile={isOwnProfile}
       />
     </div>

@@ -18,6 +18,8 @@ export interface ProfileRow {
   verification_status: VerificationStatus | null;
   offerings: string[] | null;
   offerings_description: string | null;
+  skills: string[] | null;
+  languages: string[] | null;
   followers: number | null;
   rating: number | null;
   rating_count: number | null;
@@ -53,6 +55,8 @@ export function mapProfileRowToUser(row: ProfileRow): User {
         productCount: 0,
         offerings: row.offerings ?? [],
         offeringsDescription: row.offerings_description ?? "",
+        skills: row.skills ?? [],
+        languages: row.languages ?? [],
       }
     : undefined;
 

@@ -21,6 +21,10 @@ export interface CreatorProfile {
    */
   offerings?: string[];
   offeringsDescription?: string;
+  /** Habilidades/skills declaradas pelo criador — tags livres, sem categoria fixa. */
+  skills?: string[];
+  /** Idiomas que o criador fala, parte do currículo. Texto livre por item (ex.: "Inglês (avançado)"). */
+  languages?: string[];
 }
 
 export interface User {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Pencil, Images, Star, Users, LayoutDashboard } from "lucide-react";
-import type { CustomOrderReviewWithReviewer, PortfolioItem, Product, User } from "@/lib/types";
+import type { CustomOrderReviewWithReviewer, PortfolioItem, Product, ResumeEntry, User } from "@/lib/types";
 import { PRODUCT_TYPE_LABELS } from "@/lib/types";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
@@ -9,6 +9,8 @@ import { ProductCard } from "@/components/ProductCard";
 import { ReportMenu } from "@/components/ReportMenu";
 import { CustomOrderForm } from "@/components/CustomOrderForm";
 import { PortfolioSection } from "@/components/PortfolioSection";
+import { SkillsSection } from "@/components/SkillsSection";
+import { ResumeSection } from "@/components/ResumeSection";
 
 interface CreatorProfileViewProps {
   creator: User;
@@ -17,6 +19,8 @@ interface CreatorProfileViewProps {
   reviews?: CustomOrderReviewWithReviewer[];
   /** Trabalhos já realizados que o criador escolheu exibir no perfil. */
   portfolio?: PortfolioItem[];
+  /** Formação e certificações do criador. */
+  resumeEntries?: ResumeEntry[];
   /**
    * O perfil é a mesma tela para quem visita e para o próprio criador —
    * como em redes sociais como o TikTok. `isOwnProfile` só troca as ações
@@ -31,6 +35,7 @@ export function CreatorProfileView({
   products,
   reviews = [],
   portfolio = [],
+  resumeEntries = [],
   isOwnProfile = false,
 }: CreatorProfileViewProps) {
   const profile = creator.creatorProfile;
@@ -165,6 +170,8 @@ export function CreatorProfileView({
         </div>
       ) : null}
 
+      <SkillsSection initialSkills={profile.skills ?? []} isOwnProfile={isOwnProfile} />
+
       <div className="flex flex-col gap-3">
         <h2 className="text-base font-semibold text-(--color-text)">Produtos</h2>
         {approved.length === 0 ? (
@@ -180,6 +187,14 @@ export function CreatorProfileView({
 
       <div className="border-t border-(--color-border) pt-6">
         <PortfolioSection initialItems={portfolio} isOwnProfile={isOwnProfile} />
+      </div>
+
+      <div className="border-t border-(--color-border) pt-6">
+        <ResumeSection
+          initialEntries={resumeEntries}
+          initialLanguages={profile.languages ?? []}
+          isOwnProfile={isOwnProfile}
+        />
       </div>
 
       <div className="flex flex-col gap-3 border-t border-(--color-border) pt-6">
