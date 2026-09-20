@@ -1,6 +1,22 @@
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { mapProfileRowToUser, type ProfileRow } from "@/lib/supabase/profile";
 import type { User } from "@/lib/types";
+
+/**
+ * O proxy (lib/supabase/proxy.ts) já roda getClaims() pra praticamente toda
+ * request e repassa o id verificado neste header — chamar getClaims() de
+ * novo aqui pagaria uma segunda ida à rede ao servidor de auth do Supabase
+ * pro MESMO token (JWT HS256 deste projeto não verifica localmente, cai no
+ * getUser() do auth-js). O header só chega até aqui através do objeto de
+ * request que o próprio middleware construiu, então não é falsificável pelo
+ * cliente. Some apenas se o matcher do proxy não cobrir a rota (não é o
+ * caso hoje) — nesse caso cai no getClaims() como rede de segurança.
+ */
+async function getVerifiedUserId(): Promise<string | null> {
+  const headerList = await headers();
+  return headerList.get("x-verified-user-id");
+}
 
 /**
  * Resolução de identidade real (Supabase Auth) para uso em Server
@@ -19,14 +35,16 @@ export async function getCurrentUser(): Promise<User | null> {
   try {
     const supabase = await createClient();
 
-    // getClaims() (não getSession()) valida a assinatura do JWT a cada
-    // chamada — é o que a orientação de segurança do Supabase recomenda
-    // para checar autenticação no servidor (mesmo padrão já seguido em
-    // lib/supabase/proxy.ts).
-    const { data, error } = await supabase.auth.getClaims();
-    if (error || !data?.claims?.sub) return null;
-
-    const userId = data.claims.sub;
+    let userId = await getVerifiedUserId();
+    if (!userId) {
+      // getClaims() (não getSession()) valida a assinatura do JWT a cada
+      // chamada — é o que a orientação de segurança do Supabase recomenda
+      // para checar autenticação no servidor (mesmo padrão já seguido em
+      // lib/supabase/proxy.ts).
+      const { data, error } = await supabase.auth.getClaims();
+      if (error || !data?.claims?.sub) return null;
+      userId = data.claims.sub;
+    }
 
     const { data: row, error: profileError } = await supabase
       .from("profiles")
@@ -51,6 +69,9 @@ export async function getCurrentUser(): Promise<User | null> {
  */
 export async function getCurrentUserId(): Promise<string | null> {
   try {
+    const verified = await getVerifiedUserId();
+    if (verified) return verified;
+
     const supabase = await createClient();
     const { data, error } = await supabase.auth.getClaims();
     if (error || !data?.claims?.sub) return null;
