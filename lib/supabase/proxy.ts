@@ -4,6 +4,20 @@ import { NextResponse, type NextRequest } from "next/server";
 type SetAllCookie = { name: string; value: string; options: CookieOptionsWithName };
 
 /**
+ * Só as rotas abaixo realmente perguntam "quem é essa pessoa" no servidor
+ * (getCurrentUser/getCurrentUserId — dashboard, perfil do criador, admin,
+ * upload e os endpoints do Mercado Pago). Toda a navegação pública
+ * (descobrir, produto, criadores em lista, checkout, pedidos, etc.) nunca
+ * lê identidade — então não precisa pagar getClaims(). /criadores/[username]
+ * entra porque a página compara o visitante com o dono do perfil
+ * (isOwnProfile), mas /criadores (a lista) não usa isso.
+ */
+function needsVerifiedIdentity(pathname: string): boolean {
+  const prefixes = ["/dashboard", "/admin", "/api/mercadopago", "/api/upload", "/criadores/"];
+  return prefixes.some((p) => pathname === p || pathname.startsWith(p));
+}
+
+/**
  * Renova a sessão do Supabase a cada request. O Jobê é um marketplace
  * público (a maior parte das páginas não exige login), então este proxy
  * só mantém a sessão viva — não redireciona ninguém. Proteção de rota
@@ -64,12 +78,21 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Não rodar código entre createServerClient e getClaims() — getClaims()
-  // valida a assinatura do JWT a cada chamada e é o que efetivamente
-  // renova o token; pular isso pode deslogar usuários aleatoriamente.
-  const { data, error } = await supabase.auth.getClaims();
-  if (!error && data?.claims?.sub) {
-    requestHeaders.set("x-verified-user-id", data.claims.sub);
+  if (needsVerifiedIdentity(request.nextUrl.pathname)) {
+    // getClaims() valida a assinatura do JWT a cada chamada — com HS256
+    // (o caso deste projeto) isso cai no getUser() do auth-js, uma ida real
+    // à rede ao servidor de auth. Só vale a pena pagar esse custo nas rotas
+    // que de fato precisam saber quem está olhando.
+    const { data, error } = await supabase.auth.getClaims();
+    if (!error && data?.claims?.sub) {
+      requestHeaders.set("x-verified-user-id", data.claims.sub);
+    }
+  } else {
+    // getSession() só renova o token (ida à rede) quando ele já expirou —
+    // no caso comum (sessão válida) é só uma leitura local do cookie. É o
+    // suficiente para manter a sessão viva sem custar uma verificação de
+    // identidade que a rota nem vai usar.
+    await supabase.auth.getSession();
   }
 
   const supabaseResponse = NextResponse.next({ request: { headers: requestHeaders } });
