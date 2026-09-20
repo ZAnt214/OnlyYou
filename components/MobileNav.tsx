@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Library, MessageSquare, LayoutDashboard } from "lucide-react";
+import { Home, Compass, Library, MessageSquare, LayoutDashboard } from "lucide-react";
 import { useCreatorUsername } from "@/lib/supabase/useCreatorUsername";
 import { isConversationScreenPath } from "@/lib/isConversationScreenPath";
 
@@ -12,7 +12,7 @@ export function MobileNav() {
 
   const TABS = [
     { href: "/", label: "Início", icon: Home },
-    { href: "/descobrir", label: "Descobrir", icon: Search },
+    { href: "/descobrir", label: "Explorar", icon: Compass },
     { href: "/biblioteca", label: "Biblioteca", icon: Library },
     { href: "/pedidos", label: "Mensagens", icon: MessageSquare },
     {

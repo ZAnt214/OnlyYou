@@ -9,7 +9,7 @@ import { GigCard } from "@/components/GigCard";
 import { CreatorCard } from "@/components/CreatorCard";
 import { EmptyState } from "@/components/EmptyState";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Compass, Search } from "lucide-react";
 
 const SORTS = [
   { value: "", label: "Relevância" },
@@ -28,12 +28,11 @@ export default async function DescobrirPage({
     productRepository.search(q),
     userRepository.findCreators(),
     categoryRepository.findAll(),
-    // Gigs não têm categoria/ofertas ainda — só entram numa busca de
-    // verdade, senão a página sem filtro nenhum listaria todo anúncio
-    // ativo da plataforma aqui em cima dos produtos. Um problema pontual
-    // no Supabase degrada pra "sem serviços encontrados", não quebra a
-    // busca inteira.
-    q.trim() ? searchActiveGigs(supabase, q).catch(() => []) : Promise.resolve([]),
+    // Sem busca, searchActiveGigs já cai pra listActiveGigs (mais recentes,
+    // limitado) — é o que alimenta a vitrine de "Serviços em destaque" da
+    // página de Explorar. Um problema pontual no Supabase degrada pra
+    // "sem serviços encontrados", não quebra a página inteira.
+    searchActiveGigs(supabase, q).catch(() => []),
   ]);
   const gigCreatorNameById = new Map(
     (await listUsersByIds(supabase, [...new Set(gigs.map((g) => g.creatorId))]).catch(() => [])).map(
@@ -68,7 +67,7 @@ export default async function DescobrirPage({
           c.username.toLowerCase().includes(qNormalized) ||
           c.displayName.toLowerCase().includes(qNormalized),
       )
-    : [];
+    : creators.slice(0, 6);
 
   function buildQuery(overrides: Record<string, string>) {
     const params = new URLSearchParams({ q, categoria, sort, ofertas, ...overrides });
@@ -81,6 +80,11 @@ export default async function DescobrirPage({
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-4">
+      <div className="flex items-center justify-center gap-2 rounded-2xl bg-(--color-surface) py-3 text-center">
+        <Compass size={16} strokeWidth={1.75} className="text-(--color-accent)" />
+        <h1 className="text-sm font-semibold text-(--color-text)">Explorar</h1>
+      </div>
+
       <form className="flex items-center gap-2">
         <div className="flex flex-1 items-center gap-2 rounded-(--radius-pill) bg-(--color-surface-2) px-4 py-2.5">
           <Search size={16} strokeWidth={1.5} className="shrink-0 text-(--color-text-subtle)" />
@@ -127,7 +131,9 @@ export default async function DescobrirPage({
 
       {matchingCreators.length > 0 ? (
         <div className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium text-(--color-text-muted)">Criadores</h2>
+          <h2 className="text-sm font-medium text-(--color-text-muted)">
+            {qNormalized ? "Criadores" : "Criadores em destaque"}
+          </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {matchingCreators.map((c) => (
               <CreatorCard key={c.id} creator={c} />
@@ -138,13 +144,19 @@ export default async function DescobrirPage({
 
       {gigs.length > 0 ? (
         <div className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium text-(--color-text-muted)">Serviços</h2>
+          <h2 className="text-sm font-medium text-(--color-text-muted)">
+            {qNormalized ? "Serviços" : "Serviços em destaque"}
+          </h2>
           <div className="grid grid-cols-2 gap-3">
             {gigs.map((g) => (
               <GigCard key={g.id} gig={g} creatorName={gigCreatorNameById.get(g.creatorId)} />
             ))}
           </div>
         </div>
+      ) : null}
+
+      {!qNormalized ? (
+        <h2 className="text-sm font-medium text-(--color-text-muted)">Produtos em destaque</h2>
       ) : null}
 
       {products.length === 0 ? (

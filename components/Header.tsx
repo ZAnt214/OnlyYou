@@ -23,7 +23,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useCreatorUsername } from "@/lib/supabase/useCreatorUsername";
 
 const NAV_LINKS = [
-  { href: "/descobrir", label: "Descobrir" },
+  { href: "/descobrir", label: "Explorar" },
   { href: "/criadores", label: "Criadores" },
   { href: "/descobrir?sort=vendidos", label: "Mais vendidos" },
   { href: "/descobrir?ofertas=1", label: "Ofertas" },
