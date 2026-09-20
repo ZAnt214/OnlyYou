@@ -338,7 +338,12 @@ export function ConversationView({
   // (isRequester): aí o outro lado da conversa é o criador, que tem perfil.
   const counterpartProfileHref = isRequester && counterpartUsername ? `/criadores/${counterpartUsername}` : null;
   const activeProposal = proposals.find((p) => p.status === "accepted" || p.status === "sent");
-  const serviceLabel = activeProposal?.serviceType || request.description;
+  // Antes de existir proposta, mostrar a descrição crua (texto livre do
+  // comprador, às vezes com quebra de linha — ex.: pedidos vindos de um gig,
+  // "Quero contratar: X\n\nY") no lugar de um rótulo curto deixava o
+  // cabeçalho com uma cara completamente diferente de quando já existe
+  // proposta (que mostra só o serviceType, curto e limpo).
+  const serviceLabel = activeProposal?.serviceType || (isCreator ? "Aguardando sua proposta" : "Aguardando proposta");
 
   function findProposal(id?: string): CustomProposal | undefined {
     return proposals.find((p) => p.id === id);
