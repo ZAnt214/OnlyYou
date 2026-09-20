@@ -49,6 +49,11 @@ import {
   Mic,
   Clapperboard,
   Trophy,
+  ArrowRight,
+  SlidersHorizontal,
+  BadgeCheck,
+  ShoppingBag,
+  BriefcaseBusiness,
   type LucideIcon,
 } from "lucide-react";
 
@@ -236,19 +241,27 @@ export default async function DescobrirPage({
         </div>
       </section>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-(--color-text-muted)">Categorias populares</h2>
+      <section className="flex flex-col gap-4">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-(--color-accent)">
+              Explore por área
+            </p>
+            <h2 className="mt-1 text-xl font-bold tracking-tight text-(--color-text)">
+              Categorias populares
+            </h2>
+          </div>
           {categoria ? (
             <Link
               href={buildQuery({ categoria: "" })}
-              className="text-xs font-medium text-(--color-accent) hover:underline"
+              className="shrink-0 text-xs font-semibold text-(--color-accent) hover:underline"
             >
               Limpar filtro
             </Link>
           ) : null}
         </div>
-        <div className="grid grid-cols-4 gap-2">
+
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
           {popularCategories.map((c) => {
             const Icon = CATEGORY_ICONS[c.slug] ?? Grid3x3;
             const active = categoria === c.slug;
@@ -256,109 +269,161 @@ export default async function DescobrirPage({
               <Link
                 key={c.id}
                 href={buildQuery({ categoria: active ? "" : c.slug })}
-                className={`flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition-colors ${
+                className={`group flex min-h-28 flex-col justify-between rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:shadow-sm ${
                   active
                     ? "border-(--color-accent) bg-(--color-accent-soft)"
                     : "border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)"
                 }`}
               >
                 <span
-                  className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                     active
                       ? "bg-(--color-accent) text-white"
-                      : "bg-(--color-surface-2) text-(--color-text-muted)"
+                      : "bg-(--color-surface-2) text-(--color-text-muted) group-hover:text-(--color-accent)"
                   }`}
                 >
-                  <Icon size={18} strokeWidth={1.75} />
+                  <Icon size={19} strokeWidth={1.75} />
                 </span>
-                <span
-                  className={`text-xs font-medium leading-tight ${
-                    active ? "text-(--color-accent)" : "text-(--color-text)"
-                  }`}
-                >
-                  {c.name}
-                </span>
+                <div className="flex items-end justify-between gap-2">
+                  <span className={`text-sm font-semibold leading-tight ${active ? "text-(--color-accent)" : "text-(--color-text)"}`}>
+                    {c.name}
+                  </span>
+                  <ArrowRight size={15} className={active ? "text-(--color-accent)" : "text-(--color-text-subtle)"} />
+                </div>
               </Link>
             );
           })}
         </div>
 
         <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
-          <Chip href={buildQuery({ categoria: "" })} active={!categoria}>
-            Todas
-          </Chip>
+          <Chip href={buildQuery({ categoria: "" })} active={!categoria}>Todas</Chip>
           {otherCategories.map((c) => (
             <Chip key={c.id} href={buildQuery({ categoria: c.slug })} active={categoria === c.slug}>
               {c.name}
             </Chip>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
-        {SORTS.map((s) => (
-          <Chip key={s.value} href={buildQuery({ sort: s.value })} active={sort === s.value}>
-            {s.label}
+      <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-3">
+        <div className="mb-3 flex items-center gap-2 px-1">
+          <SlidersHorizontal size={16} className="text-(--color-accent)" />
+          <span className="text-sm font-semibold text-(--color-text)">Ordenar e filtrar</span>
+          {(sort || ofertas) ? (
+            <Link href={buildQuery({ sort: "", ofertas: "" })} className="ml-auto text-xs font-medium text-(--color-accent)">
+              Limpar
+            </Link>
+          ) : null}
+        </div>
+        <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
+          {SORTS.map((s) => (
+            <Chip key={s.value} href={buildQuery({ sort: s.value })} active={sort === s.value}>
+              {s.label}
+            </Chip>
+          ))}
+          <Chip href={buildQuery({ ofertas: ofertas ? "" : "1" })} active={Boolean(ofertas)}>
+            Só ofertas
           </Chip>
-        ))}
-        <Chip href={buildQuery({ ofertas: ofertas ? "" : "1" })} active={Boolean(ofertas)}>
-          Só ofertas
-        </Chip>
-      </div>
+        </div>
+      </section>
 
-      {activeCategory ? (
-        <p className="text-sm text-(--color-text-muted)">
-          Mostrando resultados em <span className="font-medium text-(--color-text)">{activeCategory.name}</span>
-        </p>
-      ) : null}
-
-      {matchingCreators.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium text-(--color-text-muted)">
-            {qNormalized ? "Criadores" : "Criadores em destaque"}
-          </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {matchingCreators.map((c) => (
-              <CreatorCard key={c.id} creator={c} />
-            ))}
-          </div>
+      {activeCategory || qNormalized ? (
+        <div className="flex items-center gap-2 rounded-2xl bg-(--color-surface-2) px-4 py-3 text-sm text-(--color-text-muted)">
+          <Search size={16} className="shrink-0 text-(--color-accent)" />
+          <span>
+            {qNormalized ? <>Resultados para <strong className="font-semibold text-(--color-text)">“{q}”</strong></> : null}
+            {qNormalized && activeCategory ? " em " : null}
+            {activeCategory ? <strong className="font-semibold text-(--color-text)">{activeCategory.name}</strong> : null}
+          </span>
         </div>
       ) : null}
 
+      {matchingCreators.length > 0 ? (
+        <section className="flex flex-col gap-3">
+          <SectionHeading
+            icon={BadgeCheck}
+            eyebrow="Talentos"
+            title={qNormalized ? "Profissionais encontrados" : "Profissionais em destaque"}
+            description={qNormalized ? "Perfis que combinam com a sua busca." : "Conheça quem está criando e trabalhando no Jobê."}
+          />
+          <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0">
+            {matchingCreators.map((creator) => (
+              <div key={creator.id} className="w-[72%] shrink-0 snap-start sm:w-auto">
+                <CreatorCard creator={creator} />
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {gigs.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium text-(--color-text-muted)">
-            {qNormalized ? "Serviços" : "Serviços em destaque"}
-          </h2>
+        <section className="flex flex-col gap-3">
+          <SectionHeading
+            icon={BriefcaseBusiness}
+            eyebrow="Serviços"
+            title={qNormalized ? "Serviços encontrados" : "Serviços para tirar ideias do papel"}
+            description="Compare opções e encontre o profissional certo para o que você precisa."
+          />
           <div className="grid grid-cols-2 gap-3">
             {gigs.map((g) => (
               <GigCard key={g.id} gig={g} creatorName={gigCreatorNameById.get(g.creatorId)} />
             ))}
           </div>
-        </div>
+        </section>
       ) : null}
 
       {products.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium text-(--color-text-muted)">
-            {activeCategory ? activeCategory.name : qNormalized ? "Produtos" : "Produtos em destaque"}
-          </h2>
+        <section className="flex flex-col gap-3">
+          <SectionHeading
+            icon={ShoppingBag}
+            eyebrow="Produtos digitais"
+            title={activeCategory ? activeCategory.name : qNormalized ? "Produtos encontrados" : "Prontos para usar"}
+            description="Descubra materiais digitais que podem acelerar seu projeto."
+          />
           <div className="grid grid-cols-2 gap-3">
             {products.map((p) => (
               <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
             ))}
           </div>
-        </div>
+        </section>
       ) : matchingCreators.length === 0 && gigs.length === 0 ? (
-        <EmptyState
-          icon={Search}
-          title="Nada encontrado"
-          description="Tente outra busca ou remova os filtros aplicados."
-        />
+        <div className="rounded-3xl border border-(--color-border) bg-(--color-surface) p-6">
+          <EmptyState
+            icon={Search}
+            title="Nada encontrado"
+            description="Tente outra busca ou remova os filtros aplicados."
+          />
+        </div>
       ) : null}
     </div>
   );
 }
+
+function SectionHeading({
+  icon: Icon,
+  eyebrow,
+  title,
+  description,
+}: {
+  icon: LucideIcon;
+  eyebrow: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--color-accent-soft) text-(--color-accent)">
+        <Icon size={18} strokeWidth={1.8} />
+      </span>
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-(--color-accent)">{eyebrow}</p>
+        <h2 className="text-lg font-bold tracking-tight text-(--color-text)">{title}</h2>
+        <p className="mt-0.5 text-xs leading-relaxed text-(--color-text-muted)">{description}</p>
+      </div>
+    </div>
+  );
+}
+
 
 function Chip({
   href,
@@ -382,3 +447,4 @@ function Chip({
     </Link>
   );
 }
+
