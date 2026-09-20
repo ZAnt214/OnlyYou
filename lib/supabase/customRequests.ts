@@ -52,6 +52,7 @@ interface CustomRequestRow {
   accepted_at: string | null;
   declined_at: string | null;
   cancelled_at: string | null;
+  source_gig_id: string | null;
 }
 
 interface ConversationRow {
@@ -100,6 +101,8 @@ interface CustomProposalRow {
   currency: "BRL";
   delivery_days: number;
   delivery_deadline_at: string | null;
+  revision_count: number | null;
+  included_items: string[];
   status: CustomProposalStatus;
   created_at: string;
   updated_at: string;
@@ -162,6 +165,7 @@ function mapRequest(r: CustomRequestRow, conversationId: string): CustomRequest 
     description: r.description,
     status: r.status,
     conversationId,
+    sourceGigId: r.source_gig_id ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     expiresAt: r.expires_at ?? undefined,
@@ -230,6 +234,8 @@ function mapProposal(p: CustomProposalRow): CustomProposal {
     currency: p.currency,
     deliveryDays: p.delivery_days,
     deliveryDeadlineAt: p.delivery_deadline_at ?? undefined,
+    revisionCount: p.revision_count ?? undefined,
+    includedItems: p.included_items ?? [],
     status: p.status,
     createdAt: p.created_at,
     updatedAt: p.updated_at,
@@ -518,6 +524,8 @@ export async function createCustomProposal(
     description: string;
     priceCents: number;
     deliveryDays: number;
+    revisionCount?: number | null;
+    includedItems?: string[];
   },
 ): Promise<CustomProposal> {
   const { data, error } = await supabase.rpc("create_custom_proposal", {
@@ -526,6 +534,8 @@ export async function createCustomProposal(
     p_description: params.description,
     p_price_cents: params.priceCents,
     p_delivery_days: params.deliveryDays,
+    p_revision_count: params.revisionCount ?? null,
+    p_included_items: params.includedItems ?? [],
   });
   return mapProposal(unwrap(data, error) as CustomProposalRow);
 }

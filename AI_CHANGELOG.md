@@ -3,6 +3,75 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Ofertas com revisões e "o que está incluso"
+
+### Objetivo
+
+- Primeira fatia de uma evolução maior do Jobê (marketplace de serviços prontos, pedidos
+  personalizados, propostas, combos, produtos digitais, recompra e reputação), inspirada em
+  conceitos de GetNinjas/Workana/VintePila/Packzin sem copiar identidade ou funcionalidades —
+  aplicada sobre a estrutura já existente, sem recriar nada do zero.
+- Antes de tudo: mapeamento completo do que já existe (gigs, pedidos personalizados, chat,
+  categorias, avaliações, portfólio, banco) para reaproveitar em vez de duplicar. O fluxo de
+  pedido personalizado já é essencialmente 1:1 direcionado a um criador (não é bidding aberto a
+  vários profissionais) — decisão de manter assim por ora.
+- Nesta fatia: dar estrutura ao que hoje era só texto livre na descrição do gig e da proposta —
+  quantas revisões estão incluídas, o que está incluso (lista) e uma galeria de imagens no gig,
+  além da capa. É a base pras próximas fatias (combos reaproveitam os mesmos campos; briefing por
+  categoria e recompra ficam para depois).
+
+### Mudanças
+
+- Supabase (projeto `onlyyou`)
+  - Migração `gig_and_proposal_structured_offer_fields`: `gigs` ganha `revision_count`,
+    `included_items` (`text[]`) e `gallery_urls` (`text[]`); `custom_proposals` ganha
+    `revision_count` e `included_items`. Checks garantem `revision_count >= 0` quando informado.
+  - `create_gig`/`update_gig`/`create_custom_proposal` recriadas com os novos parâmetros
+    (adicionados ao final, com default, preservando a assinatura como replace — não overload).
+    Sanitizam os arrays no banco: trim, remove itens vazios, corta cada item em 140 caracteres e
+    limita a 8 itens.
+  - `get_advisors` (security) executado após a migração: nenhum alerta novo — só os avisos
+    pré-existentes já documentados (funções `security definer` de `become_creator` e
+    `submit_custom_order_review`, proteção de senha vazada).
+- `lib/types/gig.ts`, `lib/supabase/gigs.ts`
+  - `Gig`/`GigInput` ganham `revisionCount?`, `includedItems: string[]`, `galleryUrls: string[]`.
+  - Novo `getGigById` — usado para pré-preencher a proposta a partir do gig de origem.
+- `lib/types/custom-proposal.ts`, `lib/types/custom-request.ts`, `lib/supabase/customRequests.ts`
+  - `CustomProposal` ganha `revisionCount?`/`includedItems`; `createCustomProposal` aceita e
+    envia os dois campos.
+  - `CustomRequest` passa a expor `sourceGigId` (a coluna já existia no banco, mas não estava
+    mapeada no tipo/mapper) — permite ligar a proposta ao anúncio que originou o pedido.
+- `app/dashboard/servicos/page.tsx`
+  - Formulário de anúncio ganha "Revisões incluídas" (número opcional), "O que está incluso"
+    (lista, uma linha por item) e "Mais imagens" (galeria, reaproveitando o mesmo padrão de
+    upload/lista de URLs já usado em `PortfolioSection.tsx`).
+- `components/GigCard.tsx`, `components/GigFeedCard.tsx`
+  - Exibem a quantidade de revisões; o card de feed também mostra os 3 primeiros itens inclusos.
+- `components/ConversationView.tsx`
+  - Formulário de proposta ganha os mesmos dois campos (revisões, o que está incluso).
+  - Ao abrir "Criar proposta" num pedido que nasceu de um gig (`sourceGigId`), o formulário é
+    pré-preenchido a partir do anúncio (`getGigById`) — o criador só confirma ou ajusta.
+  - Card de proposta na conversa passa a exibir revisões e itens inclusos quando informados.
+
+### Validação
+
+- ESLint e `tsc --noEmit` sem erros nos arquivos alterados.
+- `npx next build`: compilação e checagem de tipos concluídas com sucesso; a etapa de
+  pré-renderização falha neste sandbox por falta de `.env.local` (sem `NEXT_PUBLIC_SUPABASE_URL`)
+  — limitação pré-existente do ambiente, não relacionada a esta mudança.
+- Checagem de cores fixas (`grep` por hex e classes de paleta Tailwind) nos arquivos alterados:
+  nenhuma ocorrência.
+- Migração e RPCs aplicadas diretamente no projeto Supabase real via MCP; advisors de segurança
+  conferidos após a mudança.
+
+### Próximos passos sugeridos (não implementados nesta fatia)
+
+- Produtos digitais reais (hoje só mock em `lib/data/products.ts`, viola a regra de persistência).
+- Combos/pacotes de serviços.
+- Propostas abertas a múltiplos profissionais para o mesmo pedido.
+- Briefing dinâmico por categoria pós-aceite.
+- Recompra ("contratar novamente") a partir do histórico de pedidos.
+
 ## 2026-09-20 — Alinhamento dos controles do cabeçalho
 
 ### Objetivo

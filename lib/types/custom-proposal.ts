@@ -23,6 +23,10 @@ export interface CustomProposal {
   currency: "BRL";
   /** Prazo em dias combinado na criação da proposta. */
   deliveryDays: number;
+  /** Quantas rodadas de ajuste estão incluídas — undefined quando não informado. */
+  revisionCount?: number;
+  /** O que está incluso na entrega — lista curta, uma linha por item. */
+  includedItems: string[];
   /** Data-limite calculada (ISO) — só existe depois que a proposta é aceita/paga. */
   deliveryDeadlineAt?: string;
   status: CustomProposalStatus;

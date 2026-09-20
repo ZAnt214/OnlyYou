@@ -42,6 +42,13 @@ export function GigCard({ gig, creatorName }: { gig: Gig; creatorName?: string }
             {gig.category === "elojob" && gig.currentRank && gig.targetRank ? ` · ${gig.currentRank} → ${gig.targetRank}` : ""}
           </p>
         ) : null}
+        {gig.revisionCount !== undefined ? (
+          <span className="w-fit text-[10px] text-(--color-text-subtle)">
+            {gig.revisionCount === 0
+              ? "Sem revisões"
+              : `${gig.revisionCount} ${gig.revisionCount === 1 ? "revisão" : "revisões"}`}
+          </span>
+        ) : null}
         <div className="mt-auto pt-1">
           <RequestGigButton
             gig={gig}

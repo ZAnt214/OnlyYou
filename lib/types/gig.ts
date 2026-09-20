@@ -34,6 +34,12 @@ export interface Gig {
   /** Prazo estimado de entrega, em dias — null quando não informado. */
   deliveryDays: number | null;
   coverImageUrl?: string;
+  /** Imagens extras além da capa — mostradas na busca/feed como prévia do padrão de trabalho. */
+  galleryUrls: string[];
+  /** Quantas rodadas de ajuste estão incluídas no preço — undefined quando o criador não informou. */
+  revisionCount?: number;
+  /** O que está incluso no serviço — lista curta, uma linha por item. */
+  includedItems: string[];
   status: "active" | "paused";
   position: number;
   createdAt: string;

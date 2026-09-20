@@ -67,6 +67,16 @@ export function GigFeedCard({ gig, creator }: { gig: Gig; creator?: User }) {
             {gig.category === "elojob" && gig.currentRank && gig.targetRank ? ` · ${gig.currentRank} → ${gig.targetRank}` : ""}
           </p>
         ) : null}
+        {gig.includedItems.length > 0 ? (
+          <ul className="mt-2 flex flex-col gap-0.5">
+            {gig.includedItems.slice(0, 3).map((item, i) => (
+              <li key={i} className="flex items-start gap-1.5 text-xs text-(--color-text-muted)">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-(--color-accent)" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
 
       {gig.coverImageUrl ? (
@@ -85,6 +95,13 @@ export function GigFeedCard({ gig, creator }: { gig: Gig; creator?: User }) {
           <span className="flex items-center gap-1 text-xs text-(--color-text-muted)">
             <Clock size={12} strokeWidth={1.5} />
             {gig.deliveryDays} {gig.deliveryDays === 1 ? "dia" : "dias"}
+          </span>
+        ) : null}
+        {gig.revisionCount !== undefined ? (
+          <span className="text-xs text-(--color-text-muted)">
+            {gig.revisionCount === 0
+              ? "Sem revisões"
+              : `${gig.revisionCount} ${gig.revisionCount === 1 ? "revisão" : "revisões"}`}
           </span>
         ) : null}
         <RequestGigButton gig={gig} className="flex items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover)" />

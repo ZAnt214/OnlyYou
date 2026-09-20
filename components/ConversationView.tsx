@@ -43,6 +43,7 @@ import {
   submitCustomOrderReview,
 } from "@/lib/supabase/customRequests";
 import { reportService } from "@/lib/moderation/ReportService";
+import { getGigById } from "@/lib/supabase/gigs";
 import { StatusBadge } from "@/components/StatusBadge";
 import { RatingStars } from "@/components/RatingStars";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
@@ -67,6 +68,17 @@ function isReviewable(status: CustomServiceOrder["status"]): boolean {
 
 function formatBRLFromCents(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function centsToPriceInput(cents: number): string {
+  return (cents / 100).toFixed(2).replace(".", ",");
+}
+
+function toLines(text: string): string[] {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 function formatDateTime(iso: string): string {
@@ -135,6 +147,8 @@ export function ConversationView({
     description: "",
     price: "",
     deliveryDays: "",
+    revisionCount: "",
+    includedItemsText: "",
   });
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportSent, setReportSent] = useState(false);
@@ -381,6 +395,42 @@ export function ConversationView({
     }
   }
 
+  const EMPTY_PROPOSAL_DRAFT = {
+    serviceType: "",
+    description: "",
+    price: "",
+    deliveryDays: "",
+    revisionCount: "",
+    includedItemsText: "",
+  };
+
+  /**
+   * Quando o pedido nasceu de um "Solicitar" num anúncio (sourceGigId), a
+   * proposta já abre pré-preenchida com o que o criador anunciou — ele só
+   * confirma ou ajusta antes de enviar, em vez de digitar tudo de novo.
+   */
+  async function handleOpenProposalForm() {
+    setError(null);
+    if (request?.sourceGigId) {
+      try {
+        const gig = await getGigById(supabase, request.sourceGigId);
+        if (gig) {
+          setProposalDraft({
+            serviceType: gig.title,
+            description: gig.description,
+            price: centsToPriceInput(gig.priceCents),
+            deliveryDays: gig.deliveryDays ? String(gig.deliveryDays) : "",
+            revisionCount: gig.revisionCount !== undefined ? String(gig.revisionCount) : "",
+            includedItemsText: gig.includedItems.join("\n"),
+          });
+        }
+      } catch {
+        // Anúncio pode ter sido excluído nesse meio-tempo — segue com o formulário em branco.
+      }
+    }
+    setShowProposalForm(true);
+  }
+
   async function handleCreateProposal(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -393,9 +443,11 @@ export function ConversationView({
         description: proposalDraft.description,
         priceCents: Math.round(priceReais * 100),
         deliveryDays: Number(proposalDraft.deliveryDays),
+        revisionCount: proposalDraft.revisionCount.trim() ? Number(proposalDraft.revisionCount) : null,
+        includedItems: toLines(proposalDraft.includedItemsText),
       });
       setShowProposalForm(false);
-      setProposalDraft({ serviceType: "", description: "", price: "", deliveryDays: "" });
+      setProposalDraft(EMPTY_PROPOSAL_DRAFT);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível criar a proposta.");
@@ -890,16 +942,40 @@ export function ConversationView({
                   className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                 />
               </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-(--color-text)">Valor (R$)</label>
+                  <input
+                    required
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={proposalDraft.price}
+                    onChange={(e) => setProposalDraft((d) => ({ ...d, price: e.target.value }))}
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-(--color-text)">Revisões incluídas</label>
+                  <input
+                    type="number"
+                    min={0}
+                    inputMode="numeric"
+                    placeholder="Opcional"
+                    value={proposalDraft.revisionCount}
+                    onChange={(e) => setProposalDraft((d) => ({ ...d, revisionCount: e.target.value }))}
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  />
+                </div>
+              </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-(--color-text)">Valor (R$)</label>
-                <input
-                  required
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={proposalDraft.price}
-                  onChange={(e) => setProposalDraft((d) => ({ ...d, price: e.target.value }))}
-                  className="w-40 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                <label className="text-sm font-medium text-(--color-text)">O que está incluso</label>
+                <span className="text-xs text-(--color-text-muted)">Uma linha por item (opcional).</span>
+                <textarea
+                  rows={2}
+                  value={proposalDraft.includedItemsText}
+                  onChange={(e) => setProposalDraft((d) => ({ ...d, includedItemsText: e.target.value }))}
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -923,7 +999,7 @@ export function ConversationView({
           ) : (
             <button
               type="button"
-              onClick={() => setShowProposalForm(true)}
+              onClick={handleOpenProposalForm}
               className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
             >
               <PlusCircle size={14} strokeWidth={1.5} />
@@ -1122,8 +1198,27 @@ function MessageItem({
           <span className="text-lg font-bold text-(--color-accent)">
             {formatBRLFromCents(proposal.priceCents)}
           </span>
-          <span className="text-xs text-(--color-text-muted)">Prazo: {proposal.deliveryDays} dias</span>
+          <div className="flex flex-col items-end gap-0.5 text-xs text-(--color-text-muted)">
+            <span>Prazo: {proposal.deliveryDays} dias</span>
+            {proposal.revisionCount !== undefined ? (
+              <span>
+                {proposal.revisionCount === 0
+                  ? "Sem revisões"
+                  : `${proposal.revisionCount} ${proposal.revisionCount === 1 ? "revisão" : "revisões"}`}
+              </span>
+            ) : null}
+          </div>
         </div>
+        {proposal.includedItems.length > 0 ? (
+          <ul className="flex flex-col gap-0.5">
+            {proposal.includedItems.map((item, i) => (
+              <li key={i} className="flex items-start gap-1.5 text-xs text-(--color-text-muted)">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-(--color-accent)" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        ) : null}
         {isRequester && proposal.status === "sent" ? (
           <div className="flex gap-2">
             <button

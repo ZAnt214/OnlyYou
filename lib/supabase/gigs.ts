@@ -23,6 +23,9 @@ interface GigRow {
   price_cents: number;
   delivery_days: number | null;
   cover_image_url: string | null;
+  gallery_urls: string[];
+  revision_count: number | null;
+  included_items: string[];
   status: "active" | "paused";
   position: number;
   created_at: string;
@@ -43,6 +46,9 @@ function mapGig(r: GigRow): Gig {
     priceCents: r.price_cents,
     deliveryDays: r.delivery_days,
     coverImageUrl: r.cover_image_url ?? undefined,
+    galleryUrls: r.gallery_urls ?? [],
+    revisionCount: r.revision_count ?? undefined,
+    includedItems: r.included_items ?? [],
     status: r.status,
     position: r.position,
     createdAt: r.created_at,
@@ -66,6 +72,9 @@ export interface GigInput {
   sessionMinutes: number | null;
   currentRank: string;
   targetRank: string;
+  revisionCount: number | null;
+  includedItems: string[];
+  galleryUrls: string[];
 }
 
 /** Feed/busca pública — só gigs ativos, mais recentes primeiro. */
@@ -111,6 +120,13 @@ export async function searchActiveGigs(supabase: SupabaseClient, query: string):
   return (data ?? []).map(mapGig);
 }
 
+/** Um gig específico — usado para pré-preencher a proposta a partir do anúncio de origem. */
+export async function getGigById(supabase: SupabaseClient, id: string): Promise<Gig | null> {
+  const { data, error } = await supabase.from("gigs").select("*").eq("id", id).maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? mapGig(data) : null;
+}
+
 /** Painel do criador — inclui os pausados, só o próprio dono enxerga via RLS. */
 export async function listGigsForCreator(supabase: SupabaseClient, creatorId: string): Promise<Gig[]> {
   const { data, error } = await supabase
@@ -135,6 +151,9 @@ export async function createGig(supabase: SupabaseClient, input: GigInput): Prom
     p_session_minutes: input.sessionMinutes,
     p_current_rank: input.currentRank,
     p_target_rank: input.targetRank,
+    p_revision_count: input.revisionCount,
+    p_included_items: input.includedItems,
+    p_gallery_urls: input.galleryUrls,
   });
   return mapGig(unwrap(data, error) as GigRow);
 }
@@ -158,6 +177,9 @@ export async function updateGig(
     p_session_minutes: input.sessionMinutes,
     p_current_rank: input.currentRank,
     p_target_rank: input.targetRank,
+    p_revision_count: input.revisionCount,
+    p_included_items: input.includedItems,
+    p_gallery_urls: input.galleryUrls,
   });
   return mapGig(unwrap(data, error) as GigRow);
 }
