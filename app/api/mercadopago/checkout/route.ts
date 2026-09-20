@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/supabase/session";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getServerPaymentProvider } from "@/lib/payments/getServerPaymentProvider";
 import { createPendingConfirmation } from "@/lib/payments/paymentConfirmations";
-import { productRepository } from "@/lib/repositories/ProductRepository";
+import { getProductOrderById } from "@/lib/supabase/products";
 import { platformConfig } from "@/lib/security/config";
 import type { PaymentMethod } from "@/lib/types";
 
@@ -24,9 +25,11 @@ function isValidBody(body: unknown): body is ProductCheckoutBody {
 /**
  * Checkout de PRODUTO do catálogo (conta única da plataforma — todo
  * pagamento cai na conta do Jobê; o repasse ao criador é saldo em carteira +
- * saque manual, ver lib/supabase/wallet.ts). Valor e criador são sempre
- * resolvidos no servidor a partir de productRepository, nunca vindos do
- * cliente.
+ * saque manual, ver lib/supabase/wallet.ts). O pedido (product_orders) já
+ * precisa existir — criado antes pela RPC create_product_order, que trava
+ * o preço no momento da compra — este endpoint só confere que o pedido é
+ * do próprio comprador, está aguardando pagamento e bate com o produto
+ * informado; nunca recalcula valor a partir do produto "ao vivo".
  *
  * Pedido personalizado NÃO passa por aqui: usa o Payment Brick
  * (/api/mercadopago/brick-session + /api/mercadopago/process-payment), que é
@@ -47,15 +50,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Corpo da requisição inválido." }, { status: 400 });
   }
 
-  const product = await productRepository.findById(body.productId);
-  if (!product || product.status !== "approved") {
-    return NextResponse.json({ error: "Produto não encontrado ou indisponível." }, { status: 404 });
+  const supabase = await createServerClient();
+  const order = await getProductOrderById(supabase, body.orderId);
+  if (!order || order.buyerId !== buyer.id || order.productId !== body.productId) {
+    return NextResponse.json({ error: "Pedido não encontrado." }, { status: 404 });
   }
-  const amount = product.promoPrice ?? product.price;
-  const creatorId = product.creatorId;
-  const description = product.title;
+  if (order.status !== "awaiting_payment") {
+    return NextResponse.json({ error: "Este pedido não está aguardando pagamento." }, { status: 409 });
+  }
 
-  const grossAmountCents = Math.round(amount * 100);
+  const { data: productRow } = await supabase.from("products").select("title").eq("id", order.productId).maybeSingle();
+  const creatorId = order.creatorId;
+  const description = productRow?.title ?? "Produto";
+
+  const grossAmountCents = order.unitPriceCents;
   const platformFeeCents = Math.round(grossAmountCents * platformConfig.platformRevenueShare);
   const creatorAmountCents = grossAmountCents - platformFeeCents;
 
@@ -63,7 +71,7 @@ export async function POST(request: Request) {
     const provider = getServerPaymentProvider();
     const result = await provider.createCheckout({
       orderId: body.orderId,
-      amount,
+      amount: grossAmountCents / 100,
       method: body.method,
       description,
     });

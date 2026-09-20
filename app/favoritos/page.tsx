@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useFavoriteRepository } from "@/lib/repositories/FavoriteRepository";
-import { productRepository } from "@/lib/repositories/ProductRepository";
+import { createClient } from "@/lib/supabase/client";
+import { listApprovedProducts } from "@/lib/supabase/products";
 import { ProductCard } from "@/components/ProductCard";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -14,7 +15,7 @@ export default function FavoritosPage() {
   const [products, setProducts] = useState<Product[] | null>(null);
 
   useEffect(() => {
-    productRepository.findAll().then(setProducts);
+    listApprovedProducts(createClient()).then(setProducts);
   }, []);
 
   const favorites = favoriteRepo.list();

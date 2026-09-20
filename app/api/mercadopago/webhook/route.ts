@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { fetchMercadoPagoPayment, mapMercadoPagoStatus } from "@/lib/payments/MercadoPagoProvider";
 import { confirmPaymentFromWebhook } from "@/lib/payments/paymentConfirmations";
 import { activateCustomServiceOrderAfterPayment } from "@/lib/payments/activateCustomServiceOrder";
+import { activateProductOrderAfterPayment } from "@/lib/payments/activateProductOrderAfterPayment";
 
 /**
  * Recebe as notificações (webhook) do Mercado Pago.
@@ -48,6 +49,9 @@ export async function POST(request: Request) {
 
     if (kind === "custom_service" && mappedStatus === "paid") {
       await activateCustomServiceOrderAfterPayment(payment.externalReference);
+    }
+    if (kind === "product" && mappedStatus === "paid") {
+      await activateProductOrderAfterPayment(payment.externalReference);
     }
   } catch (error) {
     console.error("[mercadopago/webhook]", error);

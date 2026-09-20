@@ -3,6 +3,113 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Produtos digitais: catálogo, compra e biblioteca reais
+
+### Objetivo
+
+- Segunda fatia da evolução do Jobê. A primeira análise (ver entrada anterior) identificou uma
+  violação séria da própria regra de persistência do CLAUDE.md: **produtos digitais** — e, na
+  investigação, na verdade um ecossistema inteiro paralelo (`ProductRepository`, `OrderRepository`,
+  `PaymentRepository`, `EntitlementRepository`, `SaleRepository`, `WalletService`,
+  `EntitlementService`, `OrderService`, `PaymentService`) — viviam inteiramente em
+  `localStorage` via `MockSessionProvider`. O pagamento em si já era real (Mercado Pago +
+  `payment_confirmations`, com `kind: "product"` já previsto no schema), mas o acesso concedido
+  ao comprador (biblioteca) nunca era: ficava preso ao navegador de quem comprou, sem
+  sobreviver a reload/dispositivo — ou seja, dinheiro real por um "acesso" que só existia
+  localmente.
+- Usuário confirmou escopo completo: catálogo + compra + biblioteca, ponta a ponta, reaproveitando
+  ao máximo a infraestrutura real já existente (Mercado Pago, `payment_confirmations`, `wallet`).
+
+### Mudanças
+
+- Supabase (projeto `onlyyou`), migração `products_orders_entitlements_schema`
+  - `products`: catálogo real (título, descrição, categoria, tags, tipo, preço/preço promocional
+    em centavos, capa, galeria, `file_url` — o arquivo real entregue —, status, rating/vendas).
+    RLS: público só vê `approved`; dono vê tudo. RPCs `create_product`/`update_product`/
+    `delete_product` (mesma disciplina de `gigs`: `security invoker`, `search_path` vazio,
+    sanitização de arrays no banco).
+  - `product_orders`: pedido de compra com preço **travado no momento da criação**
+    (`create_product_order`, RPC) — vira o `order_id` levado ao Mercado Pago. RLS: só
+    comprador/criador leem a própria linha; nenhuma policy de update para `authenticated` (só
+    service role, via webhook).
+  - `product_entitlements`: acesso concedido — só gravada pelo servidor (nunca pelo
+    comprador). `unique(product_id, buyer_id)`.
+  - `get_advisors` (security) checado depois da migração: nenhum alerta novo.
+- `lib/payments/activateProductOrderAfterPayment.ts` (novo, mesma forma de
+  `activateCustomServiceOrder.ts`): chamado pelo webhook quando `payment_confirmations` confirma
+  `paid` com `kind: "product"` — marca o pedido como pago, concede o entitlement, incrementa
+  `sales_count`, notifica os dois lados. Idempotente.
+  - Ligado em `app/api/mercadopago/webhook/route.ts` (confirmação assíncrona) e
+    `app/api/mercadopago/status/route.ts` (reconciliação ativa do retorno do Checkout Pro),
+    espelhando exatamente como `custom_service` já funcionava.
+  - **Achado de segurança corrigido no caminho**: `app/api/mercadopago/checkout/route.ts`
+    confiava num `orderId` inventado pelo navegador e recalculava o valor a partir do produto "ao
+    vivo" a cada chamada. Agora exige um `product_orders` real (criado antes pela RPC, preço já
+    travado) e só confere que ele pertence ao comprador autenticado — nunca mais confia em nada
+    vindo do cliente para decidir valor/criador.
+  - `getCreatorBalance` (`lib/supabase/wallet.ts`) já somava `payment_confirmations` por
+    `creator_id` sem filtrar por `kind` — carteira/saque do criador passam a refletir vendas de
+    produto automaticamente, **sem nenhuma mudança** nessa função.
+- `lib/supabase/products.ts` (novo, mesmo padrão de `gigs.ts`): leituras públicas
+  (`listApprovedProducts`, `listApprovedProductsByCategory`, `searchApprovedProducts`,
+  `getPublicProductById`) nunca selecionam `file_url` — só `listProductsForCreator` (painel do
+  dono) e `listOwnedProductsForUser` (biblioteca de quem comprou) trazem essa coluna. Isso evita
+  que o link de download vaze para quem não pagou, já que RLS é por linha, não por coluna.
+- `app/api/upload/route.ts`, `lib/uploadFile.ts`: dois `UploadKind` novos —
+  `product-image` (mesmas regras de `portfolio-image`) e `product-file` (qualquer arquivo até
+  500 MB, só para criadores) — upload real via Vercel Blob, mesmo mecanismo já usado em entrega
+  de pedido/portfólio.
+- `app/dashboard/produtos/novo/page.tsx`: assistente de publicação deixou de ser uma simulação
+  (`moderationService.submitForReview()`, "simular envio de arquivo") — agora envia arquivo de
+  verdade e publica via `createProduct` (RPC), direto como `approved` (sem fila de moderação,
+  mesma política self-serve de `gigs`).
+  `app/dashboard/produtos/page.tsx`: listagem real, publicar/despublicar e excluir via RPC.
+- `components/ProductPurchaseArea.tsx`, `components/CheckoutFlow.tsx`,
+  `app/checkout/[productId]/page.tsx`, `app/checkout/retorno/page.tsx`: reescritos sem
+  `useMockSession`/`useCheckoutServices` — criam pedido real, chamam o checkout real, e só
+  liberam a tela de "pago" quando `/api/mercadopago/status` confirma (que é quem concede o
+  entitlement de verdade). `MercadoPagoPixPanel` perdeu o acoplamento ao tipo concreto
+  `PaymentService` (agora só exige um `syncStatus`, sem repositório mock nenhum por trás).
+- `app/biblioteca/page.tsx`: lê `product_entitlements` de verdade (via `useCurrentUserId` real),
+  com botão "Baixar" para o `file_url` de cada produto comprado.
+- Substituições diretas de `productRepository` (mock) por `lib/supabase/products.ts` em:
+  `app/page.tsx`, `app/produto/[id]/page.tsx` (perdeu `generateStaticParams` — produto agora é
+  dado real e dinâmico, virou ISR com `revalidate = 60`, igual à home), `app/categorias/[slug]/page.tsx`,
+  `app/criadores/[username]/page.tsx`, `app/descobrir/page.tsx`, `app/favoritos/page.tsx`,
+  `app/admin/page.tsx` (contagem real via `service.ts`), `app/dashboard/{estatisticas,page,vendas}.tsx`.
+- Removidos por ficarem sem nenhum consumidor real: `lib/repositories/ProductRepository.ts`,
+  `lib/repositories/PaymentRepository.ts`, `lib/repositories/EntitlementRepository.ts`,
+  `lib/services/{useCheckoutServices,PaymentService,OrderService,WalletService,EntitlementService}.ts`,
+  `lib/checkout/finalizeCheckout.ts`, `lib/access/content-release.ts`, `lib/data/products.ts`.
+
+### Fora do escopo desta fatia (permanece mock, documentado para não confundir depois)
+
+- `app/dashboard/vendas/page.tsx` e `app/dashboard/estatisticas/page.tsx` ainda leem
+  `OrderRepository`/`SaleRepository` mock para o **histórico** de vendas (lista/gráfico) — a
+  fonte de verdade financeira real já é `payment_confirmations` (usada por `wallet.ts`); migrar
+  essas duas telas para consultar `payment_confirmations` diretamente é o próximo passo natural,
+  não feito agora para não ampliar ainda mais esta mudança.
+- Favoritos (`FavoriteRepository`), cupons (`CouponRepository`), avaliação de produto
+  (`ReviewRepository`, diferente de `custom_order_reviews`) e denúncias de produto
+  (`ReportRepository`) continuam mock — nenhum desses foi pedido nesta fatia.
+- Nenhuma fila de moderação para produto (`pending_review`/`rejected`/`suspended`): publicação é
+  self-serve, igual a `gigs`. As colunas/valores continuam existindo no banco para o dia em que
+  isso for construído.
+
+### Validação
+
+- `tsc --noEmit` no projeto inteiro: sem erros.
+- `eslint .` no projeto inteiro: sem erros (2 avisos de `set-state-in-effect` encontrados e
+  corrigidos em `app/biblioteca/page.tsx` e `components/ProductPurchaseArea.tsx`).
+- `npx next build`: compilação e checagem de tipos concluídas; a geração estática chegou a
+  28/38 páginas fazendo chamadas reais ao Supabase antes de ser bloqueada pela política de rede
+  deste sandbox (host não liberado no allowlist) — confirma que o código chega a fazer requests
+  reais, não é um erro de lógica. Falta validar a build completa e o fluxo de compra ponta a
+  ponta (Pix real) num ambiente com rede liberada e `.env.local` configurado.
+- Migração e RPCs aplicadas diretamente no projeto Supabase real via MCP; `get_advisors`
+  (security) conferido: nenhum alerta novo além dos já documentados.
+- Checagem de cores fixas nos arquivos alterados: nenhuma ocorrência.
+
 ## 2026-09-20 — Ofertas com revisões e "o que está incluso"
 
 ### Objetivo

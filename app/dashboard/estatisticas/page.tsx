@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import type { Product, User } from "@/lib/types";
-import { productRepository } from "@/lib/repositories/ProductRepository";
+import { listProductsForCreator } from "@/lib/supabase/products";
 import { useSaleRepository } from "@/lib/repositories/SaleRepository";
+import { createClient } from "@/lib/supabase/client";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { StatCard } from "@/components/StatCard";
 import { DashboardLoading } from "@/components/DashboardLoading";
@@ -18,7 +19,7 @@ export default function DashboardEstatisticasPage() {
     (async () => {
       const c = await getCurrentCreatorClient();
       setCreator(c);
-      setProducts(await productRepository.findByCreator(c.id));
+      setProducts(await listProductsForCreator(createClient(), c.id));
     })();
   }, []);
 

@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Loader2 } from "lucide-react";
 import type { Payment } from "@/lib/types";
-import type { PaymentService } from "@/lib/services/PaymentService";
 
 const POLL_INTERVAL_MS = 3000;
 
 interface MercadoPagoPixPanelProps {
   payment: Payment;
-  paymentService: PaymentService;
+  /** Só precisa saber consultar o status real — não depende mais de nenhum repositório mock. */
+  paymentService: { syncStatus(orderId: string, mpPaymentIdHint?: string): Promise<Payment> };
   onPaid: (payment: Payment) => void;
 }
 

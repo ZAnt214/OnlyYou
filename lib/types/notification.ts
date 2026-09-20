@@ -13,7 +13,9 @@ export type NotificationType =
   | "CUSTOM_REFUND_CREATED"
   | "CUSTOM_DISPUTE_CREATED"
   | "WITHDRAWAL_PAID"
-  | "WITHDRAWAL_REJECTED";
+  | "WITHDRAWAL_REJECTED"
+  | "PRODUCT_SOLD"
+  | "PRODUCT_PURCHASE_CONFIRMED";
 
 export interface Notification {
   id: string;

@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { productRepository } from "@/lib/repositories/ProductRepository";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { reviewRepository } from "@/lib/repositories/ReviewRepository";
+import { createPublicClient } from "@/lib/supabase/public";
+import { getPublicProductById, listApprovedProductsByCategory, listProductsForCreator } from "@/lib/supabase/products";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { RatingStars } from "@/components/RatingStars";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -12,32 +13,25 @@ import { ProductCard } from "@/components/ProductCard";
 import { ProductPurchaseArea } from "@/components/ProductPurchaseArea";
 import { FavoriteButton } from "@/components/FavoriteButton";
 
-/**
- * Todo dado desta página vem de repositório mock (arrays compilados no
- * bundle — produto, criador e avaliações), então não há o que buscar por
- * request: pré-renderizar deixa cada /produto/[id] servir da CDN em vez de
- * acordar uma função serverless. Isso importa porque a home e as listagens
- * têm vários links de produto, e o Next faz prefetch de todos eles — nos
- * logs da Vercel era uma invocação serverless por produto visível na tela.
- */
-export async function generateStaticParams() {
-  const products = await productRepository.findAll();
-  return products.map((product) => ({ id: product.id }));
-}
+// Produto é real (criado a qualquer momento por um criador) — sem
+// generateStaticParams, cada id novo funciona sem precisar de redeploy;
+// ISR ainda serve do cache na maior parte do tempo, igual à home.
+export const revalidate = 60;
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = await productRepository.findById(id);
+  const supabase = createPublicClient();
+  const product = await getPublicProductById(supabase, id);
   if (!product) notFound();
 
   const [creator, related, moreFromCreator, productReviews] = await Promise.all([
     userRepository.findById(product.creatorId),
-    productRepository.findByCategory(product.category),
-    productRepository.findByCreator(product.creatorId),
+    listApprovedProductsByCategory(supabase, product.category),
+    listProductsForCreator(supabase, product.creatorId),
     reviewRepository.findByProduct(product.id),
   ]);
 
-  const relatedProducts = related.filter((p) => p.id !== product.id && p.status === "approved").slice(0, 4);
+  const relatedProducts = related.filter((p) => p.id !== product.id).slice(0, 4);
   const others = moreFromCreator.filter((p) => p.id !== product.id && p.status === "approved").slice(0, 4);
 
   return (

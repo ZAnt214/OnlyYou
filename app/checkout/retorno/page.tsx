@@ -4,18 +4,21 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
-import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
-import { useOrderRepository } from "@/lib/repositories/OrderRepository";
-import { useCheckoutServices } from "@/lib/services/useCheckoutServices";
-import { finalizeProductCheckout } from "@/lib/checkout/finalizeCheckout";
 
 type Outcome = "checking" | "paid" | "pending" | "failed" | "not-found";
+
+interface StatusApiResult {
+  status: "pending" | "processing" | "paid" | "failed" | "chargeback" | "refunded";
+  paid: boolean;
+}
 
 /**
  * Retorno do Checkout Pro (cartão/boleto) após o pagamento no ambiente do
  * Mercado Pago. Nunca confia no status vindo da própria URL — sempre
- * reconsulta a API do Mercado Pago pelo payment_id antes de liberar o
- * conteúdo.
+ * reconsulta /api/mercadopago/status, que por sua vez confirma junto à API
+ * do Mercado Pago (nunca no navegador) e é quem concede o acesso real na
+ * biblioteca (ver activateProductOrderAfterPayment). Esta página só
+ * reflete o resultado, nunca decide nada sozinha.
  */
 export default function CheckoutReturnPage() {
   return (
@@ -32,47 +35,22 @@ function CheckoutReturnContent() {
   const orderId = searchParams.get("orderId");
   const mpPaymentId = searchParams.get("payment_id");
 
-  const session = useMockSession();
-  const orderRepo = useOrderRepository();
-  const { orderService, paymentService, walletService, entitlementService } = useCheckoutServices();
-
-  const order = orderId ? orderRepo.findById(orderId) : null;
-  const localPayment = orderId ? paymentService.findByOrder(orderId) : null;
-
-  const syncOutcome: Outcome | null = !orderId || !order || !localPayment
-    ? "not-found"
-    : localPayment.status === "paid"
-      ? "paid"
-      : !mpPaymentId
-        ? "pending"
-        : null;
-
-  const [outcome, setOutcome] = useState<Outcome>(syncOutcome ?? "checking");
+  const [outcome, setOutcome] = useState<Outcome>(orderId ? "checking" : "not-found");
 
   useEffect(() => {
-    if (syncOutcome || !order || !localPayment || !mpPaymentId || !orderId) return;
-
+    if (!orderId) return;
     let cancelled = false;
-    paymentService
-      .syncStatus(orderId, mpPaymentId)
-      .then((confirmed) => {
+
+    const params = new URLSearchParams({ orderId });
+    if (mpPaymentId) params.set("mpPaymentId", mpPaymentId);
+
+    fetch(`/api/mercadopago/status?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data: StatusApiResult) => {
         if (cancelled) return;
-        if (confirmed.status === "paid") {
-          finalizeProductCheckout({
-            order,
-            payment: confirmed,
-            userId: session.currentUserId,
-            productId: order.items[0].productId,
-            orderService,
-            walletService,
-            entitlementService,
-          });
-          setOutcome("paid");
-        } else if (confirmed.status === "failed" || confirmed.status === "chargeback") {
-          setOutcome("failed");
-        } else {
-          setOutcome("pending");
-        }
+        if (data.paid) setOutcome("paid");
+        else if (data.status === "failed" || data.status === "chargeback") setOutcome("failed");
+        else setOutcome("pending");
       })
       .catch(() => {
         if (!cancelled) setOutcome("failed");
@@ -81,7 +59,6 @@ function CheckoutReturnContent() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId, mpPaymentId]);
 
   if (outcome === "checking") {
@@ -97,7 +74,7 @@ function CheckoutReturnContent() {
   if (outcome === "paid") {
     return (
       <Status
-        icon={<CheckCircle2 size={32} className="text-(--color-success)" strokeWidth={1.5} />}
+        icon={<CheckCircle2 size={32} className="text-(--color-accent)" strokeWidth={1.5} />}
         title="Pagamento confirmado"
         description="Seu conteúdo já está disponível na sua biblioteca."
         action={{ href: "/biblioteca", label: "Ir para a biblioteca" }}
@@ -110,8 +87,8 @@ function CheckoutReturnContent() {
       <Status
         icon={<Loader2 size={32} className="text-(--color-warning)" strokeWidth={1.5} />}
         title="Pagamento ainda pendente"
-        description="Assim que o Mercado Pago confirmar, seu conteúdo será liberado. Você pode acompanhar em Meus pedidos."
-        action={{ href: "/pedidos", label: "Ver meus pedidos" }}
+        description="Assim que o Mercado Pago confirmar, seu conteúdo será liberado."
+        action={{ href: "/biblioteca", label: "Ver biblioteca" }}
       />
     );
   }
@@ -131,7 +108,7 @@ function CheckoutReturnContent() {
     <Status
       icon={<XCircle size={32} className="text-(--color-danger)" strokeWidth={1.5} />}
       title="Pedido não encontrado"
-      description="Não encontramos este pedido nesta sessão."
+      description="Não encontramos este pedido."
       action={{ href: "/", label: "Voltar ao início" }}
     />
   );

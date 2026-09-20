@@ -1,24 +1,35 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Lock } from "lucide-react";
 import type { Product } from "@/lib/types";
-import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
-import { useEntitlementRepository } from "@/lib/repositories/EntitlementRepository";
-import { isContentReleased } from "@/lib/access/content-release";
+import { createClient } from "@/lib/supabase/client";
+import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
+import { hasActiveEntitlement } from "@/lib/supabase/products";
 import { PriceTag } from "@/components/PriceTag";
 
 export function ProductPurchaseArea({ product }: { product: Product }) {
-  const session = useMockSession();
-  const entitlementRepo = useEntitlementRepository();
-  const entitlement = entitlementRepo.findByUserAndProduct(session.currentUserId, product.id);
-  const released = isContentReleased(entitlement);
+  const { userId, loading } = useCurrentUserId();
+  const [fetchedReleased, setFetchedReleased] = useState(false);
+
+  useEffect(() => {
+    if (!userId) return;
+    const supabase = createClient();
+    hasActiveEntitlement(supabase, userId, product.id)
+      .then(setFetchedReleased)
+      .catch(() => setFetchedReleased(false));
+  }, [userId, product.id]);
+
+  const released = Boolean(userId) && fetchedReleased;
+
+  if (loading) return null;
 
   if (released) {
     return (
       <div className="flex flex-col gap-3">
         <PriceTag price={product.price} promoPrice={product.promoPrice} size="lg" />
-        <div className="flex items-center gap-2 rounded-md border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-success)">
+        <div className="flex items-center gap-2 rounded-md border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-accent)">
           <CheckCircle2 size={16} strokeWidth={1.5} />
           Conteúdo liberado
         </div>
@@ -36,7 +47,7 @@ export function ProductPurchaseArea({ product }: { product: Product }) {
     <div className="flex flex-col gap-3">
       <PriceTag price={product.price} promoPrice={product.promoPrice} size="lg" />
       <Link
-        href={`/checkout/${product.id}`}
+        href={userId ? `/checkout/${product.id}` : "/entrar"}
         className="rounded-md bg-(--color-accent) px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-(--color-accent-hover)"
       >
         Comprar agora

@@ -7,6 +7,7 @@ import {
 import { getServerPaymentProvider } from "@/lib/payments/getServerPaymentProvider";
 import { isPaidStatus } from "@/lib/payments/PaymentProvider";
 import { activateCustomServiceOrderAfterPayment } from "@/lib/payments/activateCustomServiceOrder";
+import { activateProductOrderAfterPayment } from "@/lib/payments/activateProductOrderAfterPayment";
 import type { PaymentStatus } from "@/lib/types";
 
 /**
@@ -44,6 +45,9 @@ export async function GET(request: Request) {
       confirmation = await getConfirmationForViewer(orderId);
       if (confirmation?.kind === "custom_service" && isPaidStatus(status)) {
         await activateCustomServiceOrderAfterPayment(orderId);
+      }
+      if (confirmation?.kind === "product" && isPaidStatus(status)) {
+        await activateProductOrderAfterPayment(orderId);
       }
     } catch (error) {
       console.error("[mercadopago/status] reconciliação ativa falhou", error);

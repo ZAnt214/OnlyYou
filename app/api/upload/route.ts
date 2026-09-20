@@ -28,6 +28,24 @@ const KIND_RULES = {
     ],
     maximumSizeInBytes: 200 * 1024 * 1024,
   },
+  "product-image": {
+    allowedContentTypes: ["image/png", "image/jpeg", "image/webp", "image/gif"],
+    maximumSizeInBytes: 25 * 1024 * 1024,
+  },
+  "product-file": {
+    allowedContentTypes: [
+      "image/png",
+      "image/jpeg",
+      "image/webp",
+      "image/gif",
+      "application/pdf",
+      "application/zip",
+      "application/x-zip-compressed",
+      "video/mp4",
+      "audio/mpeg",
+    ],
+    maximumSizeInBytes: 500 * 1024 * 1024,
+  },
 } as const;
 
 type UploadKind = keyof typeof KIND_RULES;
@@ -36,7 +54,7 @@ function parseKind(clientPayload: string | null): UploadKind | null {
   if (!clientPayload) return null;
   try {
     const { kind } = JSON.parse(clientPayload) as { kind?: string };
-    return kind === "portfolio-image" || kind === "delivery" ? kind : null;
+    return kind && kind in KIND_RULES ? (kind as UploadKind) : null;
   } catch {
     return null;
   }
@@ -75,6 +93,10 @@ export async function POST(request: Request): Promise<NextResponse> {
 
         if (kind === "portfolio-image" && !user.creatorProfile) {
           throw new Error("Só criadores podem enviar imagens de portfólio.");
+        }
+
+        if ((kind === "product-image" || kind === "product-file") && !user.creatorProfile) {
+          throw new Error("Só criadores podem enviar arquivos de produto.");
         }
 
         if (kind === "delivery") {

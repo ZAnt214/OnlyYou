@@ -4,28 +4,29 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Library } from "lucide-react";
 import type { Product } from "@/lib/types";
-import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
-import { useEntitlementRepository } from "@/lib/repositories/EntitlementRepository";
-import { productRepository } from "@/lib/repositories/ProductRepository";
+import { createClient } from "@/lib/supabase/client";
+import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
+import { listOwnedProductsForUser } from "@/lib/supabase/products";
 import { ProductCard } from "@/components/ProductCard";
 import { EmptyState } from "@/components/EmptyState";
 
+/**
+ * Conteúdo comprado de verdade: `product_entitlements` só é gravada pelo
+ * servidor (webhook do Mercado Pago), nunca por este componente — ver
+ * lib/payments/activateProductOrderAfterPayment.ts. Diferente da versão
+ * anterior (localStorage/mock), o que aparece aqui sobrevive a reload, a
+ * uma nova sessão e a trocar de dispositivo.
+ */
 export default function BibliotecaPage() {
-  const session = useMockSession();
-  const entitlementRepo = useEntitlementRepository();
-  const [products, setProducts] = useState<Product[] | null>(null);
+  const { userId, loading } = useCurrentUserId();
+  const [fetchedProducts, setFetchedProducts] = useState<Product[] | null>(null);
 
   useEffect(() => {
-    productRepository.findAll().then(setProducts);
-  }, []);
+    if (!userId) return;
+    listOwnedProductsForUser(createClient(), userId).then(setFetchedProducts);
+  }, [userId]);
 
-  const activeEntitlements = entitlementRepo
-    .findByUser(session.currentUserId)
-    .filter((e) => e.status === "active");
-
-  const owned = (products ?? []).filter((p) =>
-    activeEntitlements.some((e) => e.productId === p.id),
-  );
+  const products = loading ? null : userId ? fetchedProducts : [];
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-4">
@@ -33,7 +34,7 @@ export default function BibliotecaPage() {
         <h1 className="text-base font-bold text-(--color-text)">Sua biblioteca</h1>
       </div>
 
-      {products === null ? null : owned.length === 0 ? (
+      {products === null ? null : products.length === 0 ? (
         <EmptyState
           icon={Library}
           title="Nenhum conteúdo por enquanto"
@@ -49,8 +50,20 @@ export default function BibliotecaPage() {
         />
       ) : (
         <div className="grid grid-cols-2 gap-3">
-          {owned.map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {products.map((p) => (
+            <div key={p.id} className="flex flex-col gap-1.5">
+              <ProductCard product={p} />
+              {p.fileUrl ? (
+                <a
+                  href={p.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="self-start rounded-(--radius-pill) bg-(--color-accent-soft) px-3 py-1 text-xs font-medium text-(--color-accent) hover:bg-(--color-accent) hover:text-white"
+                >
+                  Baixar
+                </a>
+              ) : null}
+            </div>
           ))}
         </div>
       )}

@@ -1,5 +1,5 @@
-import { productRepository } from "@/lib/repositories/ProductRepository";
 import { userRepository } from "@/lib/repositories/UserRepository";
+import { searchApprovedProducts } from "@/lib/supabase/products";
 import { categoryRepository } from "@/lib/repositories/CategoryRepository";
 import { createPublicClient } from "@/lib/supabase/public";
 import { searchActiveGigs } from "@/lib/supabase/gigs";
@@ -48,8 +48,8 @@ export default async function DescobrirPage({
 }) {
   const { q = "", categoria = "", sort = "", ofertas = "" } = await searchParams;
   const supabase = createPublicClient();
-  const [allProducts, creators, categories, gigs] = await Promise.all([
-    productRepository.search(q),
+  const [products, creators, categories, gigs] = await Promise.all([
+    searchApprovedProducts(supabase, q),
     userRepository.findCreators(),
     categoryRepository.findAll(),
     // Sem busca, searchActiveGigs já cai pra listActiveGigs (mais recentes,
@@ -64,8 +64,6 @@ export default async function DescobrirPage({
     ),
   );
   const gigCreatorNames = Object.fromEntries(gigCreatorNameById);
-
-  const products = allProducts.filter((p) => p.status === "approved");
 
   // A busca de produtos (título/descrição/tags) não encontra um criador sem
   // produto publicado — comparar também username/nome mantém a promessa do
