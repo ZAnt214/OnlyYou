@@ -4,107 +4,24 @@ import { categoryRepository } from "@/lib/repositories/CategoryRepository";
 import { createPublicClient } from "@/lib/supabase/public";
 import { searchActiveGigs } from "@/lib/supabase/gigs";
 import { listUsersByIds } from "@/lib/supabase/profile";
-import { ProductCard } from "@/components/ProductCard";
 import { GigCard } from "@/components/GigCard";
 import { CreatorCard } from "@/components/CreatorCard";
 import { EmptyState } from "@/components/EmptyState";
+import {
+  ExploreCategories,
+  ExploreFilterProvider,
+  ExploreProducts,
+  ExploreResultSummary,
+  ExploreSortFilters,
+} from "@/components/ExploreFilters";
 import Link from "next/link";
 import {
   Compass,
   Search,
-  Palette,
-  Megaphone,
-  Code2,
-  Music,
-  Video,
-  Layers,
-  PenLine,
-  Share2,
-  Languages,
-  Briefcase,
-  Camera,
-  Paintbrush,
-  Gamepad2,
-  GraduationCap,
-  BookOpen,
-  BookMarked,
-  LayoutTemplate,
-  Star,
-  Wrench,
-  Globe,
-  Package,
-  Grid3x3,
-  Laugh,
-  Smile,
-  Sparkles,
-  UtensilsCrossed,
-  Dumbbell,
-  Shirt,
-  Plane,
-  PawPrint,
-  Moon,
-  Flame,
-  Wallet,
-  Scissors,
-  Mic,
-  Clapperboard,
-  Trophy,
-  ArrowRight,
-  SlidersHorizontal,
   BadgeCheck,
-  ShoppingBag,
   BriefcaseBusiness,
   type LucideIcon,
 } from "lucide-react";
-
-const SORTS = [
-  { value: "", label: "Relevância" },
-  { value: "vendidos", label: "Mais vendidos" },
-  { value: "recentes", label: "Novidades" },
-] as const;
-
-// Ícone por categoria — Category (lib/types/product.ts) não tem campo de
-// ícone, então o mapeamento vive aqui, ao lado de quem exibe. Fallback pra
-// categorias futuras que ainda não tiverem entrada (Grid3x3 genérico).
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  fotos: Camera,
-  videos: Video,
-  "packs-digitais": Package,
-  arte: Paintbrush,
-  design: Palette,
-  musica: Music,
-  gaming: Gamepad2,
-  tutoriais: GraduationCap,
-  educacao: BookOpen,
-  ebooks: BookMarked,
-  templates: LayoutTemplate,
-  "conteudo-exclusivo": Star,
-  "servicos-personalizados": Wrench,
-  consultorias: Briefcase,
-  marketing: Megaphone,
-  "social-media": Share2,
-  programacao: Code2,
-  "desenvolvimento-web": Globe,
-  "ui-ux": Layers,
-  "redacao-e-copywriting": PenLine,
-  traducao: Languages,
-  memes: Laugh,
-  humor: Smile,
-  curiosidades: Sparkles,
-  culinaria: UtensilsCrossed,
-  fitness: Dumbbell,
-  "moda-e-beleza": Shirt,
-  viagem: Plane,
-  pets: PawPrint,
-  astrologia: Moon,
-  motivacional: Flame,
-  "financas-pessoais": Wallet,
-  "diy-artesanato": Scissors,
-  podcasts: Mic,
-  livros: BookMarked,
-  "cinema-e-series": Clapperboard,
-  esportes: Trophy,
-};
 
 // Recorte curado pra vitrine — o catálogo completo (lib/data/categories.ts)
 // tem dezenas de opções, mas listar tudo de cara polui a página. O resto
@@ -143,22 +60,7 @@ export default async function DescobrirPage({
     ),
   );
 
-  let products = allProducts.filter(
-    (p) =>
-      p.status === "approved" &&
-      (!categoria || p.category === categoria) &&
-      (!ofertas || p.promoPrice !== undefined),
-  );
-
-  if (sort === "vendidos") {
-    products = [...products].sort((a, b) => b.salesCount - a.salesCount);
-  } else if (sort === "recentes") {
-    products = [...products].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-  }
-
-  const nameById = new Map(creators.map((c) => [c.id, c.displayName]));
+  const products = allProducts.filter((p) => p.status === "approved");
 
   // A busca de produtos (título/descrição/tags) não encontra um criador sem
   // produto publicado — comparar também username/nome mantém a promessa do
@@ -176,7 +78,7 @@ export default async function DescobrirPage({
     categories.find((c) => c.slug === slug),
   ).filter((c): c is NonNullable<typeof c> => Boolean(c));
   const otherCategories = categories.filter((c) => !POPULAR_CATEGORY_SLUGS.includes(c.slug));
-  const activeCategory = categories.find((c) => c.slug === categoria);
+  const creatorNames = Object.fromEntries(creators.map((creator) => [creator.id, creator.displayName]));
 
   function buildQuery(overrides: Record<string, string>) {
     const params = new URLSearchParams({ q, categoria, sort, ofertas, ...overrides });
@@ -188,6 +90,7 @@ export default async function DescobrirPage({
   }
 
   return (
+    <ExploreFilterProvider initialCategory={categoria} initialSort={sort} initialOffers={Boolean(ofertas)}>
     <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-4">
       <section className="relative overflow-hidden rounded-3xl border border-(--color-border) bg-(--color-surface) px-5 py-6 shadow-sm sm:px-7 sm:py-7">
         <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-(--color-accent-soft) opacity-70" />
@@ -241,102 +144,9 @@ export default async function DescobrirPage({
         </div>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-(--color-accent)">
-              Explore por área
-            </p>
-            <h2 className="mt-1 text-xl font-bold tracking-tight text-(--color-text)">
-              Categorias populares
-            </h2>
-          </div>
-          {categoria ? (
-            <Link
-              href={buildQuery({ categoria: "" })}
-              className="shrink-0 text-xs font-semibold text-(--color-accent) hover:underline"
-            >
-              Limpar filtro
-            </Link>
-          ) : null}
-        </div>
-
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          {popularCategories.map((c) => {
-            const Icon = CATEGORY_ICONS[c.slug] ?? Grid3x3;
-            const active = categoria === c.slug;
-            return (
-              <Link
-                key={c.id}
-                href={buildQuery({ categoria: active ? "" : c.slug })}
-                className={`group flex min-h-28 flex-col justify-between rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:shadow-sm ${
-                  active
-                    ? "border-(--color-accent) bg-(--color-accent-soft)"
-                    : "border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)"
-                }`}
-              >
-                <span
-                  className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                    active
-                      ? "bg-(--color-accent) text-white"
-                      : "bg-(--color-surface-2) text-(--color-text-muted) group-hover:text-(--color-accent)"
-                  }`}
-                >
-                  <Icon size={19} strokeWidth={1.75} />
-                </span>
-                <div className="flex items-end justify-between gap-2">
-                  <span className={`text-sm font-semibold leading-tight ${active ? "text-(--color-accent)" : "text-(--color-text)"}`}>
-                    {c.name}
-                  </span>
-                  <ArrowRight size={15} className={active ? "text-(--color-accent)" : "text-(--color-text-subtle)"} />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-
-        <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
-          <Chip href={buildQuery({ categoria: "" })} active={!categoria}>Todas</Chip>
-          {otherCategories.map((c) => (
-            <Chip key={c.id} href={buildQuery({ categoria: c.slug })} active={categoria === c.slug}>
-              {c.name}
-            </Chip>
-          ))}
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-3">
-        <div className="mb-3 flex items-center gap-2 px-1">
-          <SlidersHorizontal size={16} className="text-(--color-accent)" />
-          <span className="text-sm font-semibold text-(--color-text)">Ordenar e filtrar</span>
-          {(sort || ofertas) ? (
-            <Link href={buildQuery({ sort: "", ofertas: "" })} className="ml-auto text-xs font-medium text-(--color-accent)">
-              Limpar
-            </Link>
-          ) : null}
-        </div>
-        <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
-          {SORTS.map((s) => (
-            <Chip key={s.value} href={buildQuery({ sort: s.value })} active={sort === s.value}>
-              {s.label}
-            </Chip>
-          ))}
-          <Chip href={buildQuery({ ofertas: ofertas ? "" : "1" })} active={Boolean(ofertas)}>
-            Só ofertas
-          </Chip>
-        </div>
-      </section>
-
-      {activeCategory || qNormalized ? (
-        <div className="flex items-center gap-2 rounded-2xl bg-(--color-surface-2) px-4 py-3 text-sm text-(--color-text-muted)">
-          <Search size={16} className="shrink-0 text-(--color-accent)" />
-          <span>
-            {qNormalized ? <>Resultados para <strong className="font-semibold text-(--color-text)">“{q}”</strong></> : null}
-            {qNormalized && activeCategory ? " em " : null}
-            {activeCategory ? <strong className="font-semibold text-(--color-text)">{activeCategory.name}</strong> : null}
-          </span>
-        </div>
-      ) : null}
+      <ExploreCategories popularCategories={popularCategories} otherCategories={otherCategories} />
+      <ExploreSortFilters />
+      <ExploreResultSummary categories={categories} query={q} />
 
       {matchingCreators.length > 0 ? (
         <section className="flex flex-col gap-3">
@@ -373,19 +183,7 @@ export default async function DescobrirPage({
       ) : null}
 
       {products.length > 0 ? (
-        <section className="flex flex-col gap-3">
-          <SectionHeading
-            icon={ShoppingBag}
-            eyebrow="Produtos digitais"
-            title={activeCategory ? activeCategory.name : qNormalized ? "Produtos encontrados" : "Prontos para usar"}
-            description="Descubra materiais digitais que podem acelerar seu projeto."
-          />
-          <div className="grid grid-cols-2 gap-3">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
-            ))}
-          </div>
-        </section>
+        <ExploreProducts products={products} creatorNames={creatorNames} />
       ) : matchingCreators.length === 0 && gigs.length === 0 ? (
         <div className="rounded-3xl border border-(--color-border) bg-(--color-surface) p-6">
           <EmptyState
@@ -396,6 +194,7 @@ export default async function DescobrirPage({
         </div>
       ) : null}
     </div>
+    </ExploreFilterProvider>
   );
 }
 
@@ -421,30 +220,6 @@ function SectionHeading({
         <p className="mt-0.5 text-xs leading-relaxed text-(--color-text-muted)">{description}</p>
       </div>
     </div>
-  );
-}
-
-
-function Chip({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`shrink-0 whitespace-nowrap rounded-(--radius-pill) border px-4 py-1.5 text-sm ${
-        active
-          ? "border-transparent bg-(--color-accent-soft) font-medium text-(--color-accent)"
-          : "border-(--color-border) bg-(--color-surface) text-(--color-text-muted) hover:bg-(--color-surface-2)"
-      }`}
-    >
-      {children}
-    </Link>
   );
 }
 
