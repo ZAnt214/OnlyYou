@@ -28,6 +28,8 @@ export interface CustomRequest {
   description: string;
   status: CustomRequestStatus;
   conversationId: string;
+  /** Gig que originou o pedido, quando veio de "Solicitar" num anúncio — permite pré-preencher a proposta. */
+  sourceGigId?: string;
   createdAt: string;
   updatedAt: string;
   expiresAt?: string;

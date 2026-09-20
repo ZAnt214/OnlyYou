@@ -17,6 +17,9 @@ interface FormState {
   price: string;
   deliveryDays: string;
   coverImageUrl: string;
+  galleryText: string;
+  revisionCount: string;
+  includedItemsText: string;
   status: "active" | "paused";
   category: GigCategory;
   game: string;
@@ -32,6 +35,9 @@ const EMPTY_FORM: FormState = {
   price: "",
   deliveryDays: "",
   coverImageUrl: "",
+  galleryText: "",
+  revisionCount: "",
+  includedItemsText: "",
   status: "active",
   category: "general",
   game: "",
@@ -49,6 +55,13 @@ function inputToCents(value: string): number {
   const normalized = value.replace(/\./g, "").replace(",", ".");
   const parsed = Math.round(parseFloat(normalized) * 100);
   return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+}
+
+function toLines(text: string): string[] {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 /**
@@ -69,6 +82,7 @@ export default function DashboardServicosPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -96,6 +110,9 @@ export default function DashboardServicosPage() {
       price: centsToInput(gig.priceCents),
       deliveryDays: gig.deliveryDays ? String(gig.deliveryDays) : "",
       coverImageUrl: gig.coverImageUrl ?? "",
+      galleryText: gig.galleryUrls.join("\n"),
+      revisionCount: gig.revisionCount !== undefined ? String(gig.revisionCount) : "",
+      includedItemsText: gig.includedItems.join("\n"),
       status: gig.status,
       category: gig.category,
       game: gig.game ?? "",
@@ -121,6 +138,22 @@ export default function DashboardServicosPage() {
     }
   }
 
+  async function handleGalleryUpload(files: FileList) {
+    setUploadingGallery(true);
+    setError(null);
+    try {
+      const urls = await Promise.all(Array.from(files).map((file) => uploadFile(file, "portfolio-image")));
+      setForm((f) => ({
+        ...f,
+        galleryText: [f.galleryText, ...urls].filter(Boolean).join("\n"),
+      }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível enviar as imagens.");
+    } finally {
+      setUploadingGallery(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -137,6 +170,9 @@ export default function DashboardServicosPage() {
       sessionMinutes: form.sessionMinutes.trim() ? Number(form.sessionMinutes) : null,
       currentRank: form.currentRank,
       targetRank: form.targetRank,
+      revisionCount: form.revisionCount.trim() ? Number(form.revisionCount) : null,
+      includedItems: toLines(form.includedItemsText),
+      galleryUrls: toLines(form.galleryText),
     };
     try {
       if (editingId) {
@@ -169,6 +205,9 @@ export default function DashboardServicosPage() {
         sessionMinutes: gig.sessionMinutes ?? null,
         currentRank: gig.currentRank ?? "",
         targetRank: gig.targetRank ?? "",
+        revisionCount: gig.revisionCount ?? null,
+        includedItems: gig.includedItems,
+        galleryUrls: gig.galleryUrls,
         status: gig.status === "active" ? "paused" : "active",
       });
       setGigs((prev) => prev.map((g) => (g.id === gig.id ? updated : g)));
@@ -247,6 +286,9 @@ export default function DashboardServicosPage() {
                       <Clock size={11} strokeWidth={1.5} />
                       {gig.deliveryDays}d
                     </span>
+                  ) : null}
+                  {gig.revisionCount !== undefined ? (
+                    <span>{gig.revisionCount === 0 ? "Sem revisões" : `${gig.revisionCount} revisões`}</span>
                   ) : null}
                   <span
                     className={
@@ -408,7 +450,34 @@ export default function DashboardServicosPage() {
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   rows={4}
-                  placeholder="O que está incluído, como funciona, o que você precisa do cliente para começar."
+                  placeholder="Como funciona, o que você precisa do cliente para começar."
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                />
+              </label>
+              <div className="flex gap-2">
+                <label className="flex flex-1 flex-col gap-1 text-sm text-(--color-text)">
+                  Revisões incluídas
+                  <input
+                    value={form.revisionCount}
+                    onChange={(e) => setForm((f) => ({ ...f, revisionCount: e.target.value }))}
+                    type="number"
+                    min={0}
+                    inputMode="numeric"
+                    placeholder="Ex.: 2 (opcional)"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  />
+                </label>
+              </div>
+              <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+                O que está incluso
+                <span className="text-xs font-normal text-(--color-text-subtle)">
+                  Uma linha por item — aparece como lista no anúncio.
+                </span>
+                <textarea
+                  value={form.includedItemsText}
+                  onChange={(e) => setForm((f) => ({ ...f, includedItemsText: e.target.value }))}
+                  rows={3}
+                  placeholder={"Arquivo em alta resolução\n2 rodadas de ajuste\nEntrega em até 5 dias"}
                   className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
                 />
               </label>
@@ -469,6 +538,38 @@ export default function DashboardServicosPage() {
                     />
                   </label>
                 </div>
+              </label>
+              <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+                Mais imagens (opcional)
+                <span className="text-xs font-normal text-(--color-text-subtle)">
+                  Exemplos de trabalhos anteriores — aparecem na tela do anúncio, uma por linha se
+                  for colar links.
+                </span>
+                <textarea
+                  value={form.galleryText}
+                  onChange={(e) => setForm((f) => ({ ...f, galleryText: e.target.value }))}
+                  rows={3}
+                  placeholder={"https://…\nhttps://…"}
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                />
+                <label className="flex w-fit cursor-pointer items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-1.5 text-xs font-medium text-(--color-text) hover:bg-(--color-surface-2)">
+                  {uploadingGallery ? (
+                    <Loader2 size={12} className="animate-spin" strokeWidth={1.5} />
+                  ) : (
+                    <Upload size={12} strokeWidth={1.5} />
+                  )}
+                  Ou envie arquivos do computador
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.length) void handleGalleryUpload(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
               </label>
 
               {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
