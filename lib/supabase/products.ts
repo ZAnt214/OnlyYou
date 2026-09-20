@@ -66,6 +66,20 @@ function unwrap<T>(data: T | null, error: { message: string } | null): T {
   return data as T;
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * `creator_id` é sempre um uuid real no banco, mas quem chama esta função
+ * às vezes vem de código que ainda mistura criadores mock (ids tipo
+ * "user-c01", ver lib/data/users.ts) com perfis reais — passar isso direto
+ * pro Postgres derruba a consulta inteira (erro de cast, não resultado
+ * vazio) em vez de simplesmente não achar nada, que é o que o mock antigo
+ * (filter em array) fazia. Trata como "sem produtos" em vez de propagar o erro.
+ */
+function isUuid(value: string): boolean {
+  return UUID_RE.test(value);
+}
+
 export async function listApprovedProducts(
   supabase: SupabaseClient,
   { limit = 60 }: { limit?: number } = {},
@@ -109,6 +123,7 @@ export async function searchApprovedProducts(supabase: SupabaseClient, query: st
 
 /** Detalhe público de um produto — nunca inclui file_url. */
 export async function getPublicProductById(supabase: SupabaseClient, id: string): Promise<Product | null> {
+  if (!isUuid(id)) return null;
   const { data, error } = await supabase.from("products").select(PUBLIC_COLUMNS).eq("id", id).maybeSingle();
   if (error) throw new Error(error.message);
   return data ? mapProduct(data) : null;
@@ -123,6 +138,7 @@ export async function getPublicProductById(supabase: SupabaseClient, id: string)
  * primeiro lugar se ela não estiver aprovada.
  */
 export async function listProductsForCreator(supabase: SupabaseClient, creatorId: string): Promise<Product[]> {
+  if (!isUuid(creatorId)) return [];
   const { data, error } = await supabase
     .from("products")
     .select(FULL_COLUMNS)
@@ -217,6 +233,7 @@ export async function createProductOrder(supabase: SupabaseClient, productId: st
 }
 
 export async function getProductOrderById(supabase: SupabaseClient, id: string): Promise<ProductOrder | null> {
+  if (!isUuid(id)) return null;
   const { data, error } = await supabase.from("product_orders").select("*").eq("id", id).maybeSingle();
   if (error) throw new Error(error.message);
   return data ? mapProductOrder(data) : null;

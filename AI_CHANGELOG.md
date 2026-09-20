@@ -3,6 +3,42 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Correção: erro de servidor ao abrir perfil de criador mock
+
+### Objetivo
+
+- Reportado pelo usuário: "This page couldn't load. A server error occurred." ao entrar numa
+  conta e clicar para ir a um perfil de criador.
+
+### Causa
+
+- A home ainda mistura criadores reais com criadores fictícios de demonstração
+  (`userRepository.findCreators()` concatena `profiles` reais com o array mock de
+  `lib/data/users.ts`). Ao abrir o perfil de um criador fictício, `getProfileByUsername` não
+  encontra linha real, e `app/criadores/[username]/page.tsx` cai no fallback
+  `userRepository.findByUsername` — que devolve um `creator.id` como `"user-c01"`, não um uuid.
+  Antes, os produtos desse criador vinham de um array em memória (`Array.filter`, nunca lança
+  erro para um id que não bate com nada). Com a fatia anterior (produtos reais), a mesma busca
+  virou uma consulta Postgres contra uma coluna `uuid` — e um valor como `"user-c01"` faz o
+  próprio banco rejeitar a consulta (erro de cast), não devolver uma lista vazia. Isso derrubava
+  a página inteira com erro 500.
+
+### Mudanças
+
+- `app/criadores/[username]/page.tsx`: produtos, avaliações, portfólio e currículo reais só são
+  buscados quando existe de fato um perfil real (`realProfile`) por trás — criador mock cai
+  direto nas quatro listas vazias, igual ao comportamento antigo.
+- `lib/supabase/products.ts`: `listProductsForCreator`, `getPublicProductById` e
+  `getProductOrderById` ganharam uma checagem de formato de uuid antes de consultar o Postgres —
+  qualquer id que não seja um uuid válido (criador mock, URL adulterada, etc.) devolve
+  vazio/`null` em vez de propagar um erro. Blinda a causa raiz, não só o ponto que quebrou desta
+  vez — protege qualquer chamador futuro que ainda misture ids mock com dados reais.
+
+### Validação
+
+- `tsc --noEmit` e `eslint` nos arquivos alterados: sem erros.
+- Reprodução manual pendente de confirmação do usuário.
+
 ## 2026-09-20 — Correção: RLS bloqueava publicar produto
 
 ### Objetivo
