@@ -9,13 +9,82 @@ import { GigCard } from "@/components/GigCard";
 import { CreatorCard } from "@/components/CreatorCard";
 import { EmptyState } from "@/components/EmptyState";
 import Link from "next/link";
-import { Compass, Search } from "lucide-react";
+import {
+  Compass,
+  Search,
+  Palette,
+  Megaphone,
+  Code2,
+  Music,
+  Video,
+  Layers,
+  PenLine,
+  Share2,
+  Languages,
+  Briefcase,
+  Camera,
+  Paintbrush,
+  Gamepad2,
+  GraduationCap,
+  BookOpen,
+  BookText,
+  LayoutTemplate,
+  Star,
+  Wrench,
+  Globe,
+  Package,
+  Grid3x3,
+  type LucideIcon,
+} from "lucide-react";
 
 const SORTS = [
   { value: "", label: "Relevância" },
   { value: "vendidos", label: "Mais vendidos" },
   { value: "recentes", label: "Novidades" },
 ] as const;
+
+// Ícone por categoria — Category (lib/types/product.ts) não tem campo de
+// ícone, então o mapeamento vive aqui, ao lado de quem exibe. Fallback pra
+// categorias futuras que ainda não tiverem entrada (Grid3x3 genérico).
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  fotos: Camera,
+  videos: Video,
+  "packs-digitais": Package,
+  arte: Paintbrush,
+  design: Palette,
+  musica: Music,
+  gaming: Gamepad2,
+  tutoriais: GraduationCap,
+  educacao: BookOpen,
+  ebooks: BookText,
+  templates: LayoutTemplate,
+  "conteudo-exclusivo": Star,
+  "servicos-personalizados": Wrench,
+  consultorias: Briefcase,
+  marketing: Megaphone,
+  "social-media": Share2,
+  programacao: Code2,
+  "desenvolvimento-web": Globe,
+  "ui-ux": Layers,
+  "redacao-e-copywriting": PenLine,
+  traducao: Languages,
+};
+
+// Vitrine estilo marketplace de serviços (Fiverr etc.): um punhado de
+// categorias em destaque na frente, o resto acessível pelos chips logo
+// abaixo — em vez de 21 categorias competindo pela atenção de uma vez.
+const POPULAR_CATEGORY_SLUGS = [
+  "design",
+  "programacao",
+  "marketing",
+  "musica",
+  "videos",
+  "ui-ux",
+  "redacao-e-copywriting",
+  "social-media",
+  "traducao",
+  "consultorias",
+];
 
 export default async function DescobrirPage({
   searchParams,
@@ -69,6 +138,12 @@ export default async function DescobrirPage({
       )
     : creators.slice(0, 6);
 
+  const popularCategories = POPULAR_CATEGORY_SLUGS.map((slug) =>
+    categories.find((c) => c.slug === slug),
+  ).filter((c): c is NonNullable<typeof c> => Boolean(c));
+  const otherCategories = categories.filter((c) => !POPULAR_CATEGORY_SLUGS.includes(c.slug));
+  const activeCategory = categories.find((c) => c.slug === categoria);
+
   function buildQuery(overrides: Record<string, string>) {
     const params = new URLSearchParams({ q, categoria, sort, ofertas, ...overrides });
     for (const [key, value] of [...params.entries()]) {
@@ -79,43 +154,96 @@ export default async function DescobrirPage({
   }
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-4">
-      <div className="flex items-center justify-center gap-2 rounded-2xl bg-(--color-surface) py-3 text-center">
-        <Compass size={16} strokeWidth={1.75} className="text-(--color-accent)" />
-        <h1 className="text-sm font-semibold text-(--color-text)">Explorar</h1>
+    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-4">
+      <div className="flex flex-col gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
+        <div className="flex items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-(--color-accent-soft) text-(--color-accent)">
+            <Compass size={18} strokeWidth={1.75} />
+          </span>
+          <div>
+            <h1 className="text-base font-semibold text-(--color-text)">Explorar</h1>
+            <p className="text-xs text-(--color-text-subtle)">
+              Descubra criadores, serviços e produtos pra o seu projeto
+            </p>
+          </div>
+        </div>
+
+        <form className="flex items-center gap-2">
+          <div className="flex flex-1 items-center gap-2 rounded-(--radius-pill) bg-(--color-surface-2) px-4 py-2.5">
+            <Search size={16} strokeWidth={1.5} className="shrink-0 text-(--color-text-subtle)" />
+            <input
+              name="q"
+              defaultValue={q}
+              placeholder="Buscar conteúdos, tags ou criadores"
+              className="w-full bg-transparent text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none"
+            />
+          </div>
+          <button
+            type="submit"
+            className="rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+          >
+            Buscar
+          </button>
+        </form>
       </div>
 
-      <form className="flex items-center gap-2">
-        <div className="flex flex-1 items-center gap-2 rounded-(--radius-pill) bg-(--color-surface-2) px-4 py-2.5">
-          <Search size={16} strokeWidth={1.5} className="shrink-0 text-(--color-text-subtle)" />
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder="Buscar conteúdos, tags ou criadores"
-            className="w-full bg-transparent text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none"
-          />
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-(--color-text-muted)">Categorias populares</h2>
+          {categoria ? (
+            <Link
+              href={buildQuery({ categoria: "" })}
+              className="text-xs font-medium text-(--color-accent) hover:underline"
+            >
+              Limpar filtro
+            </Link>
+          ) : null}
         </div>
-        <button
-          type="submit"
-          className="rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
-        >
-          Buscar
-        </button>
-      </form>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+          {popularCategories.map((c) => {
+            const Icon = CATEGORY_ICONS[c.slug] ?? Grid3x3;
+            const active = categoria === c.slug;
+            return (
+              <Link
+                key={c.id}
+                href={buildQuery({ categoria: active ? "" : c.slug })}
+                className={`flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition-colors ${
+                  active
+                    ? "border-(--color-accent) bg-(--color-accent-soft)"
+                    : "border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)"
+                }`}
+              >
+                <span
+                  className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                    active
+                      ? "bg-(--color-accent) text-white"
+                      : "bg-(--color-surface-2) text-(--color-text-muted)"
+                  }`}
+                >
+                  <Icon size={18} strokeWidth={1.75} />
+                </span>
+                <span
+                  className={`text-xs font-medium leading-tight ${
+                    active ? "text-(--color-accent)" : "text-(--color-text)"
+                  }`}
+                >
+                  {c.name}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-        <Chip href={buildQuery({ categoria: "" })} active={!categoria}>
-          Todas
-        </Chip>
-        {categories.map((c) => (
-          <Chip
-            key={c.id}
-            href={buildQuery({ categoria: c.slug })}
-            active={categoria === c.slug}
-          >
-            {c.name}
+        <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
+          <Chip href={buildQuery({ categoria: "" })} active={!categoria}>
+            Todas
           </Chip>
-        ))}
+          {otherCategories.map((c) => (
+            <Chip key={c.id} href={buildQuery({ categoria: c.slug })} active={categoria === c.slug}>
+              {c.name}
+            </Chip>
+          ))}
+        </div>
       </div>
 
       <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1">
@@ -128,6 +256,12 @@ export default async function DescobrirPage({
           Só ofertas
         </Chip>
       </div>
+
+      {activeCategory ? (
+        <p className="text-sm text-(--color-text-muted)">
+          Mostrando resultados em <span className="font-medium text-(--color-text)">{activeCategory.name}</span>
+        </p>
+      ) : null}
 
       {matchingCreators.length > 0 ? (
         <div className="flex flex-col gap-2">
@@ -155,25 +289,24 @@ export default async function DescobrirPage({
         </div>
       ) : null}
 
-      {!qNormalized ? (
-        <h2 className="text-sm font-medium text-(--color-text-muted)">Produtos em destaque</h2>
-      ) : null}
-
-      {products.length === 0 ? (
-        matchingCreators.length === 0 && gigs.length === 0 ? (
-          <EmptyState
-            icon={Search}
-            title="Nada encontrado"
-            description="Tente outra busca ou remova os filtros aplicados."
-          />
-        ) : null
-      ) : (
-        <div className="grid grid-cols-2 gap-3">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
-          ))}
+      {products.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-(--color-text-muted)">
+            {activeCategory ? activeCategory.name : qNormalized ? "Produtos" : "Produtos em destaque"}
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} creatorName={nameById.get(p.creatorId)} />
+            ))}
+          </div>
         </div>
-      )}
+      ) : matchingCreators.length === 0 && gigs.length === 0 ? (
+        <EmptyState
+          icon={Search}
+          title="Nada encontrado"
+          description="Tente outra busca ou remova os filtros aplicados."
+        />
+      ) : null}
     </div>
   );
 }
