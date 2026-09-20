@@ -3,6 +3,36 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Correção: comprador perdia acesso ao produto despublicado
+
+### Objetivo
+
+- Reportado pelo usuário: o produto some da biblioteca do comprador depois que o criador
+  despublica o anúncio.
+
+### Causa
+
+- RLS de `products` só tinha duas policies de `SELECT`: público vê `status = 'approved'`, dono vê
+  as próprias linhas. Nenhuma delas cobre "comprador com `product_entitlements` ativo, mas o
+  produto não é mais `approved`" — então `listOwnedProductsForUser` (biblioteca) simplesmente
+  parava de enxergar a linha assim que o criador despublicava (`status` vira `draft`). O acesso
+  já tinha sido pago e concedido; a compra não deveria depender do anúncio continuar publicado.
+- No mesmo caminho: `delete_product` não tinha nenhuma proteção contra apagar um produto que já
+  tivesse `product_entitlements` — a constraint de chave estrangeira (sem `ON DELETE`) até
+  impedia o `DELETE`, mas com um erro cru de Postgres em vez de uma mensagem que fizesse sentido.
+
+### Mudanças
+
+- Supabase: nova policy `products_select_entitled_buyer` — quem tem entitlement ativo pro
+  produto continua enxergando a linha independentemente do `status` atual.
+- `delete_product` (RPC) agora barra explicitamente a exclusão de um produto com pelo menos um
+  `product_entitlements`, com mensagem orientando a despublicar em vez de excluir.
+
+### Validação
+
+- `get_advisors` (security) checado depois das duas mudanças: nenhum alerta novo.
+- Reprodução manual pendente de confirmação do usuário.
+
 ## 2026-09-20 — Correção: erro de servidor ao abrir perfil de criador mock
 
 ### Objetivo
