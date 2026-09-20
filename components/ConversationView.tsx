@@ -75,10 +75,20 @@ function formatDateTime(iso: string): string {
 export function ConversationView({
   customRequestId,
   actingUserId,
+  authLoading = false,
   backHref,
 }: {
   customRequestId: string;
   actingUserId: string | null;
+  /**
+   * true enquanto a sessão ainda está sendo resolvida no cliente (ver
+   * useCurrentUserId) — sem isso, `actingUserId` começa `null` mesmo pra
+   * quem já está logado, e a tela mostrava por um instante "Entre na sua
+   * conta" antes de trocar pro conteúdo real. Páginas que já resolvem a
+   * sessão no servidor (ex.: app/dashboard/pedidos-personalizados/[id])
+   * nunca têm essa corrida, então deixam o padrão `false`.
+   */
+  authLoading?: boolean;
   /**
    * Destino do botão de voltar do cabeçalho só quando NÃO há de onde voltar
    * no histórico (ex.: link direto de notificação) — a tela abre em tela
@@ -304,6 +314,15 @@ export function ConversationView({
       lastTypingSentAtRef.current = now;
       void channelRef.current.send({ type: "broadcast", event: "typing", payload: { userId: actingUserId } });
     }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-6 text-sm text-(--color-text-muted)">
+        <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
+        Carregando conversa…
+      </div>
+    );
   }
 
   if (!actingUserId) {

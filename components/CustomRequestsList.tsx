@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MessageSquare, Loader2 } from "lucide-react";
+import { MessageSquare, ChevronRight, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   listCustomRequestsForCreator,
@@ -185,10 +185,11 @@ export function CustomRequestsList({
                 : ""}
             </p>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border border-(--color-border) px-3 py-1.5 text-sm text-(--color-text) sm:self-auto">
-            <MessageSquare size={14} strokeWidth={1.5} />
-            Conversar
-          </span>
+          <ChevronRight
+            size={18}
+            strokeWidth={1.5}
+            className="hidden shrink-0 self-center text-(--color-text-subtle) sm:block"
+          />
         </Link>
         ),
       )}
