@@ -581,7 +581,7 @@ export function ConversationView({
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-(--color-border) p-3">
+      <div className="flex items-center justify-between gap-2 rounded-md border border-(--color-border) p-3">
         <div className="flex min-w-0 items-center gap-2">
           <button
             type="button"
@@ -604,8 +604,8 @@ export function ConversationView({
             />
           )}
           <div className="flex min-w-0 flex-col gap-0.5">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="font-medium text-(--color-text)">{counterpartName}</span>
+            <div className="flex min-w-0 items-center gap-2 text-sm">
+              <span className="truncate font-medium text-(--color-text)">{counterpartName}</span>
               <StatusBadge status={request.status} />
             </div>
             <div className="flex items-center gap-2">
@@ -614,7 +614,7 @@ export function ConversationView({
             </div>
           </div>
         </div>
-        <div className="relative">
+        <div className="relative flex-shrink-0">
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
