@@ -49,17 +49,23 @@ export default async function CreatorProfilePage({
     notFound();
   }
 
-  // Avaliações e portfólio reais só existem pra perfis reais — um
-  // creator.id mock não bate com nenhuma linha, então as listas vêm vazias
-  // sem precisar de um caminho separado pro fallback de demo. As três
-  // buscas não dependem uma da outra — em paralelo em vez de em fila.
+  // Avaliações, portfólio e produtos reais só existem pra perfis reais —
+  // um creator.id mock (ex.: "user-c01") não é um uuid válido, e as
+  // funções abaixo rodam contra colunas uuid no Postgres: passar um id
+  // mock faria a própria consulta falhar (erro 500), não voltar vazia como
+  // acontecia com os repositórios mock antigos (filter em array). Por
+  // isso só chamam de verdade quando existe um perfil real por trás —
+  // criador mock cai direto nas listas vazias. As quatro buscas não
+  // dependem uma da outra — em paralelo em vez de em fila.
   const supabase = await createServerClient();
-  const [products, reviews, portfolio, resumeEntries] = await Promise.all([
-    listProductsForCreator(supabase, creator.id),
-    listCustomOrderReviewsForUser(supabase, creator.id),
-    listPortfolioForCreator(supabase, creator.id),
-    listResumeForCreator(supabase, creator.id),
-  ]);
+  const [products, reviews, portfolio, resumeEntries] = realProfile
+    ? await Promise.all([
+        listProductsForCreator(supabase, creator.id),
+        listCustomOrderReviewsForUser(supabase, creator.id),
+        listPortfolioForCreator(supabase, creator.id),
+        listResumeForCreator(supabase, creator.id),
+      ])
+    : [[], [], [], []];
 
   // O acesso ao painel saiu de uma faixa fixa no topo da página e virou um
   // botão de destaque junto de "Editar perfil" (ver CreatorProfileView) —
