@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Search, ShoppingBag, SlidersHorizontal } from "lucide-react";
+import { Search } from "lucide-react";
 import type { Category, Product } from "@/lib/types";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -123,15 +123,14 @@ export function ExploreCategories({
 export function ExploreSortFilters() {
   const { sort, offers, setSort, setOffers } = useExploreFilters();
   return (
-    <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-3">
-      <div className="mb-3 flex items-center gap-2 px-1">
-        <SlidersHorizontal size={16} className="text-(--color-accent)" />
-        <span className="text-sm font-semibold text-(--color-text)">Ordenar e filtrar</span>
+    <section className="flex flex-col gap-1 border-t border-(--color-border) pt-4">
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-semibold text-(--color-text)">Ordenar</span>
         {sort || offers ? (
           <button type="button" onClick={() => { setSort(""); setOffers(false); }} className="ml-auto text-xs font-medium text-(--color-accent)">Limpar</button>
         ) : null}
       </div>
-      <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
+      <div className="no-scrollbar -mx-1 flex items-center gap-5 overflow-x-auto px-1">
         {SORTS.map((item) => <FilterChip key={item.value} active={sort === item.value} onClick={() => setSort(item.value)}>{item.label}</FilterChip>)}
         <FilterChip active={offers} onClick={() => setOffers(!offers)}>Só ofertas</FilterChip>
       </div>
@@ -144,7 +143,7 @@ export function ExploreResultSummary({ categories, query }: { categories: Catego
   const activeCategory = categories.find((item) => item.slug === category);
   if (!activeCategory && !query) return null;
   return (
-    <div className="flex items-center gap-2 rounded-2xl bg-(--color-surface-2) px-4 py-3 text-sm text-(--color-text-muted)" aria-live="polite">
+    <div className="flex items-center gap-2 border-l-2 border-(--color-accent) pl-3 text-sm text-(--color-text-muted)" aria-live="polite">
       <Search size={16} className="shrink-0 text-(--color-accent)" />
       <span>
         {query ? <>Resultados para <strong className="font-semibold text-(--color-text)">“{query}”</strong></> : null}
@@ -168,13 +167,9 @@ export function ExploreProducts({ products, creatorNames }: { products: Product[
   if (!visibleProducts.length) return null;
   return (
     <section className="flex flex-col gap-3" aria-live="polite">
-      <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--color-accent-soft) text-(--color-accent)"><ShoppingBag size={18} strokeWidth={1.8} /></span>
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-(--color-accent)">Produtos digitais</p>
-          <h2 className="text-lg font-bold tracking-tight text-(--color-text)">{activeCategory ? "Produtos selecionados" : "Prontos para usar"}</h2>
-          <p className="mt-0.5 text-xs leading-relaxed text-(--color-text-muted)">{visibleProducts.length} {visibleProducts.length === 1 ? "opção encontrada" : "opções encontradas"} para você.</p>
-        </div>
+      <div className="border-t border-(--color-border) pt-5">
+        <h2 className="text-xl font-bold tracking-tight text-(--color-text)">{activeCategory ? "Produtos selecionados" : "Produtos digitais"}</h2>
+        <p className="mt-1 text-sm leading-relaxed text-(--color-text-muted)">{visibleProducts.length} {visibleProducts.length === 1 ? "opção encontrada" : "opções encontradas"} para você.</p>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {visibleProducts.map((product) => <ProductCard key={product.id} product={product} creatorName={creatorNames[product.creatorId]} />)}
@@ -185,7 +180,7 @@ export function ExploreProducts({ products, creatorNames }: { products: Product[
 
 function FilterChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <button type="button" onClick={onClick} aria-pressed={active} className={`shrink-0 whitespace-nowrap rounded-(--radius-pill) border px-4 py-1.5 text-sm transition-colors ${active ? "border-transparent bg-(--color-accent-soft) font-medium text-(--color-accent)" : "border-(--color-border) bg-(--color-surface) text-(--color-text-muted) hover:bg-(--color-surface-2)"}`}>
+    <button type="button" onClick={onClick} aria-pressed={active} className={`shrink-0 whitespace-nowrap border-b-2 px-1 py-2 text-sm transition-colors ${active ? "border-(--color-accent) font-semibold text-(--color-accent)" : "border-transparent text-(--color-text-muted) hover:text-(--color-text)"}`}>
       {children}
     </button>
   );

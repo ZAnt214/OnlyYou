@@ -3,6 +3,34 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Explorar com visual mais aberto e editorial
+
+### Objetivo
+
+- Remover a aparência excessivamente baseada em caixas e cartões na página Explorar.
+- Dar ao cabeçalho e aos títulos de seção uma composição mais natural, limpa e menos genérica.
+
+### Mudanças
+
+- `app/descobrir/page.tsx`
+  - O cabeçalho deixou de ser um card fechado com formas decorativas e virou uma abertura livre,
+    com destaque tipográfico e busca integrada.
+  - As buscas populares agora são links de texto, sem uma coleção de pills com borda.
+  - Títulos de profissionais e serviços perderam ícones em caixas e passaram a usar hierarquia
+    tipográfica, espaço e uma linha divisória discreta.
+  - O estado vazio deixou de ficar dentro de outro card.
+- `components/ExploreFilters.tsx`
+  - Categorias e ordenação passaram de chips contornados para abas de texto compactas.
+  - O bloco de ordenação perdeu o card externo e o ícone decorativo.
+  - O resumo de busca virou uma indicação lateral discreta.
+  - O título de produtos deixou de usar ícone dentro de caixa.
+
+### Validação
+
+- ESLint, TypeScript e build de produção.
+- Conferência responsiva do fluxo horizontal de categorias e ordenação.
+- Checagem de cores fixas nos arquivos alterados.
+
 ## 2026-09-20 — Categorias compactas e pesquisa revisada
 
 ### Objetivo

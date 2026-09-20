@@ -15,13 +15,7 @@ import {
   ExploreSortFilters,
 } from "@/components/ExploreFilters";
 import Link from "next/link";
-import {
-  Compass,
-  Search,
-  BadgeCheck,
-  BriefcaseBusiness,
-  type LucideIcon,
-} from "lucide-react";
+import { Search } from "lucide-react";
 
 // Recorte curado pra vitrine — o catálogo completo (lib/data/categories.ts)
 // tem dezenas de opções, mas listar tudo de cara polui a página. O resto
@@ -98,26 +92,18 @@ export default async function DescobrirPage({
 
   return (
     <ExploreFilterProvider initialCategory={categoria} initialSort={sort} initialOffers={Boolean(ofertas)}>
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-4">
-      <section className="relative overflow-hidden rounded-3xl border border-(--color-border) bg-(--color-surface) px-5 py-6 shadow-sm sm:px-7 sm:py-7">
-        <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-(--color-accent-soft) opacity-70" />
-        <div className="pointer-events-none absolute -bottom-24 right-20 h-44 w-44 rounded-full bg-(--color-accent-soft) opacity-40" />
+    <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-4 sm:py-7">
+      <section className="py-3 sm:py-5">
+        <div className="max-w-xl">
+          <span className="mb-4 block h-1 w-10 rounded-full bg-(--color-accent)" />
+          <h1 className="text-3xl font-bold leading-[1.12] tracking-tight text-(--color-text) sm:text-4xl">
+            Encontre o talento certo para tirar sua ideia do papel.
+          </h1>
+          <p className="mt-3 max-w-lg text-sm leading-relaxed text-(--color-text-muted) sm:text-base">
+            Profissionais, serviços e produtos digitais reunidos para o seu próximo projeto.
+          </p>
 
-        <div className="relative flex flex-col gap-5">
-          <div className="max-w-lg">
-            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-(--color-text-muted)">
-              <Compass size={15} strokeWidth={1.8} className="text-(--color-accent)" />
-              Encontre no Jobê
-            </div>
-            <h1 className="text-2xl font-bold leading-tight tracking-tight text-(--color-text) sm:text-3xl">
-              Encontre quem faz o que seu projeto precisa.
-            </h1>
-            <p className="mt-2 max-w-md text-sm leading-relaxed text-(--color-text-muted)">
-              Explore profissionais, serviços e produtos digitais em um só lugar.
-            </p>
-          </div>
-
-          <form className="flex items-center gap-2 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) p-1.5 shadow-sm">
+          <form className="mt-6 flex items-center gap-2 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) p-1.5 shadow-sm focus-within:border-(--color-accent)">
             <div className="flex min-w-0 flex-1 items-center gap-2 px-3">
               <Search size={18} strokeWidth={1.7} className="shrink-0 text-(--color-text-subtle)" />
               <input
@@ -136,13 +122,13 @@ export default async function DescobrirPage({
             </button>
           </form>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-medium text-(--color-accent)">Buscas populares:</span>
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+            <span className="text-(--color-text-subtle)">Mais buscados</span>
             {["Sites", "Logotipos", "Edição de vídeos"].map((term) => (
               <Link
                 key={term}
                 href={buildQuery({ q: term })}
-                className="rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) px-3 py-1.5 text-(--color-text-muted) transition-colors hover:border-(--color-accent) hover:text-(--color-accent)"
+                className="font-medium text-(--color-text-muted) underline decoration-(--color-border) underline-offset-4 transition-colors hover:text-(--color-accent)"
               >
                 {term}
               </Link>
@@ -158,8 +144,6 @@ export default async function DescobrirPage({
       {matchingCreators.length > 0 ? (
         <section className="flex flex-col gap-3">
           <SectionHeading
-            icon={BadgeCheck}
-            eyebrow="Talentos"
             title={qNormalized ? "Profissionais encontrados" : "Profissionais em destaque"}
             description={qNormalized ? "Perfis que combinam com a sua busca." : "Conheça quem está criando e trabalhando no Jobê."}
           />
@@ -176,8 +160,6 @@ export default async function DescobrirPage({
       {gigs.length > 0 ? (
         <section className="flex flex-col gap-3">
           <SectionHeading
-            icon={BriefcaseBusiness}
-            eyebrow="Serviços"
             title={qNormalized ? "Serviços encontrados" : "Serviços para tirar ideias do papel"}
             description="Compare opções e encontre o profissional certo para o que você precisa."
           />
@@ -192,7 +174,7 @@ export default async function DescobrirPage({
       {products.length > 0 ? (
         <ExploreProducts products={products} creatorNames={creatorNames} />
       ) : matchingCreators.length === 0 && gigs.length === 0 ? (
-        <div className="rounded-3xl border border-(--color-border) bg-(--color-surface) p-6">
+        <div className="border-t border-(--color-border) py-8">
           <EmptyState
             icon={Search}
             title="Nada encontrado"
@@ -206,26 +188,16 @@ export default async function DescobrirPage({
 }
 
 function SectionHeading({
-  icon: Icon,
-  eyebrow,
   title,
   description,
 }: {
-  icon: LucideIcon;
-  eyebrow: string;
   title: string;
   description: string;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--color-accent-soft) text-(--color-accent)">
-        <Icon size={18} strokeWidth={1.8} />
-      </span>
-      <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-(--color-accent)">{eyebrow}</p>
-        <h2 className="text-lg font-bold tracking-tight text-(--color-text)">{title}</h2>
-        <p className="mt-0.5 text-xs leading-relaxed text-(--color-text-muted)">{description}</p>
-      </div>
+    <div className="border-t border-(--color-border) pt-5">
+      <h2 className="text-xl font-bold tracking-tight text-(--color-text)">{title}</h2>
+      <p className="mt-1 text-sm leading-relaxed text-(--color-text-muted)">{description}</p>
     </div>
   );
 }
