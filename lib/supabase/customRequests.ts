@@ -504,6 +504,12 @@ export async function softDeleteCustomMessage(supabase: SupabaseClient, messageI
   if (error) throw new Error(error.message);
 }
 
+/** Reverte softDeleteCustomMessage — só quem enviou pode mostrar de novo. */
+export async function unhideCustomMessage(supabase: SupabaseClient, messageId: string): Promise<void> {
+  const { error } = await supabase.rpc("unhide_custom_message", { p_message_id: messageId });
+  if (error) throw new Error(error.message);
+}
+
 export async function createCustomProposal(
   supabase: SupabaseClient,
   params: {

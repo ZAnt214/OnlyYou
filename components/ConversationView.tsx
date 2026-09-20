@@ -29,6 +29,7 @@ import {
   listAttachmentsForMessage,
   sendCustomMessage,
   softDeleteCustomMessage,
+  unhideCustomMessage,
   createCustomProposal,
   acceptCustomProposal,
   rejectCustomProposal,
@@ -231,7 +232,12 @@ export function ConversationView({
 
       setRequest(req);
       setConversation(convo);
-      setMessages(msgs.filter((m) => !m.deletedAt));
+      // Mensagem oculta de outra pessoa continua invisível pra mim — mas se
+      // fui eu quem ocultou, preciso continuar vendo ela (como um
+      // placeholder, ver MessageItem) pra ter como mostrar de novo depois.
+      // Sem isso, "ocultar" era permanente: a mensagem simplesmente
+      // desaparecia da lista sem nenhum jeito de reverter.
+      setMessages(msgs.filter((m) => !m.deletedAt || m.senderId === actingUserId));
       setProposals(props);
       setCustomServiceOrder(cso);
       setCounterpartName(counterpart?.display_name ?? counterpart?.username ?? "Usuário");
@@ -544,6 +550,19 @@ export function ConversationView({
     }
   }
 
+  async function handleUnhideMessage(messageId: string) {
+    setError(null);
+    setBusy(true);
+    try {
+      await unhideCustomMessage(supabase, messageId);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível mostrar a mensagem de novo.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function handleReportConversation(reason: ReportReason) {
     reportService.fileReport({
       reporterId: actingUserId!,
@@ -698,6 +717,7 @@ export function ConversationView({
               onPay={handlePayProposal}
               onCancel={handleCancelProposal}
               onDelete={handleDeleteMessage}
+              onUnhide={handleUnhideMessage}
               busy={busy}
               hasServiceOrder={customServiceOrder?.proposalId === message.metadata?.proposalId}
               canCancel={!customServiceOrder || customServiceOrder.status === "awaiting_payment"}
@@ -1040,6 +1060,7 @@ function MessageItem({
   onPay,
   onCancel,
   onDelete,
+  onUnhide,
   busy,
   hasServiceOrder,
   canCancel,
@@ -1054,6 +1075,7 @@ function MessageItem({
   onPay: (proposalId: string) => void;
   onCancel: (proposalId: string) => void;
   onDelete: (messageId: string) => void;
+  onUnhide: (messageId: string) => void;
   busy: boolean;
   /** Já existe contratação para esta proposta (pagamento em andamento). */
   hasServiceOrder: boolean;
@@ -1195,6 +1217,27 @@ function MessageItem({
   }
 
   const isOwn = message.senderId === actingUserId;
+
+  // Só chega aqui oculta se for minha própria (mensagem oculta de outra
+  // pessoa já nem entra em `messages`, ver load() em ConversationView) —
+  // mostro um placeholder com a opção de reverter, em vez de continuar
+  // exibindo o conteúdo normalmente ou sumir sem deixar rastro nenhum.
+  if (message.deletedAt) {
+    return (
+      <div className="flex max-w-[85%] flex-col gap-1 self-end rounded-md border border-dashed border-(--color-border) px-3 py-2 text-sm sm:max-w-sm">
+        <span className="italic text-(--color-text-subtle)">Você ocultou esta mensagem.</span>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => onUnhide(message.id)}
+          className="w-fit text-xs font-medium text-(--color-accent) hover:underline disabled:opacity-60"
+        >
+          Mostrar novamente
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`group flex max-w-[85%] flex-col gap-0.5 rounded-md px-3 py-2 text-sm sm:max-w-sm ${
