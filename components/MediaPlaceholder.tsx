@@ -25,6 +25,7 @@ export function MediaPlaceholder({
   className = "",
   label,
   flush = false,
+  muted = false,
 }: {
   seed: string;
   kind?: "image" | "video" | "avatar";
@@ -32,9 +33,11 @@ export function MediaPlaceholder({
   label?: string;
   /** Sem borda e sem cantos próprios — para mídia que preenche um card. */
   flush?: boolean;
+  /** Usa sempre o fundo secundário para grades que precisam de mídia uniforme. */
+  muted?: boolean;
 }) {
   const hash = hashSeed(seed);
-  const tone = TONES[hash % TONES.length];
+  const tone = muted ? "bg-(--color-surface-2)" : TONES[hash % TONES.length];
 
   if (kind === "avatar") {
     return (

@@ -3,6 +3,33 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Cards de produtos reorganizados
+
+### Objetivo
+
+- Melhorar a leitura e o equilíbrio visual dos cards de produtos, principalmente na grade de
+  duas colunas do mobile.
+
+### Mudanças
+
+- `components/ProductCard.tsx`
+  - O preço saiu da mídia e passou para uma área própria abaixo do título.
+  - Promoções agora mostram um badge pequeno de oferta, preço anterior discreto e preço atual em
+    destaque, sem o balão grande que quebrava o layout.
+  - A área da imagem ficou mais baixa e passou a usar um fundo uniforme na grade.
+  - Criador, título, preço e avaliação receberam espaçamento e hierarquia consistentes.
+  - O botão circular com seta foi removido; o card inteiro continua sendo o link do produto.
+- `components/MediaPlaceholder.tsx`
+  - Adicionada a opção `muted` para grades que precisam de placeholders com fundo uniforme.
+- `components/PriceTag.tsx`
+  - `formatBRL` passou a ser exportado para manter a mesma formatação de preço no novo card.
+
+### Validação
+
+- ESLint, TypeScript e build de produção.
+- Conferência dos estados com preço normal, promocional, vídeo e sem avaliações.
+- Checagem de cores fixas nos arquivos alterados.
+
 ## 2026-09-20 — Pesquisa em tempo real e skeleton de carregamento
 
 ### Objetivo
