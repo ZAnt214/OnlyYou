@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { MockSessionProvider } from "@/lib/mock-session/MockSessionProvider";
@@ -31,21 +31,6 @@ export const metadata: Metadata = {
   other: {
     "color-scheme": "only light",
   },
-};
-
-/**
- * Sem `interactiveWidget: "resizes-content"`, o navegador mobile mantém o
- * viewport do tamanho da tela cheia quando o teclado abre — em vez de
- * encolher o layout, o teclado só se sobrepõe por cima. Isso não afeta
- * páginas com scroll normal (o navegador rola até o campo focado), mas
- * telas em `position: fixed` cobrindo 100% da altura (ex.: a conversa, ver
- * ConversationView) ficam com o campo de digitar escondido embaixo do
- * teclado, sem nenhum jeito de ver o que está sendo digitado. Com
- * "resizes-content", `100dvh`/`h-full` passam a refletir a altura real
- * disponível (já descontando o teclado), e o campo sobe junto.
- */
-export const viewport: Viewport = {
-  interactiveWidget: "resizes-content",
 };
 
 /**
