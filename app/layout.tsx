@@ -25,6 +25,12 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     type: "website",
   },
+  // Reforça via <meta> o que app/globals.css já declara em `color-scheme:
+  // only light` — alguns navegadores móveis checam a tag na hora de decidir
+  // se aplicam o tema escuro automático, não só a propriedade CSS.
+  other: {
+    "color-scheme": "only light",
+  },
 };
 
 /**
