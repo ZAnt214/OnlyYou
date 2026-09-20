@@ -61,7 +61,7 @@ export function StatusBadge({ status }: { status: string }) {
   const entry = STATUS_MAP[status] ?? { label: status, tone: "neutral" as Tone };
   return (
     <span
-      className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${TONE_CLASSES[entry.tone]}`}
+      className={`inline-flex flex-shrink-0 items-center whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium ${TONE_CLASSES[entry.tone]}`}
     >
       {entry.label}
     </span>
