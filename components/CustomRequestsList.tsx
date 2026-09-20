@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { MessageSquare, ChevronRight, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -185,14 +185,36 @@ export function CustomRequestsList({
                 : ""}
             </p>
           </div>
-          <ChevronRight
-            size={18}
-            strokeWidth={1.5}
-            className="hidden shrink-0 self-center text-(--color-text-subtle) sm:block"
-          />
+          <RowStatusIcon />
         </Link>
         ),
       )}
     </div>
+  );
+}
+
+/**
+ * useLinkStatus só funciona num filho do Link (lê o estado de pendência
+ * daquele link específico via contexto) — por isso não dá pra checar
+ * direto no componente que renderiza o <Link>. Sem isso, o clique na
+ * linha ficava sem nenhum feedback entre o toque e a conversa abrir.
+ */
+function RowStatusIcon() {
+  const { pending } = useLinkStatus();
+  if (pending) {
+    return (
+      <Loader2
+        size={18}
+        strokeWidth={1.5}
+        className="shrink-0 animate-spin self-center text-(--color-accent)"
+      />
+    );
+  }
+  return (
+    <ChevronRight
+      size={18}
+      strokeWidth={1.5}
+      className="hidden shrink-0 self-center text-(--color-text-subtle) sm:block"
+    />
   );
 }

@@ -317,12 +317,7 @@ export function ConversationView({
   }
 
   if (authLoading) {
-    return (
-      <div className="flex items-center justify-center gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-6 text-sm text-(--color-text-muted)">
-        <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
-        Carregando conversa…
-      </div>
-    );
+    return <ConversationSkeleton />;
   }
 
   if (!actingUserId) {
@@ -334,12 +329,7 @@ export function ConversationView({
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-6 text-sm text-(--color-text-muted)">
-        <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
-        Carregando conversa…
-      </div>
-    );
+    return <ConversationSkeleton />;
   }
 
   if (loadError || !request || !conversation) {
@@ -994,6 +984,39 @@ function orderMilestoneText(content: string, isRequester: boolean): string {
     return isRequester ? content : "O comprador confirmou o recebimento. Pedido concluído.";
   }
   return content;
+}
+
+/**
+ * Placeholder no formato real da conversa (cabeçalho + bolhas + campo de
+ * digitar), não um spinner solto — aparece no primeiro render (antes até
+ * da sessão resolver) e faz a tela parecer que já carregou a estrutura,
+ * só preenchendo o conteúdo, em vez de "ainda não chegou nada".
+ */
+function ConversationSkeleton() {
+  return (
+    <div className="flex h-full min-h-0 flex-col gap-4">
+      <div className="flex animate-pulse items-center gap-2 rounded-md border border-(--color-border) p-3">
+        <div className="h-9 w-9 flex-shrink-0 rounded-full bg-(--color-surface-2)" />
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <div className="h-3 w-28 rounded bg-(--color-surface-2)" />
+          <div className="h-2.5 w-40 rounded bg-(--color-surface-2)" />
+        </div>
+        <div className="h-8 w-8 flex-shrink-0 rounded-md bg-(--color-surface-2)" />
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden rounded-md border border-(--color-border) p-4">
+        <div className="h-10 w-2/3 animate-pulse self-start rounded-md bg-(--color-surface-2)" />
+        <div className="h-16 w-3/4 animate-pulse self-end rounded-md bg-(--color-surface-2)" />
+        <div className="h-10 w-1/2 animate-pulse self-start rounded-md bg-(--color-surface-2)" />
+        <div className="h-28 w-full max-w-sm animate-pulse self-center rounded-2xl bg-(--color-surface-2)" />
+      </div>
+
+      <div className="flex animate-pulse items-center gap-2">
+        <div className="h-9 flex-1 rounded-md bg-(--color-surface-2)" />
+        <div className="h-9 w-20 rounded-md bg-(--color-surface-2)" />
+      </div>
+    </div>
+  );
 }
 
 function TypingBubble() {
