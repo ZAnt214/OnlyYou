@@ -184,37 +184,57 @@ export default async function DescobrirPage({
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-4">
-      <div className="flex flex-col gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
-        <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-(--color-accent-soft) text-(--color-accent)">
-            <Compass size={18} strokeWidth={1.75} />
-          </span>
-          <div>
-            <h1 className="text-base font-semibold text-(--color-text)">Explorar</h1>
-            <p className="text-xs text-(--color-text-subtle)">
-              Descubra criadores, serviços e produtos pra o seu projeto
+      <section className="relative overflow-hidden rounded-3xl border border-(--color-border) bg-(--color-surface) px-5 py-6 shadow-sm sm:px-7 sm:py-7">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-(--color-accent-soft) opacity-70" />
+        <div className="pointer-events-none absolute -bottom-24 right-20 h-44 w-44 rounded-full bg-(--color-accent-soft) opacity-40" />
+
+        <div className="relative flex flex-col gap-5">
+          <div className="max-w-lg">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-(--color-text-muted)">
+              <Compass size={15} strokeWidth={1.8} className="text-(--color-accent)" />
+              Encontre no Jobê
+            </div>
+            <h1 className="text-2xl font-bold leading-tight tracking-tight text-(--color-text) sm:text-3xl">
+              Encontre quem faz o que seu projeto precisa.
+            </h1>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-(--color-text-muted)">
+              Explore profissionais, serviços e produtos digitais em um só lugar.
             </p>
           </div>
-        </div>
 
-        <form className="flex items-center gap-2">
-          <div className="flex flex-1 items-center gap-2 rounded-(--radius-pill) bg-(--color-surface-2) px-4 py-2.5">
-            <Search size={16} strokeWidth={1.5} className="shrink-0 text-(--color-text-subtle)" />
-            <input
-              name="q"
-              defaultValue={q}
-              placeholder="Buscar conteúdos, tags ou criadores"
-              className="w-full bg-transparent text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none"
-            />
+          <form className="flex items-center gap-2 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) p-1.5 shadow-sm">
+            <div className="flex min-w-0 flex-1 items-center gap-2 px-3">
+              <Search size={18} strokeWidth={1.7} className="shrink-0 text-(--color-text-subtle)" />
+              <input
+                name="q"
+                defaultValue={q}
+                placeholder="O que você está procurando?"
+                aria-label="Buscar no Jobê"
+                className="min-w-0 w-full bg-transparent py-2 text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none"
+              />
+            </div>
+            <button
+              type="submit"
+              className="shrink-0 rounded-(--radius-pill) bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-(--color-accent-hover)"
+            >
+              Buscar
+            </button>
+          </form>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="font-medium text-(--color-accent)">Buscas populares:</span>
+            {["Sites", "Logotipos", "Edição de vídeos"].map((term) => (
+              <Link
+                key={term}
+                href={buildQuery({ q: term })}
+                className="rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) px-3 py-1.5 text-(--color-text-muted) transition-colors hover:border-(--color-accent) hover:text-(--color-accent)"
+              >
+                {term}
+              </Link>
+            ))}
           </div>
-          <button
-            type="submit"
-            className="rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
-          >
-            Buscar
-          </button>
-        </form>
-      </div>
+        </div>
+      </section>
 
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
