@@ -7,6 +7,7 @@ import { listUsersByIds } from "@/lib/supabase/profile";
 import { GigCard } from "@/components/GigCard";
 import { CreatorCard } from "@/components/CreatorCard";
 import { EmptyState } from "@/components/EmptyState";
+import { LiveExploreSearch } from "@/components/LiveExploreSearch";
 import {
   ExploreCategories,
   ExploreFilterProvider,
@@ -103,24 +104,7 @@ export default async function DescobrirPage({
             Profissionais, serviços e produtos digitais reunidos para o seu próximo projeto.
           </p>
 
-          <form className="mt-6 flex items-center gap-2 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) p-1.5 shadow-sm focus-within:border-(--color-accent)">
-            <div className="flex min-w-0 flex-1 items-center gap-2 px-3">
-              <Search size={18} strokeWidth={1.7} className="shrink-0 text-(--color-text-subtle)" />
-              <input
-                name="q"
-                defaultValue={q}
-                placeholder="O que você está procurando?"
-                aria-label="Buscar no Jobê"
-                className="min-w-0 w-full bg-transparent py-2 text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none"
-              />
-            </div>
-            <button
-              type="submit"
-              className="shrink-0 rounded-(--radius-pill) bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-(--color-accent-hover)"
-            >
-              Buscar
-            </button>
-          </form>
+          <LiveExploreSearch initialQuery={q} />
 
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
             <span className="text-(--color-text-subtle)">Mais buscados</span>

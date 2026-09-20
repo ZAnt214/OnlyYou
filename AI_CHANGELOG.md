@@ -3,6 +3,32 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-20 — Pesquisa em tempo real e skeleton de carregamento
+
+### Objetivo
+
+- Atualizar os resultados da página Explorar durante a digitação e edição da pesquisa.
+- Dar feedback visual imediato enquanto uma nova consulta está sendo processada.
+
+### Mudanças
+
+- `components/LiveExploreSearch.tsx`
+  - Novo campo controlado com atualização automática após 350 ms sem digitação.
+  - A tecla Enter antecipa a busca e o botão de limpar remove o termo imediatamente.
+  - A URL continua refletindo o termo pesquisado sem rolar a página para o topo.
+  - Um skeleton local aparece enquanto a navegação e os novos resultados estão pendentes.
+- `app/descobrir/page.tsx`
+  - O formulário tradicional com botão Buscar foi substituído pela pesquisa ao vivo.
+- `app/descobrir/loading.tsx`
+  - O indicador genérico foi substituído por um skeleton responsivo que acompanha o desenho da
+    página Explorar.
+
+### Validação
+
+- ESLint, TypeScript e build de produção.
+- Verificação do debounce, limpeza, Enter e sincronização do termo na URL.
+- Checagem de cores fixas nos arquivos alterados.
+
 ## 2026-09-20 — Explorar com visual mais aberto e editorial
 
 ### Objetivo
