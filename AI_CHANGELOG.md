@@ -26,7 +26,9 @@ site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLA
   nenhuma credencial real foi necessária ou incluída.
 - Busca por cores cruas nos componentes alterados sem ocorrências; o card usa somente tokens do
   design system.
-- Inspeção responsiva publicada pendente; registrar aqui após a implantação.
+- Versão publicada inspecionada em navegador: cards, preço, autor, título e CTA renderizaram com
+  alturas consistentes, sem overflow horizontal e sem erros da aplicação no console. O markup
+  publicado também confirma o modo horizontal abaixo de `sm` e o retorno à grade vertical acima.
 
 ## 2026-09-21 — Hero aberto e identidade Framboesa Jobê
 
