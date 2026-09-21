@@ -1,13 +1,13 @@
 # Design system do Jobê
 
 O Jobê usa layout de rede social de criadores (feed de coluna única, cards de post, nav
-inferior em pill flutuante) com paleta própria: fundo cinza-névoa frio, cards brancos e
-laranja como cor de marca. **Toda UI nova ou alterada deve seguir estas regras — sem
+inferior em pill flutuante) com paleta própria: fundo creme suave ("Milky"), cards brancos e
+verde ("Mantis") como cor de marca. **Toda UI nova ou alterada deve seguir estas regras — sem
 exceção**, mesmo quando não for pedido explicitamente.
 
 ## Regra de ouro: nunca usar cor "crua"
 
-Nunca usar hex (`#f5821f`), `rgb()`/`hsl()` literais, nem classes de paleta fixa do Tailwind
+Nunca usar hex (`#59c749`), `rgb()`/`hsl()` literais, nem classes de paleta fixa do Tailwind
 (`bg-orange-500`, `text-red-600`, `border-blue-400` etc). Sempre usar os tokens definidos em
 `app/globals.css`, referenciados como `bg-(--color-accent)`, `text-(--color-text-muted)`,
 `border-(--color-border)` etc. Isso garante que qualquer ajuste de paleta futuro (e o
@@ -17,12 +17,12 @@ Tokens disponíveis (`app/globals.css`):
 
 | Token | Uso |
 |---|---|
-| `--color-bg` | fundo geral da página (cinza-névoa frio) |
+| `--color-bg` | fundo geral da página (creme suave) |
 | `--color-surface` | fundo de cards/painéis (branco) |
 | `--color-surface-2` | fundo secundário (hover, seções alternadas) |
 | `--color-border` | bordas e divisores |
 | `--color-text` / `--color-text-muted` / `--color-text-subtle` | hierarquia de texto |
-| `--color-accent` / `--color-accent-hover` / `--color-accent-soft` | laranja — CTAs, preços, estado ativo |
+| `--color-accent` / `--color-accent-hover` / `--color-accent-soft` | verde — CTAs, preços, estado ativo |
 | `--color-success` / `--color-warning` / `--color-danger` | estados semânticos (ver nota abaixo sobre `--color-success`) |
 | `--color-verified` | selo de criador verificado (azul, separado do accent) |
 | `--radius-card` (`1.25rem`) | cards e painéis maiores |
@@ -44,16 +44,17 @@ saem no raio certo.
   selo de verificado, que usa `--color-verified` —, ativo, concluído, entrega enviada,
   pagamento confirmado etc.): usam o mesmo padrão do chip ativo/CTA —
   `bg-(--color-accent-soft) text-(--color-accent)` (ou borda `--color-accent` em cards) —
-  **não** `--color-success`/verde. Decisão explícita do usuário (verde destoa da paleta
-  laranja+cinza do Jobê): não reintroduzir verde em UI nova sem confirmar antes.
-  `--color-success` continua existindo como token só para os casos em que `--color-warning`/
+  **não** `--color-success`. Mesmo o accent do Jobê sendo verde, `--color-success` é um verde
+  *diferente* do accent (tons distintos) — usar os dois lado a lado em contextos parecidos
+  (badge de "aprovado" vs. mensagem de sucesso) confundiria as duas semânticas. Por isso
+  `--color-success` continua reservado só para os casos em que `--color-warning`/
   `--color-danger` já convivem lado a lado e um terceiro tom é indispensável — na dúvida, usar
-  laranja.
+  o accent (verde de marca).
 - **Navegação inferior mobile** (`components/MobileNav.tsx`): pill flutuante ancorada ao fundo
   da tela, só ícones, item ativo com `bg-(--color-accent-soft) text-(--color-accent)`. Qualquer
   nova aba entra nesse mesmo padrão, não numa barra reta com labels.
 - **Badge de verificado**: usa o token `--color-verified` (azul), intencionalmente separado do
-  `--color-accent` laranja — mantém a semântica de verificação (tipo Twitter/Meta) sem confundir
+  `--color-accent` verde — mantém a semântica de verificação (tipo Twitter/Meta) sem confundir
   com CTAs.
 - **Feed** (`components/FeedPostCard.tsx`): coluna única `max-w-2xl` centralizada; card com
   cabeçalho de criador (avatar + nome + verificado + @handle + tempo + `⋯`), legenda, mídia
