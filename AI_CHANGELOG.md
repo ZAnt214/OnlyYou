@@ -3,6 +3,44 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Teste de paleta: Royal Blue + Light Grey + Sky Blue
+
+### Objetivo
+
+- Quinto teste de paleta seguido (mesmo contexto de liberdade das entradas anteriores): Royal
+  Blue `#10367D`, Light Grey `#EBEBEB`, Sky Blue `#74B4D9` — sem legenda de
+  dominante/secundária/accent desta vez, mandado só como print de 3 blocos de cor.
+
+### Mapeamento pros tokens
+
+- **Light Grey** → `--color-bg` (quase o mesmo valor do cinza-névoa original do Jobê, antes de
+  toda essa sequência de testes) — volta a ser um fundo neutro claro, não colorido como nas
+  entradas anteriores.
+- **Royal Blue** → `--color-accent`/`--color-accent-hover` no tema claro — CTAs, preços, estado
+  ativo.
+- **Sky Blue** → `--color-accent-soft` no tema claro (fundo de badge/chip ativo, com texto na cor
+  Royal Blue por cima — contraste bom, azul escuro sobre azul claro).
+- `--color-surface-2`/`--color-border` derivados numa família cinza-azulada leve, entre o fundo e
+  o branco dos cards.
+- **Tema escuro quebra o padrão das 4 entradas anteriores**: nelas, `--color-accent` era
+  idêntico nos dois temas. Aqui não dá — Royal Blue é escuro demais pra funcionar como cor de
+  texto/ícone direto sobre um fundo já escuro (ficaria ilegível). Então no escuro
+  `--color-accent` vira uma versão mais clara do mesmo azul (`#4a85d6`), e Sky Blue passa a ser o
+  `--color-accent-hover` (mais claro ainda) em vez do soft; `--color-text` do tema escuro reusa o
+  Light Grey (mesmo truque das entradas anteriores, cor clara virando texto no escuro).
+- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` não mudaram — note que
+  `--color-verified` (`#3b82f6`) já era um azul, agora parecido em família com o novo accent; não
+  ajustei por não fazer parte da paleta pedida.
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário.
+
 ## 2026-09-21 — Teste de paleta: Milky + Mantis
 
 ### Objetivo
