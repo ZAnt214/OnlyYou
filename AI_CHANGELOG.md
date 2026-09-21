@@ -3,6 +3,34 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Violeta Jobê e hero com presença de marca
+
+### Objetivo
+
+- Tirar a sensação visual de página sem energia e criar uma cor imediatamente reconhecível
+  como parte da identidade do Jobê.
+- Dar mais presença comercial à primeira dobra sem sacrificar leitura ou desempenho.
+
+### Mudanças
+
+- `app/globals.css`: o verde Mantis foi substituído pelo Violeta Jobê nos tokens de marca;
+  highlight comercial passou a coral fechado. Temas claro e escuro foram ajustados juntos.
+- `app/page.tsx`: hero virou um plano violeta de alto impacto, com gradiente controlado,
+  tipografia clara, CTA branco e card de compra preservado sobre superfície legível.
+- `CLAUDE.md` e `docs/HOME_REDESIGN.md`: direção visual e regras de uso da paleta atualizadas.
+
+### Contraste
+
+- Branco sobre Violeta Jobê: 5,03:1.
+- Violeta textual sobre marfim: 8,09:1; sobre violeta suave: 7,01:1.
+- Coral textual sobre marfim: 5,56:1; sobre coral suave: 4,94:1.
+
+### Validação
+
+- ESLint, TypeScript e build de produção concluídos sem erros.
+- Contrastes dos tokens medidos e componentes alterados sem cores cruas no TSX.
+- Pendente apenas a inspeção visual responsiva da versão publicada.
+
 ## 2026-09-21 — Reverte a máquina de escrever do hero
 
 ### Objetivo
@@ -80,7 +108,7 @@ site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLA
 - `components/TypewriterHeadline.tsx`: a prop `phrases` agora alimenta só a animação. Nova prop
   obrigatória `srText` recebe uma frase curta e fixa pro leitor de tela, no lugar da
   concatenação de todas as frases. O `<span>` raiz ganhou `inline-block max-w-full break-words
-  align-bottom` pra garantir que o texto sempre quebra dentro do contêiner do título, em vez de
+align-bottom` pra garantir que o texto sempre quebra dentro do contêiner do título, em vez de
   arriscar estourar a largura em telas pequenas.
 - `app/page.tsx`: frases do hero reescritas num tom mais humano/profissional, mais curtas (perto
   do tamanho do "Faça acontecer." original) pra caber bem em uma linha mesmo em telas pequenas:

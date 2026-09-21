@@ -60,21 +60,21 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <section
         aria-labelledby="home-title"
-        className="grid gap-8 bg-[radial-gradient(circle_at_top_right,var(--color-highlight-soft),transparent_55%),radial-gradient(circle_at_bottom_left,var(--color-accent-soft),transparent_60%)] pb-10 pt-10 sm:py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:gap-14"
+        className="relative mt-4 grid gap-8 overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_top_right,var(--color-highlight),transparent_34%),linear-gradient(135deg,var(--color-accent),var(--color-accent-hover))] p-6 sm:mt-6 sm:p-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:gap-14 lg:p-12"
       >
         <div>
-          <p className="mb-4 w-fit rounded-full bg-(--color-highlight-soft) px-3 py-1.5 text-xs font-semibold text-(--color-highlight)">
+          <p className="mb-4 w-fit rounded-full bg-(--color-surface) px-3 py-1.5 text-xs font-semibold text-(--color-accent-text)">
             Serviços e produtos digitais em um só lugar
           </p>
           <h1
             id="home-title"
-            className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:text-5xl lg:text-6xl"
+            className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-on-accent) sm:text-5xl lg:text-6xl"
           >
             Encontre. Compare.
             <br />
-            Faça acontecer<span className="text-(--color-highlight)">.</span>
+            Faça acontecer.
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-text-muted) sm:text-lg">
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-on-accent) opacity-90 sm:text-lg">
             Contrate profissionais, compre produtos prontos ou peça exatamente o
             que precisa. No Jobê, você conhece quem faz antes de escolher.
           </p>
@@ -107,24 +107,24 @@ export default function HomePage() {
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Link
               href="/descobrir"
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-(--color-surface) px-5 text-sm font-semibold text-(--color-accent-text) transition-transform hover:-translate-y-0.5"
             >
               Explorar agora
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex min-h-11 items-center justify-center px-2 text-sm font-semibold text-(--color-text) underline decoration-(--color-border) underline-offset-4"
+              className="inline-flex min-h-11 items-center justify-center px-2 text-sm font-semibold text-(--color-on-accent) underline decoration-(--color-on-accent) underline-offset-4"
             >
               Quero vender no Jobê
             </Link>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-(--color-text-muted)">
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-(--color-on-accent) opacity-90">
             <span>Experimente:</span>
             {["Logotipo", "Edição de vídeo", "Site"].map((term) => (
               <Link
                 key={term}
                 href={"/descobrir?q=" + encodeURIComponent(term)}
-                className="py-1 underline decoration-(--color-border) underline-offset-4 hover:text-(--color-text)"
+                className="py-1 underline decoration-(--color-on-accent) underline-offset-4"
               >
                 {term}
               </Link>
@@ -243,7 +243,9 @@ export default function HomePage() {
               <span
                 className={
                   "mb-3 inline-block h-2 w-8 rounded-full " +
-                  (i % 2 === 0 ? "bg-(--color-accent)" : "bg-(--color-highlight)")
+                  (i % 2 === 0
+                    ? "bg-(--color-accent)"
+                    : "bg-(--color-highlight)")
                 }
                 aria-hidden="true"
               />
@@ -310,15 +312,16 @@ export default function HomePage() {
         </h2>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
           No Jobê, pessoas estão procurando exatamente o que você sabe fazer.
-          Publique seus serviços, mostre seu trabalho pra quem precisa e
-          comece a fechar pedidos. Comece agora e veja seus ganhos crescerem!
+          Publique seus serviços, mostre seu trabalho pra quem precisa e comece
+          a fechar pedidos. Comece agora e veja seus ganhos crescerem!
         </p>
         <div className="mt-6 border-t border-(--color-border) pt-6">
           <Link
             href="/dashboard"
             className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
           >
-            Quero oferecer meus serviços <ArrowUpRight size={18} aria-hidden="true" />
+            Quero oferecer meus serviços{" "}
+            <ArrowUpRight size={18} aria-hidden="true" />
           </Link>
         </div>
       </section>

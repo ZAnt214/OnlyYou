@@ -29,7 +29,7 @@ ou de desempenho sem medição comparável.
 - Feed preservado em coluna única, com três publicações iniciais e expansão
   nativa até doze; acesso ao catálogo completo permanece disponível.
 - Como funciona, acesso à segurança, chamada para oferecer trabalho e FAQ.
-- Identidade atual usa Marfim + Sálvia. Cabeçalho, navegação, pagamentos,
+- Identidade atual usa Marfim + Violeta Jobê. Cabeçalho, navegação, pagamentos,
   solicitações e componentes compartilhados não foram reescritos.
 
 ## Ajuste comercial posterior
@@ -38,10 +38,11 @@ ou de desempenho sem medição comparável.
   categorias e explicações vêm depois das ofertas.
 - Hero ganhou texto orientado a contratação, CTA de exploração e acesso para
   quem quer vender. A lateral explica serviço, produto digital e Jogue comigo.
-- Terracota existiu por um tempo como highlight secundário só para promoções e
-  pontos de energia, mas foi substituído por um verde-esmeralda escuro (tom
-  distinto do accent) para manter o site 100% na paleta Milky + Mantis, sem
-  cor quente; o verde continua sendo a cor de ação principal.
+- O Violeta Jobê virou a assinatura principal da plataforma em ações, estados
+  ativos e no hero. Coral fechado permanece como highlight comercial para
+  ofertas e pontos de energia, sem competir com a cor de marca.
+- O hero passou a funcionar como um plano de marca vivo, com contraste alto,
+  CTA branco e uma única superfície interna para explicar as formas de compra.
 - Vitrine e comunidade usam a mesma leitura memoizada no servidor, com Suspense
   separado. Isso antecipa os cards sem duplicar consultas nem JavaScript.
 
