@@ -13,7 +13,6 @@ import { CreatorCard } from "@/components/CreatorCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { GigFeedCard } from "@/components/GigFeedCard";
 import { EmptyState } from "@/components/EmptyState";
-import { TypewriterHeadline } from "@/components/TypewriterHeadline";
 
 export const revalidate = 60;
 export const metadata: Metadata = {
@@ -31,15 +30,6 @@ const categories = [
   ["templates", "Templates", "Um bom ponto de partida"],
   ["jogue-comigo", "Jogue comigo", "Sua próxima partida, em companhia"],
   ["elojob", "Elojob", "Encontre serviços para seu jogo"],
-] as const;
-
-const heroPhrases = [
-  "Encontre quem faz.",
-  "Venda o que sabe.",
-  "Peça sob medida.",
-  "Publique um serviço.",
-  "Escolha com confiança.",
-  "Seu talento vira renda.",
 ] as const;
 
 const questions = [
@@ -78,12 +68,11 @@ export default function HomePage() {
           </p>
           <h1
             id="home-title"
-            className="max-w-3xl min-h-[5rem] text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:min-h-[6.5rem] sm:text-5xl lg:min-h-[8.5rem] lg:text-6xl"
+            className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:text-5xl lg:text-6xl"
           >
-            <TypewriterHeadline
-              phrases={[...heroPhrases]}
-              srText="Encontre quem faz ou venda o que você sabe fazer."
-            />
+            Encontre. Compare.
+            <br />
+            Faça acontecer<span className="text-(--color-highlight)">.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-text-muted) sm:text-lg">
             Contrate profissionais, compre produtos prontos ou peça exatamente o
