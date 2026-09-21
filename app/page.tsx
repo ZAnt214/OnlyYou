@@ -63,13 +63,6 @@ export default function HomePage() {
         className="grid gap-10 pb-10 pt-10 sm:py-16 lg:grid-cols-[1.25fr_0.75fr] lg:items-center lg:gap-16"
       >
         <div>
-          <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-(--color-accent-text)">
-            <span
-              aria-hidden="true"
-              className="h-1.5 w-8 rounded-full bg-(--color-accent)"
-            />
-            Serviços e produtos digitais em um só lugar
-          </p>
           <h1
             id="home-title"
             className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:text-5xl lg:text-6xl"

@@ -3,6 +3,27 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Hero sem rótulo decorativo
+
+### Objetivo
+
+- Remover o rótulo em caixa alta acima do título da home, apontado pelo usuário como pesado e
+  artificial no celular.
+- Dar mais impacto ao título principal e reduzir a quantidade de elementos competindo na
+  primeira dobra.
+
+### Mudanças
+
+- `app/page.tsx`: removidos o texto “Serviços e produtos digitais em um só lugar” e sua barra
+  decorativa. O hero agora começa diretamente pelo título e mantém a proposta completa no texto
+  de apoio logo abaixo, sem perder informação funcional.
+
+### Validação
+
+- ESLint, TypeScript e build de produção das 38 rotas concluídos sem erros.
+- Busca por cores cruas em `app/page.tsx` sem ocorrências.
+- Inspeção publicada pendente; registrar após a implantação.
+
 ## 2026-09-21 — Cards de serviços compactos na home
 
 ### Objetivo
