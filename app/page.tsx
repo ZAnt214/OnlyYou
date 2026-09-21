@@ -35,11 +35,11 @@ const categories = [
 
 const heroPhrases = [
   "Encontre quem faz.",
-  "Venda o que você sabe fazer.",
+  "Venda o que você sabe.",
   "Peça sob medida.",
   "Publique seus serviços.",
-  "Compre pronto, sem enrolação.",
-  "Transforme talento em renda.",
+  "Escolha com confiança.",
+  "Seu talento vira renda.",
 ] as const;
 
 const questions = [
@@ -82,7 +82,10 @@ export default function HomePage() {
           >
             Encontre. Compare.
             <br />
-            <TypewriterHeadline phrases={[...heroPhrases]} />
+            <TypewriterHeadline
+              phrases={[...heroPhrases]}
+              srText="Encontre quem faz ou venda o que você sabe fazer."
+            />
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-text-muted) sm:text-lg">
             Contrate profissionais, compre produtos prontos ou peça exatamente o
