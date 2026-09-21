@@ -13,6 +13,7 @@ import { CreatorCard } from "@/components/CreatorCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { GigFeedCard } from "@/components/GigFeedCard";
 import { EmptyState } from "@/components/EmptyState";
+import { TypewriterHeadline } from "@/components/TypewriterHeadline";
 
 export const revalidate = 60;
 export const metadata: Metadata = {
@@ -30,6 +31,15 @@ const categories = [
   ["templates", "Templates", "Um bom ponto de partida"],
   ["jogue-comigo", "Jogue comigo", "Sua próxima partida, em companhia"],
   ["elojob", "Elojob", "Encontre serviços para seu jogo"],
+] as const;
+
+const heroPhrases = [
+  "Encontre quem faz.",
+  "Venda o que você sabe fazer.",
+  "Peça sob medida.",
+  "Publique seus serviços.",
+  "Compre pronto, sem enrolação.",
+  "Transforme talento em renda.",
 ] as const;
 
 const questions = [
@@ -72,7 +82,7 @@ export default function HomePage() {
           >
             Encontre. Compare.
             <br />
-            Faça acontecer<span className="text-(--color-highlight)">.</span>
+            <TypewriterHeadline phrases={[...heroPhrases]} />
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-text-muted) sm:text-lg">
             Contrate profissionais, compre produtos prontos ou peça exatamente o
