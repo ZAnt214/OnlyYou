@@ -3,6 +3,31 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Cards de serviços compactos na home
+
+### Objetivo
+
+- Evitar que cada serviço ocupe quase uma tela inteira no celular e melhorar o ritmo de leitura
+  da seção “Serviços de quem sabe fazer”.
+
+### Mudanças
+
+- `components/GigCard.tsx`: adicionada uma apresentação compacta opcional no mobile, com miniatura
+  lateral, conteúdo hierarquizado e preço integrado ao cabeçalho do card em vez de sobreposto à
+  imagem. Em telas maiores, o card retorna automaticamente ao formato vertical da grade.
+- `app/page.tsx`: a vitrine inicial passou a ativar a apresentação compacta. Explorar e páginas
+  de categoria preservam sua grade em duas ou mais colunas e todas as ações continuam usando o
+  mesmo componente e o mesmo fluxo de solicitação.
+
+### Validação
+
+- ESLint e TypeScript concluídos sem erros.
+- Build de produção concluído com sucesso nas 38 rotas usando credenciais fictícias de validação;
+  nenhuma credencial real foi necessária ou incluída.
+- Busca por cores cruas nos componentes alterados sem ocorrências; o card usa somente tokens do
+  design system.
+- Inspeção responsiva publicada pendente; registrar aqui após a implantação.
+
 ## 2026-09-21 — Hero aberto e identidade Framboesa Jobê
 
 ### Objetivo

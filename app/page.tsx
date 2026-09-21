@@ -418,6 +418,7 @@ async function Vitrine() {
                 key={gig.id}
                 gig={gig}
                 creatorName={creatorById.get(gig.creatorId)?.displayName}
+                compactOnMobile
               />
             ))}
           </div>

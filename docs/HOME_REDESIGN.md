@@ -43,6 +43,9 @@ ou de desempenho sem medição comparável.
   evitando uma segunda cor disputando a identidade.
 - O hero permanece aberto sobre o fundo marfim, sem gradiente nem painel colorido.
   A cor aparece no título, na pequena assinatura editorial e nos CTAs.
+- Os serviços usam cards horizontais compactos no celular, com miniatura lateral e preço dentro
+  do conteúdo; a partir do breakpoint `sm`, voltam ao formato vertical da grade. Esse modo é
+  exclusivo da home para não comprimir as grades de duas colunas de Explorar e categorias.
 - Vitrine e comunidade usam a mesma leitura memoizada no servidor, com Suspense
   separado. Isso antecipa os cards sem duplicar consultas nem JavaScript.
 
