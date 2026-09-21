@@ -3,6 +3,48 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Teste de paleta: Barley White + Mikado Yellow
+
+### Objetivo
+
+- Décimo terceiro teste de paleta seguido: Barley White `#FFF4CC` e Mikado Yellow `#FFBE00`.
+  Substitui a paleta Cotton/Electric Blue/Moonless Night da entrada anterior.
+
+### Mapeamento pros tokens
+
+- **Barley White** → `--color-bg` no tema claro; reaproveitado como `--color-text` no escuro.
+- **Mikado Yellow** → `--color-accent`/`--color-accent-hover`, mesmo hex nos dois temas (é claro
+  o bastante pra funcionar como texto/ícone sobre fundo escuro).
+- `--color-text` no claro foi pra um marrom bem escuro (`#2b2100`) em vez do neutro, mesma
+  família do amarelo. `--color-surface-2`/`--color-border`/`--color-accent-soft` derivados em
+  tons de âmbar/dourado claro.
+
+### Alerta mais forte desta sequência de testes: contraste, não só combinação de cor
+
+- Nas entradas anteriores os avisos eram sobre **duas cores da mesma família aparecendo em
+  contextos diferentes** (dourado×dourado, verde×verde, vermelho×vermelho) — incômodo visual,
+  mas ainda legível. Aqui o problema é outro e mais sério: **amarelo vibrante com texto branco
+  em cima tem contraste muito baixo** (a conta de luminância dá around 1.6:1 — bem abaixo do
+  mínimo de acessibilidade). E o app fixa `text-white` (branco literal, não um token) em 52
+  lugares que usam `bg-(--color-accent)` — ver a mesma observação já feita na entrada
+  monocromática (Pale Ash/Black Ink). Lá o problema só existia no tema escuro; aqui existe
+  **nos dois temas**, porque Mikado Yellow já nasce claro. Isso significa que, com esta paleta,
+  praticamente todo botão de call-to-action do site (comprar, aceitar, publicar, enviar
+  proposta) fica com o texto difícil de ler. Implementei do jeito que foi pedido (o hex exato),
+  mas se esta for a paleta escolhida de verdade, o próximo passo obrigatório não é ajustar o
+  token — é trocar `text-white` por uma cor escura nesses 52 lugares (ou um novo token
+  `--color-accent-text` que já nasça correto pra cada paleta).
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário — praticamente obrigatório desta vez, dado o
+  problema de contraste descrito acima.
+
 ## 2026-09-21 — Teste de paleta: Cotton + Electric Blue + Moonless Night
 
 ### Objetivo
