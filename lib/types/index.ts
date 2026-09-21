@@ -8,6 +8,7 @@ export * from "./entitlement";
 export * from "./review";
 export * from "./report";
 export * from "./custom-request";
+export * from "./service-request";
 export * from "./conversation";
 export * from "./custom-proposal";
 export * from "./custom-service-order";

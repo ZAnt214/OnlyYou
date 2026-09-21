@@ -53,6 +53,7 @@ interface CustomRequestRow {
   declined_at: string | null;
   cancelled_at: string | null;
   source_gig_id: string | null;
+  source_service_request_id: string | null;
 }
 
 interface ConversationRow {
@@ -166,6 +167,7 @@ function mapRequest(r: CustomRequestRow, conversationId: string): CustomRequest 
     status: r.status,
     conversationId,
     sourceGigId: r.source_gig_id ?? undefined,
+    sourceServiceRequestId: r.source_service_request_id ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     expiresAt: r.expires_at ?? undefined,

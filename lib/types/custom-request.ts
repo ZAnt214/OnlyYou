@@ -30,6 +30,8 @@ export interface CustomRequest {
   conversationId: string;
   /** Gig que originou o pedido, quando veio de "Solicitar" num anúncio — permite pré-preencher a proposta. */
   sourceGigId?: string;
+  /** Oportunidade pública que originou a conversa, quando um profissional demonstrou interesse. */
+  sourceServiceRequestId?: string;
   createdAt: string;
   updatedAt: string;
   expiresAt?: string;

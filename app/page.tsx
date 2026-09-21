@@ -154,6 +154,11 @@ export default function HomePage() {
               "Jogue comigo",
               "Encontre sessões com duração e preço definidos.",
             ],
+            [
+              "/oportunidades/nova",
+              "Publique o que precisa",
+              "Descreva o projeto e receba respostas de profissionais.",
+            ],
           ].map(([href, title, description]) => (
             <Link
               key={title}

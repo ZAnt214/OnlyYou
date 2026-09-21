@@ -14,6 +14,7 @@ import {
   ChevronDown,
   MessageSquare,
   Bell,
+  ClipboardList,
   LogOut,
 } from "lucide-react";
 import { categories } from "@/lib/data/categories";
@@ -22,10 +23,11 @@ import { createClient } from "@/lib/supabase/client";
 import { useCreatorUsername } from "@/lib/supabase/useCreatorUsername";
 
 const NAV_LINKS = [
-  { href: "/descobrir", label: "Explorar" },
-  { href: "/criadores", label: "Criadores" },
-  { href: "/descobrir?sort=vendidos", label: "Mais vendidos" },
-  { href: "/descobrir?ofertas=1", label: "Ofertas" },
+  { href: "/descobrir", label: "Explorar", compact: false },
+  { href: "/oportunidades", label: "Oportunidades", compact: false },
+  { href: "/criadores", label: "Criadores", compact: false },
+  { href: "/descobrir?sort=vendidos", label: "Mais vendidos", compact: true },
+  { href: "/descobrir?ofertas=1", label: "Ofertas", compact: true },
 ];
 
 export function Header() {
@@ -34,6 +36,7 @@ export function Header() {
   const ACCOUNT_LINKS = [
     { href: "/biblioteca", label: "Biblioteca", icon: Library },
     { href: "/pedidos", label: "Mensagens", icon: MessageSquare },
+    { href: "/oportunidades/minhas", label: "Minhas publicações", icon: ClipboardList },
     { href: "/notificacoes", label: "Notificações", icon: Bell },
     { href: "/favoritos", label: "Favoritos", icon: Heart },
     { href: `/criadores/${creatorUsername}`, label: "Área do criador", icon: LayoutDashboard },
@@ -79,7 +82,7 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className="px-2 py-2 text-sm text-(--color-text-muted) transition-colors hover:text-(--color-text)"
+              className={`${link.compact ? "hidden xl:block" : ""} px-2 py-2 text-sm text-(--color-text-muted) transition-colors hover:text-(--color-text)`}
             >
               {link.label}
             </Link>

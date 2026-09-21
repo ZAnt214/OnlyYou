@@ -3,6 +3,50 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Publicações de serviços procurados
+
+### Objetivo
+
+- Permitir que uma pessoa publique o serviço que está procurando, como “preciso de alguém para
+  fazer a arte do meu canal”, e receba respostas de profissionais dentro do Jobê.
+- Reaproveitar toda a segurança e a jornada existente de conversa, proposta, pagamento, entrega e
+  avaliação em vez de criar um fluxo de contratação paralelo.
+
+### Mudanças
+
+- Supabase: criada a tabela `service_requests` com expiração de 30 dias, RLS, índices e RPCs para
+  publicar, encerrar e demonstrar interesse. `custom_requests` ganhou o vínculo
+  `source_service_request_id`, com unicidade por profissional/oportunidade.
+- `app/oportunidades/*`: novas páginas pública, de publicação e de gerenciamento, incluindo
+  skeleton de carregamento e filtros por categoria.
+- `components/ServiceRequestPublisher.tsx` e `components/ServiceRequestCard.tsx`: formulário
+  responsivo, cards compactos, estados de autenticação, encerramento e modal de apresentação.
+- Ao demonstrar interesse, o banco valida o perfil profissional, abre o pedido personalizado e a
+  conversa, registra a mensagem inicial e notifica o autor. O profissional segue então para a tela
+  existente de proposta.
+- `components/Header.tsx` e `app/page.tsx`: adicionados acessos para oportunidades, minhas
+  publicações e “Publique o que precisa”, preservando os links anteriores no menu mobile.
+- `docs/SERVICE_REQUEST_OPPORTUNITIES.md`: documentada a arquitetura e as regras de continuidade
+  para outras IAs.
+
+### Validação
+
+- Fluxo de banco exercitado em transação com rollback: criação por comprador e resposta por criador
+  geraram exatamente um pedido personalizado; nenhuma linha de teste permaneceu no banco.
+- ESLint e TypeScript concluídos sem erros; build de produção concluído nas 41 rotas usando somente
+  variáveis fictícias de validação.
+- Home, listagem, publicação e gerenciamento responderam HTTP 200 no servidor de produção local; o
+  HTML confirmou os títulos, CTAs e estado vazio esperados.
+- Busca por cores cruas e `git diff --check` sem ocorrências; as telas usam somente os tokens do
+  design system e regras responsivas por breakpoint.
+- Supabase verificado com três RPCs `security invoker`, `search_path` vazio, três políticas RLS,
+  índices de listagem/autor e índice único por oportunidade/profissional. Advisors não apontaram
+  alerta novo ligado a `service_requests`; os avisos retornados são preexistentes em outras tabelas
+  e na configuração de senhas vazadas do Auth.
+- A inspeção visual automatizada não pôde ser executada: o navegador remoto bloqueia localhost e o
+  navegador local não pôde baixar o binário por erro de certificado da rede. Build, HTML servido e
+  rotas foram validados como cobertura alternativa, sem afirmar uma captura visual inexistente.
+
 ## 2026-09-21 — Hero sem rótulo decorativo
 
 ### Objetivo
