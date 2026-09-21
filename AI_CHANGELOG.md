@@ -3,6 +3,48 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Paleta definitiva: Milky + Mantis
+
+### Objetivo
+
+- Depois de 13 paletas testadas nesta sessão, o usuário escolheu **Milky + Mantis** (já tinha
+  sido testada antes, ver entrada "Teste de paleta: Milky + Mantis") como a paleta definitiva do
+  Jobê. Diferente das entradas anteriores desta sequência (todas marcadas como "teste,
+  substituível a qualquer momento"), esta fecha a identidade visual — por isso também atualizei
+  o `CLAUDE.md`, que ainda descrevia o sistema antigo (laranja + cinza-névoa).
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro voltam exatamente aos valores da paleta Milky/Mantis
+  (fundo creme `#fffdf1`, accent verde `#59c749`) — mesmos hex já validados na entrada anterior,
+  reaplicados por cima da última paleta de teste (Barley White/Mikado Yellow).
+- `CLAUDE.md`:
+  - Trocado "laranja como cor de marca" / "fundo cinza-névoa frio" pela descrição real (verde
+    Mantis / creme Milky).
+  - Exemplo de hex "cru" da regra de ouro atualizado de `#f5821f` (laranja antigo) pra `#59c749`
+    (verde atual).
+  - Nota sobre `--color-success` reescrita: a justificativa antiga ("verde destoa da paleta
+    laranja+cinza") não fazia mais sentido com o accent sendo verde. A regra em si continua
+    valendo (badge positivo usa `bg-(--color-accent-soft) text-(--color-accent)`, nunca
+    `--color-success`) — só a razão mudou: `--color-success` é um verde **diferente** do accent,
+    e os dois lado a lado confundiriam duas semânticas distintas (aprovado vs. mensagem de
+    sucesso).
+  - Badge de verificado: "separado do `--color-accent` laranja" → "separado do `--color-accent`
+    verde".
+
+### Ponto que continua em aberto (não resolvido nesta entrada)
+
+- `--color-success` (`#1f9d55`) e `--color-accent` (`#59c749`) continuam sendo dois verdes
+  parecidos, mesmo com a regra do CLAUDE.md minimizando o uso de `--color-success` em badges. Se
+  algum dia esses dois tons precisarem aparecer juntos na mesma tela, vale revisitar se um dos
+  dois deveria mudar de matiz — não fiz isso agora porque o usuário só pediu pra fixar a paleta,
+  não pra resolver esse ponto.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- `grep` por "laranja"/"cinza-névoa" no `CLAUDE.md`: nenhuma ocorrência restante.
+
 ## 2026-09-21 — Teste de paleta: Barley White + Mikado Yellow
 
 ### Objetivo
