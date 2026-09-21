@@ -32,6 +32,17 @@ ou de desempenho sem medição comparável.
 - Identidade atual usa Marfim + Sálvia. Cabeçalho, navegação, pagamentos,
   solicitações e componentes compartilhados não foram reescritos.
 
+## Ajuste comercial posterior
+
+- A vitrine real passou para imediatamente depois do primeiro bloco da home;
+  categorias e explicações vêm depois das ofertas.
+- Hero ganhou texto orientado a contratação, CTA de exploração e acesso para
+  quem quer vender. A lateral explica serviço, produto digital e Jogue comigo.
+- Terracota foi acrescentado como highlight secundário apenas para promoções e
+  pontos de energia; o verde-sálvia continua sendo a cor de ação principal.
+- Vitrine e comunidade usam a mesma leitura memoizada no servidor, com Suspense
+  separado. Isso antecipa os cards sem duplicar consultas nem JavaScript.
+
 ## Performance e dados
 
 - Server Component, ISR de 60 segundos e Suspense com skeleton.

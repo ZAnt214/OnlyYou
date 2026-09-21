@@ -3,6 +3,37 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Home com presença comercial
+
+### Objetivo
+
+- Dar à página inicial aparência clara de marketplace, mantendo a paleta confortável e a
+  identidade humana do Jobê.
+- Exibir ofertas reais antes de categorias e conteúdo explicativo.
+
+### Mudanças
+
+- `app/page.tsx`
+  - Hero orientado a busca, comparação e contratação, com CTA para explorar e para vender.
+  - Bloco lateral diferencia serviços, produtos digitais e Jogue comigo.
+  - Vitrine real movida para cima; categorias, como funciona e comunidade vêm depois.
+  - Vitrine e comunidade separadas em Suspense próprios e compartilham uma leitura memoizada
+    no servidor, evitando consultas duplicadas e JavaScript adicional no navegador.
+  - Atalhos ganharam formato de ação e skeletons específicos para cada trecho.
+- `app/globals.css` e `CLAUDE.md`
+  - Adicionados tokens terracota de highlight para ofertas e energia comercial, sem substituir
+    o verde-sálvia dos CTAs principais.
+- `components/ProductCard.tsx` e `components/PriceTag.tsx`
+  - Ofertas e preços promocionais usam o novo highlight quente.
+- `docs/HOME_REDESIGN.md` atualizado com a nova hierarquia e decisão de cor.
+
+### Validação
+
+- ESLint, TypeScript e build de produção.
+- Checagem de cores fixas, diff e reutilização da consulta no servidor.
+- Contraste do terracota sobre fundo suave: 4,56:1; texto branco sobre terracota: 5,77:1.
+- Smoke test da home em servidor de produção, confirmando resposta HTML e CTAs principais.
+
 ## 2026-09-21 — Paleta Marfim + Sálvia
 
 ### Objetivo
@@ -567,7 +598,7 @@ site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLA
   - Tema claro: `--color-bg: #eaf8fc` (era `#f5f6f8`, cinza neutro); `--color-surface-2: #c8f3ff`
     (era `#eceef2`, cinza neutro — agora é o Ice Cream Blue puro); `--color-border: #a9e2ef`
     (era `#e4e7ec`, ajustado pra combinar com o novo fundo/superfície); `--color-accent-soft:
-    #ffe1d2` (pêssego claro derivado do novo laranja, era o azul gelo na entrada anterior).
+#ffe1d2` (pêssego claro derivado do novo laranja, era o azul gelo na entrada anterior).
   - Tema escuro: `--color-bg: #0d1b20`, `--color-surface: #15262c`, `--color-surface-2: #1d3540`
     (análogos escuros da mesma família azul-petróleo, substituindo os cinzas neutros anteriores);
     `--color-border: #2a4750`; `--color-accent-soft: #40200f` (marrom-pêssego escuro, mesma
@@ -598,7 +629,7 @@ site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLA
 - `app/globals.css`
   - Tema claro: `--color-accent: #ff5c23` (era `#f5821f`); `--color-accent-hover: #e04a15`
     (versão mais escura, mesma relação de contraste que já existia); `--color-accent-soft:
-    #c8f3ff` (era um pêssego bem claro derivado do laranja antigo — agora é o azul gelo).
+#c8f3ff` (era um pêssego bem claro derivado do laranja antigo — agora é o azul gelo).
   - Tema escuro: `--color-accent: #ff5c23`; `--color-accent-hover: #ff7d4f` (versão mais clara,
     mesma relação que já existia no escuro); `--color-accent-soft: #123540` (análogo escuro do
     azul gelo — usar o mesmo tom claro de `#c8f3ff` como fundo no escuro ficaria estourado；
@@ -696,7 +727,7 @@ site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLA
 ### Objetivo
 
 - Reportado pelo usuário ao testar a fatia anterior: `new row violates row-level security policy
-  for table "products"` ao clicar em "Publicar produto" em `/dashboard/produtos/novo`.
+for table "products"` ao clicar em "Publicar produto" em `/dashboard/produtos/novo`.
 
 ### Causa
 

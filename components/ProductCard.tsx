@@ -5,7 +5,13 @@ import { RatingStars } from "./RatingStars";
 import { formatBRL } from "./PriceTag";
 import { Play } from "lucide-react";
 
-export function ProductCard({ product, creatorName }: { product: Product; creatorName?: string }) {
+export function ProductCard({
+  product,
+  creatorName,
+}: {
+  product: Product;
+  creatorName?: string;
+}) {
   return (
     <Link
       href={`/produto/${product.id}`}
@@ -21,12 +27,15 @@ export function ProductCard({ product, creatorName }: { product: Product; creato
           muted
         />
         {product.type === "video" ? (
-          <span className="absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-(--color-surface) text-(--color-accent) shadow-sm" aria-label="Conteúdo em vídeo">
+          <span
+            className="absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-(--color-surface) text-(--color-accent) shadow-sm"
+            aria-label="Conteúdo em vídeo"
+          >
             <Play size={14} fill="currentColor" />
           </span>
         ) : null}
         {product.promoPrice != null && product.promoPrice < product.price ? (
-          <span className="absolute right-2.5 top-2.5 rounded-(--radius-pill) bg-(--color-accent-soft) px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-(--color-accent)">
+          <span className="absolute right-2.5 top-2.5 rounded-(--radius-pill) bg-(--color-highlight-soft) px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-(--color-highlight)">
             Oferta
           </span>
         ) : null}
@@ -40,7 +49,9 @@ export function ProductCard({ product, creatorName }: { product: Product; creato
               className="h-4 w-4"
               label={creatorName}
             />
-            <span className="truncate text-[11px] text-(--color-text-muted)">{creatorName}</span>
+            <span className="truncate text-[11px] text-(--color-text-muted)">
+              {creatorName}
+            </span>
           </div>
         ) : null}
         <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-(--color-text)">
@@ -50,16 +61,26 @@ export function ProductCard({ product, creatorName }: { product: Product; creato
         <div className="mt-3 flex min-h-9 flex-col justify-end">
           {product.promoPrice != null && product.promoPrice < product.price ? (
             <>
-              <span className="text-[11px] text-(--color-text-subtle) line-through">{formatBRL(product.price)}</span>
-              <span className="text-base font-bold leading-tight text-(--color-accent)">{formatBRL(product.promoPrice)}</span>
+              <span className="text-[11px] text-(--color-text-subtle) line-through">
+                {formatBRL(product.price)}
+              </span>
+              <span className="text-base font-bold leading-tight text-(--color-highlight)">
+                {formatBRL(product.promoPrice)}
+              </span>
             </>
           ) : (
-            <span className="text-base font-bold text-(--color-text)">{formatBRL(product.price)}</span>
+            <span className="text-base font-bold text-(--color-text)">
+              {formatBRL(product.price)}
+            </span>
           )}
         </div>
 
         <div className="mt-3 border-t border-(--color-border) pt-2.5">
-          <RatingStars rating={product.rating} ratingCount={product.ratingCount} size={12} />
+          <RatingStars
+            rating={product.rating}
+            ratingCount={product.ratingCount}
+            size={12}
+          />
         </div>
       </div>
     </Link>

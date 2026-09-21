@@ -11,7 +11,8 @@ export function PriceTag({
   promoPrice?: number;
   size?: "sm" | "md" | "lg";
 }) {
-  const priceClass = size === "lg" ? "text-2xl" : size === "sm" ? "text-sm" : "text-base";
+  const priceClass =
+    size === "lg" ? "text-2xl" : size === "sm" ? "text-sm" : "text-base";
 
   if (promoPrice != null && promoPrice < price) {
     return (
@@ -19,12 +20,18 @@ export function PriceTag({
         <span className="text-xs text-(--color-text-subtle) line-through">
           De: {formatBRL(price)}
         </span>
-        <span className={`font-semibold text-(--color-accent) ${priceClass}`}>
+        <span
+          className={`font-semibold text-(--color-highlight) ${priceClass}`}
+        >
           Por: {formatBRL(promoPrice)}
         </span>
       </div>
     );
   }
 
-  return <span className={`font-semibold text-(--color-text) ${priceClass}`}>{formatBRL(price)}</span>;
+  return (
+    <span className={`font-semibold text-(--color-text) ${priceClass}`}>
+      {formatBRL(price)}
+    </span>
+  );
 }

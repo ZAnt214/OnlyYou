@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import type { Metadata } from "next";
 import { ArrowUpRight, Search } from "lucide-react";
 import type { Gig, Product, User } from "@/lib/types";
@@ -60,23 +60,23 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <section
         aria-labelledby="home-title"
-        className="grid gap-10 pb-10 pt-10 sm:py-16 lg:grid-cols-[1.35fr_0.65fr] lg:items-center lg:gap-16"
+        className="grid gap-8 bg-[radial-gradient(circle_at_top_right,var(--color-highlight-soft),transparent_52%)] pb-10 pt-10 sm:py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:gap-14"
       >
         <div>
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-(--color-text-muted)">
-            Talento de gente. Ideias como a sua.
+          <p className="mb-4 w-fit rounded-full bg-(--color-highlight-soft) px-3 py-1.5 text-xs font-semibold text-(--color-highlight)">
+            Serviços e produtos digitais em um só lugar
           </p>
           <h1
             id="home-title"
             className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:text-5xl lg:text-6xl"
           >
-            Tem uma ideia?
+            Encontre. Compare.
             <br />
-            Encontre quem faz<span className="text-(--color-accent)">.</span>
+            Faça acontecer<span className="text-(--color-highlight)">.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-text-muted) sm:text-lg">
-            Um trabalho sob medida, um produto pronto ou alguém para jogar
-            junto. Seu próximo encontro começa no Jobê.
+            Contrate profissionais, compre produtos prontos ou peça exatamente o
+            que precisa. No Jobê, você conhece quem faz antes de escolher.
           </p>
           <form
             action="/descobrir"
@@ -97,13 +97,27 @@ export default function HomePage() {
               name="q"
               type="search"
               maxLength={160}
-              placeholder="O que você precisa?"
+              placeholder="Busque por serviço, produto ou profissional"
               className="min-w-0 flex-1 bg-transparent py-3 text-base text-(--color-text) outline-none placeholder:text-(--color-text-muted)"
             />
             <button className="min-h-12 shrink-0 rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">
               Buscar
             </button>
           </form>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <Link
+              href="/descobrir"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
+            >
+              Explorar agora
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-flex min-h-11 items-center justify-center px-2 text-sm font-semibold text-(--color-text) underline decoration-(--color-border) underline-offset-4"
+            >
+              Quero vender no Jobê
+            </Link>
+          </div>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-(--color-text-muted)">
             <span>Experimente:</span>
             {["Logotipo", "Edição de vídeo", "Site"].map((term) => (
@@ -118,33 +132,36 @@ export default function HomePage() {
           </div>
         </div>
         <aside
-          aria-label="Escolha por onde começar"
-          className="border-t border-(--color-border) pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0"
+          aria-label="Formas de comprar no Jobê"
+          className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 shadow-lg shadow-black/5 sm:p-6"
         >
-          <p className="mb-2 text-sm text-(--color-text-muted)">
-            O que você quer fazer hoje?
+          <p className="text-sm font-medium text-(--color-highlight)">
+            Escolha como começar
           </p>
+          <h2 className="mt-1 text-xl font-semibold text-(--color-text)">
+            Compre pronto ou peça sob medida
+          </h2>
           {[
             [
-              "/criadores",
-              "Encontrar um profissional",
-              "Conheça o trabalho antes de conversar.",
+              "/descobrir",
+              "Serviços profissionais",
+              "Compare preços, prazos e o que está incluído.",
             ],
             [
               "/descobrir",
-              "Descobrir produtos e serviços",
-              "Compare opções, preços e detalhes.",
+              "Produtos digitais",
+              "Escolha algo pronto e receba após o pagamento.",
             ],
             [
-              "/dashboard",
-              "Oferecer meu trabalho",
-              "Seu talento merece ser encontrado.",
+              "/categorias/jogue-comigo",
+              "Jogue comigo",
+              "Encontre sessões com duração e preço definidos.",
             ],
           ].map(([href, title, description]) => (
             <Link
-              key={href}
+              key={title}
               href={href}
-              className="group flex min-h-20 items-center justify-between gap-4 border-b border-(--color-border) py-4"
+              className="group flex min-h-20 items-center justify-between gap-4 border-b border-(--color-border) py-4 last:border-b-0"
             >
               <span>
                 <span className="block text-base font-semibold text-(--color-text)">
@@ -163,13 +180,30 @@ export default function HomePage() {
           ))}
         </aside>
       </section>
+      <div className="grid grid-cols-3 divide-x divide-(--color-border) border-y border-(--color-border) py-4 text-center">
+        {[
+          ["Preço", "visível"],
+          ["Conversa", "antes de fechar"],
+          ["Compra", "em um só lugar"],
+        ].map(([title, description]) => (
+          <p
+            key={title}
+            className="px-2 text-xs text-(--color-text-muted) sm:text-sm"
+          >
+            <strong className="block font-semibold text-(--color-text)">
+              {title}
+            </strong>
+            {description}
+          </p>
+        ))}
+      </div>
       <nav
         aria-label="Seções da página inicial"
         className="flex flex-wrap gap-x-6 gap-y-1 border-y border-(--color-border) py-2 text-sm text-(--color-text-muted)"
       >
         {[
-          ["categorias", "Categorias"],
           ["vitrine", "Vitrine"],
+          ["categorias", "Categorias"],
           ["como-funciona", "Como funciona"],
           ["comunidade", "Comunidade"],
           ["duvidas", "Dúvidas"],
@@ -183,7 +217,13 @@ export default function HomePage() {
           </a>
         ))}
       </nav>
-      <section id="categorias" className="scroll-mt-24 py-12 sm:py-16">
+      <Suspense fallback={<CatalogSkeleton />}>
+        <Vitrine />
+      </Suspense>
+      <section
+        id="categorias"
+        className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
+      >
         <SectionHeading
           title="Um bom começo para cada ideia"
           description="Explore pelo que você precisa, no seu ritmo."
@@ -212,9 +252,6 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-      <Suspense fallback={<CatalogSkeleton />}>
-        <Catalog />
-      </Suspense>
       <section
         id="como-funciona"
         className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
@@ -277,6 +314,9 @@ export default function HomePage() {
           Começar a oferecer <ArrowUpRight size={18} aria-hidden="true" />
         </Link>
       </section>
+      <Suspense fallback={<CommunitySkeleton />}>
+        <Community />
+      </Suspense>
       <section
         id="duvidas"
         className="mx-auto max-w-3xl scroll-mt-24 py-12 sm:py-16"
@@ -304,7 +344,7 @@ export default function HomePage() {
 
 type FeedItem = { kind: "product"; data: Product } | { kind: "gig"; data: Gig };
 
-async function Catalog() {
+const getHomeData = cache(async function getHomeData() {
   const supabase = createPublicClient();
   const [productsResult, gigsResult] = await Promise.allSettled([
     listApprovedProducts(supabase, { limit: 24 }),
@@ -331,170 +371,179 @@ async function Catalog() {
     ...gigs.map((data): FeedItem => ({ kind: "gig", data })),
   ].sort((a, b) => Date.parse(b.data.createdAt) - Date.parse(a.data.createdAt));
 
+  return { approved, gigs, unavailable, creators, creatorById, offers, feed };
+});
+
+async function Vitrine() {
+  const { approved, gigs, unavailable, creatorById, offers, feed } =
+    await getHomeData();
+
   return (
-    <>
-      <section
-        id="vitrine"
-        className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
-      >
-        <SectionHeading
-          title="Encontre seu próximo Jobê"
-          description="Serviços para contratar. Produtos digitais para levar sua ideia adiante."
-          href="/descobrir"
-          label="Explorar tudo"
-        />
-        {unavailable ? (
-          <p role="status" className="mt-5 text-sm text-(--color-text-muted)">
-            Parte da vitrine está indisponível agora.{" "}
-            <Link href="/descobrir" className="underline">
-              Tentar na página Explorar
-            </Link>
-            .
-          </p>
-        ) : null}
-        {gigs.length ? (
-          <div className="mt-8">
-            <h3 className="mb-4 text-lg font-semibold">
-              Serviços de quem sabe fazer
-            </h3>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {gigs.slice(0, 4).map((gig) => (
-                <GigCard
-                  key={gig.id}
-                  gig={gig}
-                  creatorName={creatorById.get(gig.creatorId)?.displayName}
-                />
-              ))}
-            </div>
-          </div>
-        ) : null}
-        {approved.length ? (
-          <div className="mt-8">
-            <h3 className="mb-4 text-lg font-semibold">
-              Novidades em produtos digitais
-            </h3>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              {approved.slice(0, 4).map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  creatorName={creatorById.get(product.creatorId)?.displayName}
-                />
-              ))}
-            </div>
-          </div>
-        ) : null}
-        {!feed.length && !unavailable ? (
-          <EmptyState
-            icon={Search}
-            title="O próximo trabalho pode ser o seu"
-            description="Novos produtos e serviços aparecerão aqui quando forem publicados."
-            action={
-              <Link href="/dashboard" className="underline underline-offset-4">
-                Publicar meu trabalho
-              </Link>
-            }
-          />
-        ) : null}
-        {offers.length ? (
-          <div className="mt-10">
-            <SectionHeading
-              title="Uma boa ideia por menos"
-              href="/descobrir?ofertas=1"
-              label="Ver ofertas"
-            />
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              {offers.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  creatorName={creatorById.get(product.creatorId)?.displayName}
-                />
-              ))}
-            </div>
-          </div>
-        ) : null}
-        <div className="mt-6 flex flex-wrap gap-5 text-sm font-medium">
-          <Link
-            href="/descobrir?sort=vendidos"
-            className="flex min-h-11 items-center underline underline-offset-4"
-          >
-            Explorar mais vendidos
+    <section id="vitrine" className="scroll-mt-24 py-12 sm:py-16">
+      <SectionHeading
+        title="Encontre seu próximo Jobê"
+        description="Serviços para contratar. Produtos digitais para levar sua ideia adiante."
+        href="/descobrir"
+        label="Explorar tudo"
+      />
+      {unavailable ? (
+        <p role="status" className="mt-5 text-sm text-(--color-text-muted)">
+          Parte da vitrine está indisponível agora.{" "}
+          <Link href="/descobrir" className="underline">
+            Tentar na página Explorar
           </Link>
-          <Link
-            href="/descobrir"
-            className="flex min-h-11 items-center underline underline-offset-4"
-          >
-            Ver catálogo completo
-          </Link>
+          .
+        </p>
+      ) : null}
+      {gigs.length ? (
+        <div className="mt-8">
+          <h3 className="mb-4 text-lg font-semibold">
+            Serviços de quem sabe fazer
+          </h3>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {gigs.slice(0, 4).map((gig) => (
+              <GigCard
+                key={gig.id}
+                gig={gig}
+                creatorName={creatorById.get(gig.creatorId)?.displayName}
+              />
+            ))}
+          </div>
         </div>
-      </section>
-      <section
-        id="comunidade"
-        className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
-      >
-        <SectionHeading
-          title="Por trás de cada trabalho, alguém"
-          description="Conheça os profissionais e acompanhe o que eles estão criando."
-          href="/criadores"
-          label="Conhecer profissionais"
+      ) : null}
+      {approved.length ? (
+        <div className="mt-8">
+          <h3 className="mb-4 text-lg font-semibold">
+            Novidades em produtos digitais
+          </h3>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {approved.slice(0, 4).map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                creatorName={creatorById.get(product.creatorId)?.displayName}
+              />
+            ))}
+          </div>
+        </div>
+      ) : null}
+      {!feed.length && !unavailable ? (
+        <EmptyState
+          icon={Search}
+          title="O próximo trabalho pode ser o seu"
+          description="Novos produtos e serviços aparecerão aqui quando forem publicados."
+          action={
+            <Link href="/dashboard" className="underline underline-offset-4">
+              Publicar meu trabalho
+            </Link>
+          }
         />
-        {creators.length ? (
-          <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {creators
-              .filter((c) => c.creatorProfile)
-              .slice(0, 4)
-              .map((creator) => (
-                <CreatorCard key={creator.id} creator={creator} />
-              ))}
+      ) : null}
+      {offers.length ? (
+        <div className="mt-10">
+          <SectionHeading
+            title="Uma boa ideia por menos"
+            href="/descobrir?ofertas=1"
+            label="Ver ofertas"
+          />
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {offers.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                creatorName={creatorById.get(product.creatorId)?.displayName}
+              />
+            ))}
           </div>
-        ) : null}
-        {feed.length ? (
-          <div className="mx-auto mt-10 max-w-2xl">
-            <h3 className="mb-5 text-lg font-semibold">
-              Acabou de chegar ao feed
-            </h3>
-            <div className="flex flex-col gap-4">
-              {feed.slice(0, 3).map((item) => (
-                <FeedItemCard
-                  key={item.kind + item.data.id}
-                  item={item}
-                  creator={creatorById.get(item.data.creatorId)}
-                />
-              ))}
-            </div>
-            {feed.length > 3 ? (
-              <details className="mt-5">
-                <summary className="cursor-pointer py-3 text-center text-sm font-semibold underline underline-offset-4">
-                  Ver mais publicações
-                </summary>
-                <div className="mt-4 flex flex-col gap-4">
-                  {feed.slice(3, 12).map((item) => (
-                    <FeedItemCard
-                      key={item.kind + item.data.id}
-                      item={item}
-                      creator={creatorById.get(item.data.creatorId)}
-                    />
-                  ))}
-                </div>
-                <Link
-                  href="/descobrir"
-                  className="mt-6 block py-3 text-center text-sm font-semibold underline"
-                >
-                  Continuar explorando
-                </Link>
-              </details>
-            ) : null}
+        </div>
+      ) : null}
+      <div className="mt-6 flex flex-wrap gap-5 text-sm font-medium">
+        <Link
+          href="/descobrir?sort=vendidos"
+          className="flex min-h-11 items-center underline underline-offset-4"
+        >
+          Explorar mais vendidos
+        </Link>
+        <Link
+          href="/descobrir"
+          className="flex min-h-11 items-center underline underline-offset-4"
+        >
+          Ver catálogo completo
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+async function Community() {
+  const { unavailable, creators, creatorById, feed } = await getHomeData();
+
+  return (
+    <section
+      id="comunidade"
+      className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
+    >
+      <SectionHeading
+        title="Por trás de cada trabalho, alguém"
+        description="Conheça os profissionais e acompanhe o que eles estão criando."
+        href="/criadores"
+        label="Conhecer profissionais"
+      />
+      {creators.length ? (
+        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          {creators
+            .filter((c) => c.creatorProfile)
+            .slice(0, 4)
+            .map((creator) => (
+              <CreatorCard key={creator.id} creator={creator} />
+            ))}
+        </div>
+      ) : null}
+      {feed.length ? (
+        <div className="mx-auto mt-10 max-w-2xl">
+          <h3 className="mb-5 text-lg font-semibold">
+            Acabou de chegar ao feed
+          </h3>
+          <div className="flex flex-col gap-4">
+            {feed.slice(0, 3).map((item) => (
+              <FeedItemCard
+                key={item.kind + item.data.id}
+                item={item}
+                creator={creatorById.get(item.data.creatorId)}
+              />
+            ))}
           </div>
-        ) : (
-          <p className="mt-6 text-sm text-(--color-text-muted)">
-            {unavailable
-              ? "As publicações voltarão a aparecer quando a conexão for restabelecida."
-              : "As próximas publicações da comunidade aparecerão aqui."}
-          </p>
-        )}
-      </section>
-    </>
+          {feed.length > 3 ? (
+            <details className="mt-5">
+              <summary className="cursor-pointer py-3 text-center text-sm font-semibold underline underline-offset-4">
+                Ver mais publicações
+              </summary>
+              <div className="mt-4 flex flex-col gap-4">
+                {feed.slice(3, 12).map((item) => (
+                  <FeedItemCard
+                    key={item.kind + item.data.id}
+                    item={item}
+                    creator={creatorById.get(item.data.creatorId)}
+                  />
+                ))}
+              </div>
+              <Link
+                href="/descobrir"
+                className="mt-6 block py-3 text-center text-sm font-semibold underline"
+              >
+                Continuar explorando
+              </Link>
+            </details>
+          ) : null}
+        </div>
+      ) : (
+        <p className="mt-6 text-sm text-(--color-text-muted)">
+          {unavailable
+            ? "As publicações voltarão a aparecer quando a conexão for restabelecida."
+            : "As próximas publicações da comunidade aparecerão aqui."}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -532,7 +581,7 @@ function SectionHeading({
       {href ? (
         <Link
           href={href}
-          className="flex min-h-11 items-center gap-2 text-sm font-medium text-(--color-text) underline decoration-(--color-border) underline-offset-4"
+          className="flex min-h-11 items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) px-4 text-sm font-semibold text-(--color-text) transition-colors hover:border-(--color-accent)"
         >
           {label}
           <ArrowUpRight size={16} aria-hidden="true" />
@@ -544,17 +593,33 @@ function SectionHeading({
 
 function CatalogSkeleton() {
   return (
-    <div
-      role="status"
-      aria-label="Carregando a vitrine e a comunidade"
-      className="py-12"
-    >
-      <span className="sr-only">Carregando a vitrine e a comunidade…</span>
+    <div role="status" aria-label="Carregando a vitrine" className="py-12">
+      <span className="sr-only">Carregando a vitrine…</span>
       <div aria-hidden="true" className="motion-safe:animate-pulse">
         <div className="mb-6 h-7 w-2/3 rounded bg-(--color-surface-2)" />
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-64 rounded-2xl bg-(--color-surface-2)" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CommunitySkeleton() {
+  return (
+    <div
+      role="status"
+      aria-label="Carregando profissionais e publicações"
+      className="border-t border-(--color-border) py-12"
+    >
+      <span className="sr-only">Carregando profissionais e publicações…</span>
+      <div aria-hidden="true" className="motion-safe:animate-pulse">
+        <div className="mb-6 h-7 w-3/5 rounded bg-(--color-surface-2)" />
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-40 rounded-2xl bg-(--color-surface-2)" />
           ))}
         </div>
       </div>

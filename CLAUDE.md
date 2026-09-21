@@ -15,19 +15,21 @@ suporte a dark mode) se propague automaticamente para toda a aplicação.
 
 Tokens disponíveis (`app/globals.css`):
 
-| Token | Uso |
-|---|---|
-| `--color-bg` | fundo geral da página (marfim suave) |
-| `--color-surface` | fundo de cards/painéis (branco) |
-| `--color-surface-2` | fundo secundário (hover, seções alternadas) |
-| `--color-border` | bordas e divisores |
-| `--color-text` / `--color-text-muted` / `--color-text-subtle` | hierarquia de texto |
-| `--color-accent` / `--color-accent-hover` / `--color-accent-soft` | verde — CTAs, preços, estado ativo |
-| `--color-on-accent` | texto/ícone sobre o fundo de accent; nunca presumir branco no tema escuro |
-| `--color-success` / `--color-warning` / `--color-danger` | estados semânticos (ver nota abaixo sobre `--color-success`) |
-| `--color-verified` | selo de criador verificado (azul, separado do accent) |
-| `--radius-card` (`1.25rem`) | cards e painéis maiores |
-| `--radius-pill` (`999px`) | botões, badges, nav flutuante |
+| Token                                                                      | Uso                                                                       |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `--color-bg`                                                               | fundo geral da página (marfim suave)                                      |
+| `--color-surface`                                                          | fundo de cards/painéis (branco)                                           |
+| `--color-surface-2`                                                        | fundo secundário (hover, seções alternadas)                               |
+| `--color-border`                                                           | bordas e divisores                                                        |
+| `--color-text` / `--color-text-muted` / `--color-text-subtle`              | hierarquia de texto                                                       |
+| `--color-accent` / `--color-accent-hover` / `--color-accent-soft`          | verde — CTAs, preços, estado ativo                                        |
+| `--color-on-accent`                                                        | texto/ícone sobre o fundo de accent; nunca presumir branco no tema escuro |
+| `--color-highlight` / `--color-highlight-hover` / `--color-highlight-soft` | terracota — ofertas, preços promocionais e pontos de energia comercial    |
+| `--color-on-highlight`                                                     | texto/ícone sobre o fundo de highlight                                    |
+| `--color-success` / `--color-warning` / `--color-danger`                   | estados semânticos (ver nota abaixo sobre `--color-success`)              |
+| `--color-verified`                                                         | selo de criador verificado (azul, separado do accent)                     |
+| `--radius-card` (`1.25rem`)                                                | cards e painéis maiores                                                   |
+| `--radius-pill` (`999px`)                                                  | botões, badges, nav flutuante                                             |
 
 A escala padrão do Tailwind (`rounded-lg/xl/2xl/3xl`) já foi sobrescrita no `@theme` para ser
 mais arredondada. **Não crie uma escala paralela** — continue usando
@@ -38,7 +40,7 @@ saem no raio certo.
 
 - **Cards** (produto, criador, estatística): fundo `bg-(--color-surface)`, borda
   `border-(--color-border)`, `rounded-2xl` (ou `--radius-card`), sombra leve (`shadow-sm`/`shadow-lg
-  shadow-black/10`, nunca sombra escura pesada).
+shadow-black/10`, nunca sombra escura pesada).
 - **Botões primários/CTA**: pill (`rounded-full`), fundo `bg-(--color-accent)`, texto
   `text-(--color-on-accent)`,
   hover `bg-(--color-accent-hover)`. Botões secundários: outline com `border-(--color-border)`.
@@ -47,7 +49,7 @@ saem no raio certo.
   pagamento confirmado etc.): usam o mesmo padrão do chip ativo/CTA —
   `bg-(--color-accent-soft) text-(--color-accent)` (ou borda `--color-accent` em cards) —
   **não** `--color-success`. Mesmo o accent do Jobê sendo verde, `--color-success` é um verde
-  *diferente* do accent (tons distintos) — usar os dois lado a lado em contextos parecidos
+  _diferente_ do accent (tons distintos) — usar os dois lado a lado em contextos parecidos
   (badge de "aprovado" vs. mensagem de sucesso) confundiria as duas semânticas. Por isso
   `--color-success` continua reservado só para os casos em que `--color-warning`/
   `--color-danger` já convivem lado a lado e um terceiro tom é indispensável — na dúvida, usar
@@ -68,7 +70,7 @@ saem no raio certo.
 - **Título de página interna**: barra em card branco `rounded-2xl` com o texto centralizado.
 - **Cards de mensagem na conversa** (`components/ConversationView.tsx`, `MessageItem`):
   qualquer card de mensagem (proposta, entrega, marco de pedido) usa `w-full max-w-sm
-  self-center rounded-2xl` como a proposta — nunca um card sem `max-w-*` (fica desproporcional,
+self-center rounded-2xl` como a proposta — nunca um card sem `max-w-*` (fica desproporcional,
   esticando pra largura toda do painel em telas maiores; foi o caso do card "Entrega enviada").
 - **Mensagens de marco de pedido** (pagamento confirmado, entrega confirmada — identificadas
   por `message.metadata.customServiceOrderId`, ver `mapMessage` em `lib/supabase/customRequests.ts`):
