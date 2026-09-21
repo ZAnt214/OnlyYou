@@ -3,6 +3,38 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Teste de paleta: Cotton + Electric Blue + Moonless Night
+
+### Objetivo
+
+- Décimo segundo teste de paleta seguido: Cotton `#F4F3F1`, Electric Blue `#3171C6`, Moonless
+  Night `#2D2D2D`. Substitui a paleta Milano Red/Cararra da entrada anterior — some o risco de
+  confusão accent×danger que eu tinha avisado ali, já que o accent volta a ser azul.
+
+### Mapeamento pros tokens
+
+- **Cotton** → `--color-bg` no tema claro; reaproveitado como `--color-text` no escuro.
+- **Electric Blue** → `--color-accent`/`--color-accent-hover`. No tema escuro, uma versão um
+  pouco mais clara do mesmo azul (`#4a86d6`) em vez do hex exato — dá mais margem de contraste
+  como texto/ícone direto sobre o fundo escuro, sem precisar de uma clareada tão grande quanto a
+  do Royal Blue/Milano Red (Electric Blue já não era tão escuro assim).
+- **Moonless Night** → `--color-text` no tema claro; `--color-bg` no tema escuro.
+- `--color-surface-2`/`--color-border`/`--color-accent-soft` derivados na mesma família
+  cinza-azulada, nos dois temas.
+- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` não mudaram —
+  `--color-verified` (azul) volta a ficar na mesma família do novo accent (mesma observação já
+  feita quando testamos Royal Blue), mas sem o risco mais sério de confusão com danger que a
+  paleta anterior tinha.
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário.
+
 ## 2026-09-21 — Teste de paleta: Milano Red + Cararra
 
 ### Objetivo
