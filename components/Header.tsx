@@ -137,7 +137,7 @@ export function Header() {
                 </Link>
                 <Link
                   href="/cadastro"
-                  className="rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+                  className="rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
                 >
                   Criar conta
                 </Link>

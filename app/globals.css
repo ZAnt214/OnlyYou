@@ -13,20 +13,21 @@
    * `data-theme="dark"` manual (ver abaixo), nada no código seta isso.
    */
   color-scheme: only light;
-  --color-bg: #fffdf1;
+  --color-bg: #f7f5ef;
   --color-surface: #ffffff;
-  --color-surface-2: #eaf3e6;
-  --color-border: #d4e8ce;
-  --color-text: #182619;
-  --color-text-muted: #5c6b58;
-  --color-text-subtle: #8a9686;
-  --color-accent: #59c749;
-  --color-accent-hover: #479c3a;
-  --color-accent-soft: #dff2da;
-  --color-success: #1f9d55;
-  --color-warning: #b58a1a;
-  --color-danger: #c0392b;
-  --color-verified: #3b82f6;
+  --color-surface-2: #ebefeb;
+  --color-border: #d6ddd8;
+  --color-text: #24312b;
+  --color-text-muted: #55645c;
+  --color-text-subtle: #65726c;
+  --color-accent: #456c58;
+  --color-accent-hover: #365746;
+  --color-accent-soft: #e3ece6;
+  --color-on-accent: #ffffff;
+  --color-success: #3f7655;
+  --color-warning: #7b632e;
+  --color-danger: #9b4c4c;
+  --color-verified: #4f7199;
   --radius-card: 1.25rem;
   --radius-pill: 999px;
 }
@@ -38,20 +39,21 @@
  */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-bg: #10160f;
-  --color-surface: #172018;
-  --color-surface-2: #1f2c1e;
-  --color-border: #2a3a28;
-  --color-text: #fffdf1;
-  --color-text-muted: #b9c2b2;
-  --color-text-subtle: #7c8778;
-  --color-accent: #59c749;
-  --color-accent-hover: #74d466;
-  --color-accent-soft: #1f3a1a;
-  --color-success: #4c9a5b;
-  --color-warning: #c9a33b;
-  --color-danger: #c9484e;
-  --color-verified: #5b9bf7;
+  --color-bg: #111713;
+  --color-surface: #18201b;
+  --color-surface-2: #222b25;
+  --color-border: #344039;
+  --color-text: #f3f5f2;
+  --color-text-muted: #bcc5bf;
+  --color-text-subtle: #97a39b;
+  --color-accent: #7fa58f;
+  --color-accent-hover: #93b8a3;
+  --color-accent-soft: #24372d;
+  --color-on-accent: #102018;
+  --color-success: #78a488;
+  --color-warning: #d0b06f;
+  --color-danger: #d58a8a;
+  --color-verified: #83a8d1;
 }
 
 @theme inline {
@@ -65,6 +67,7 @@
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
   --color-accent-soft: var(--color-accent-soft);
+  --color-on-accent: var(--color-on-accent);
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);

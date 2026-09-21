@@ -1,13 +1,13 @@
 # Design system do Jobê
 
 O Jobê usa layout de rede social de criadores (feed de coluna única, cards de post, nav
-inferior em pill flutuante) com paleta própria: fundo creme suave ("Milky"), cards brancos e
-verde ("Mantis") como cor de marca. **Toda UI nova ou alterada deve seguir estas regras — sem
-exceção**, mesmo quando não for pedido explicitamente.
+inferior em pill flutuante) com a paleta **Marfim + Sálvia**: fundo marfim suave, cards brancos,
+texto grafite esverdeado e verde-sálvia fechado como cor de marca. **Toda UI nova ou alterada
+deve seguir estas regras — sem exceção**, mesmo quando não for pedido explicitamente.
 
 ## Regra de ouro: nunca usar cor "crua"
 
-Nunca usar hex (`#59c749`), `rgb()`/`hsl()` literais, nem classes de paleta fixa do Tailwind
+Nunca usar hex (`#456c58`), `rgb()`/`hsl()` literais, nem classes de paleta fixa do Tailwind
 (`bg-orange-500`, `text-red-600`, `border-blue-400` etc). Sempre usar os tokens definidos em
 `app/globals.css`, referenciados como `bg-(--color-accent)`, `text-(--color-text-muted)`,
 `border-(--color-border)` etc. Isso garante que qualquer ajuste de paleta futuro (e o
@@ -17,12 +17,13 @@ Tokens disponíveis (`app/globals.css`):
 
 | Token | Uso |
 |---|---|
-| `--color-bg` | fundo geral da página (creme suave) |
+| `--color-bg` | fundo geral da página (marfim suave) |
 | `--color-surface` | fundo de cards/painéis (branco) |
 | `--color-surface-2` | fundo secundário (hover, seções alternadas) |
 | `--color-border` | bordas e divisores |
 | `--color-text` / `--color-text-muted` / `--color-text-subtle` | hierarquia de texto |
 | `--color-accent` / `--color-accent-hover` / `--color-accent-soft` | verde — CTAs, preços, estado ativo |
+| `--color-on-accent` | texto/ícone sobre o fundo de accent; nunca presumir branco no tema escuro |
 | `--color-success` / `--color-warning` / `--color-danger` | estados semânticos (ver nota abaixo sobre `--color-success`) |
 | `--color-verified` | selo de criador verificado (azul, separado do accent) |
 | `--radius-card` (`1.25rem`) | cards e painéis maiores |
@@ -38,7 +39,8 @@ saem no raio certo.
 - **Cards** (produto, criador, estatística): fundo `bg-(--color-surface)`, borda
   `border-(--color-border)`, `rounded-2xl` (ou `--radius-card`), sombra leve (`shadow-sm`/`shadow-lg
   shadow-black/10`, nunca sombra escura pesada).
-- **Botões primários/CTA**: pill (`rounded-full`), fundo `bg-(--color-accent)`, texto branco,
+- **Botões primários/CTA**: pill (`rounded-full`), fundo `bg-(--color-accent)`, texto
+  `text-(--color-on-accent)`,
   hover `bg-(--color-accent-hover)`. Botões secundários: outline com `border-(--color-border)`.
 - **Badges/indicadores de status positivo** (aceita, aprovado, pago, verificado — exceto o
   selo de verificado, que usa `--color-verified` —, ativo, concluído, entrega enviada,

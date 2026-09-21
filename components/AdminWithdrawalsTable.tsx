@@ -79,7 +79,7 @@ export function AdminWithdrawalsTable({ initialWithdrawals }: { initialWithdrawa
                         type="button"
                         disabled={busyId === w.id}
                         onClick={() => handleReview(w.id, "paid")}
-                        className="flex items-center gap-1 rounded-full bg-(--color-accent) px-3 py-1.5 text-xs font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+                        className="flex items-center gap-1 rounded-full bg-(--color-accent) px-3 py-1.5 text-xs font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
                       >
                         {busyId === w.id ? (
                           <Loader2 size={12} className="animate-spin" strokeWidth={1.5} />

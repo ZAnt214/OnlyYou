@@ -153,7 +153,7 @@ export default function DashboardCarteiraPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-fit rounded-full bg-(--color-accent) px-5 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+          className="w-fit rounded-full bg-(--color-accent) px-5 py-2 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
         >
           Solicitar saque
         </button>

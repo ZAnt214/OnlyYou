@@ -104,7 +104,7 @@ export function GigFeedCard({ gig, creator }: { gig: Gig; creator?: User }) {
               : `${gig.revisionCount} ${gig.revisionCount === 1 ? "revisão" : "revisões"}`}
           </span>
         ) : null}
-        <RequestGigButton gig={gig} className="flex items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover)" />
+        <RequestGigButton gig={gig} className="flex items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)" />
       </div>
     </article>
   );

@@ -100,7 +100,7 @@ export default function HomePage() {
               placeholder="O que você precisa?"
               className="min-w-0 flex-1 bg-transparent py-3 text-base text-(--color-text) outline-none placeholder:text-(--color-text-muted)"
             />
-            <button className="min-h-12 shrink-0 rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)">
+            <button className="min-h-12 shrink-0 rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">
               Buscar
             </button>
           </form>
@@ -272,7 +272,7 @@ export default function HomePage() {
         </div>
         <Link
           href="/dashboard"
-          className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+          className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
         >
           Começar a oferecer <ArrowUpRight size={18} aria-hidden="true" />
         </Link>

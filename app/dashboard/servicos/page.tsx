@@ -243,7 +243,7 @@ export default function DashboardServicosPage() {
         <button
           type="button"
           onClick={openCreate}
-          className="flex shrink-0 items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+          className="flex shrink-0 items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
         >
           <Plus size={14} strokeWidth={1.5} />
           Novo anúncio
@@ -577,7 +577,7 @@ export default function DashboardServicosPage() {
               <button
                 type="submit"
                 disabled={busy}
-                className="flex items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+                className="flex items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
               >
                 {busy ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
                 {editingId ? "Salvar alterações" : "Publicar anúncio"}

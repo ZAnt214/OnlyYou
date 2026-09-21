@@ -96,7 +96,7 @@ export function CustomOrderReviewModal({
             <button
               type="submit"
               disabled={busy || rating < 1}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
             >
               {busy ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
               Enviar avaliação

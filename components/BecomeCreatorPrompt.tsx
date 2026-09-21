@@ -64,7 +64,7 @@ export function BecomeCreatorPrompt({ user }: BecomeCreatorPromptProps) {
           type="button"
           onClick={handleBecomeCreator}
           disabled={submitting}
-          className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? "Processando..." : "Tornar-se criador"}
         </button>

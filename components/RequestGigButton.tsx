@@ -33,7 +33,7 @@ export function RequestGigButton({
 
   const baseClassName =
     className ??
-    "flex items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover)";
+    "flex items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)";
 
   if (loading) return null;
 
@@ -119,7 +119,7 @@ export function RequestGigButton({
                 <button
                   type="button"
                   onClick={() => router.push(`/pedidos/${sent}`)}
-                  className="w-fit rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+                  className="w-fit rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
                 >
                   Ver conversa
                 </button>
@@ -147,7 +147,7 @@ export function RequestGigButton({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+                  className="flex items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
                 >
                   {submitting ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
                   Enviar pedido

@@ -29,7 +29,7 @@ ou de desempenho sem medição comparável.
 - Feed preservado em coluna única, com três publicações iniciais e expansão
   nativa até doze; acesso ao catálogo completo permanece disponível.
 - Como funciona, acesso à segurança, chamada para oferecer trabalho e FAQ.
-- Identidade Milky + Mantis preservada. Cabeçalho, navegação, pagamentos,
+- Identidade atual usa Marfim + Sálvia. Cabeçalho, navegação, pagamentos,
   solicitações e componentes compartilhados não foram reescritos.
 
 ## Performance e dados

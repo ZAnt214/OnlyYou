@@ -175,7 +175,7 @@ export default function DashboardConfiguracoesPage() {
         <div className="flex items-center gap-3">
           <button
             type="submit"
-            className="rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+            className="rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
           >
             Salvar alterações
           </button>

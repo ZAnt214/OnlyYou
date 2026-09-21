@@ -65,7 +65,7 @@ export function MercadoPagoPixPanel({ payment, paymentService, onPaid }: Mercado
         </p>
         <a
           href={payment.checkoutRedirectUrl}
-          className="rounded-md bg-(--color-accent) px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+          className="rounded-md bg-(--color-accent) px-4 py-2.5 text-center text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
         >
           Pagar no Mercado Pago
         </a>

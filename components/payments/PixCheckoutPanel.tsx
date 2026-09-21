@@ -146,7 +146,7 @@ export function PixCheckoutPanel({ orderId, onPaid }: { orderId: string; onPaid:
             <button
               type="button"
               onClick={handleCopy}
-              className="flex items-center gap-2 rounded-full bg-(--color-accent) px-5 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+              className="flex items-center gap-2 rounded-full bg-(--color-accent) px-5 py-2 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
             >
               {copied ? <Check size={14} strokeWidth={1.5} /> : <Copy size={14} strokeWidth={1.5} />}
               {copied ? "Código copiado" : "Copiar código Pix"}
@@ -182,7 +182,7 @@ export function PixCheckoutPanel({ orderId, onPaid }: { orderId: string; onPaid:
       <button
         type="submit"
         disabled={generating || cpf.replace(/\D/g, "").length !== 11}
-        className="flex w-fit items-center gap-2 rounded-full bg-(--color-accent) px-5 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+        className="flex w-fit items-center gap-2 rounded-full bg-(--color-accent) px-5 py-2 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
       >
         {generating ? (
           <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />

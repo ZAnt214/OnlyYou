@@ -35,7 +35,7 @@ export default function FavoritosPage() {
           action={
             <Link
               href="/descobrir"
-              className="rounded-(--radius-pill) bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+              className="rounded-(--radius-pill) bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
             >
               Explorar conteúdos
             </Link>

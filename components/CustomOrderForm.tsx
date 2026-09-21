@@ -43,7 +43,7 @@ export function CustomOrderForm({ creator }: { creator: User }) {
     return (
       <Link
         href="/entrar"
-        className="flex w-fit items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+        className="flex w-fit items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
       >
         <MessageSquarePlus size={16} strokeWidth={1.5} />
         Pedir conteúdo personalizado
@@ -81,7 +81,7 @@ export function CustomOrderForm({ creator }: { creator: User }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex w-fit items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+        className="flex w-fit items-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
       >
         <MessageSquarePlus size={16} strokeWidth={1.5} />
         Pedir conteúdo personalizado
@@ -113,7 +113,7 @@ export function CustomOrderForm({ creator }: { creator: User }) {
                 <button
                   type="button"
                   onClick={() => router.push(`/pedidos/${sent}`)}
-                  className="w-fit rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+                  className="w-fit rounded-(--radius-pill) bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
                 >
                   Ver conversa
                 </button>
@@ -142,7 +142,7 @@ export function CustomOrderForm({ creator }: { creator: User }) {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+                  className="flex items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
                 >
                   {submitting ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
                   Enviar pedido

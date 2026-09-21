@@ -101,7 +101,7 @@ export function CheckoutFlow({ product }: { product: Product }) {
         </p>
         <Link
           href="/biblioteca"
-          className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+          className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
         >
           Ir para a biblioteca
         </Link>
@@ -169,7 +169,7 @@ export function CheckoutFlow({ product }: { product: Product }) {
         type="button"
         onClick={handleCreateOrder}
         disabled={creating}
-        className="rounded-md bg-(--color-accent) px-4 py-2.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+        className="rounded-md bg-(--color-accent) px-4 py-2.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
       >
         {creating ? "Iniciando pagamento..." : "Finalizar compra"}
       </button>

@@ -112,7 +112,7 @@ export function CreatorProfileView({
           <div className="flex flex-wrap gap-2">
             <Link
               href="/dashboard"
-              className="flex w-fit items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+              className="flex w-fit items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
             >
               <LayoutDashboard size={14} strokeWidth={1.5} />
               Painel do criador

@@ -133,7 +133,7 @@ function Status({
       {action ? (
         <Link
           href={action.href}
-          className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+          className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
         >
           {action.label}
         </Link>

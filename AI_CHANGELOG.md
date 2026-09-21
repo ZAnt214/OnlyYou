@@ -3,6 +3,39 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Paleta Marfim + Sálvia
+
+### Objetivo
+
+- Substituir o verde vivo por uma identidade mais calma, amigável e confortável para leitura.
+- Garantir contraste adequado nos textos, botões e estados semânticos do tema claro.
+- Preparar o tema escuro para usar texto próprio sobre o accent, sem presumir branco.
+
+### Mudanças
+
+- `app/globals.css`
+  - Fundo marfim, superfícies neutras, textos grafite esverdeados e verde-sálvia fechado.
+  - Estados de sucesso, atenção, erro e verificação ficaram menos saturados.
+  - Criado o token `--color-on-accent`, branco no tema claro e escuro profundo no tema escuro.
+- Componentes e páginas com CTA verde passaram de `text-white` para
+  `text-(--color-on-accent)`, preservando legibilidade nos dois temas.
+- `CLAUDE.md` e `docs/HOME_REDESIGN.md` atualizados para tornar Marfim + Sálvia a referência
+  do projeto e impedir que a paleta anterior volte em alterações futuras.
+
+### Contraste medido
+
+- Texto principal sobre o fundo: 12,43:1.
+- Texto secundário sobre o fundo: 5,73:1.
+- Texto sutil sobre o fundo marfim: 4,61:1; sobre superfície branca: 5,03:1.
+- Texto do CTA sobre o verde-sálvia: 5,93:1.
+- Verde-sálvia sobre o fundo suave de accent: 4,92:1.
+
+### Validação
+
+- ESLint, TypeScript e build de produção.
+- Checagem dos tokens e dos CTAs que usam fundo de accent.
+- Conferência contra cores fixas fora do arquivo central de tokens.
+
 ## 2026-09-21 — Home orientada à descoberta e contratação
 
 ### Objetivo

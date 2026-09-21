@@ -142,7 +142,7 @@ export default function NovoProdutoPage() {
         <button
           type="button"
           onClick={() => router.push("/dashboard/produtos")}
-          className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+          className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
         >
           Ver meus produtos
         </button>
@@ -392,7 +392,7 @@ export default function NovoProdutoPage() {
             type="button"
             disabled={(step === 0 && !canAdvanceFromStep1) || (step === 1 && !canAdvanceFromStep2)}
             onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
-            className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-40"
+            className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-40"
           >
             Continuar
           </button>
@@ -401,7 +401,7 @@ export default function NovoProdutoPage() {
             type="button"
             disabled={!canPublish || publishing}
             onClick={handlePublish}
-            className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-40"
+            className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-40"
           >
             {publishing ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
             Publicar produto

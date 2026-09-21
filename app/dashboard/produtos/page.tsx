@@ -67,7 +67,7 @@ export default function DashboardProdutosPage() {
         <h1 className="text-xl font-semibold text-(--color-text)">Produtos</h1>
         <Link
           href="/dashboard/produtos/novo"
-          className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+          className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
         >
           <Plus size={14} strokeWidth={2} />
           Adicionar produto

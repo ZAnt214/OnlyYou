@@ -807,7 +807,7 @@ export function ConversationView({
             <button
               type="button"
               onClick={() => setShowPaymentForm(true)}
-              className="w-fit rounded-full bg-(--color-accent) px-5 py-2 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+              className="w-fit rounded-full bg-(--color-accent) px-5 py-2 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
             >
               Pagar agora
             </button>
@@ -823,7 +823,7 @@ export function ConversationView({
               type="button"
               onClick={handleConfirmReceipt}
               disabled={confirmingReceipt}
-              className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+              className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
             >
               {confirmingReceipt ? (
                 <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
@@ -877,12 +877,12 @@ export function ConversationView({
                 type="file"
                 onChange={(e) => setDeliveryFile(e.target.files?.[0] ?? null)}
                 required
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-(--color-accent) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-(--color-accent) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-(--color-on-accent)"
               />
               <button
                 type="submit"
                 disabled={busy || !deliveryFile}
-                className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+                className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
               >
                 {uploadingDelivery ? (
                   <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
@@ -896,7 +896,7 @@ export function ConversationView({
             <button
               type="button"
               onClick={() => setShowDeliveryForm(true)}
-              className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+              className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
             >
               <Paperclip size={14} strokeWidth={1.5} />
               Enviar entrega
@@ -982,7 +982,7 @@ export function ConversationView({
                 <button
                   type="submit"
                   disabled={busy}
-                  className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+                  className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
                 >
                   {busy ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
                   Enviar proposta
@@ -1000,7 +1000,7 @@ export function ConversationView({
             <button
               type="button"
               onClick={handleOpenProposalForm}
-              className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+              className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
             >
               <PlusCircle size={14} strokeWidth={1.5} />
               Criar proposta
@@ -1036,7 +1036,7 @@ export function ConversationView({
             <button
               type="submit"
               disabled={!text.trim() || sending}
-              className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+              className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
             >
               {sending ? (
                 <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
@@ -1225,7 +1225,7 @@ function MessageItem({
               type="button"
               disabled={busy}
               onClick={() => onAccept(proposal.id)}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
             >
               {busy ? (
                 <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
@@ -1262,7 +1262,7 @@ function MessageItem({
               type="button"
               disabled={busy}
               onClick={() => onPay(proposal.id)}
-              className="flex items-center justify-center gap-1.5 w-full rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-60"
+              className="flex items-center justify-center gap-1.5 w-full rounded-full bg-(--color-accent) px-3 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
             >
               {busy ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
               Pagar proposta
@@ -1342,7 +1342,7 @@ function MessageItem({
     <div
       className={`group flex max-w-[85%] flex-col gap-0.5 rounded-md px-3 py-2 text-sm sm:max-w-sm ${
         isOwn
-          ? "self-end bg-(--color-accent) text-white"
+          ? "self-end bg-(--color-accent) text-(--color-on-accent)"
           : "self-start bg-(--color-surface) text-(--color-text)"
       }`}
     >

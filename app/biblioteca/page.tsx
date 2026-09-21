@@ -42,7 +42,7 @@ export default function BibliotecaPage() {
           action={
             <Link
               href="/descobrir"
-              className="rounded-(--radius-pill) bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+              className="rounded-(--radius-pill) bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
             >
               Explorar conteúdos
             </Link>
@@ -58,7 +58,7 @@ export default function BibliotecaPage() {
                   href={p.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="self-start rounded-(--radius-pill) bg-(--color-accent-soft) px-3 py-1 text-xs font-medium text-(--color-accent) hover:bg-(--color-accent) hover:text-white"
+                  className="self-start rounded-(--radius-pill) bg-(--color-accent-soft) px-3 py-1 text-xs font-medium text-(--color-accent) hover:bg-(--color-accent) hover:text-(--color-on-accent)"
                 >
                   Baixar
                 </a>

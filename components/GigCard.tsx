@@ -52,7 +52,7 @@ export function GigCard({ gig, creatorName }: { gig: Gig; creatorName?: string }
         <div className="mt-auto pt-1">
           <RequestGigButton
             gig={gig}
-            className="flex w-full items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-3 py-1.5 text-xs font-semibold text-white hover:bg-(--color-accent-hover)"
+            className="flex w-full items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-3 py-1.5 text-xs font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
           />
         </div>
       </div>
