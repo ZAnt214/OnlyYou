@@ -3,6 +3,44 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Teste de paleta: Milky + Mantis
+
+### Objetivo
+
+- Quarto teste de paleta seguido (mesmo contexto de liberdade dado pelo usuário nas entradas
+  anteriores): Milky `#FFFDF1` (creme) e Mantis `#59C749` (verde vibrante). Diferente das duas
+  anteriores, essa é uma paleta **clara** — volta o site a abrir com fundo claro por padrão.
+
+### Mapeamento pros tokens
+
+- **Milky** → `--color-bg` (fundo creme) e base do `--color-text` do tema escuro (ver abaixo).
+  `--color-surface` (cards) ficou branco puro, um tom acima do creme, mesmo princípio de
+  separação card/fundo das entradas anteriores.
+- **Mantis** → `--color-accent`/`--color-accent-hover` — CTAs, preços, estado ativo.
+- `--color-text` no tema claro foi pra um verde bem escuro (`#182619`, quase preto com leve
+  matiz verde) em vez do neutro anterior, pra manter tudo na mesma família de cor.
+  `--color-text-muted`/`--color-text-subtle`, `--color-surface-2`/`--color-border` e
+  `--color-accent-soft` são derivados da mesma família (verde claro/creme).
+- Tema escuro: inverte a lógica (fundo bem escuro com leve matiz verde, texto no tom Milky).
+- `--color-warning`/`--color-danger`/`--color-verified` não mudaram.
+
+### Ponto de atenção
+
+- `--color-success` (`#1f9d55`, usado em confirmações — pouco exercitado no app hoje, ver regra
+  do CLAUDE.md sobre preferir laranja/accent pra positivo) é outro tom de **verde**, agora bem
+  parecido com o novo `--color-accent` (Mantis). Se algum lugar específico usar as duas cores
+  lado a lado, pode ficar confuso "isso é sucesso ou é o botão de ação?". Não mudei
+  `--color-success` porque não fazia parte da paleta pedida.
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário.
+
 ## 2026-09-20 — Teste de paleta: Midnight Blue + Neon Purple + Ice White
 
 ### Objetivo
