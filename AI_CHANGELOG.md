@@ -3,6 +3,42 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Teste de paleta: Deep Charcoal + Gold Green + Apricot White
+
+### Objetivo
+
+- Oitavo teste de paleta seguido: Deep Charcoal `#222222`, Gold Green `#CAC426`, Apricot White
+  `#EED3BA`. Substitui a paleta Titan White/Crocus Purple/Ebony Clay da entrada anterior.
+
+### Mapeamento pros tokens
+
+- **Apricot White** → `--color-bg` no tema claro (creme quente, não mais lavanda); reaproveitado
+  como `--color-text` no tema escuro.
+- **Gold Green** → `--color-accent`/`--color-accent-hover` — oliva/verde-dourado, mesmo hex nos
+  dois temas (é claro o bastante pra funcionar como texto/ícone direto sobre fundo escuro, igual
+  ao Crocus Purple da entrada anterior — só o hover que muda de direção: mais escuro no claro,
+  mais claro no escuro).
+- **Deep Charcoal** → `--color-text` no tema claro; `--color-bg`/`--color-surface` no tema
+  escuro (encaixa bem com o nome — "Deep" já sugeria fundo escuro).
+- `--color-surface-2`/`--color-border`/`--color-accent-soft` derivados na mesma família
+  creme/oliva quente, nos dois temas.
+- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` não mudaram.
+
+### Ponto de atenção
+
+- `--color-warning` (`#b58a1a`, dourado-acastanhado) e o novo `--color-accent` (Gold Green,
+  também um dourado-esverdeado) ficam de novo próximos em família de cor — mesma observação já
+  feita na entrada de Sunglow. Não ajustei por não fazer parte da paleta pedida.
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário.
+
 ## 2026-09-21 — Teste de paleta: Titan White + Crocus Purple + Ebony Clay
 
 ### Objetivo
