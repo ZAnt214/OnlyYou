@@ -13,16 +13,16 @@
    * `data-theme="dark"` manual (ver abaixo), nada no código seta isso.
    */
   color-scheme: only light;
-  --color-bg: #ebebeb;
+  --color-bg: #f8f3f0;
   --color-surface: #ffffff;
-  --color-surface-2: #dce8f0;
-  --color-border: #c7d9e3;
+  --color-surface-2: #e3ecf7;
+  --color-border: #cbdcf0;
   --color-text: #16181d;
   --color-text-muted: #5f6570;
   --color-text-subtle: #8b919c;
-  --color-accent: #10367d;
-  --color-accent-hover: #0b2a61;
-  --color-accent-soft: #74b4d9;
+  --color-accent: #014baa;
+  --color-accent-hover: #013a86;
+  --color-accent-soft: #d6e4f5;
   --color-success: #1f9d55;
   --color-warning: #b58a1a;
   --color-danger: #c0392b;
@@ -38,16 +38,16 @@
  */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-bg: #0a1420;
-  --color-surface: #101b2a;
-  --color-surface-2: #1a2e42;
-  --color-border: #24384c;
-  --color-text: #ebebeb;
-  --color-text-muted: #a7b3bd;
-  --color-text-subtle: #778490;
-  --color-accent: #4a85d6;
-  --color-accent-hover: #74b4d9;
-  --color-accent-soft: #12314a;
+  --color-bg: #071627;
+  --color-surface: #0d2038;
+  --color-surface-2: #123253;
+  --color-border: #1c4066;
+  --color-text: #f8f3f0;
+  --color-text-muted: #c2ccda;
+  --color-text-subtle: #8394a8;
+  --color-accent: #3d82d6;
+  --color-accent-hover: #5a9ce0;
+  --color-accent-soft: #0f2e52;
   --color-success: #4c9a5b;
   --color-warning: #c9a33b;
   --color-danger: #c9484e;
