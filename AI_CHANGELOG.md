@@ -3,6 +3,43 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Teste de paleta: Pale Ash + Black Ink (monocromática)
+
+### Objetivo
+
+- Nono teste de paleta seguido. Diferente de todas as anteriores: só duas cores neutras, **sem
+  nenhum accent colorido** — Pale Ash `#E5E5E5` e Black Ink `#1C1C1C`. Substitui a paleta Deep
+  Charcoal/Gold Green/Apricot White da entrada anterior.
+
+### Mapeamento pros tokens e um problema real que isso expôs
+
+- **Pale Ash** → `--color-bg` no tema claro; reaproveitado como `--color-text` no escuro.
+- **Black Ink** → `--color-text` no tema claro; `--color-bg` no tema escuro.
+- Sem uma terceira cor de accent, a leitura mais fiel ao print é um design monocromático: CTA
+  também em preto/cinza, não colorido — `--color-accent` = Black Ink no tema claro.
+- **Isso esbarrou num problema real**: 52 lugares no código usam literalmente
+  `bg-(--color-accent) text-white` (texto branco fixo, não um token) — funcionava em todas as
+  paletas anteriores porque o accent sempre foi uma cor de saturação média/alta. Se o
+  `--color-accent` do tema escuro virasse Pale Ash (quase branco, pra "inverter" como nas
+  entradas anteriores), esses 52 botões ficariam com texto branco sobre fundo quase branco —
+  ilegível. Por isso, **só nesta entrada**, o accent do tema escuro não é a cor clara invertida:
+  é um cinza médio (`#4a4a4a`) escolhido especificamente pra manter esse texto branco
+  fixo legível, com hover mais claro (`#666666`) e um badge/soft bem mais claro (`#d5d5d5`) pra o
+  texto do accent (agora cinza médio) continuar visível em cima.
+- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` não mudaram — nesta
+  paleta eles são as ÚNICAS cores saturadas que sobram na tela, o que pode ficar estranho
+  (destoam mais do que em qualquer paleta anterior, já que tudo o resto é cinza/preto/branco).
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário — vale prestar atenção especial nos botões de
+  CTA no tema escuro, é o ponto mais delicado desta entrada.
+
 ## 2026-09-21 — Teste de paleta: Deep Charcoal + Gold Green + Apricot White
 
 ### Objetivo
