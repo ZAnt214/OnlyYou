@@ -38,8 +38,10 @@ ou de desempenho sem medição comparável.
   categorias e explicações vêm depois das ofertas.
 - Hero ganhou texto orientado a contratação, CTA de exploração e acesso para
   quem quer vender. A lateral explica serviço, produto digital e Jogue comigo.
-- Terracota foi acrescentado como highlight secundário apenas para promoções e
-  pontos de energia; o verde-sálvia continua sendo a cor de ação principal.
+- Terracota existiu por um tempo como highlight secundário só para promoções e
+  pontos de energia, mas foi substituído por um verde-esmeralda escuro (tom
+  distinto do accent) para manter o site 100% na paleta Milky + Mantis, sem
+  cor quente; o verde continua sendo a cor de ação principal.
 - Vitrine e comunidade usam a mesma leitura memoizada no servidor, com Suspense
   separado. Isso antecipa os cards sem duplicar consultas nem JavaScript.
 
