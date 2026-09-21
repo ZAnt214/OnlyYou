@@ -3,6 +3,41 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Máquina de escrever no hero da home
+
+### Objetivo
+
+- Pedido do usuário: uma animação tipo "sendo apagado e digitado", trocando palavras/frases,
+  rodando nos primeiros segundos ao entrar no site, com textos voltados tanto pra quem contrata
+  (usuário) quanto pra quem oferece (criador). Perguntei onde deveria ficar; a escolha foi no
+  hero da home, no lugar do título fixo "Faça acontecer.".
+
+### Mudanças
+
+- `components/TypewriterHeadline.tsx` (novo, client component): digita cada frase caractere por
+  caractere, pausa, apaga e passa pra próxima, em loop. Usa `useSyncExternalStore` pra checar
+  `prefers-reduced-motion` sem gerar mismatch de hidratação (SSR sempre parte de "sem
+  animação" até o client confirmar a preferência real) — quem prefere menos movimento vê só a
+  primeira frase, parada, sem cursor piscando. O texto animado fica `aria-hidden`, com um
+  `sr-only` ao lado listando todas as frases por extenso pra leitor de tela.
+- `app/page.tsx`: segunda linha do título do hero ("Faça acontecer.") virou
+  `<TypewriterHeadline phrases={heroPhrases} />`, alternando frases pra usuário e pra criador:
+  "Encontre quem faz.", "Venda o que você sabe fazer.", "Peça sob medida.", "Publique seus
+  serviços.", "Compre pronto, sem enrolação.", "Transforme talento em renda.". Primeira linha
+  ("Encontre. Compare.") continua fixa.
+- Cor usada só no cursor piscando (`bg-(--color-accent-text)`), nenhum token novo.
+
+### Validação
+
+- `grep` por hex nos arquivos alterados: nenhuma ocorrência.
+- `npx eslint app/page.tsx components/TypewriterHeadline.tsx`: sem erros (corrigido um erro real
+  de `react-hooks/set-state-in-effect` ao trocar `useState` + `useEffect` manual por
+  `useSyncExternalStore` pra ler `prefers-reduced-motion`).
+- `npm run build`: compilação e checagem de TypeScript concluídas com sucesso (falha de
+  pré-renderização de `/admin` é pré-existente, sem relação com esta mudança).
+- `npm run dev` + fetch da home: HTTP 200; confirmado no HTML que o título estático ("Encontre.
+  Compare.") e o fallback `sr-only` com as frases completas estão presentes.
+
 ## 2026-09-21 — CTA de creator no estilo referência (card com divisor)
 
 ### Objetivo
