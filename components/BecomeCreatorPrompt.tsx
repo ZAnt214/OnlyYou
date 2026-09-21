@@ -52,13 +52,14 @@ export function BecomeCreatorPrompt({ user }: BecomeCreatorPromptProps) {
       </div>
 
       <div className="flex flex-col items-start gap-3 rounded-lg border border-(--color-border) bg-(--color-surface) p-6">
-        <Sparkles size={20} className="text-(--color-text-muted)" strokeWidth={1.5} />
+        <Sparkles size={20} className="text-(--color-accent-text)" strokeWidth={1.5} />
         <h2 className="text-base font-semibold text-(--color-text)">
-          Você ainda não é um criador nesta plataforma.
+          Seu talento está parado. Vamos mudar isso?
         </h2>
         <p className="max-w-md text-sm text-(--color-text-muted)">
-          Publique conteúdo e defina seus próprios preços. Ao se tornar criador, este espaço passa
-          a ser o seu perfil público e você ganha acesso ao painel de criador.
+          Todo dia, alguém procura exatamente o que você sabe fazer. Publique seus serviços e
+          produtos digitais, defina seu próprio preço e comece a ser encontrado — este espaço
+          vira seu perfil público assim que você se tornar criador.
         </p>
         <button
           type="button"
@@ -66,7 +67,7 @@ export function BecomeCreatorPrompt({ user }: BecomeCreatorPromptProps) {
           disabled={submitting}
           className="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {submitting ? "Processando..." : "Tornar-se criador"}
+          {submitting ? "Processando..." : "Quero oferecer meus serviços"}
         </button>
         {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
       </div>

@@ -306,22 +306,23 @@ export default function HomePage() {
       </section>
       <section className="grid gap-6 rounded-2xl bg-(--color-accent-soft) p-6 sm:p-10 md:grid-cols-[1fr_auto] md:items-center">
         <div>
-          <p className="mb-2 text-sm font-medium text-(--color-text-muted)">
-            Para quem faz acontecer
+          <p className="mb-2 text-sm font-semibold text-(--color-accent-text)">
+            Pare de deixar seu talento parado
           </p>
           <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Seu próximo cliente pode começar aqui.
+            Alguém está procurando exatamente o que você sabe fazer.
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
-            Reúna seu trabalho em um perfil, publique serviços e produtos
-            digitais e converse com quem precisa do seu talento.
+            Crie seu perfil, publique seus serviços e produtos digitais e
+            defina seu próprio preço. Sem depender de indicação, sem
+            esconder seu trabalho: quem precisa de você vem até aqui.
           </p>
         </div>
         <Link
           href="/dashboard"
           className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
         >
-          Começar a oferecer <ArrowUpRight size={18} aria-hidden="true" />
+          Quero oferecer meus serviços <ArrowUpRight size={18} aria-hidden="true" />
         </Link>
       </section>
       <Suspense fallback={<CommunitySkeleton />}>
