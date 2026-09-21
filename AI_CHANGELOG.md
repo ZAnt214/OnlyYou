@@ -3,6 +3,28 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Reverte a máquina de escrever do hero
+
+### Objetivo
+
+- Pedido explícito do usuário: reverter a animação de máquina de escrever no título da home
+  (introduzida em duas mudanças anteriores e ajustada depois por dois problemas de layout) e
+  voltar ao texto estático original.
+
+### Mudanças
+
+- `app/page.tsx`: título do hero volta a ser o texto fixo "Encontre. Compare. Faça acontecer.",
+  igual a antes de qualquer uma das mudanças da máquina de escrever. Removidos o import de
+  `TypewriterHeadline` e a constante `heroPhrases`.
+- `components/TypewriterHeadline.tsx`: removido — sem mais nenhuma referência no projeto.
+
+### Validação
+
+- `grep` por hex em `app/page.tsx`: nenhuma ocorrência.
+- `npx eslint app/page.tsx`: sem erros.
+- `npm run build`: compilação e checagem de TypeScript concluídas com sucesso (falha de
+  pré-renderização de `/admin` é pré-existente, sem relação).
+
 ## 2026-09-21 — Remove o prefixo fixo do hero e estabiliza a altura do título
 
 ### Objetivo
