@@ -3,6 +3,41 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Remove o prefixo fixo do hero e estabiliza a altura do título
+
+### Objetivo
+
+- A mudança anterior (fix do `sr-only`) já estava correta e no ar, mas o usuário mandou um print
+  mostrando que o problema real era outro: com a frase "Publique seus serviços." o título
+  quebrava em 3 linhas no total ("Encontre. Compare." fixo + 2 linhas da frase animada), fazendo
+  a altura do hero pular a cada troca — o que lia como "o texto passando da margem". Misturar o
+  prefixo fixo genérico com frases voltadas ora a quem contrata, ora a quem vende, também
+  soava estranho (frases de criador "penduradas" numa frase que começa com "Encontre. Compare.").
+
+### Mudanças
+
+- `app/page.tsx`
+  - O `<h1>` não tem mais o prefixo fixo "Encontre. Compare." — agora o `TypewriterHeadline` é o
+    título inteiro, com cada frase sendo uma sentença curta e completa por si só (não depende de
+    nenhum texto fixo antes dela).
+  - `heroPhrases` ajustadas pra caber numa linha só no mobile: "Encontre quem faz.", "Venda o
+    que sabe.", "Peça sob medida.", "Publique um serviço.", "Escolha com confiança.", "Seu
+    talento vira renda."
+  - `<h1>` ganhou `min-h-[5rem] sm:min-h-[6.5rem] lg:min-h-[8.5rem]` — reserva a altura de até
+    duas linhas em cada breakpoint, então mesmo se uma frase futura quebrar linha, o resto da
+    página (busca, botões) não pula de posição.
+
+### Validação
+
+- `grep` por hex nos arquivos alterados: nenhuma ocorrência.
+- `npx eslint app/page.tsx components/TypewriterHeadline.tsx`: sem erros.
+- `npm run build`: compilação e checagem de TypeScript concluídas com sucesso (falha de
+  pré-renderização de `/admin` é pré-existente, sem relação).
+- Screenshots reais em viewport mobile (412×900, Playwright + Chromium) capturados em 5 momentos
+  da animação (frases diferentes, incluindo a mais longa, "Publique um serviço."): sempre uma
+  linha só, `document.documentElement.scrollWidth` igual à largura da viewport (sem overflow
+  horizontal), e o restante da página (busca, botões, "Experimente:") sem pular de posição.
+
 ## 2026-09-21 — Corrige texto duplicado/estourando no hero e ajusta o tom das frases
 
 ### Objetivo

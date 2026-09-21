@@ -35,9 +35,9 @@ const categories = [
 
 const heroPhrases = [
   "Encontre quem faz.",
-  "Venda o que você sabe.",
+  "Venda o que sabe.",
   "Peça sob medida.",
-  "Publique seus serviços.",
+  "Publique um serviço.",
   "Escolha com confiança.",
   "Seu talento vira renda.",
 ] as const;
@@ -78,10 +78,8 @@ export default function HomePage() {
           </p>
           <h1
             id="home-title"
-            className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:text-5xl lg:text-6xl"
+            className="max-w-3xl min-h-[5rem] text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:min-h-[6.5rem] sm:text-5xl lg:min-h-[8.5rem] lg:text-6xl"
           >
-            Encontre. Compare.
-            <br />
             <TypewriterHeadline
               phrases={[...heroPhrases]}
               srText="Encontre quem faz ou venda o que você sabe fazer."
