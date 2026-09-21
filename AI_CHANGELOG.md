@@ -3,6 +3,36 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Mais cor viva na página inicial
+
+### Objetivo
+
+- Deixar a página inicial mais viva visualmente, sem sair da paleta Marfim + Sálvia nem
+  introduzir cor fora dos tokens existentes.
+
+### Mudanças
+
+- `app/page.tsx`
+  - Hero: gradiente radial passou a combinar `--color-highlight-soft` (canto superior direito)
+    com `--color-accent-soft` (canto inferior esquerdo), em vez de um único tom neutro.
+  - Faixa de destaques ("Preço visível" / "Conversa antes de fechar" / "Compra em um só
+    lugar"): trocou divisórias finas em fundo neutro por três pílulas coloridas
+    (`--color-accent-soft`/`--color-accent` e `--color-highlight-soft`/`--color-highlight`
+    alternados), dando mais peso visual à seção.
+  - Categorias: cada card ganhou uma barrinha colorida acima do título, alternando
+    `--color-accent` e `--color-highlight` por item.
+  - "Como funciona": os números de passo (01/02/03) passaram de texto simples para um círculo
+    preenchido com `--color-accent-soft`/`--color-accent`.
+- Nenhum token novo foi necessário; todas as cores usadas já existiam em `app/globals.css`.
+
+### Validação
+
+- `grep` por hex e por classes de paleta fixa do Tailwind em `app/page.tsx`: nenhuma ocorrência.
+- `npx eslint app/page.tsx`: sem erros.
+- `npm run build`: compilação e checagem de TypeScript concluídas com sucesso (a falha de
+  pré-renderização de `/admin` é pré-existente, por falta de `SUPABASE_SERVICE_ROLE_KEY` no
+  ambiente local, e não relacionada a esta mudança).
+
 ## 2026-09-21 — Home com presença comercial
 
 ### Objetivo
