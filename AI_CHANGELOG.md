@@ -22,7 +22,8 @@ site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLA
 
 - ESLint, TypeScript e build de produção das 38 rotas concluídos sem erros.
 - Busca por cores cruas em `app/page.tsx` sem ocorrências.
-- Inspeção publicada pendente; registrar após a implantação.
+- Versão publicada inspecionada em navegador: o rótulo não aparece mais, o título subiu 36 px
+  na primeira dobra e a página continua sem overflow horizontal ou erros da aplicação.
 
 ## 2026-09-21 — Cards de serviços compactos na home
 
