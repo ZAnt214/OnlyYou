@@ -3,6 +3,46 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Corrige texto duplicado/estourando no hero e ajusta o tom das frases
+
+### Objetivo
+
+- O usuário reportou dois problemas na máquina de escrever do hero (adicionada na mudança
+  anterior): o texto passava da margem da área com fundo verde claro do hero, e havia um texto
+  fixo aparecendo em cima do texto animado. Também pediu uma linguagem mais humana e
+  profissional nas frases.
+- Causa raiz: o fallback de acessibilidade (`sr-only`) estava concatenando as 6 frases inteiras
+  numa única sentença gigante (`"Encontre quem faz.. Venda o que você sabe fazer.. ..."`) dentro
+  do mesmo `<h1>` do texto animado — confirmado inspecionando o HTML renderizado. Mesmo com o
+  CSS `.sr-only` correto (`position: absolute; width:1px; height:1px; overflow:hidden`), esse
+  bloco de texto desnecessariamente grande dentro do título era arriscado e não deveria existir
+  do jeito que estava.
+
+### Mudanças
+
+- `components/TypewriterHeadline.tsx`: a prop `phrases` agora alimenta só a animação. Nova prop
+  obrigatória `srText` recebe uma frase curta e fixa pro leitor de tela, no lugar da
+  concatenação de todas as frases. O `<span>` raiz ganhou `inline-block max-w-full break-words
+  align-bottom` pra garantir que o texto sempre quebra dentro do contêiner do título, em vez de
+  arriscar estourar a largura em telas pequenas.
+- `app/page.tsx`: frases do hero reescritas num tom mais humano/profissional, mais curtas (perto
+  do tamanho do "Faça acontecer." original) pra caber bem em uma linha mesmo em telas pequenas:
+  "Encontre quem faz.", "Venda o que você sabe.", "Peça sob medida.", "Publique seus serviços.",
+  "Escolha com confiança.", "Seu talento vira renda." — mantendo a alternância entre quem busca
+  e quem oferece. `srText="Encontre quem faz ou venda o que você sabe fazer."`.
+
+### Validação
+
+- `grep` por hex nos arquivos alterados: nenhuma ocorrência.
+- `npx eslint app/page.tsx components/TypewriterHeadline.tsx`: sem erros.
+- `npm run build`: compilação e checagem de TypeScript concluídas com sucesso (falha de
+  pré-renderização de `/admin` é pré-existente, sem relação).
+- Inspeção do HTML renderizado (`npm run dev` + fetch): confirmado que o `sr-only` agora contém
+  só a frase curta fixa, não a concatenação das 6.
+- Screenshot real em viewport mobile (390×844, via Playwright + Chromium) em dois instantes da
+  animação: texto de uma linha só, sem sobreposição, dentro da área do gradiente, sem estourar a
+  largura da tela.
+
 ## 2026-09-21 — Máquina de escrever no hero da home
 
 ### Objetivo

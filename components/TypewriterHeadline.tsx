@@ -26,9 +26,12 @@ function getReducedMotionServerSnapshot() {
  */
 export function TypewriterHeadline({
   phrases,
+  srText,
   className,
 }: {
   phrases: string[];
+  /** Texto fixo e curto pra leitor de tela — não repete todas as frases animadas. */
+  srText: string;
   className?: string;
 }) {
   const [index, setIndex] = useState(0);
@@ -67,7 +70,7 @@ export function TypewriterHeadline({
     : phrases[index % phrases.length].slice(0, subIndex);
 
   return (
-    <span className={className}>
+    <span className={`inline-block max-w-full break-words align-bottom ${className ?? ""}`}>
       <span aria-hidden="true">
         {text}
         {!reduceMotion ? (
@@ -77,7 +80,7 @@ export function TypewriterHeadline({
           />
         ) : null}
       </span>
-      <span className="sr-only">{phrases.join(". ")}.</span>
+      <span className="sr-only">{srText}</span>
     </span>
   );
 }
