@@ -3,6 +3,34 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Teste de paleta: Peach + Lilac Ice
+
+### Objetivo
+
+- Décimo teste de paleta seguido: Peach `#FF8C36` (laranja) e Lilac Ice `#F6F5FF` (lavanda bem
+  clara). Substitui a paleta monocromática Pale Ash/Black Ink da entrada anterior. Estrutura
+  parecida com o primeiro teste da sequência (laranja + lavanda clara), tons diferentes.
+
+### Mapeamento pros tokens
+
+- **Lilac Ice** → `--color-bg` no tema claro; reaproveitado como `--color-text` no escuro.
+- **Peach** → `--color-accent`/`--color-accent-hover` — mesmo hex nos dois temas (laranja é
+  claro/saturado o bastante pra funcionar como texto/ícone direto sobre fundo escuro, sem
+  precisar do ajuste que Royal Blue e o cinza monocromático da entrada anterior precisaram).
+- `--color-text` no claro foi pra um roxo bem escuro (`#1c1a29`) em vez do neutro cinza-chumbo,
+  pra ficar na mesma família da lavanda. `--color-surface-2`/`--color-border`/`--color-accent-soft`
+  derivados na mesma lógica lavanda/pêssego, nos dois temas.
+- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` não mudaram.
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário.
+
 ## 2026-09-21 — Teste de paleta: Pale Ash + Black Ink (monocromática)
 
 ### Objetivo
