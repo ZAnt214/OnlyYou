@@ -3,6 +3,44 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Paleta mais viva (tokens de cor)
+
+### Objetivo
+
+- A pedido do usuário, deixar a própria paleta de cores mais viva (mais saturada), não só o
+  layout da home — mudando os valores dos tokens em `app/globals.css`, o que propaga
+  automaticamente para toda a aplicação (light e dark), como o design system prevê.
+
+### Mudanças
+
+- `app/globals.css` (`:root` e `:root[data-theme="dark"]`)
+  - `--color-accent`/`--color-accent-hover`/`--color-accent-soft`: verde-sálvia mais saturado
+    (de `#456c58` para `#146b48` no claro; de `#7fa58f` para `#35c98a` no escuro), mantendo a
+    identidade "fechada" da marca mas com bem mais vivacidade.
+  - `--color-highlight`/`--color-highlight-hover`/`--color-highlight-soft`: terracota mais
+    vibrante (de `#995334` para `#c2491e` no claro; de `#d3906f` para `#ff8a54` no escuro).
+  - `--color-verified`: azul mais saturado (`#4f7199` → `#1f74c4` no claro; `#83a8d1` →
+    `#4fa8e8` no escuro).
+  - `--color-success`/`--color-warning`/`--color-danger`: mesma lógica de saturação aplicada
+    aos estados semânticos, mantendo `--color-success` visualmente distinto do accent.
+  - `--color-on-accent` no escuro ajustado de `#102018` para `#072013` para preservar contraste
+    com o novo verde mais claro/saturado.
+  - Nenhum componente foi tocado: como todos já usam os tokens (`bg-(--color-accent)` etc.), a
+    mudança de paleta se propagou sozinha para toda a UI.
+
+### Validação
+
+- `grep` pelos hex antigos em `.tsx`/`.ts`/`.css` (fora de `.next`/`node_modules`): nenhuma
+  ocorrência — confirma que tudo referencia os tokens, não valores fixos.
+- `npm run build`: compilação e checagem de TypeScript concluídas com sucesso (a falha de
+  pré-renderização de `/admin` é pré-existente, por falta de `SUPABASE_SERVICE_ROLE_KEY` no
+  ambiente local, não relacionada a esta mudança).
+- Contraste recalculado (WCAG) para os pares mais usados: `--color-on-accent` sobre
+  `--color-accent` ≈ 5,3:1 no claro e ≈ 7,9:1 no escuro; `--color-accent` sobre
+  `--color-accent-soft` ≈ 5,4:1 no claro; `--color-on-highlight` sobre `--color-highlight`
+  ≈ 4,9:1 no claro — todos dentro do mínimo de 4,5:1 para texto normal em componentes-chave
+  (CTAs, badges).
+
 ## 2026-09-21 — Mais cor viva na página inicial
 
 ### Objetivo
