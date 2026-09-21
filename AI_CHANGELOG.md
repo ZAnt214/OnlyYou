@@ -3,6 +3,49 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Remove a última cor quente (`--color-highlight`)
+
+### Objetivo
+
+- O usuário notou que, mesmo depois de adotar Milky + Mantis, ainda restava uma cor quente no
+  site: o terracota (`--color-highlight`, `#c2491e`/`#ff8a54`), usado em preços promocionais, no
+  badge "OFERTA" e em partes decorativas da home (gradiente do hero, badge "Escolha como
+  começar", barrinhas de categoria).
+- Perguntei como tratar isso; a escolha foi substituir o terracota por um tom do próprio verde
+  Mantis em todo o site, mantendo `--color-highlight` como um tom **distinto** do
+  `--color-accent` (pra "oferta"/"preço promocional" continuar se destacando de um CTA comum),
+  só que dentro da família verde, sem nenhuma cor quente sobrando.
+
+### Mudanças
+
+- `app/globals.css`
+  - Tema claro: `--color-highlight` `#c2491e` → `#1c5f48` (verde-esmeralda escuro, tom diferente
+    do `--color-accent` #59c749); `--color-highlight-hover` → `#154736`; `--color-highlight-soft`
+    → `#e1f4e8` (tinta clara com leve viés azulado, pra distinguir visualmente do
+    `--color-accent-soft`).
+  - Tema escuro: `--color-highlight` `#ff8a54` → `#47d1c6` (verde-azulado vivo, distinto do
+    `--color-accent` #35c98a); `--color-highlight-hover` → `#70dbd2`; `--color-highlight-soft` →
+    `#19433f`; `--color-on-highlight` → `#0c221d` (texto escuro sobre o novo highlight claro).
+  - Nenhum componente precisou mudar: `app/page.tsx`, `components/PriceTag.tsx` e
+    `components/ProductCard.tsx` já usavam só os tokens (`bg-(--color-highlight-soft)`,
+    `text-(--color-highlight)`), então a troca de valor se propagou sozinha.
+- `CLAUDE.md`: descrição do token na tabela atualizada de "terracota" pra "verde-esmeralda
+  escuro (tom distinto do accent)".
+- `docs/HOME_REDESIGN.md`: nota sobre o highlight terracota atualizada pra registrar a troca.
+
+### Validação
+
+- `grep` por hex fora de `app/globals.css`: nenhuma ocorrência.
+- `npx eslint .`: sem erros.
+- `npm run build`: compilação e checagem de TypeScript concluídas com sucesso (falha de
+  pré-renderização de `/admin` é pré-existente, por falta de `SUPABASE_SERVICE_ROLE_KEY` local,
+  não relacionada).
+- `npm run dev` + inspeção do CSS gerado: confirmado que `--color-highlight`/`-soft` saem com os
+  novos valores nos dois temas (claro: `#1c5f48`/`#e1f4e8`; escuro: `#47d1c6`/`#19433f`).
+- Contraste (WCAG) recalculado: `--color-highlight` sobre `--color-bg`/`--color-surface` (claro)
+  ≈ 7,2:1; `--color-on-highlight` sobre `--color-highlight` (escuro) ≈ 9:1 — acima do mínimo de
+  4,5:1.
+
 ## 2026-09-21 — Paleta Milky + Mantis e novo token `--color-accent-text`
 
 ### Objetivo

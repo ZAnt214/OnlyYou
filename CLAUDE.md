@@ -25,7 +25,7 @@ Tokens disponíveis (`app/globals.css`):
 | `--color-accent` / `--color-accent-hover` / `--color-accent-soft`          | verde vivo (Mantis) — só para **fundos preenchidos**: CTAs, estado ativo, barrinhas decorativas |
 | `--color-accent-text`                                                      | mesmo verde, em tom escuro — texto, borda, ícone, foco sobre superfície clara (ver nota abaixo) |
 | `--color-on-accent`                                                        | texto/ícone sobre o fundo de accent; nunca presumir branco no tema escuro |
-| `--color-highlight` / `--color-highlight-hover` / `--color-highlight-soft` | terracota — ofertas, preços promocionais e pontos de energia comercial    |
+| `--color-highlight` / `--color-highlight-hover` / `--color-highlight-soft` | verde-esmeralda escuro (tom distinto do accent) — ofertas, preços promocionais e pontos de energia comercial |
 | `--color-on-highlight`                                                     | texto/ícone sobre o fundo de highlight                                    |
 | `--color-success` / `--color-warning` / `--color-danger`                   | estados semânticos (ver nota abaixo sobre `--color-success`)              |
 | `--color-verified`                                                         | selo de criador verificado (azul, separado do accent)                     |
