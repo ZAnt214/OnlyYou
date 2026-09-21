@@ -60,7 +60,7 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <section
         aria-labelledby="home-title"
-        className="grid gap-8 bg-[radial-gradient(circle_at_top_right,var(--color-highlight-soft),transparent_52%)] pb-10 pt-10 sm:py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:gap-14"
+        className="grid gap-8 bg-[radial-gradient(circle_at_top_right,var(--color-highlight-soft),transparent_55%),radial-gradient(circle_at_bottom_left,var(--color-accent-soft),transparent_60%)] pb-10 pt-10 sm:py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:gap-14"
       >
         <div>
           <p className="mb-4 w-fit rounded-full bg-(--color-highlight-soft) px-3 py-1.5 text-xs font-semibold text-(--color-highlight)">
@@ -180,19 +180,22 @@ export default function HomePage() {
           ))}
         </aside>
       </section>
-      <div className="grid grid-cols-3 divide-x divide-(--color-border) border-y border-(--color-border) py-4 text-center">
+      <div className="grid grid-cols-3 gap-3 py-4">
         {[
           ["Preço", "visível"],
           ["Conversa", "antes de fechar"],
           ["Compra", "em um só lugar"],
-        ].map(([title, description]) => (
+        ].map(([title, description], i) => (
           <p
             key={title}
-            className="px-2 text-xs text-(--color-text-muted) sm:text-sm"
+            className={
+              "rounded-2xl px-2 py-4 text-center text-xs sm:text-sm " +
+              (i === 1
+                ? "bg-(--color-highlight-soft) text-(--color-highlight)"
+                : "bg-(--color-accent-soft) text-(--color-accent)")
+            }
           >
-            <strong className="block font-semibold text-(--color-text)">
-              {title}
-            </strong>
+            <strong className="block font-semibold">{title}</strong>
             {description}
           </p>
         ))}
@@ -231,12 +234,19 @@ export default function HomePage() {
           label="Todas as categorias"
         />
         <div className="mt-6 grid grid-cols-2 gap-x-6 sm:grid-cols-4">
-          {categories.map(([slug, name, description]) => (
+          {categories.map(([slug, name, description], i) => (
             <Link
               key={slug}
               href={"/categorias/" + slug}
               className="group border-b border-(--color-border) py-5"
             >
+              <span
+                className={
+                  "mb-3 inline-block h-2 w-8 rounded-full " +
+                  (i % 2 === 0 ? "bg-(--color-accent)" : "bg-(--color-highlight)")
+                }
+                aria-hidden="true"
+              />
               <span className="flex items-center justify-between gap-2 text-base font-semibold text-(--color-text)">
                 {name}
                 <ArrowUpRight
@@ -276,8 +286,8 @@ export default function HomePage() {
             ],
           ].map(([title, text], i) => (
             <li key={title}>
-              <span className="text-sm font-semibold text-(--color-text-muted)">
-                0{i + 1}
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-(--color-accent-soft) text-sm font-semibold text-(--color-accent)">
+                {i + 1}
               </span>
               <h3 className="mb-2 mt-3 text-lg font-semibold">{title}</h3>
               <p className="max-w-sm text-sm leading-relaxed text-(--color-text-muted)">
