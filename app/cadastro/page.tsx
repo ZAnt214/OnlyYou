@@ -75,7 +75,7 @@ export default function CadastroPage() {
             required
             value={username}
             onChange={(e) => setUsername(e.target.value.toLowerCase())}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-(--color-text)">
@@ -84,7 +84,7 @@ export default function CadastroPage() {
             type="text"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-(--color-text)">
@@ -94,7 +94,7 @@ export default function CadastroPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-(--color-text)">
@@ -105,7 +105,7 @@ export default function CadastroPage() {
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </label>
         {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
@@ -120,7 +120,7 @@ export default function CadastroPage() {
 
       <p className="text-sm text-(--color-text-muted)">
         Já tem conta?{" "}
-        <Link href="/entrar" className="text-(--color-accent) hover:underline">
+        <Link href="/entrar" className="text-(--color-accent-text) hover:underline">
           Entrar
         </Link>
       </p>

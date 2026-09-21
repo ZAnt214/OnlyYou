@@ -71,7 +71,7 @@ export function LiveExploreSearch({ initialQuery }: { initialQuery: string }) {
       <form
         onSubmit={submit}
         role="search"
-        className="flex items-center gap-2 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) px-4 py-3 shadow-sm focus-within:border-(--color-accent)"
+        className="flex items-center gap-2 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) px-4 py-3 shadow-sm focus-within:border-(--color-accent-text)"
       >
         <Search size={18} strokeWidth={1.7} className="shrink-0 text-(--color-text-subtle)" />
         <input

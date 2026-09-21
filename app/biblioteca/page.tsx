@@ -58,7 +58,7 @@ export default function BibliotecaPage() {
                   href={p.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="self-start rounded-(--radius-pill) bg-(--color-accent-soft) px-3 py-1 text-xs font-medium text-(--color-accent) hover:bg-(--color-accent) hover:text-(--color-on-accent)"
+                  className="self-start rounded-(--radius-pill) bg-(--color-accent-soft) px-3 py-1 text-xs font-medium text-(--color-accent-text) hover:bg-(--color-accent) hover:text-(--color-on-accent)"
                 >
                   Baixar
                 </a>

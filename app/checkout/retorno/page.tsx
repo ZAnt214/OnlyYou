@@ -74,7 +74,7 @@ function CheckoutReturnContent() {
   if (outcome === "paid") {
     return (
       <Status
-        icon={<CheckCircle2 size={32} className="text-(--color-accent)" strokeWidth={1.5} />}
+        icon={<CheckCircle2 size={32} className="text-(--color-accent-text)" strokeWidth={1.5} />}
         title="Pagamento confirmado"
         description="Seu conteúdo já está disponível na sua biblioteca."
         action={{ href: "/biblioteca", label: "Ir para a biblioteca" }}

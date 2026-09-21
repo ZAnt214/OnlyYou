@@ -121,7 +121,7 @@ export default function DashboardCarteiraPage() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0,00"
-              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-(--color-text)">
@@ -129,7 +129,7 @@ export default function DashboardCarteiraPage() {
             <select
               value={pixKeyType}
               onChange={(e) => setPixKeyType(e.target.value as PixKeyType)}
-              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
             >
               {Object.entries(PIX_KEY_TYPE_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -144,7 +144,7 @@ export default function DashboardCarteiraPage() {
               value={pixKey}
               onChange={(e) => setPixKey(e.target.value)}
               placeholder="CPF, e-mail, telefone ou chave aleatória"
-              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
             />
           </label>
         </div>

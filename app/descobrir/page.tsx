@@ -113,7 +113,7 @@ export default async function DescobrirPage({
               <Link
                 key={term}
                 href={buildQuery({ q: term })}
-                className="font-medium text-(--color-text-muted) underline decoration-(--color-border) underline-offset-4 transition-colors hover:text-(--color-accent)"
+                className="font-medium text-(--color-text-muted) underline decoration-(--color-border) underline-offset-4 transition-colors hover:text-(--color-accent-text)"
               >
                 {term}
               </Link>

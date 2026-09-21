@@ -138,7 +138,7 @@ export function CreatorProfileView({
         )}
 
         <div className="grid grid-cols-2 border-y border-(--color-border) text-sm">
-          <span className="flex items-center justify-center gap-2 border-b-2 border-(--color-accent) py-3 font-semibold text-(--color-accent)">
+          <span className="flex items-center justify-center gap-2 border-b-2 border-(--color-accent-text) py-3 font-semibold text-(--color-accent-text)">
             <Images size={16} strokeWidth={1.5} />
             {approved.length} Produtos
           </span>
@@ -219,7 +219,7 @@ export function CreatorProfileView({
                         key={value}
                         size={14}
                         strokeWidth={1.5}
-                        className={value <= review.rating ? "text-(--color-accent)" : "text-(--color-border)"}
+                        className={value <= review.rating ? "text-(--color-accent-text)" : "text-(--color-border)"}
                         fill={value <= review.rating ? "currentColor" : "none"}
                       />
                     ))}

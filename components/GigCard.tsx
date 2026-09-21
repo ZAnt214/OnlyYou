@@ -24,7 +24,7 @@ export function GigCard({ gig, creatorName }: { gig: Gig; creatorName?: string }
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3">
         {gig.category !== "general" ? (
-          <span className="w-fit text-[10px] font-semibold uppercase tracking-wide text-(--color-accent)">
+          <span className="w-fit text-[10px] font-semibold uppercase tracking-wide text-(--color-accent-text)">
             {GIG_CATEGORY_LABELS[gig.category]}
           </span>
         ) : null}

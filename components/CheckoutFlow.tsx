@@ -94,7 +94,7 @@ export function CheckoutFlow({ product }: { product: Product }) {
   if (step === "done") {
     return (
       <div className="flex flex-col items-center gap-4 rounded-lg border border-(--color-border) bg-(--color-surface) p-8 text-center">
-        <CheckCircle2 size={32} className="text-(--color-accent)" strokeWidth={1.5} />
+        <CheckCircle2 size={32} className="text-(--color-accent-text)" strokeWidth={1.5} />
         <h2 className="text-lg font-semibold text-(--color-text)">Pagamento confirmado</h2>
         <p className="text-sm text-(--color-text-muted)">
           Seu conteúdo já está disponível na sua biblioteca.
@@ -143,7 +143,7 @@ export function CheckoutFlow({ product }: { product: Product }) {
             onClick={() => setMethod("pix")}
             className={`flex flex-1 items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm ${
               method === "pix"
-                ? "border-(--color-accent) text-(--color-accent)"
+                ? "border-(--color-accent-text) text-(--color-accent-text)"
                 : "border-(--color-border) text-(--color-text-muted)"
             }`}
           >
@@ -154,7 +154,7 @@ export function CheckoutFlow({ product }: { product: Product }) {
             onClick={() => setMethod("credit_card")}
             className={`flex flex-1 items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm ${
               method === "credit_card"
-                ? "border-(--color-accent) text-(--color-accent)"
+                ? "border-(--color-accent-text) text-(--color-accent-text)"
                 : "border-(--color-border) text-(--color-text-muted)"
             }`}
           >

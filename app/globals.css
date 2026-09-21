@@ -13,17 +13,18 @@
    * `data-theme="dark"` manual (ver abaixo), nada no código seta isso.
    */
   color-scheme: only light;
-  --color-bg: #f7f5ef;
+  --color-bg: #fffdf1;
   --color-surface: #ffffff;
   --color-surface-2: #ebefeb;
   --color-border: #d6ddd8;
   --color-text: #24312b;
   --color-text-muted: #55645c;
   --color-text-subtle: #65726c;
-  --color-accent: #146b48;
-  --color-accent-hover: #0f5638;
-  --color-accent-soft: #cfead9;
-  --color-on-accent: #ffffff;
+  --color-accent: #59c749;
+  --color-accent-hover: #42a432;
+  --color-accent-soft: #e4f4e1;
+  --color-accent-text: #256b20;
+  --color-on-accent: #183414;
   --color-highlight: #c2491e;
   --color-highlight-hover: #a03a17;
   --color-highlight-soft: #fbdfc7;
@@ -53,6 +54,7 @@
   --color-accent: #35c98a;
   --color-accent-hover: #4fe0a0;
   --color-accent-soft: #1c4a34;
+  --color-accent-text: #35c98a;
   --color-on-accent: #072013;
   --color-highlight: #ff8a54;
   --color-highlight-hover: #ffa06e;
@@ -75,6 +77,7 @@
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
   --color-accent-soft: var(--color-accent-soft);
+  --color-accent-text: var(--color-accent-text);
   --color-on-accent: var(--color-on-accent);
   --color-highlight: var(--color-highlight);
   --color-highlight-hover: var(--color-highlight-hover);
@@ -108,7 +111,7 @@ body {
 
 ::selection {
   background: var(--color-accent-soft);
-  color: var(--color-accent);
+  color: var(--color-accent-text);
 }
 
 /* Esconde a barra de rolagem nativa em filas de chip horizontais — o

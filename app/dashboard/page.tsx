@@ -38,8 +38,8 @@ function formatBRL(value: number): string {
  */
 function HubCardIcon({ icon: Icon }: { icon: LucideIcon }) {
   const { pending } = useLinkStatus();
-  if (pending) return <Loader2 size={20} className="animate-spin text-(--color-accent)" strokeWidth={1.5} />;
-  return <Icon size={20} strokeWidth={1.5} className="text-(--color-accent)" />;
+  if (pending) return <Loader2 size={20} className="animate-spin text-(--color-accent-text)" strokeWidth={1.5} />;
+  return <Icon size={20} strokeWidth={1.5} className="text-(--color-accent-text)" />;
 }
 
 /**
@@ -116,7 +116,7 @@ export default function DashboardOverviewPage() {
             <Link
               key={section.href}
               href={section.href}
-              className="flex flex-col items-center gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-center text-sm text-(--color-text) shadow-sm transition-transform hover:border-(--color-accent) active:scale-95 active:bg-(--color-surface-2)"
+              className="flex flex-col items-center gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-center text-sm text-(--color-text) shadow-sm transition-transform hover:border-(--color-accent-text) active:scale-95 active:bg-(--color-surface-2)"
             >
               <HubCardIcon icon={section.icon} />
               {section.label}

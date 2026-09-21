@@ -850,7 +850,7 @@ export function ConversationView({
                 required
                 rows={2}
                 placeholder="Descreva o problema com a entrega."
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
               />
               <button
                 type="submit"
@@ -917,7 +917,7 @@ export function ConversationView({
                     value={proposalDraft.serviceType}
                     onChange={(e) => setProposalDraft((d) => ({ ...d, serviceType: e.target.value }))}
                     placeholder="Ex.: Identidade visual personalizada"
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -928,7 +928,7 @@ export function ConversationView({
                     min={1}
                     value={proposalDraft.deliveryDays}
                     onChange={(e) => setProposalDraft((d) => ({ ...d, deliveryDays: e.target.value }))}
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                 </div>
               </div>
@@ -939,7 +939,7 @@ export function ConversationView({
                   rows={2}
                   value={proposalDraft.description}
                   onChange={(e) => setProposalDraft((d) => ({ ...d, description: e.target.value }))}
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -952,7 +952,7 @@ export function ConversationView({
                     step="0.01"
                     value={proposalDraft.price}
                     onChange={(e) => setProposalDraft((d) => ({ ...d, price: e.target.value }))}
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -964,7 +964,7 @@ export function ConversationView({
                     placeholder="Opcional"
                     value={proposalDraft.revisionCount}
                     onChange={(e) => setProposalDraft((d) => ({ ...d, revisionCount: e.target.value }))}
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                 </div>
               </div>
@@ -975,7 +975,7 @@ export function ConversationView({
                   rows={2}
                   value={proposalDraft.includedItemsText}
                   onChange={(e) => setProposalDraft((d) => ({ ...d, includedItemsText: e.target.value }))}
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -1013,7 +1013,7 @@ export function ConversationView({
         <button
           type="button"
           onClick={() => setShowReviewModal(true)}
-          className="flex w-fit flex-shrink-0 items-center gap-1.5 self-center rounded-full border border-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-accent) hover:bg-(--color-accent-soft)"
+          className="flex w-fit flex-shrink-0 items-center gap-1.5 self-center rounded-full border border-(--color-accent-text) px-4 py-1.5 text-sm font-medium text-(--color-accent-text) hover:bg-(--color-accent-soft)"
         >
           <Star size={14} strokeWidth={1.5} />
           Avaliar pedido
@@ -1031,7 +1031,7 @@ export function ConversationView({
               onChange={(e) => handleTextChange(e.target.value)}
               disabled={sending}
               placeholder="Escreva uma mensagem"
-              className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none disabled:opacity-60"
+              className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none disabled:opacity-60"
             />
             <button
               type="submit"
@@ -1172,8 +1172,8 @@ function MessageItem({
     // não um selo verde saturado, que fugiria da paleta discreta do app.
     if (message.metadata?.customServiceOrderId) {
       return (
-        <div className="flex items-center gap-2 self-center rounded-2xl border border-(--color-accent) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text)">
-          <CheckCircle2 size={16} className="shrink-0 text-(--color-accent)" strokeWidth={1.5} />
+        <div className="flex items-center gap-2 self-center rounded-2xl border border-(--color-accent-text) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text)">
+          <CheckCircle2 size={16} className="shrink-0 text-(--color-accent-text)" strokeWidth={1.5} />
           {orderMilestoneText(message.content, isRequester)}
         </div>
       );
@@ -1195,7 +1195,7 @@ function MessageItem({
           <p className="text-sm text-(--color-text-muted)">{proposal.description}</p>
         </div>
         <div className="flex items-end justify-between rounded-xl bg-(--color-surface-2) px-3 py-2">
-          <span className="text-lg font-bold text-(--color-accent)">
+          <span className="text-lg font-bold text-(--color-accent-text)">
             {formatBRLFromCents(proposal.priceCents)}
           </span>
           <div className="flex flex-col items-end gap-0.5 text-xs text-(--color-text-muted)">
@@ -1290,7 +1290,7 @@ function MessageItem({
 
   if (message.type === "delivery") {
     return (
-      <div className="flex w-full max-w-sm flex-col gap-2 self-center rounded-2xl border border-(--color-accent) bg-(--color-surface) p-4 text-sm shadow-sm">
+      <div className="flex w-full max-w-sm flex-col gap-2 self-center rounded-2xl border border-(--color-accent-text) bg-(--color-surface) p-4 text-sm shadow-sm">
         <span className="font-medium text-(--color-text)">Entrega enviada</span>
         {attachments.map((att) =>
           att.storageKey.startsWith("http") ? (
@@ -1299,7 +1299,7 @@ function MessageItem({
               href={att.storageKey}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-(--color-accent) hover:underline"
+              className="flex items-center gap-1.5 text-(--color-accent-text) hover:underline"
             >
               <Paperclip size={12} strokeWidth={1.5} />
               {att.fileName} · {(att.size / 1024 / 1024).toFixed(1)} MB
@@ -1330,7 +1330,7 @@ function MessageItem({
           type="button"
           disabled={busy}
           onClick={() => onUnhide(message.id)}
-          className="w-fit text-xs font-medium text-(--color-accent) hover:underline disabled:opacity-60"
+          className="w-fit text-xs font-medium text-(--color-accent-text) hover:underline disabled:opacity-60"
         >
           Mostrar novamente
         </button>

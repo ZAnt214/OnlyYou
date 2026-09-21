@@ -58,7 +58,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               {creator ? (
                 <Link
                   href={`/criadores/${creator.username}`}
-                  className="flex items-center gap-1 text-sm text-(--color-text-muted) hover:text-(--color-accent)"
+                  className="flex items-center gap-1 text-sm text-(--color-text-muted) hover:text-(--color-accent-text)"
                 >
                   {creator.displayName}
                   {creator.creatorProfile?.verificationStatus === "verified" ? <VerifiedBadge size={12} /> : null}
@@ -92,11 +92,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
           <div className="border-t border-(--color-border) pt-4 text-xs text-(--color-text-subtle)">
             Ao comprar, você concorda com os{" "}
-            <Link href="/termos" className="underline hover:text-(--color-accent)">
+            <Link href="/termos" className="underline hover:text-(--color-accent-text)">
               termos de uso
             </Link>{" "}
             e a{" "}
-            <Link href="/conteudo" className="underline hover:text-(--color-accent)">
+            <Link href="/conteudo" className="underline hover:text-(--color-accent-text)">
               política de conteúdo
             </Link>{" "}
             do Jobê.

@@ -17,7 +17,7 @@ export function RatingStars({
     <div className="flex items-center gap-1">
       <Star
         size={size}
-        className="text-(--color-accent)"
+        className="text-(--color-accent-text)"
         fill="currentColor"
         strokeWidth={0}
       />

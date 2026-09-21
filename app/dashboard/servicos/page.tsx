@@ -278,7 +278,7 @@ export default function DashboardServicosPage() {
               )}
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="truncate text-sm font-medium text-(--color-text)">{gig.title}</span>
-                <span className="text-xs font-medium text-(--color-accent)">{GIG_CATEGORY_LABELS[gig.category]}</span>
+                <span className="text-xs font-medium text-(--color-accent-text)">{GIG_CATEGORY_LABELS[gig.category]}</span>
                 <div className="flex items-center gap-2 text-xs text-(--color-text-subtle)">
                   <PriceTag price={gig.priceCents / 100} size="sm" />
                   {gig.deliveryDays ? (
@@ -293,7 +293,7 @@ export default function DashboardServicosPage() {
                   <span
                     className={
                       gig.status === "active"
-                        ? "rounded-md bg-(--color-accent-soft) px-2 py-0.5 text-(--color-accent)"
+                        ? "rounded-md bg-(--color-accent-soft) px-2 py-0.5 text-(--color-accent-text)"
                         : "rounded-md bg-(--color-surface-2) px-2 py-0.5 text-(--color-text-muted)"
                     }
                   >
@@ -356,7 +356,7 @@ export default function DashboardServicosPage() {
                 <select
                   value={form.category}
                   onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as GigCategory }))}
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 >
                   <option value="general">Serviço geral</option>
                   <option value="elojob">Elojob</option>
@@ -373,7 +373,7 @@ export default function DashboardServicosPage() {
                       onChange={(e) => setForm((f) => ({ ...f, game: e.target.value }))}
                       required
                       placeholder="Ex.: Fortnite, Valorant ou League of Legends"
-                      className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                      className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                     />
                   </label>
                   <label className="flex flex-col gap-1 text-sm text-(--color-text)">
@@ -382,7 +382,7 @@ export default function DashboardServicosPage() {
                       value={form.platform}
                       onChange={(e) => setForm((f) => ({ ...f, platform: e.target.value }))}
                       placeholder="Ex.: PC · Brasil ou PlayStation"
-                      className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                      className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                     />
                   </label>
 
@@ -395,7 +395,7 @@ export default function DashboardServicosPage() {
                           onChange={(e) => setForm((f) => ({ ...f, currentRank: e.target.value }))}
                           required
                           placeholder="Ex.: Prata 2"
-                          className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                          className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                         />
                       </label>
                       <label className="flex flex-col gap-1 text-sm text-(--color-text)">
@@ -405,7 +405,7 @@ export default function DashboardServicosPage() {
                           onChange={(e) => setForm((f) => ({ ...f, targetRank: e.target.value }))}
                           required
                           placeholder="Ex.: Diamante"
-                          className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                          className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                         />
                       </label>
                     </div>
@@ -421,7 +421,7 @@ export default function DashboardServicosPage() {
                         type="number"
                         inputMode="numeric"
                         placeholder="Ex.: 60"
-                        className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                        className="rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                       />
                       <span className="text-xs text-(--color-text-subtle)">
                         O preço informado abaixo será cobrado por essa duração.
@@ -441,7 +441,7 @@ export default function DashboardServicosPage() {
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                   required
                   placeholder="Ex.: Vou criar o logo da sua marca"
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </label>
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
@@ -451,7 +451,7 @@ export default function DashboardServicosPage() {
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   rows={4}
                   placeholder="Como funciona, o que você precisa do cliente para começar."
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </label>
               <div className="flex gap-2">
@@ -464,7 +464,7 @@ export default function DashboardServicosPage() {
                     min={0}
                     inputMode="numeric"
                     placeholder="Ex.: 2 (opcional)"
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                 </label>
               </div>
@@ -478,7 +478,7 @@ export default function DashboardServicosPage() {
                   onChange={(e) => setForm((f) => ({ ...f, includedItemsText: e.target.value }))}
                   rows={3}
                   placeholder={"Arquivo em alta resolução\n2 rodadas de ajuste\nEntrega em até 5 dias"}
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </label>
               <div className="flex gap-2">
@@ -490,7 +490,7 @@ export default function DashboardServicosPage() {
                     required
                     inputMode="decimal"
                     placeholder="150,00"
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                 </label>
                 <label className="flex flex-1 flex-col gap-1 text-sm text-(--color-text)">
@@ -502,7 +502,7 @@ export default function DashboardServicosPage() {
                     placeholder={form.category === "play_together" ? "Não se aplica" : "Ex.: 5"}
                     disabled={form.category === "play_together"}
                     required={form.category === "elojob"}
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                 </label>
               </div>
@@ -518,7 +518,7 @@ export default function DashboardServicosPage() {
                     onChange={(e) => setForm((f) => ({ ...f, coverImageUrl: e.target.value }))}
                     type="url"
                     placeholder="Cole um link https://…"
-                    className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                   <label className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface-2)">
                     {uploadingCover ? (
@@ -550,7 +550,7 @@ export default function DashboardServicosPage() {
                   onChange={(e) => setForm((f) => ({ ...f, galleryText: e.target.value }))}
                   rows={3}
                   placeholder={"https://…\nhttps://…"}
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
                 <label className="flex w-fit cursor-pointer items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-1.5 text-xs font-medium text-(--color-text) hover:bg-(--color-surface-2)">
                   {uploadingGallery ? (

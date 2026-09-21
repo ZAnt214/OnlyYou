@@ -76,14 +76,14 @@ export function FeedPostCard({ product, creator }: { product: Product; creator?:
         <FavoriteButton productId={product.id} bare />
         <Link
           href={`/produto/${product.id}#avaliacoes`}
-          className="text-(--color-text-muted) transition-colors hover:text-(--color-accent)"
+          className="text-(--color-text-muted) transition-colors hover:text-(--color-accent-text)"
           aria-label="Ver avaliações"
         >
           <MessageCircle size={22} strokeWidth={1.5} />
         </Link>
         <Link
           href={`/checkout/${product.id}`}
-          className="ml-auto text-(--color-text-muted) transition-colors hover:text-(--color-accent)"
+          className="ml-auto text-(--color-text-muted) transition-colors hover:text-(--color-accent-text)"
           aria-label="Comprar agora"
         >
           <Bookmark size={22} strokeWidth={1.5} />

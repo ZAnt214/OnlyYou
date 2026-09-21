@@ -82,7 +82,7 @@ export default function HomePage() {
             action="/descobrir"
             role="search"
             aria-label="Buscar no Jobê"
-            className="mt-7 flex items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) p-1.5 pl-4 shadow-sm focus-within:outline-2 focus-within:outline-(--color-accent)"
+            className="mt-7 flex items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) p-1.5 pl-4 shadow-sm focus-within:outline-2 focus-within:outline-(--color-accent-text)"
           >
             <Search
               size={20}
@@ -174,7 +174,7 @@ export default function HomePage() {
               <ArrowUpRight
                 size={20}
                 aria-hidden="true"
-                className="shrink-0 text-(--color-text-muted) group-hover:text-(--color-accent)"
+                className="shrink-0 text-(--color-text-muted) group-hover:text-(--color-accent-text)"
               />
             </Link>
           ))}
@@ -192,7 +192,7 @@ export default function HomePage() {
               "rounded-2xl px-2 py-4 text-center text-xs sm:text-sm " +
               (i === 1
                 ? "bg-(--color-highlight-soft) text-(--color-highlight)"
-                : "bg-(--color-accent-soft) text-(--color-accent)")
+                : "bg-(--color-accent-soft) text-(--color-accent-text)")
             }
           >
             <strong className="block font-semibold">{title}</strong>
@@ -252,7 +252,7 @@ export default function HomePage() {
                 <ArrowUpRight
                   size={16}
                   aria-hidden="true"
-                  className="shrink-0 text-(--color-text-muted) group-hover:text-(--color-accent)"
+                  className="shrink-0 text-(--color-text-muted) group-hover:text-(--color-accent-text)"
                 />
               </span>
               <span className="mt-2 block text-sm leading-relaxed text-(--color-text-muted)">
@@ -286,7 +286,7 @@ export default function HomePage() {
             ],
           ].map(([title, text], i) => (
             <li key={title}>
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-(--color-accent-soft) text-sm font-semibold text-(--color-accent)">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-(--color-accent-soft) text-sm font-semibold text-(--color-accent-text)">
                 {i + 1}
               </span>
               <h3 className="mb-2 mt-3 text-lg font-semibold">{title}</h3>
@@ -591,7 +591,7 @@ function SectionHeading({
       {href ? (
         <Link
           href={href}
-          className="flex min-h-11 items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) px-4 text-sm font-semibold text-(--color-text) transition-colors hover:border-(--color-accent)"
+          className="flex min-h-11 items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) px-4 text-sm font-semibold text-(--color-text) transition-colors hover:border-(--color-accent-text)"
         >
           {label}
           <ArrowUpRight size={16} aria-hidden="true" />

@@ -131,7 +131,7 @@ export function CustomOrderForm({ creator }: { creator: User }) {
                     required
                     rows={3}
                     placeholder="Conte o que você gostaria de receber. O criador decide se aceita o pedido e propõe um valor e prazo."
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                 </div>
                 <p className="text-xs text-(--color-text-subtle)">

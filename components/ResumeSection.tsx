@@ -178,7 +178,7 @@ export function ResumeSection({
             <button
               type="button"
               onClick={() => openCreate(kind)}
-              className="flex items-center gap-1 text-xs font-medium text-(--color-accent) hover:underline"
+              className="flex items-center gap-1 text-xs font-medium text-(--color-accent-text) hover:underline"
             >
               <Plus size={12} strokeWidth={1.5} />
               {labels.add}
@@ -207,7 +207,7 @@ export function ResumeSection({
                       href={entry.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-1 w-fit text-xs font-medium text-(--color-accent) hover:underline"
+                      className="mt-1 w-fit text-xs font-medium text-(--color-accent-text) hover:underline"
                     >
                       Ver certificado
                     </a>
@@ -288,7 +288,7 @@ export function ResumeSection({
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                   required
                   placeholder={formKind === "education" ? "Ex.: Design Gráfico" : "Ex.: Google Ads Certified"}
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </label>
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
@@ -297,7 +297,7 @@ export function ResumeSection({
                   value={form.institution}
                   onChange={(e) => setForm((f) => ({ ...f, institution: e.target.value }))}
                   placeholder={formKind === "education" ? "Ex.: Universidade Federal X" : "Ex.: Google"}
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </label>
 
@@ -310,7 +310,7 @@ export function ResumeSection({
                         type="month"
                         value={form.startMonth}
                         onChange={(e) => setForm((f) => ({ ...f, startMonth: e.target.value }))}
-                        className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                        className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                       />
                     </label>
                     {!form.inProgress ? (
@@ -320,7 +320,7 @@ export function ResumeSection({
                           type="month"
                           value={form.endMonth}
                           onChange={(e) => setForm((f) => ({ ...f, endMonth: e.target.value }))}
-                          className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                          className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                         />
                       </label>
                     ) : null}
@@ -342,7 +342,7 @@ export function ResumeSection({
                     type="month"
                     value={form.endMonth}
                     onChange={(e) => setForm((f) => ({ ...f, endMonth: e.target.value }))}
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                 </label>
               )}
@@ -354,7 +354,7 @@ export function ResumeSection({
                   onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
                   type="url"
                   placeholder="https://…"
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </label>
 

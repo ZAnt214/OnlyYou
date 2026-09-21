@@ -70,7 +70,7 @@ export function Header() {
     <header className="sticky top-0 z-30 bg-(--color-surface)/95 backdrop-blur-md md:border-b md:border-(--color-border)">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4 sm:px-6">
         <Link href="/" className="group relative shrink-0 py-2 text-xl font-bold tracking-tight text-(--color-text)">
-          Jobê<span className="text-(--color-accent)">.</span>
+          Jobê<span className="text-(--color-accent-text)">.</span>
           <span className="absolute bottom-0 left-0 h-0.5 w-5 rounded-full bg-(--color-accent) transition-[width] group-hover:w-8" />
         </Link>
 

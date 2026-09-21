@@ -5,7 +5,7 @@ type Tone = "neutral" | "positive" | "warning" | "negative";
 // laranja+cinza do Jobê. Ver CLAUDE.md — não reintroduzir verde aqui.
 const TONE_CLASSES: Record<Tone, string> = {
   neutral: "bg-(--color-surface-2) text-(--color-text-muted)",
-  positive: "bg-(--color-accent-soft) text-(--color-accent)",
+  positive: "bg-(--color-accent-soft) text-(--color-accent-text)",
   warning: "bg-(--color-surface-2) text-(--color-warning)",
   negative: "bg-(--color-surface-2) text-(--color-danger)",
 };
