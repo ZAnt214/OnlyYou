@@ -3,6 +3,36 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Teste de paleta: Royal Blue + Light Cream
+
+### Objetivo
+
+- Sexto teste de paleta seguido: Royal Blue `#014BAA` e Light Cream `#F8F3F0` — só duas cores
+  desta vez (print de post de design, não relacionado ao projeto). Substitui a paleta Royal
+  Blue/Light Grey/Sky Blue da entrada anterior (mesmo nome "Royal Blue", hex ligeiramente
+  diferente — `#014BAA` em vez de `#10367D`).
+
+### Mapeamento pros tokens
+
+- **Light Cream** → `--color-bg` no tema claro.
+- **Royal Blue** → `--color-accent`/`--color-accent-hover` no tema claro; `--color-accent-soft`
+  ganhou um azul bem claro derivado dele (não fazia parte do print, mas segue o mesmo princípio
+  de contraste das entradas anteriores: accent escuro precisa de um tom claro pra funcionar como
+  fundo de badge).
+- Tema escuro: mesma solução da entrada anterior — Royal Blue é escuro demais pra virar texto
+  direto sobre fundo já escuro, então o accent no escuro usa uma versão mais clara do mesmo azul;
+  `--color-text` do escuro reusa o Light Cream.
+- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` não mudaram.
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário.
+
 ## 2026-09-21 — Teste de paleta: Royal Blue + Light Grey + Sky Blue
 
 ### Objetivo
