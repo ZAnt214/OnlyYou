@@ -3,6 +3,42 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Copy mais forte convidando pra oferecer serviços
+
+### Objetivo
+
+- Pedido do usuário: um texto forte, persuasivo, chamando as pessoas pra oferecer seus serviços
+  na plataforma. Os três pontos onde o Jobê convida alguém a virar criador tinham copy fraca ou
+  puramente informativa ("Você ainda não é um criador nesta plataforma."), sem apelo.
+
+### Mudanças
+
+- `app/page.tsx` — seção de CTA pra criadores na home:
+  - Selo: "Para quem faz acontecer" → "Pare de deixar seu talento parado".
+  - Título: "Seu próximo cliente pode começar aqui." → "Alguém está procurando exatamente o que
+    você sabe fazer."
+  - Corpo: reforça autonomia (preço próprio, sem depender de indicação) em vez de só listar
+    funcionalidades.
+  - Botão: "Começar a oferecer" → "Quero oferecer meus serviços" (ação em primeira pessoa).
+- `components/BecomeCreatorPrompt.tsx` (tela exibida no próprio perfil de quem ainda não é
+  criador):
+  - Título: "Você ainda não é um criador nesta plataforma." → "Seu talento está parado. Vamos
+    mudar isso?"
+  - Corpo reescrito com o mesmo gancho (alguém procurando o que a pessoa sabe fazer, preço
+    próprio).
+  - Botão: "Tornar-se criador" → "Quero oferecer meus serviços".
+- `components/BecomeCreatorBanner.tsx` (faixa compacta no topo do feed): "Torne-se creator.
+  Comece a faturar hoje." → "Seu talento vale dinheiro. Comece a vender hoje." — mesma estrutura
+  visual, copy mais direta.
+- Nenhuma cor nova: só texto, os componentes já usavam os tokens do design system.
+
+### Validação
+
+- `grep` por hex nos arquivos alterados: nenhuma ocorrência.
+- `npx eslint` nos três arquivos: sem erros.
+- `npm run build`: compilação e checagem de TypeScript concluídas com sucesso (falha de
+  pré-renderização de `/admin` é pré-existente, sem relação com esta mudança).
+
 ## 2026-09-21 — Remove a última cor quente (`--color-highlight`)
 
 ### Objetivo
