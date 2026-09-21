@@ -3,6 +3,37 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Home orientada à descoberta e contratação
+
+### Objetivo
+
+- Adaptar princípios úteis de VintePila, Workana e Packzin à página inicial,
+  preservando o feed, as funções existentes e a paleta Milky + Mantis.
+
+### Mudanças
+
+- `app/page.tsx`: busca com rótulo acessível, sugestões, atalhos por objetivo,
+  navegação por âncoras, categorias compactas, vitrine condicional, profissionais
+  reais, feed expansível, como funciona, chamada para criadores e FAQ nativo.
+- Removida a dependência de perfis mock da home. Autores de produtos e serviços
+  são resolvidos em uma consulta em lote, sem ranking artificial.
+- Mantidos ISR de 60 s e componentes existentes; catálogo isolado com Suspense,
+  skeleton e tratamento de falhas parciais. Consultas limitadas e paralelas.
+- `docs/HOME_REDESIGN.md`: referências, decisões, limites, roteiro de validação
+  e possibilidades futuras. Nenhuma migration ou alteração de pagamentos.
+
+### Validação
+
+- Lint, TypeScript e build completo aprovados com variáveis fictícias de teste.
+- Leitura pública real de produtos, serviços e perfis aprovada.
+- HTML gerado verificado, incluindo o estado de indisponibilidade.
+- Segundo build com chave publicável real aprovado: HTML da home contém serviços
+  e feed reais, sem aviso de falha. Service role fictícia apenas para satisfazer
+  a configuração de build preexistente; nenhuma escrita ou teste administrativo.
+- Revisão de cores e diff; nenhuma nova dependência do projeto.
+- Validação visual e de cliques pendente: navegador indisponível por falhas de
+  instalação (certificado/timeout). Não foram medidos Core Web Vitals.
+
 ## 2026-09-21 — Paleta definitiva: Milky + Mantis
 
 ### Objetivo

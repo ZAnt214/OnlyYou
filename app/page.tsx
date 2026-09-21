@@ -1,154 +1,563 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { Suspense } from "react";
+import type { Metadata } from "next";
+import { ArrowUpRight, Search } from "lucide-react";
 import type { Gig, Product, User } from "@/lib/types";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { createPublicClient } from "@/lib/supabase/public";
 import { listActiveGigs } from "@/lib/supabase/gigs";
 import { listApprovedProducts } from "@/lib/supabase/products";
 import { listUsersByIds } from "@/lib/supabase/profile";
 import { ProductCard } from "@/components/ProductCard";
+import { GigCard } from "@/components/GigCard";
+import { CreatorCard } from "@/components/CreatorCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { GigFeedCard } from "@/components/GigFeedCard";
-import { TopCreatorCard } from "@/components/TopCreatorCard";
-import { BecomeCreatorBanner } from "@/components/BecomeCreatorBanner";
+import { EmptyState } from "@/components/EmptyState";
 
-// Revalida a cada minuto: gigs são conteúdo real publicado por criadores,
-// então a home não pode ficar 100% estática (precisa refletir anúncios
-// novos), mas também não precisa virar uma função serverless em toda
-// visita — ISR serve do cache na maior parte do tempo e regenera em
-// segundo plano.
 export const revalidate = 60;
+export const metadata: Metadata = {
+  title: "Jobê — Encontre quem faz",
+  description:
+    "Conheça profissionais, contrate serviços sob medida e descubra produtos digitais. Seu próximo projeto começa com uma boa conversa.",
+};
 
-export default async function HomePage() {
-  const supabase = createPublicClient();
-  const [approved, creators, gigs] = await Promise.all([
-    listApprovedProducts(supabase),
-    userRepository.findCreators(),
-    // Um problema pontual no Supabase nunca pode derrubar a home inteira
-    // (nem travar o build/ISR) por causa de uma seção que é só um extra —
-    // degrada pra "sem gigs no momento" em vez de propagar o erro.
-    listActiveGigs(supabase, { limit: 12 }).catch(() => [] as Gig[]),
-  ]);
-  const creatorById = new Map(creators.map((c) => [c.id, c]));
+const categories = [
+  ["design", "Design", "Uma marca com a sua cara"],
+  ["programacao", "Programação", "Do site à sua próxima ideia"],
+  ["marketing", "Marketing", "Seu negócio mais conhecido"],
+  ["videos", "Vídeo", "Histórias que prendem atenção"],
+  ["redacao-e-copywriting", "Escrita", "As palavras certas"],
+  ["templates", "Templates", "Um bom ponto de partida"],
+  ["jogue-comigo", "Jogue comigo", "Sua próxima partida, em companhia"],
+  ["elojob", "Elojob", "Encontre serviços para seu jogo"],
+] as const;
 
-  // Gigs são de contas reais (Supabase) — seus criadores não estão na
-  // lista mock de `userRepository.findCreators()`, então precisam ser
-  // buscados à parte pra o cabeçalho do card (nome, avatar, verificado).
-  const gigCreators = await listUsersByIds(
-    supabase,
-    [...new Set(gigs.map((g) => g.creatorId))],
-  ).catch(() => [] as User[]);
-  gigCreators.forEach((c) => creatorById.set(c.id, c));
+const questions = [
+  [
+    "Qual a diferença entre serviço e produto digital?",
+    "Um serviço é feito por um profissional para atender ao que você precisa. Um produto digital já está pronto: veja a descrição e os arquivos incluídos antes de comprar.",
+  ],
+  [
+    "Posso pedir algo diferente do anúncio?",
+    "Sim. Acesse o perfil do profissional e envie um pedido personalizado. Na conversa, vocês combinam o escopo, o preço e o prazo antes de fechar a proposta.",
+  ],
+  [
+    "Onde acompanho meu pedido?",
+    "As conversas e os pedidos personalizados ficam em Mensagens. Os produtos digitais comprados ficam na Biblioteca, após a confirmação do pagamento.",
+  ],
+  [
+    "Como funciona Jogue comigo?",
+    "O profissional informa o jogo, a plataforma, o preço da sessão e a duração em minutos. Antes de contratar, combine o horário e os detalhes na conversa.",
+  ],
+  [
+    "Como começo a oferecer meu trabalho?",
+    "Crie sua conta e acesse a área do criador. Complete seu perfil, publique seus produtos ou serviços e descreva com clareza o que está incluído, o preço e os prazos.",
+  ],
+] as const;
 
-  type FeedItem = { kind: "product"; data: Product } | { kind: "gig"; data: Gig };
-  const feed: FeedItem[] = [
-    ...approved.map((data): FeedItem => ({ kind: "product", data })),
-    ...gigs.map((data): FeedItem => ({ kind: "gig", data })),
-  ].sort((a, b) => (a.data.createdAt < b.data.createdAt ? 1 : -1));
-  const maisVendidos = [...approved].sort((a, b) => b.salesCount - a.salesCount).slice(0, 6);
-  const ofertas = approved.filter((p) => p.promoPrice != null).slice(0, 6);
-  const topCreators = [...creators]
-    .sort((a, b) => (b.creatorProfile?.followers ?? 0) - (a.creatorProfile?.followers ?? 0))
-    .slice(0, 6);
-
+export default function HomePage() {
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-4">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold text-(--color-text)">Encontre quem faz</h1>
-        <p className="text-sm text-(--color-text-muted)">
-          Produtos digitais e serviços publicados por profissionais que definem o próprio preço.
-          Não achou pronto? Peça um trabalho personalizado direto com quem faz.
-        </p>
-      </div>
-
-      <BecomeCreatorBanner href="/dashboard" />
-
-      {feed.slice(0, 2).map((item) => (
-        <FeedItemCard key={item.data.id} item={item} creatorById={creatorById} />
-      ))}
-
-      <Section title="Top Creators" href="/criadores">
-        <Row>
-          {topCreators.map((c, i) => (
-            <TopCreatorCard key={c.id} creator={c} rank={i + 1} />
-          ))}
-        </Row>
-      </Section>
-
-      {feed.slice(2, 6).map((item) => (
-        <FeedItemCard key={item.data.id} item={item} creatorById={creatorById} />
-      ))}
-
-      <Section title="Mais vendidos" href="/descobrir?sort=vendidos">
-        <Row>
-          {maisVendidos.map((p) => (
-            <ProductCard
-              key={p.id}
-              product={p}
-              creatorName={creatorById.get(p.creatorId)?.displayName}
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section
+        aria-labelledby="home-title"
+        className="grid gap-10 pb-10 pt-10 sm:py-16 lg:grid-cols-[1.35fr_0.65fr] lg:items-center lg:gap-16"
+      >
+        <div>
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-(--color-text-muted)">
+            Talento de gente. Ideias como a sua.
+          </p>
+          <h1
+            id="home-title"
+            className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:text-5xl lg:text-6xl"
+          >
+            Tem uma ideia?
+            <br />
+            Encontre quem faz<span className="text-(--color-accent)">.</span>
+          </h1>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-text-muted) sm:text-lg">
+            Um trabalho sob medida, um produto pronto ou alguém para jogar
+            junto. Seu próximo encontro começa no Jobê.
+          </p>
+          <form
+            action="/descobrir"
+            role="search"
+            aria-label="Buscar no Jobê"
+            className="mt-7 flex items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) p-1.5 pl-4 shadow-sm focus-within:outline-2 focus-within:outline-(--color-accent)"
+          >
+            <Search
+              size={20}
+              aria-hidden="true"
+              className="shrink-0 text-(--color-text-muted)"
             />
-          ))}
-        </Row>
-      </Section>
-
-      {ofertas.length > 0 ? (
-        <Section title="Ofertas" href="/descobrir?ofertas=1">
-          <Row>
-            {ofertas.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                creatorName={creatorById.get(p.creatorId)?.displayName}
-              />
+            <label htmlFor="home-search" className="sr-only">
+              O que você está procurando?
+            </label>
+            <input
+              id="home-search"
+              name="q"
+              type="search"
+              maxLength={160}
+              placeholder="O que você precisa?"
+              className="min-w-0 flex-1 bg-transparent py-3 text-base text-(--color-text) outline-none placeholder:text-(--color-text-muted)"
+            />
+            <button className="min-h-12 shrink-0 rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-white hover:bg-(--color-accent-hover)">
+              Buscar
+            </button>
+          </form>
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-(--color-text-muted)">
+            <span>Experimente:</span>
+            {["Logotipo", "Edição de vídeo", "Site"].map((term) => (
+              <Link
+                key={term}
+                href={"/descobrir?q=" + encodeURIComponent(term)}
+                className="py-1 underline decoration-(--color-border) underline-offset-4 hover:text-(--color-text)"
+              >
+                {term}
+              </Link>
             ))}
-          </Row>
-        </Section>
-      ) : null}
-
-      {feed.slice(6).map((item) => (
-        <FeedItemCard key={item.data.id} item={item} creatorById={creatorById} />
-      ))}
+          </div>
+        </div>
+        <aside
+          aria-label="Escolha por onde começar"
+          className="border-t border-(--color-border) pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0"
+        >
+          <p className="mb-2 text-sm text-(--color-text-muted)">
+            O que você quer fazer hoje?
+          </p>
+          {[
+            [
+              "/criadores",
+              "Encontrar um profissional",
+              "Conheça o trabalho antes de conversar.",
+            ],
+            [
+              "/descobrir",
+              "Descobrir produtos e serviços",
+              "Compare opções, preços e detalhes.",
+            ],
+            [
+              "/dashboard",
+              "Oferecer meu trabalho",
+              "Seu talento merece ser encontrado.",
+            ],
+          ].map(([href, title, description]) => (
+            <Link
+              key={href}
+              href={href}
+              className="group flex min-h-20 items-center justify-between gap-4 border-b border-(--color-border) py-4"
+            >
+              <span>
+                <span className="block text-base font-semibold text-(--color-text)">
+                  {title}
+                </span>
+                <span className="mt-1 block text-sm leading-relaxed text-(--color-text-muted)">
+                  {description}
+                </span>
+              </span>
+              <ArrowUpRight
+                size={20}
+                aria-hidden="true"
+                className="shrink-0 text-(--color-text-muted) group-hover:text-(--color-accent)"
+              />
+            </Link>
+          ))}
+        </aside>
+      </section>
+      <nav
+        aria-label="Seções da página inicial"
+        className="flex flex-wrap gap-x-6 gap-y-1 border-y border-(--color-border) py-2 text-sm text-(--color-text-muted)"
+      >
+        {[
+          ["categorias", "Categorias"],
+          ["vitrine", "Vitrine"],
+          ["como-funciona", "Como funciona"],
+          ["comunidade", "Comunidade"],
+          ["duvidas", "Dúvidas"],
+        ].map(([id, label]) => (
+          <a
+            key={id}
+            href={"#" + id}
+            className="flex min-h-11 items-center hover:text-(--color-text)"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+      <section id="categorias" className="scroll-mt-24 py-12 sm:py-16">
+        <SectionHeading
+          title="Um bom começo para cada ideia"
+          description="Explore pelo que você precisa, no seu ritmo."
+          href="/descobrir"
+          label="Todas as categorias"
+        />
+        <div className="mt-6 grid grid-cols-2 gap-x-6 sm:grid-cols-4">
+          {categories.map(([slug, name, description]) => (
+            <Link
+              key={slug}
+              href={"/categorias/" + slug}
+              className="group border-b border-(--color-border) py-5"
+            >
+              <span className="flex items-center justify-between gap-2 text-base font-semibold text-(--color-text)">
+                {name}
+                <ArrowUpRight
+                  size={16}
+                  aria-hidden="true"
+                  className="shrink-0 text-(--color-text-muted) group-hover:text-(--color-accent)"
+                />
+              </span>
+              <span className="mt-2 block text-sm leading-relaxed text-(--color-text-muted)">
+                {description}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+      <Suspense fallback={<CatalogSkeleton />}>
+        <Catalog />
+      </Suspense>
+      <section
+        id="como-funciona"
+        className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
+      >
+        <SectionHeading
+          title="Do primeiro oi ao trabalho entregue"
+          description="Para um serviço sob medida, comece por uma boa conversa."
+        />
+        <ol className="mt-8 grid gap-8 md:grid-cols-3">
+          {[
+            [
+              "Encontre seu profissional",
+              "Explore os serviços e visite os perfis. Compare o trabalho, a descrição e as avaliações disponíveis.",
+            ],
+            [
+              "Combine os detalhes",
+              "Conte o que precisa. Acerte escopo, valor e prazo na conversa antes de aceitar a proposta.",
+            ],
+            [
+              "Acompanhe por aqui",
+              "Mantenha as mensagens e a entrega no pedido. Confira o resultado e compartilhe sua avaliação.",
+            ],
+          ].map(([title, text], i) => (
+            <li key={title}>
+              <span className="text-sm font-semibold text-(--color-text-muted)">
+                0{i + 1}
+              </span>
+              <h3 className="mb-2 mt-3 text-lg font-semibold">{title}</h3>
+              <p className="max-w-sm text-sm leading-relaxed text-(--color-text-muted)">
+                {text}
+              </p>
+            </li>
+          ))}
+        </ol>
+        <Link
+          href="/seguranca"
+          className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline underline-offset-4"
+        >
+          Conheça os cuidados e as regras do Jobê{" "}
+          <ArrowUpRight size={16} aria-hidden="true" />
+        </Link>
+      </section>
+      <section className="grid gap-6 rounded-2xl bg-(--color-accent-soft) p-6 sm:p-10 md:grid-cols-[1fr_auto] md:items-center">
+        <div>
+          <p className="mb-2 text-sm font-medium text-(--color-text-muted)">
+            Para quem faz acontecer
+          </p>
+          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            Seu próximo cliente pode começar aqui.
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
+            Reúna seu trabalho em um perfil, publique serviços e produtos
+            digitais e converse com quem precisa do seu talento.
+          </p>
+        </div>
+        <Link
+          href="/dashboard"
+          className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-white hover:bg-(--color-accent-hover)"
+        >
+          Começar a oferecer <ArrowUpRight size={18} aria-hidden="true" />
+        </Link>
+      </section>
+      <section
+        id="duvidas"
+        className="mx-auto max-w-3xl scroll-mt-24 py-12 sm:py-16"
+      >
+        <h2 className="mb-6 text-2xl font-semibold tracking-tight">
+          Antes de começar
+        </h2>
+        {questions.map(([question, answer]) => (
+          <details
+            key={question}
+            className="border-b border-(--color-border) py-1"
+          >
+            <summary className="cursor-pointer py-5 pr-4 text-base font-medium text-(--color-text)">
+              {question}
+            </summary>
+            <p className="pb-5 text-sm leading-relaxed text-(--color-text-muted)">
+              {answer}
+            </p>
+          </details>
+        ))}
+      </section>
     </div>
   );
 }
 
-function FeedItemCard({
-  item,
-  creatorById,
-}: {
-  item: { kind: "product"; data: Product } | { kind: "gig"; data: Gig };
-  creatorById: Map<string, User>;
-}) {
-  if (item.kind === "gig") {
-    return <GigFeedCard gig={item.data} creator={creatorById.get(item.data.creatorId)} />;
-  }
-  return <FeedPostCard product={item.data} creator={creatorById.get(item.data.creatorId)} />;
-}
+type FeedItem = { kind: "product"; data: Product } | { kind: "gig"; data: Gig };
 
-function Section({
-  title,
-  href,
-  children,
-}: {
-  title: string;
-  href: string;
-  children: React.ReactNode;
-}) {
+async function Catalog() {
+  const supabase = createPublicClient();
+  const [productsResult, gigsResult] = await Promise.allSettled([
+    listApprovedProducts(supabase, { limit: 24 }),
+    listActiveGigs(supabase, { limit: 12 }),
+  ]);
+  const approved =
+    productsResult.status === "fulfilled" ? productsResult.value : [];
+  const gigs = gigsResult.status === "fulfilled" ? gigsResult.value : [];
+  const unavailable =
+    productsResult.status === "rejected" || gigsResult.status === "rejected";
+  // Busca em lote também os autores dos produtos; nunca usa perfis de demonstração.
+  const ids = [
+    ...new Set([...approved, ...gigs].map((item) => item.creatorId)),
+  ];
+  const creators = await listUsersByIds(supabase, ids).catch(
+    () => [] as User[],
+  );
+  const creatorById = new Map(creators.map((c) => [c.id, c]));
+  const offers = approved
+    .filter((p) => p.promoPrice != null && p.promoPrice < p.price)
+    .slice(0, 4);
+  const feed: FeedItem[] = [
+    ...approved.map((data): FeedItem => ({ kind: "product", data })),
+    ...gigs.map((data): FeedItem => ({ kind: "gig", data })),
+  ].sort((a, b) => Date.parse(b.data.createdAt) - Date.parse(a.data.createdAt));
+
   return (
-    <section className="flex flex-col gap-3 py-2">
-      <Link href={href} className="flex items-center justify-between gap-2">
-        <h2 className="text-lg font-bold text-(--color-text)">{title}</h2>
-        <ChevronRight size={20} strokeWidth={2} className="text-(--color-text-muted)" />
-      </Link>
-      {children}
-    </section>
+    <>
+      <section
+        id="vitrine"
+        className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
+      >
+        <SectionHeading
+          title="Encontre seu próximo Jobê"
+          description="Serviços para contratar. Produtos digitais para levar sua ideia adiante."
+          href="/descobrir"
+          label="Explorar tudo"
+        />
+        {unavailable ? (
+          <p role="status" className="mt-5 text-sm text-(--color-text-muted)">
+            Parte da vitrine está indisponível agora.{" "}
+            <Link href="/descobrir" className="underline">
+              Tentar na página Explorar
+            </Link>
+            .
+          </p>
+        ) : null}
+        {gigs.length ? (
+          <div className="mt-8">
+            <h3 className="mb-4 text-lg font-semibold">
+              Serviços de quem sabe fazer
+            </h3>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {gigs.slice(0, 4).map((gig) => (
+                <GigCard
+                  key={gig.id}
+                  gig={gig}
+                  creatorName={creatorById.get(gig.creatorId)?.displayName}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
+        {approved.length ? (
+          <div className="mt-8">
+            <h3 className="mb-4 text-lg font-semibold">
+              Novidades em produtos digitais
+            </h3>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              {approved.slice(0, 4).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  creatorName={creatorById.get(product.creatorId)?.displayName}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
+        {!feed.length && !unavailable ? (
+          <EmptyState
+            icon={Search}
+            title="O próximo trabalho pode ser o seu"
+            description="Novos produtos e serviços aparecerão aqui quando forem publicados."
+            action={
+              <Link href="/dashboard" className="underline underline-offset-4">
+                Publicar meu trabalho
+              </Link>
+            }
+          />
+        ) : null}
+        {offers.length ? (
+          <div className="mt-10">
+            <SectionHeading
+              title="Uma boa ideia por menos"
+              href="/descobrir?ofertas=1"
+              label="Ver ofertas"
+            />
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              {offers.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  creatorName={creatorById.get(product.creatorId)?.displayName}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
+        <div className="mt-6 flex flex-wrap gap-5 text-sm font-medium">
+          <Link
+            href="/descobrir?sort=vendidos"
+            className="flex min-h-11 items-center underline underline-offset-4"
+          >
+            Explorar mais vendidos
+          </Link>
+          <Link
+            href="/descobrir"
+            className="flex min-h-11 items-center underline underline-offset-4"
+          >
+            Ver catálogo completo
+          </Link>
+        </div>
+      </section>
+      <section
+        id="comunidade"
+        className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
+      >
+        <SectionHeading
+          title="Por trás de cada trabalho, alguém"
+          description="Conheça os profissionais e acompanhe o que eles estão criando."
+          href="/criadores"
+          label="Conhecer profissionais"
+        />
+        {creators.length ? (
+          <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+            {creators
+              .filter((c) => c.creatorProfile)
+              .slice(0, 4)
+              .map((creator) => (
+                <CreatorCard key={creator.id} creator={creator} />
+              ))}
+          </div>
+        ) : null}
+        {feed.length ? (
+          <div className="mx-auto mt-10 max-w-2xl">
+            <h3 className="mb-5 text-lg font-semibold">
+              Acabou de chegar ao feed
+            </h3>
+            <div className="flex flex-col gap-4">
+              {feed.slice(0, 3).map((item) => (
+                <FeedItemCard
+                  key={item.kind + item.data.id}
+                  item={item}
+                  creator={creatorById.get(item.data.creatorId)}
+                />
+              ))}
+            </div>
+            {feed.length > 3 ? (
+              <details className="mt-5">
+                <summary className="cursor-pointer py-3 text-center text-sm font-semibold underline underline-offset-4">
+                  Ver mais publicações
+                </summary>
+                <div className="mt-4 flex flex-col gap-4">
+                  {feed.slice(3, 12).map((item) => (
+                    <FeedItemCard
+                      key={item.kind + item.data.id}
+                      item={item}
+                      creator={creatorById.get(item.data.creatorId)}
+                    />
+                  ))}
+                </div>
+                <Link
+                  href="/descobrir"
+                  className="mt-6 block py-3 text-center text-sm font-semibold underline"
+                >
+                  Continuar explorando
+                </Link>
+              </details>
+            ) : null}
+          </div>
+        ) : (
+          <p className="mt-6 text-sm text-(--color-text-muted)">
+            {unavailable
+              ? "As publicações voltarão a aparecer quando a conexão for restabelecida."
+              : "As próximas publicações da comunidade aparecerão aqui."}
+          </p>
+        )}
+      </section>
+    </>
   );
 }
 
-function Row({ children }: { children: React.ReactNode }) {
+function FeedItemCard({ item, creator }: { item: FeedItem; creator?: User }) {
+  return item.kind === "gig" ? (
+    <GigFeedCard gig={item.data} creator={creator} />
+  ) : (
+    <FeedPostCard product={item.data} creator={creator} />
+  );
+}
+
+function SectionHeading({
+  title,
+  description,
+  href,
+  label,
+}: {
+  title: string;
+  description?: string;
+  href?: string;
+  label?: string;
+}) {
   return (
-    <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [&>*]:w-44 [&>*]:shrink-0 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:[&>*]:w-auto">
-      {children}
+    <div className="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h2 className="text-2xl font-semibold tracking-tight text-(--color-text) sm:text-3xl">
+          {title}
+        </h2>
+        {description ? (
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
+            {description}
+          </p>
+        ) : null}
+      </div>
+      {href ? (
+        <Link
+          href={href}
+          className="flex min-h-11 items-center gap-2 text-sm font-medium text-(--color-text) underline decoration-(--color-border) underline-offset-4"
+        >
+          {label}
+          <ArrowUpRight size={16} aria-hidden="true" />
+        </Link>
+      ) : null}
+    </div>
+  );
+}
+
+function CatalogSkeleton() {
+  return (
+    <div
+      role="status"
+      aria-label="Carregando a vitrine e a comunidade"
+      className="py-12"
+    >
+      <span className="sr-only">Carregando a vitrine e a comunidade…</span>
+      <div aria-hidden="true" className="motion-safe:animate-pulse">
+        <div className="mb-6 h-7 w-2/3 rounded bg-(--color-surface-2)" />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-64 rounded-2xl bg-(--color-surface-2)" />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
