@@ -30,7 +30,8 @@ site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLA
 
 - ESLint, TypeScript e build de produção concluídos sem erros.
 - Contrastes dos tokens medidos e componentes alterados sem cores cruas no TSX.
-- Pendente apenas a inspeção visual da versão publicada.
+- Versão publicada inspecionada em navegador desktop: composição aberta, busca, CTA, divisores
+  e cor de marca renderizaram sem overflow e sem erros da aplicação no console.
 
 ## 2026-09-21 — Violeta Jobê e hero com presença de marca
 
