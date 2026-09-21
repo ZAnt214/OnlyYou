@@ -3,6 +3,35 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — CTA de creator no estilo referência (card com divisor)
+
+### Objetivo
+
+- O usuário mandou um print de um concorrente (VintePila) como referência de estilo pro texto
+  de chamada: card branco, título grande e direto com exclamação ("Transforme seu talento em
+  renda extra hoje!"), parágrafo de apoio, linha divisória e botão verde abaixo — pediu o mesmo
+  estilo pro Jobê.
+
+### Mudanças
+
+- `app/page.tsx` — seção de CTA pra criadores na home, reestruturada pra seguir essa referência:
+  - Fundo mudou de `bg-(--color-accent-soft)` (card colorido, texto e botão lado a lado) pra
+    `bg-(--color-surface)` com `border-(--color-border)` (card branco, como no exemplo).
+  - Título direto com exclamação: "Transforme seu talento em renda extra hoje!".
+  - Corpo reescrito no mesmo tom (demanda real + urgência): "No Jobê, pessoas estão procurando
+    exatamente o que você sabe fazer. Publique seus serviços, mostre seu trabalho pra quem
+    precisa e comece a fechar pedidos. Comece agora e veja seus ganhos crescerem!".
+  - Layout mudou de duas colunas (texto ao lado do botão) pra empilhado com uma linha divisória
+    (`border-t border-(--color-border)`) entre o texto e o botão, igual ao print de referência.
+  - Botão continua "Quero oferecer meus serviços" (mantido da mudança anterior).
+
+### Validação
+
+- `grep` por hex em `app/page.tsx`: nenhuma ocorrência.
+- `npx eslint app/page.tsx`: sem erros.
+- `npm run build`: compilação e checagem de TypeScript concluídas com sucesso (falha de
+  pré-renderização de `/admin` é pré-existente, sem relação com esta mudança).
+
 ## 2026-09-21 — Copy mais forte convidando pra oferecer serviços
 
 ### Objetivo

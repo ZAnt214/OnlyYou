@@ -304,26 +304,23 @@ export default function HomePage() {
           <ArrowUpRight size={16} aria-hidden="true" />
         </Link>
       </section>
-      <section className="grid gap-6 rounded-2xl bg-(--color-accent-soft) p-6 sm:p-10 md:grid-cols-[1fr_auto] md:items-center">
-        <div>
-          <p className="mb-2 text-sm font-semibold text-(--color-accent-text)">
-            Pare de deixar seu talento parado
-          </p>
-          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Alguém está procurando exatamente o que você sabe fazer.
-          </h2>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
-            Crie seu perfil, publique seus serviços e produtos digitais e
-            defina seu próprio preço. Sem depender de indicação, sem
-            esconder seu trabalho: quem precisa de você vem até aqui.
-          </p>
+      <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-sm sm:p-10">
+        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          Transforme seu talento em renda extra hoje!
+        </h2>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
+          No Jobê, pessoas estão procurando exatamente o que você sabe fazer.
+          Publique seus serviços, mostre seu trabalho pra quem precisa e
+          comece a fechar pedidos. Comece agora e veja seus ganhos crescerem!
+        </p>
+        <div className="mt-6 border-t border-(--color-border) pt-6">
+          <Link
+            href="/dashboard"
+            className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
+          >
+            Quero oferecer meus serviços <ArrowUpRight size={18} aria-hidden="true" />
+          </Link>
         </div>
-        <Link
-          href="/dashboard"
-          className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
-        >
-          Quero oferecer meus serviços <ArrowUpRight size={18} aria-hidden="true" />
-        </Link>
       </section>
       <Suspense fallback={<CommunitySkeleton />}>
         <Community />
