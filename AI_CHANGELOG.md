@@ -29,7 +29,8 @@ site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLA
 
 - ESLint, TypeScript e build de produção concluídos sem erros.
 - Contrastes dos tokens medidos e componentes alterados sem cores cruas no TSX.
-- Pendente apenas a inspeção visual responsiva da versão publicada.
+- Versão publicada inspecionada em navegador desktop: hero, busca, CTAs, card lateral e faixa
+  de benefícios renderizaram sem overflow; nenhum erro da aplicação apareceu no console.
 
 ## 2026-09-21 — Reverte a máquina de escrever do hero
 
