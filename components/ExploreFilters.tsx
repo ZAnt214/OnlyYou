@@ -105,7 +105,7 @@ export function ExploreCategories({
       <div className="flex items-center justify-between gap-3 px-0.5">
         <h2 className="text-sm font-semibold text-(--color-text)">Explore por categoria</h2>
         {category ? (
-          <button type="button" onClick={() => setCategory("")} className="shrink-0 text-xs font-semibold text-(--color-accent) hover:underline">
+          <button type="button" onClick={() => setCategory("")} className="shrink-0 text-xs font-semibold text-(--color-accent-text) hover:underline">
             Limpar filtro
           </button>
         ) : null}
@@ -128,7 +128,7 @@ export function ExploreSortFilters() {
       <div className="flex items-center gap-2">
         <span className="text-sm font-semibold text-(--color-text)">Ordenar</span>
         {sort || offers ? (
-          <button type="button" onClick={() => { setSort(""); setOffers(false); }} className="ml-auto text-xs font-medium text-(--color-accent)">Limpar</button>
+          <button type="button" onClick={() => { setSort(""); setOffers(false); }} className="ml-auto text-xs font-medium text-(--color-accent-text)">Limpar</button>
         ) : null}
       </div>
       <div className="no-scrollbar -mx-1 flex items-center gap-5 overflow-x-auto px-1">
@@ -144,8 +144,8 @@ export function ExploreResultSummary({ categories, query }: { categories: Catego
   const activeCategory = categories.find((item) => item.slug === category);
   if (!activeCategory && !query) return null;
   return (
-    <div className="flex items-center gap-2 border-l-2 border-(--color-accent) pl-3 text-sm text-(--color-text-muted)" aria-live="polite">
-      <Search size={16} className="shrink-0 text-(--color-accent)" />
+    <div className="flex items-center gap-2 border-l-2 border-(--color-accent-text) pl-3 text-sm text-(--color-text-muted)" aria-live="polite">
+      <Search size={16} className="shrink-0 text-(--color-accent-text)" />
       <span>
         {query ? <>Resultados para <strong className="font-semibold text-(--color-text)">“{query}”</strong></> : null}
         {query && activeCategory ? " em " : null}
@@ -229,7 +229,7 @@ export function ExploreGigs({
 
 function FilterChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <button type="button" onClick={onClick} aria-pressed={active} className={`shrink-0 whitespace-nowrap border-b-2 px-1 py-2 text-sm transition-colors ${active ? "border-(--color-accent) font-semibold text-(--color-accent)" : "border-transparent text-(--color-text-muted) hover:text-(--color-text)"}`}>
+    <button type="button" onClick={onClick} aria-pressed={active} className={`shrink-0 whitespace-nowrap border-b-2 px-1 py-2 text-sm transition-colors ${active ? "border-(--color-accent-text) font-semibold text-(--color-accent-text)" : "border-transparent text-(--color-text-muted) hover:text-(--color-text)"}`}>
       {children}
     </button>
   );

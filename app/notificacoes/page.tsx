@@ -56,7 +56,7 @@ export default function NotificacoesPage() {
         </div>
       ) : !userId ? (
         <p className="text-sm text-(--color-text-muted)">
-          <Link href="/entrar" className="text-(--color-accent) hover:underline">
+          <Link href="/entrar" className="text-(--color-accent-text) hover:underline">
             Entre na sua conta
           </Link>{" "}
           para ver suas notificações.
@@ -76,7 +76,7 @@ export default function NotificacoesPage() {
               className={`flex flex-col gap-1 rounded-md border px-4 py-3 text-sm ${
                 n.read
                   ? "border-(--color-border) text-(--color-text-muted)"
-                  : "border-(--color-accent) bg-(--color-surface) text-(--color-text)"
+                  : "border-(--color-accent-text) bg-(--color-surface) text-(--color-text)"
               }`}
             >
               <span className="text-xs uppercase tracking-wide text-(--color-text-subtle)">
@@ -89,7 +89,7 @@ export default function NotificacoesPage() {
                   <Link
                     href={n.linkHref}
                     onClick={() => handleMarkRead(n.id)}
-                    className="w-fit text-xs font-medium text-(--color-accent) hover:underline"
+                    className="w-fit text-xs font-medium text-(--color-accent-text) hover:underline"
                   >
                     Ver pedido
                   </Link>

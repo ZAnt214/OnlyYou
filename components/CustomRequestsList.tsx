@@ -164,7 +164,7 @@ export function CustomRequestsList({
         <Link
           key={request.id}
           href={`${myRole === "creator" ? "/dashboard/pedidos-personalizados" : "/pedidos"}/${request.id}`}
-          className="flex flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-colors hover:border-(--color-accent) sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+          className="flex flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-colors hover:border-(--color-accent-text) sm:flex-row sm:items-center sm:justify-between sm:gap-4"
         >
           <div className="flex min-w-0 flex-col gap-0.5">
             <div className="flex items-center gap-2">
@@ -206,7 +206,7 @@ function RowStatusIcon() {
       <Loader2
         size={18}
         strokeWidth={1.5}
-        className="shrink-0 animate-spin self-center text-(--color-accent)"
+        className="shrink-0 animate-spin self-center text-(--color-accent-text)"
       />
     );
   }

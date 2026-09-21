@@ -42,7 +42,7 @@ export default function EntrarPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-(--color-text)">
@@ -52,7 +52,7 @@ export default function EntrarPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </label>
         {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
@@ -66,7 +66,7 @@ export default function EntrarPage() {
       </form>
       <p className="text-sm text-(--color-text-muted)">
         Ainda não tem conta?{" "}
-        <Link href="/cadastro" className="text-(--color-accent) hover:underline">
+        <Link href="/cadastro" className="text-(--color-accent-text) hover:underline">
           Criar conta
         </Link>
       </p>

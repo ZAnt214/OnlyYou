@@ -3,6 +3,65 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Paleta Milky + Mantis e novo token `--color-accent-text`
+
+### Objetivo
+
+- O usuário enviou um swatch de marca com duas cores exatas — **Milky** (`#FFFDF1`) e **Mantis**
+  (`#59C749`) — pedindo para aplicá-las como a nova paleta viva do Jobê.
+- Milky é praticamente o `--color-bg` atual (creme claro), então virou o novo valor exato desse
+  token. Mantis é bem mais claro/saturado que o verde-sálvia anterior e não teria contraste
+  suficiente (~2,1:1) se usado também como cor de texto sobre fundo claro — abaixo do mínimo de
+  4,5:1 do WCAG AA, o que quebraria a leitura de preços, links, badges etc.
+- Perguntei ao usuário como resolver esse conflito; a resposta escolhida foi "Mantis só em
+  fundos, com uma variante escura pro texto" (mesma matiz, mais escura, só pra garantir leitura).
+
+### Mudanças
+
+- `app/globals.css` (tema claro)
+  - `--color-bg`: `#fffdf1` (Milky, valor exato do swatch).
+  - `--color-accent`: `#59c749` (Mantis, valor exato do swatch) — usado só como **preenchimento**
+    (`bg-*`): botões/CTA, estado ativo, elementos decorativos.
+  - `--color-accent-hover`: `#42a432` (Mantis escurecido, mesma matiz).
+  - `--color-accent-soft`: `#e4f4e1` (tinta clara de Mantis).
+  - `--color-on-accent`: `#183414` (verde bem escuro, texto sobre o fundo Mantis — branco não
+    tinha contraste suficiente: ~2,2:1; o escuro dá ~6,3:1).
+  - **Novo token `--color-accent-text`: `#256b20`** — mesma matiz do Mantis, escurecida o
+    suficiente pra funcionar como `text-*`/`border-*`/`ring-*`/`outline-*`/`accent-*` sobre
+    `--color-bg`/`--color-surface` (contraste ≥ 5:1 nos pares testados).
+- `app/globals.css` (tema escuro): adicionado `--color-accent-text` apontando pro mesmo valor de
+  `--color-accent` (`#35c98a`) — no escuro o fundo já é escuro, então o verde vivo funciona bem
+  como texto também (contraste ≈ 9,3:1), não precisa de uma segunda variante.
+- `::selection` em `app/globals.css`: cor do texto selecionado trocada de `--color-accent` pra
+  `--color-accent-text`, pelo mesmo motivo de contraste.
+- **48 arquivos** em `app/` e `components/`: toda ocorrência de `text-`, `border-`,
+  `focus:border-`, `hover:border-`, `hover:text-`, `group-hover:text-`, `focus-within:border-`,
+  `focus-within:outline-` e `focus-visible:ring-` apontando pra `(--color-accent)` passou a
+  apontar pra `(--color-accent-text)`. Ocorrências de `bg-` (incluindo `hover:bg-` e `file:bg-`)
+  continuam em `(--color-accent)`, já que representam preenchimento. Único ajuste manual depois
+  do replace em massa: `accent-(--color-accent)` nativo do checkbox em
+  `components/ResumeSection.tsx` voltou pro Mantis vivo (é um preenchimento, não texto).
+- `CLAUDE.md`: tabela de tokens e todos os padrões de componente (badges, chips, nav mobile)
+  atualizados pra usar `--color-accent-text` em contextos de texto/borda; nova seção explicando
+  a distinção entre `--color-accent` (fundo) e `--color-accent-text` (texto) e por que ela
+  existe.
+
+### Validação
+
+- `grep` por hex fora de `app/globals.css` nos arquivos alterados: nenhuma ocorrência — só o
+  arquivo de tokens tem valor literal.
+- `npx eslint .`: sem erros.
+- `npm run build`: compilação e checagem de TypeScript concluídas com sucesso (a falha de
+  pré-renderização de `/admin` é pré-existente, por falta de `SUPABASE_SERVICE_ROLE_KEY` no
+  ambiente local, não relacionada a esta mudança).
+- `npm run dev` + fetch da home: HTTP 200; conferido no CSS gerado que `--color-accent-text` e
+  `--color-accent` saem com os valores corretos nos dois temas (claro: `#256b20`/`#59c749`;
+  escuro: `#35c98a` nos dois).
+- Contraste (WCAG) recalculado para os pares novos: `--color-accent-text` sobre `--color-bg`
+  ≈ 5,0:1; sobre `--color-surface` ≈ 5,1:1; sobre `--color-accent-soft` ≈ 5,7:1;
+  `--color-on-accent` sobre `--color-accent` ≈ 6,3:1 (claro) e ≈ 7,9:1 (escuro) — todos acima do
+  mínimo de 4,5:1 (texto) / 3:1 (bordas e indicadores de foco).
+
 ## 2026-09-21 — Paleta mais viva (tokens de cor)
 
 ### Objetivo

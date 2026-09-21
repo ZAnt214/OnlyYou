@@ -15,7 +15,7 @@ export function ProductCard({
   return (
     <Link
       href={`/produto/${product.id}`}
-      className="group flex min-w-0 w-full flex-shrink-0 flex-col overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm transition-colors hover:border-(--color-accent) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent)"
+      className="group flex min-w-0 w-full flex-shrink-0 flex-col overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm transition-colors hover:border-(--color-accent-text) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent-text)"
     >
       <div className="relative overflow-hidden border-b border-(--color-border)">
         <MediaPlaceholder
@@ -28,7 +28,7 @@ export function ProductCard({
         />
         {product.type === "video" ? (
           <span
-            className="absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-(--color-surface) text-(--color-accent) shadow-sm"
+            className="absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-(--color-surface) text-(--color-accent-text) shadow-sm"
             aria-label="Conteúdo em vídeo"
           >
             <Play size={14} fill="currentColor" />

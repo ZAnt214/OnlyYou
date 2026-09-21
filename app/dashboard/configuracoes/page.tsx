@@ -117,7 +117,7 @@ export default function DashboardConfiguracoesPage() {
               setDisplayName(e.target.value);
               setSaved(false);
             }}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </div>
 
@@ -133,7 +133,7 @@ export default function DashboardConfiguracoesPage() {
               setSaved(false);
             }}
             rows={3}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </div>
 
@@ -149,7 +149,7 @@ export default function DashboardConfiguracoesPage() {
               setSaved(false);
             }}
             placeholder="Ensaio fotográfico personalizado, Vídeo personalizado"
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
           <p className="text-xs text-(--color-text-subtle)">
             Aparece no seu perfil, separado das tags automáticas de produtos publicados.
@@ -168,7 +168,7 @@ export default function DashboardConfiguracoesPage() {
               setSaved(false);
             }}
             rows={2}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </div>
 

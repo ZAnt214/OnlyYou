@@ -54,7 +54,7 @@ export function GigFeedCard({ gig, creator }: { gig: Gig; creator?: User }) {
       </div>
 
       <div className="px-4 pb-3 pt-2">
-        <span className="mb-1 inline-block w-fit rounded-md bg-(--color-accent-soft) px-2 py-0.5 text-xs font-medium text-(--color-accent)">
+        <span className="mb-1 inline-block w-fit rounded-md bg-(--color-accent-soft) px-2 py-0.5 text-xs font-medium text-(--color-accent-text)">
           {GIG_CATEGORY_LABELS[gig.category]}
         </span>
         <h3 className="text-sm font-semibold text-(--color-text)">{gig.title}</h3>

@@ -15,11 +15,11 @@ export function FavoriteButton({ productId, bare = false }: { productId: string;
       className={
         bare
           ? `flex items-center justify-center transition-colors ${
-              active ? "text-(--color-accent)" : "text-(--color-text-muted) hover:text-(--color-accent)"
+              active ? "text-(--color-accent-text)" : "text-(--color-text-muted) hover:text-(--color-accent-text)"
             }`
           : `flex h-8 w-8 items-center justify-center rounded-md border ${
               active
-                ? "border-(--color-accent) text-(--color-accent)"
+                ? "border-(--color-accent-text) text-(--color-accent-text)"
                 : "border-(--color-border) text-(--color-text-muted) hover:bg-(--color-surface)"
             }`
       }

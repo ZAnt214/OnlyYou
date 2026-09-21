@@ -66,7 +66,7 @@ export function CustomOrderReviewModal({
                   strokeWidth={1.5}
                   className={
                     value <= (hoverRating || rating)
-                      ? "text-(--color-accent)"
+                      ? "text-(--color-accent-text)"
                       : "text-(--color-border)"
                   }
                   fill={value <= (hoverRating || rating) ? "currentColor" : "none"}
@@ -80,7 +80,7 @@ export function CustomOrderReviewModal({
             onChange={(e) => setComment(e.target.value)}
             placeholder="Conte como foi (opcional)"
             rows={3}
-            className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm text-(--color-text) focus:border-(--color-accent) focus:outline-none"
+            className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm text-(--color-text) focus:border-(--color-accent-text) focus:outline-none"
           />
 
           {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}

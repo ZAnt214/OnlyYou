@@ -49,7 +49,7 @@ export default function DashboardCuponsPage() {
                     <span
                       className={`rounded-md px-2 py-0.5 text-xs ${
                         c.active
-                          ? "bg-(--color-accent-soft) text-(--color-accent)"
+                          ? "bg-(--color-accent-soft) text-(--color-accent-text)"
                           : "bg-(--color-surface-2) text-(--color-text-muted)"
                       }`}
                     >

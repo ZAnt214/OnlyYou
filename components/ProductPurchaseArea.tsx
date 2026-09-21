@@ -29,7 +29,7 @@ export function ProductPurchaseArea({ product }: { product: Product }) {
     return (
       <div className="flex flex-col gap-3">
         <PriceTag price={product.price} promoPrice={product.promoPrice} size="lg" />
-        <div className="flex items-center gap-2 rounded-md border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-accent)">
+        <div className="flex items-center gap-2 rounded-md border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-accent-text)">
           <CheckCircle2 size={16} strokeWidth={1.5} />
           Conteúdo liberado
         </div>

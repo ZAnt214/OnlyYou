@@ -134,7 +134,7 @@ export default function NovoProdutoPage() {
   if (published) {
     return (
       <div className="flex flex-col items-center gap-4 rounded-lg border border-(--color-border) bg-(--color-surface) p-8 text-center">
-        <CheckCircle2 size={32} className="text-(--color-accent)" strokeWidth={1.5} />
+        <CheckCircle2 size={32} className="text-(--color-accent-text)" strokeWidth={1.5} />
         <h1 className="text-lg font-semibold text-(--color-text)">Produto publicado</h1>
         <p className="text-sm text-(--color-text-muted)">
           &quot;{form.title || "Seu produto"}&quot; já está disponível no catálogo.
@@ -164,7 +164,7 @@ export default function NovoProdutoPage() {
             key={label}
             className={`flex-1 rounded-md border px-2 py-1.5 text-center text-xs ${
               i === step
-                ? "border-(--color-accent) text-(--color-accent)"
+                ? "border-(--color-accent-text) text-(--color-accent-text)"
                 : i < step
                   ? "border-(--color-border) text-(--color-text-muted)"
                   : "border-(--color-border) text-(--color-text-subtle)"
@@ -183,7 +183,7 @@ export default function NovoProdutoPage() {
                 value={form.title}
                 onChange={(e) => update("title", e.target.value)}
                 placeholder="Ex.: Pack de templates para redes sociais"
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
               />
             </Field>
             <Field label="Descrição">
@@ -192,14 +192,14 @@ export default function NovoProdutoPage() {
                 onChange={(e) => update("description", e.target.value)}
                 rows={4}
                 placeholder="Descreva o conteúdo, quantidade de itens e diferenciais."
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
               />
             </Field>
             <Field label="Categoria">
               <select
                 value={form.category}
                 onChange={(e) => update("category", e.target.value)}
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
               >
                 {categories.map((c) => (
                   <option key={c.slug} value={c.slug}>
@@ -217,7 +217,7 @@ export default function NovoProdutoPage() {
               <select
                 value={form.type}
                 onChange={(e) => update("type", e.target.value as ProductType)}
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
               >
                 <option value="photo">Foto</option>
                 <option value="video">Vídeo</option>
@@ -274,7 +274,7 @@ export default function NovoProdutoPage() {
                   onChange={(e) => update("coverImageUrl", e.target.value)}
                   type="url"
                   placeholder="Cole um link https://…"
-                  className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
                 <label className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface-2)">
                   {uploadingCover ? (
@@ -305,7 +305,7 @@ export default function NovoProdutoPage() {
                 onChange={(e) => update("previewImagesText", e.target.value)}
                 rows={2}
                 placeholder={"https://…\nhttps://…"}
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
               />
               <label className="flex w-fit cursor-pointer items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-1.5 text-xs font-medium text-(--color-text) hover:bg-(--color-surface-2)">
                 {uploadingPreview ? (
@@ -336,7 +336,7 @@ export default function NovoProdutoPage() {
                 value={form.price}
                 onChange={(e) => update("price", e.target.value)}
                 placeholder="39,90"
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
               />
             </Field>
             <Field label="Preço promocional (opcional)">
@@ -344,7 +344,7 @@ export default function NovoProdutoPage() {
                 value={form.promoPrice}
                 onChange={(e) => update("promoPrice", e.target.value)}
                 placeholder="29,90"
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
               />
             </Field>
           </div>

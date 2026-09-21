@@ -36,7 +36,7 @@ export default function SegurancaPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         {TOPICS.map((topic) => (
           <div key={topic.title} className="flex flex-col gap-2 rounded-lg border border-(--color-border) p-4">
-            <topic.icon size={18} strokeWidth={1.5} className="text-(--color-accent)" />
+            <topic.icon size={18} strokeWidth={1.5} className="text-(--color-accent-text)" />
             <h2 className="text-sm font-medium text-(--color-text)">{topic.title}</h2>
             <p className="text-sm text-(--color-text-muted)">{topic.body}</p>
           </div>

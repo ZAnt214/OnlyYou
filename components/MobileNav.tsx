@@ -43,7 +43,7 @@ export function MobileNav() {
             aria-current={active ? "page" : undefined}
             className={`relative flex h-11 w-12 items-center justify-center transition-colors ${
               active
-                ? "text-(--color-accent)"
+                ? "text-(--color-accent-text)"
                 : "text-(--color-text-muted) hover:text-(--color-text)"
             }`}
           >

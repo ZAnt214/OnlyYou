@@ -314,7 +314,7 @@ export function PortfolioSection({
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                   required
                   placeholder="Ex.: Ensaio fotográfico para marca X"
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </label>
 
@@ -329,7 +329,7 @@ export function PortfolioSection({
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   rows={2}
                   placeholder="Uma linha curta sobre o trabalho (opcional)"
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </label>
 
@@ -345,7 +345,7 @@ export function PortfolioSection({
                   onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
                   rows={5}
                   placeholder="Descreva o trabalho completo: contexto, processo, resultado (opcional)"
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </label>
 
@@ -361,7 +361,7 @@ export function PortfolioSection({
                     onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
                     type="url"
                     placeholder="Cole um link https://… (opcional)"
-                    className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                    className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
                   <label className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface-2)">
                     {uploadingCover ? (
@@ -397,7 +397,7 @@ export function PortfolioSection({
                   onChange={(e) => setForm((f) => ({ ...f, galleryText: e.target.value }))}
                   rows={3}
                   placeholder={"https://…\nhttps://…"}
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
                 <label className="flex w-fit cursor-pointer items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-1.5 text-xs font-medium text-(--color-text) hover:bg-(--color-surface-2)">
                   {uploadingGallery ? (
@@ -432,7 +432,7 @@ export function PortfolioSection({
                   onChange={(e) => setForm((f) => ({ ...f, externalUrl: e.target.value }))}
                   type="url"
                   placeholder="https://… (opcional)"
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 />
               </label>
 
