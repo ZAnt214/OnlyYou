@@ -23,7 +23,7 @@ function shortDate(iso: string): string {
   }).format(new Date(iso));
 }
 
-export function ServiceRequestCard({ request }: { request: ServiceRequest }) {
+export function ServiceRequestCard({ request, feed = false }: { request: ServiceRequest; feed?: boolean }) {
   const router = useRouter();
   const { userId, loading } = useCurrentUserId();
   const [open, setOpen] = useState(false);
@@ -64,7 +64,7 @@ export function ServiceRequestCard({ request }: { request: ServiceRequest }) {
   }
 
   return (
-    <article className="flex h-full flex-col border-b border-(--color-border) py-5 sm:rounded-2xl sm:border sm:bg-(--color-surface) sm:p-5">
+    <article className={`flex h-full flex-col border-b border-(--color-border) py-5 sm:rounded-2xl sm:border sm:bg-(--color-surface) sm:p-5 ${feed ? "sm:shadow-sm" : ""}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -91,7 +91,7 @@ export function ServiceRequestCard({ request }: { request: ServiceRequest }) {
         ) : null}
       </div>
 
-      <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-(--color-text-muted)">
+      <p className={`mt-3 text-sm leading-relaxed text-(--color-text-muted) ${feed ? "line-clamp-6" : "line-clamp-4"}`}>
         {request.description}
       </p>
 

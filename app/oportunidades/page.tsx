@@ -10,8 +10,8 @@ import { listOpenServiceRequests } from "@/lib/supabase/serviceRequests";
 export const revalidate = 30;
 
 export const metadata: Metadata = {
-  title: "Oportunidades de serviço",
-  description: "Veja o que pessoas estão procurando e envie uma proposta pelo Jobê.",
+  title: "Pedidos publicados",
+  description: "Veja os serviços e produtos que pessoas estão procurando e envie uma proposta pelo Jobê.",
 };
 
 const FEATURED_CATEGORIES = ["design", "videos", "programacao", "marketing", "social-media", "redacao-e-copywriting"];
@@ -28,7 +28,7 @@ export default async function OpportunitiesPage({
     <div className="mx-auto w-full max-w-5xl px-4 py-7 sm:px-6 sm:py-10">
       <header className="flex flex-col gap-5 border-b border-(--color-border) pb-7 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
-          <p className="text-sm font-semibold text-(--color-accent-text)">Trabalhos procurando profissionais</p>
+          <p className="text-sm font-semibold text-(--color-accent-text)">Serviços e produtos procurados</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-(--color-text) sm:text-4xl">
             Encontre um projeto que combina com você
           </h1>

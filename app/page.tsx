@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { cache, Suspense } from "react";
 import type { Metadata } from "next";
-import { ArrowUpRight, Search } from "lucide-react";
-import type { Gig, Product, User } from "@/lib/types";
+import { ArrowUpRight, BriefcaseBusiness, Search } from "lucide-react";
+import type { Gig, Product, ServiceRequest, User } from "@/lib/types";
 import { createPublicClient } from "@/lib/supabase/public";
 import { listActiveGigs } from "@/lib/supabase/gigs";
 import { listApprovedProducts } from "@/lib/supabase/products";
 import { listUsersByIds } from "@/lib/supabase/profile";
+import { listOpenServiceRequests } from "@/lib/supabase/serviceRequests";
 import { ProductCard } from "@/components/ProductCard";
 import { GigCard } from "@/components/GigCard";
 import { CreatorCard } from "@/components/CreatorCard";
@@ -205,6 +206,7 @@ export default function HomePage() {
       >
         {[
           ["vitrine", "Vitrine"],
+          ["oportunidades", "Pedidos publicados"],
           ["categorias", "Categorias"],
           ["como-funciona", "Como funciona"],
           ["comunidade", "Comunidade"],
@@ -219,6 +221,9 @@ export default function HomePage() {
           </a>
         ))}
       </nav>
+      <Suspense fallback={<OpportunitySpotlightSkeleton />}>
+        <OpportunitySpotlight />
+      </Suspense>
       <Suspense fallback={<CatalogSkeleton />}>
         <Vitrine />
       </Suspense>
@@ -383,6 +388,76 @@ const getHomeData = cache(async function getHomeData() {
 
   return { approved, gigs, unavailable, creators, creatorById, offers, feed };
 });
+
+const getLatestOpportunities = cache(async function getLatestOpportunities() {
+  return listOpenServiceRequests(createPublicClient()).catch(() => [] as ServiceRequest[]);
+});
+
+async function OpportunitySpotlight() {
+  const requests = (await getLatestOpportunities()).slice(0, 3);
+
+  return (
+    <section id="oportunidades" className="scroll-mt-24 py-12 sm:py-16">
+      <div className="overflow-hidden rounded-3xl border border-(--color-accent-text) bg-(--color-surface) shadow-sm">
+        <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[0.8fr_1.2fr] lg:p-10">
+          <div className="flex flex-col items-start">
+            <span className="inline-flex items-center gap-2 rounded-full bg-(--color-accent-soft) px-3 py-1.5 text-xs font-semibold text-(--color-accent-text)">
+              <BriefcaseBusiness size={15} aria-hidden="true" />
+              Novo jeito de contratar
+            </span>
+            <h2 className="mt-5 max-w-lg text-3xl font-semibold tracking-tight text-(--color-text) sm:text-4xl">
+              Diga o que você precisa. Quem sabe fazer encontra você.
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-(--color-text-muted) sm:text-base">
+              Publique o serviço ou produto que procura e receba respostas de profissionais interessados, com conversa, proposta e pagamento pelo Jobê.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="/oportunidades/nova" className="inline-flex min-h-11 items-center rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">
+                Publicar o que preciso
+              </Link>
+              <Link href="/oportunidades" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-(--color-border) px-5 text-sm font-semibold text-(--color-text) hover:border-(--color-accent-text)">
+                Ver pedidos publicados <ArrowUpRight size={16} aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="divide-y divide-(--color-border) border-y border-(--color-border)">
+            {requests.length ? requests.map((request) => (
+              <OpportunityPreview key={request.id} request={request} />
+            )) : (
+              <div className="flex min-h-48 flex-col justify-center py-6">
+                <p className="text-sm font-semibold text-(--color-text)">O próximo pedido pode começar por você.</p>
+                <p className="mt-1 text-sm text-(--color-text-muted)">Conte o que procura e abra espaço para profissionais apresentarem boas soluções.</p>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="bg-(--color-accent) px-6 py-3 text-center text-sm font-semibold text-(--color-on-accent)">
+          Profissionais encontram novos trabalhos. Pessoas encontram quem resolve.
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function OpportunityPreview({ request }: { request: ServiceRequest }) {
+  return (
+    <Link href="/oportunidades" className="group flex items-center justify-between gap-4 py-5">
+      <span className="min-w-0">
+        <span className="block text-xs font-semibold text-(--color-accent-text)">Alguém está procurando</span>
+        <span className="mt-1 block truncate text-base font-semibold text-(--color-text)">{request.title}</span>
+        <span className="mt-1 block text-sm text-(--color-text-muted)">
+          {request.budgetCents ? `Orçamento de até ${(request.budgetCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}` : "Orçamento a combinar"}
+        </span>
+      </span>
+      <ArrowUpRight size={20} aria-hidden="true" className="shrink-0 text-(--color-text-muted) group-hover:text-(--color-accent-text)" />
+    </Link>
+  );
+}
+
+function OpportunitySpotlightSkeleton() {
+  return <div className="my-12 h-80 animate-pulse rounded-3xl bg-(--color-surface-2)" aria-label="Carregando pedidos publicados" />;
+}
 
 async function Vitrine() {
   const { approved, gigs, unavailable, creatorById, offers, feed } =

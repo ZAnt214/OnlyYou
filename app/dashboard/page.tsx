@@ -24,6 +24,7 @@ import {
   BarChart3,
   Settings,
   Loader2,
+  BriefcaseBusiness,
 } from "lucide-react";
 
 function formatBRL(value: number): string {
@@ -49,6 +50,7 @@ function HubCardIcon({ icon: Icon }: { icon: LucideIcon }) {
  * cabeçalho/nav do site, essa lista é só o que é exclusivo do painel.
  */
 const SECTIONS = [
+  { href: "/dashboard/oportunidades", label: "Oportunidades", icon: BriefcaseBusiness },
   { href: "/dashboard/produtos", label: "Produtos", icon: Package },
   { href: "/dashboard/servicos", label: "Serviços", icon: Megaphone },
   { href: "/dashboard/vendas", label: "Vendas", icon: Receipt },

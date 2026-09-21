@@ -15,7 +15,7 @@ export default function NewOpportunityPage() {
       <header className="mb-7 mt-5 border-b border-(--color-border) pb-6">
         <h1 className="text-3xl font-bold tracking-tight text-(--color-text)">Conte o que você precisa</h1>
         <p className="mt-2 text-sm leading-relaxed text-(--color-text-muted)">
-          Uma descrição clara ajuda profissionais certos a responderem com propostas melhores.
+          Publique o serviço ou produto que procura. Uma descrição clara ajuda profissionais certos a responderem com propostas melhores.
         </p>
       </header>
       <ServiceRequestPublisher />

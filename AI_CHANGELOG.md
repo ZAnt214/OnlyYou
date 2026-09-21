@@ -3,6 +3,31 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Destaque de pedidos na home e feed exclusivo para criadores
+
+### Objetivo
+
+- Tornar a publicação do que uma pessoa procura uma função central e facilmente descoberta na home.
+- Entregar aos criadores um feed dedicado apenas a pedidos de serviços ou produtos.
+
+### Mudanças
+
+- `app/page.tsx`: adicionada uma seção de alto destaque antes da vitrine, com explicação do fluxo,
+  CTAs para publicar e explorar e prévia das três oportunidades mais recentes do banco.
+- `app/dashboard/oportunidades/*`: criado o feed exclusivo da área do criador, em coluna única,
+  com filtros por categoria, skeleton próprio e somente publicações de pessoas procurando algo.
+- `app/dashboard/page.tsx`: o novo feed ganhou acesso direto no hub do painel.
+- `components/ServiceRequestCard.tsx`: adicionado modo de feed com leitura mais confortável, sem
+  duplicar componente nem fluxo de interesse.
+- Textos de descoberta e publicação agora deixam explícito que a pessoa pode procurar um serviço
+  ou produto, preservando o mesmo fluxo de conversa e proposta.
+
+### Validação
+
+- ESLint concluído sem avisos.
+- `git diff --check` concluído sem erros.
+- Busca nos arquivos alterados sem cores cruas ou classes fixas de paleta Tailwind.
+
 ## 2026-09-21 — Publicações de serviços procurados
 
 ### Objetivo

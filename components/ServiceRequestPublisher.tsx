@@ -27,7 +27,7 @@ export function ServiceRequestPublisher() {
   if (!userId) {
     return (
       <div className="border-t border-(--color-border) py-8 text-center">
-        <p className="text-sm text-(--color-text-muted)">Entre na sua conta para publicar o serviço que procura.</p>
+        <p className="text-sm text-(--color-text-muted)">Entre na sua conta para publicar o serviço ou produto que procura.</p>
         <Link
           href="/entrar"
           className="mt-4 inline-flex min-h-11 items-center rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent)"
