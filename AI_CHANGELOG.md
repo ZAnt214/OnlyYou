@@ -3,6 +3,44 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Teste de paleta: Milano Red + Cararra
+
+### Objetivo
+
+- Décimo primeiro teste de paleta seguido: Milano Red `#BB080B` (vermelho profundo) e Cararra
+  `#F0EDE8` (bege/cinza quente). Substitui a paleta Peach/Lilac Ice da entrada anterior.
+
+### Mapeamento pros tokens
+
+- **Cararra** → `--color-bg` no tema claro; reaproveitado como `--color-text` no escuro.
+- **Milano Red** → `--color-accent`/`--color-accent-hover` no tema claro. No tema escuro o
+  accent precisou clarear (`#e8353a`) pelo mesmo motivo do Royal Blue e do cinza monocromático:
+  o tom original é escuro demais pra funcionar como texto/ícone direto sobre um fundo já escuro.
+- `--color-text`, `--color-surface-2`/`--color-border`/`--color-accent-soft` derivados na mesma
+  família bege/vermelho quente, nos dois temas.
+
+### Ponto de atenção importante (avisado ao usuário antes de implementar)
+
+- `--color-danger` (`#c0392b` no claro, `#c9484e` no escuro — usado em recusar/cancelar/excluir/
+  denúncia) já era vermelho, e agora o `--color-accent` (Milano Red) **também é vermelho, num
+  tom bem próximo**. Diferente das outras observações de "cores parecidas" desta sequência
+  (dourado×dourado, verde×verde), este é o par mais arriscado até agora: um usuário pode ler um
+  botão de accent (comprar, aceitar) e um botão de perigo (recusar, cancelar, excluir) como a
+  mesma cor, especialmente lado a lado numa mesma tela (ex.: card de proposta com "Aceitar" e
+  "Recusar"). Não ajustei `--color-danger` porque não fazia parte da paleta pedida, mas se os
+  dois botões ficarem confusos na prática, a correção certa é afastar `--color-danger` do
+  vermelho (pra um tom mais alaranjado ou naming diferente), não o contrário.
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário — atenção especial a telas com botões de
+  accent e de perigo lado a lado (ex.: card de proposta na conversa).
+
 ## 2026-09-21 — Teste de paleta: Peach + Lilac Ice
 
 ### Objetivo
