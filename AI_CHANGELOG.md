@@ -3,6 +3,36 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Teste de paleta: Titan White + Crocus Purple + Ebony Clay
+
+### Objetivo
+
+- Sétimo teste de paleta seguido: Titan White `#EBF0FF`, Crocus Purple `#9687F5`, Ebony Clay
+  `#2D284B`. Substitui a paleta Royal Blue/Light Cream da entrada anterior.
+
+### Mapeamento pros tokens
+
+- **Titan White** → `--color-bg` no tema claro; reaproveitado como `--color-text` no tema
+  escuro (mesmo truque de sempre: cor clara vira texto quando o fundo escurece).
+- **Crocus Purple** → `--color-accent`/`--color-accent-hover` — dessa vez o mesmo hex funciona
+  nos dois temas sem precisar clarear pro escuro (diferente das duas entradas anteriores com
+  Royal Blue): Crocus Purple já é claro o bastante pra servir de texto/ícone direto sobre um
+  fundo escuro.
+- **Ebony Clay** → `--color-text` no tema claro (encaixou bem como texto principal, já que é um
+  roxo bem escuro) e `--color-bg`/`--color-surface` no tema escuro.
+- `--color-surface-2`/`--color-border`/`--color-accent-soft` derivados na mesma família
+  lavanda/roxo, nos dois temas.
+- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` não mudaram.
+
+### Mudanças
+
+- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
+
+### Validação
+
+- `tsc --noEmit`: sem erros.
+- Teste visual pendente de confirmação do usuário.
+
 ## 2026-09-21 — Teste de paleta: Royal Blue + Light Cream
 
 ### Objetivo
