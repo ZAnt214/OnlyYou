@@ -1,13 +1,13 @@
 # Design system do Jobê
 
 O Jobê usa layout de rede social de criadores (feed de coluna única, cards de post, nav
-inferior em pill flutuante) com a paleta **Marfim + Violeta Jobê**: fundo marfim suave, cards
-brancos, texto grafite esverdeado e violeta vivo como cor de marca. **Toda UI nova ou
+inferior em pill flutuante) com a paleta **Marfim + Framboesa Jobê**: fundo marfim suave, cards
+brancos, texto grafite esverdeado e framboesa viva como cor de marca. **Toda UI nova ou
 alterada deve seguir estas regras — sem exceção**, mesmo quando não for pedido explicitamente.
 
 ## Regra de ouro: nunca usar cor "crua"
 
-Nunca usar hex (`#6c4eff`), `rgb()`/`hsl()` literais, nem classes de paleta fixa do Tailwind
+Nunca usar hex (`#d92d66`), `rgb()`/`hsl()` literais, nem classes de paleta fixa do Tailwind
 (`bg-orange-500`, `text-red-600`, `border-blue-400` etc). Sempre usar os tokens definidos em
 `app/globals.css`, referenciados como `bg-(--color-accent)`, `text-(--color-text-muted)`,
 `border-(--color-border)` etc. Isso garante que qualquer ajuste de paleta futuro (e o
@@ -15,26 +15,26 @@ suporte a dark mode) se propague automaticamente para toda a aplicação.
 
 Tokens disponíveis (`app/globals.css`):
 
-| Token                                                                      | Uso                                                                               |
-| -------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `--color-bg`                                                               | fundo geral da página (marfim suave)                                              |
-| `--color-surface`                                                          | fundo de cards/painéis (branco)                                                   |
-| `--color-surface-2`                                                        | fundo secundário (hover, seções alternadas)                                       |
-| `--color-border`                                                           | bordas e divisores                                                                |
-| `--color-text` / `--color-text-muted` / `--color-text-subtle`              | hierarquia de texto                                                               |
-| `--color-accent` / `--color-accent-hover` / `--color-accent-soft`          | Violeta Jobê — **fundos preenchidos**: CTAs, estado ativo e barrinhas decorativas |
-| `--color-accent-text`                                                      | mesmo violeta, em tom escuro — texto, borda, ícone e foco sobre superfície clara  |
-| `--color-on-accent`                                                        | texto/ícone sobre o fundo de accent; nunca presumir branco no tema escuro         |
-| `--color-highlight` / `--color-highlight-hover` / `--color-highlight-soft` | coral fechado — ofertas, preços promocionais e pontos de energia comercial        |
-| `--color-on-highlight`                                                     | texto/ícone sobre o fundo de highlight                                            |
-| `--color-success` / `--color-warning` / `--color-danger`                   | estados semânticos (ver nota abaixo sobre `--color-success`)                      |
-| `--color-verified`                                                         | selo de criador verificado (azul, separado do accent)                             |
-| `--radius-card` (`1.25rem`)                                                | cards e painéis maiores                                                           |
-| `--radius-pill` (`999px`)                                                  | botões, badges, nav flutuante                                                     |
+| Token                                                                      | Uso                                                                                 |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `--color-bg`                                                               | fundo geral da página (marfim suave)                                                |
+| `--color-surface`                                                          | fundo de cards/painéis (branco)                                                     |
+| `--color-surface-2`                                                        | fundo secundário (hover, seções alternadas)                                         |
+| `--color-border`                                                           | bordas e divisores                                                                  |
+| `--color-text` / `--color-text-muted` / `--color-text-subtle`              | hierarquia de texto                                                                 |
+| `--color-accent` / `--color-accent-hover` / `--color-accent-soft`          | Framboesa Jobê — **fundos preenchidos**: CTAs, estado ativo e barrinhas decorativas |
+| `--color-accent-text`                                                      | mesma framboesa, em tom escuro — texto, borda, ícone e foco sobre superfície clara  |
+| `--color-on-accent`                                                        | texto/ícone sobre o fundo de accent; nunca presumir branco no tema escuro           |
+| `--color-highlight` / `--color-highlight-hover` / `--color-highlight-soft` | framboesa fechada — ofertas, preços promocionais e pontos de energia comercial      |
+| `--color-on-highlight`                                                     | texto/ícone sobre o fundo de highlight                                              |
+| `--color-success` / `--color-warning` / `--color-danger`                   | estados semânticos (ver nota abaixo sobre `--color-success`)                        |
+| `--color-verified`                                                         | selo de criador verificado (azul, separado do accent)                               |
+| `--radius-card` (`1.25rem`)                                                | cards e painéis maiores                                                             |
+| `--radius-pill` (`999px`)                                                  | botões, badges, nav flutuante                                                       |
 
 ### `--color-accent` vs. `--color-accent-text`: por que dois tokens
 
-O violeta de marca (`#6c4eff` no claro) funciona em fundos preenchidos. Para texto sobre
+O framboesa de marca (`#d92d66` no claro) funciona em fundos preenchidos. Para texto sobre
 `--color-bg`/`--color-surface`, a variante escura amplia ainda mais o contraste. Por isso a
 família existe em dois tokens:
 
@@ -42,13 +42,13 @@ família existe em dois tokens:
   decorativos pequenos (barrinhas, pontos). Sempre combinado com `text-(--color-on-accent)`
   por cima.
 - `--color-accent-text` — em `text-*`, `border-*`, `ring-*`, `outline-*`, `accent-*` (nativo de
-  checkbox/radio) quando o violeta aparece como primeiro plano sobre uma superfície clara: preços,
+  checkbox/radio) quando o framboesa aparece como primeiro plano sobre uma superfície clara: preços,
   links, ícones, foco de input, borda ativa de tab/chip. É uma variante mais escura da mesma cor,
   com contraste garantido.
 
 Regra prática: se a cor está preenchendo uma área (fundo), use `--color-accent`; se está
 desenhando algo sobre um fundo claro (texto, linha, contorno), use `--color-accent-text`. No
-tema escuro o accent fica mais claro e o texto sobre ele passa a ser violeta profundo.
+tema escuro o accent fica mais claro e o texto sobre ele passa a ser vinho profundo.
 
 A escala padrão do Tailwind (`rounded-lg/xl/2xl/3xl`) já foi sobrescrita no `@theme` para ser
 mais arredondada. **Não crie uma escala paralela** — continue usando
@@ -68,16 +68,16 @@ shadow-black/10`, nunca sombra escura pesada).
   pagamento confirmado etc.): usam o mesmo padrão do chip ativo/CTA —
   `bg-(--color-accent-soft) text-(--color-accent-text)` (ou borda `--color-accent-text` em
   cards) — **não** `--color-success`. O `--color-success` continua verde e semântico, enquanto
-  o accent é violeta; usar os dois lado a lado em contextos parecidos
+  o accent é framboesa; usar os dois lado a lado em contextos parecidos
   (badge de "aprovado" vs. mensagem de sucesso) confundiria as duas semânticas. Por isso
   `--color-success` continua reservado só para os casos em que `--color-warning`/
   `--color-danger` já convivem lado a lado e um terceiro tom é indispensável — na dúvida, usar
-  o accent (violeta de marca).
+  o accent (framboesa de marca).
 - **Navegação inferior mobile** (`components/MobileNav.tsx`): pill flutuante ancorada ao fundo
   da tela, só ícones, item ativo com `bg-(--color-accent-soft) text-(--color-accent-text)`.
   Qualquer nova aba entra nesse mesmo padrão, não numa barra reta com labels.
 - **Badge de verificado**: usa o token `--color-verified` (azul), intencionalmente separado do
-  `--color-accent`/`--color-accent-text` violeta — mantém a semântica de verificação (tipo
+  `--color-accent`/`--color-accent-text` framboesa — mantém a semântica de verificação (tipo
   Twitter/Meta) sem confundir com CTAs.
 - **Feed** (`components/FeedPostCard.tsx`): coluna única `max-w-2xl` centralizada; card com
   cabeçalho de criador (avatar + nome + verificado + @handle + tempo + `⋯`), legenda, mídia

@@ -60,21 +60,25 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <section
         aria-labelledby="home-title"
-        className="relative mt-4 grid gap-8 overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_top_right,var(--color-highlight),transparent_34%),linear-gradient(135deg,var(--color-accent),var(--color-accent-hover))] p-6 sm:mt-6 sm:p-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:gap-14 lg:p-12"
+        className="grid gap-10 pb-10 pt-10 sm:py-16 lg:grid-cols-[1.25fr_0.75fr] lg:items-center lg:gap-16"
       >
         <div>
-          <p className="mb-4 w-fit rounded-full bg-(--color-surface) px-3 py-1.5 text-xs font-semibold text-(--color-accent-text)">
+          <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-(--color-accent-text)">
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-8 rounded-full bg-(--color-accent)"
+            />
             Serviços e produtos digitais em um só lugar
           </p>
           <h1
             id="home-title"
-            className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-on-accent) sm:text-5xl lg:text-6xl"
+            className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:text-5xl lg:text-6xl"
           >
             Encontre. Compare.
             <br />
-            Faça acontecer.
+            <span className="text-(--color-accent-text)">Faça acontecer.</span>
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-on-accent) opacity-90 sm:text-lg">
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-text-muted) sm:text-lg">
             Contrate profissionais, compre produtos prontos ou peça exatamente o
             que precisa. No Jobê, você conhece quem faz antes de escolher.
           </p>
@@ -107,24 +111,24 @@ export default function HomePage() {
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Link
               href="/descobrir"
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-(--color-surface) px-5 text-sm font-semibold text-(--color-accent-text) transition-transform hover:-translate-y-0.5"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
             >
               Explorar agora
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex min-h-11 items-center justify-center px-2 text-sm font-semibold text-(--color-on-accent) underline decoration-(--color-on-accent) underline-offset-4"
+              className="inline-flex min-h-11 items-center justify-center px-2 text-sm font-semibold text-(--color-text) underline decoration-(--color-border) underline-offset-4"
             >
               Quero vender no Jobê
             </Link>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-(--color-on-accent) opacity-90">
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-(--color-text-muted)">
             <span>Experimente:</span>
             {["Logotipo", "Edição de vídeo", "Site"].map((term) => (
               <Link
                 key={term}
                 href={"/descobrir?q=" + encodeURIComponent(term)}
-                className="py-1 underline decoration-(--color-on-accent) underline-offset-4"
+                className="py-1 underline decoration-(--color-border) underline-offset-4 hover:text-(--color-text)"
               >
                 {term}
               </Link>
@@ -133,7 +137,7 @@ export default function HomePage() {
         </div>
         <aside
           aria-label="Formas de comprar no Jobê"
-          className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 shadow-lg shadow-black/5 sm:p-6"
+          className="border-t border-(--color-border) pt-6 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"
         >
           <p className="text-sm font-medium text-(--color-highlight)">
             Escolha como começar
@@ -180,22 +184,19 @@ export default function HomePage() {
           ))}
         </aside>
       </section>
-      <div className="grid grid-cols-3 gap-3 py-4">
+      <div className="grid grid-cols-3 divide-x divide-(--color-border) border-y border-(--color-border) py-4">
         {[
           ["Preço", "visível"],
           ["Conversa", "antes de fechar"],
           ["Compra", "em um só lugar"],
-        ].map(([title, description], i) => (
+        ].map(([title, description]) => (
           <p
             key={title}
-            className={
-              "rounded-2xl px-2 py-4 text-center text-xs sm:text-sm " +
-              (i === 1
-                ? "bg-(--color-highlight-soft) text-(--color-highlight)"
-                : "bg-(--color-accent-soft) text-(--color-accent-text)")
-            }
+            className="px-2 text-center text-xs text-(--color-text-muted) sm:text-sm"
           >
-            <strong className="block font-semibold">{title}</strong>
+            <strong className="block font-semibold text-(--color-accent-text)">
+              {title}
+            </strong>
             {description}
           </p>
         ))}

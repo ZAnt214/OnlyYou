@@ -3,6 +3,35 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-21 — Hero aberto e identidade Framboesa Jobê
+
+### Objetivo
+
+- Atender ao retorno do usuário removendo o violeta, todo gradiente e o grande quadro colorido
+  que envolvia a busca na página inicial.
+- Manter energia comercial usando a cor com mais precisão, sem transformar seções inteiras em
+  blocos preenchidos.
+
+### Mudanças
+
+- `app/globals.css`: Violeta Jobê substituído pela família Framboesa Jobê; accent e highlight
+  agora compartilham a mesma direção cromática. Tema escuro atualizado em conjunto.
+- `app/page.tsx`: hero voltou a ser aberto sobre o marfim, sem gradiente e sem container
+  preenchido. A assinatura perdeu o formato de chip; o card lateral virou apenas uma área
+  separada por divisor; a faixa de benefícios também deixou de usar três caixas.
+- `CLAUDE.md` e `docs/HOME_REDESIGN.md`: regras e continuidade visual atualizadas.
+
+### Contraste
+
+- Branco sobre framboesa: 4,65:1.
+- Framboesa textual sobre marfim: 7,23:1; sobre fundo suave: 6,25:1.
+
+### Validação
+
+- ESLint, TypeScript e build de produção concluídos sem erros.
+- Contrastes dos tokens medidos e componentes alterados sem cores cruas no TSX.
+- Pendente apenas a inspeção visual da versão publicada.
+
 ## 2026-09-21 — Violeta Jobê e hero com presença de marca
 
 ### Objetivo

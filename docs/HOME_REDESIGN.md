@@ -29,7 +29,7 @@ ou de desempenho sem medição comparável.
 - Feed preservado em coluna única, com três publicações iniciais e expansão
   nativa até doze; acesso ao catálogo completo permanece disponível.
 - Como funciona, acesso à segurança, chamada para oferecer trabalho e FAQ.
-- Identidade atual usa Marfim + Violeta Jobê. Cabeçalho, navegação, pagamentos,
+- Identidade atual usa Marfim + Framboesa Jobê. Cabeçalho, navegação, pagamentos,
   solicitações e componentes compartilhados não foram reescritos.
 
 ## Ajuste comercial posterior
@@ -38,11 +38,11 @@ ou de desempenho sem medição comparável.
   categorias e explicações vêm depois das ofertas.
 - Hero ganhou texto orientado a contratação, CTA de exploração e acesso para
   quem quer vender. A lateral explica serviço, produto digital e Jogue comigo.
-- O Violeta Jobê virou a assinatura principal da plataforma em ações, estados
-  ativos e no hero. Coral fechado permanece como highlight comercial para
-  ofertas e pontos de energia, sem competir com a cor de marca.
-- O hero passou a funcionar como um plano de marca vivo, com contraste alto,
-  CTA branco e uma única superfície interna para explicar as formas de compra.
+- A Framboesa Jobê virou a assinatura principal da plataforma em ações, estados
+  ativos e destaques comerciais. Accent e highlight pertencem à mesma família,
+  evitando uma segunda cor disputando a identidade.
+- O hero permanece aberto sobre o fundo marfim, sem gradiente nem painel colorido.
+  A cor aparece no título, na pequena assinatura editorial e nos CTAs.
 - Vitrine e comunidade usam a mesma leitura memoizada no servidor, com Suspense
   separado. Isso antecipa os cards sem duplicar consultas nem JavaScript.
 
