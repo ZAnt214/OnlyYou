@@ -3,6 +3,26 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-22 — Jornada organizada na página inicial
+
+### Objetivo
+
+- Fazer a home conduzir a pessoa em uma ordem previsível, sem misturar descoberta, publicação e
+  explicação do processo.
+
+### Mudanças
+
+- `app/page.tsx`: a navegação interna virou um caminho numerado e horizontal com quatro ações:
+  escolher categoria, ver opções, publicar pedido e entender a contratação.
+- As seções foram reordenadas para seguir esse mesmo percurso: categorias → vitrine → pedidos
+  publicados → funcionamento → área para profissionais → comunidade → dúvidas.
+- O título de categorias agora explica com clareza que esse é o primeiro ponto da jornada.
+- A navegação continua rolável no celular, sem cards coloridos ou ícones decorativos.
+
+### Validação
+
+- ESLint, TypeScript e `git diff --check` concluídos sem erros.
+
 ## 2026-09-22 — Fundo integrado no destaque de oportunidades
 
 ### Objetivo

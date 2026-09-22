@@ -201,39 +201,32 @@ export default function HomePage() {
         ))}
       </div>
       <nav
-        aria-label="Seções da página inicial"
-        className="flex flex-wrap gap-x-6 gap-y-1 border-y border-(--color-border) py-2 text-sm text-(--color-text-muted)"
+        aria-label="Caminho principal da página inicial"
+        className="no-scrollbar -mx-4 flex overflow-x-auto border-b border-(--color-border) px-4 sm:mx-0 sm:px-0"
       >
         {[
-          ["vitrine", "Vitrine"],
-          ["oportunidades", "Pedidos publicados"],
-          ["categorias", "Categorias"],
-          ["como-funciona", "Como funciona"],
-          ["comunidade", "Comunidade"],
-          ["duvidas", "Dúvidas"],
-        ].map(([id, label]) => (
+          ["01", "categorias", "Escolha uma categoria"],
+          ["02", "vitrine", "Veja as opções"],
+          ["03", "oportunidades", "Publique um pedido"],
+          ["04", "como-funciona", "Entenda a contratação"],
+        ].map(([step, id, label]) => (
           <a
             key={id}
             href={"#" + id}
-            className="flex min-h-11 items-center hover:text-(--color-text)"
+            className="flex min-w-40 items-center gap-3 border-r border-(--color-border) px-4 py-4 first:pl-0 last:border-r-0 hover:text-(--color-text)"
           >
-            {label}
+            <span className="text-xs text-(--color-text-subtle)">{step}</span>
+            <span className="text-sm font-medium text-(--color-text-muted)">{label}</span>
           </a>
         ))}
       </nav>
-      <Suspense fallback={<OpportunitySpotlightSkeleton />}>
-        <OpportunitySpotlight />
-      </Suspense>
-      <Suspense fallback={<CatalogSkeleton />}>
-        <Vitrine />
-      </Suspense>
       <section
         id="categorias"
-        className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
+        className="scroll-mt-24 py-12 sm:py-16"
       >
         <SectionHeading
-          title="Um bom começo para cada ideia"
-          description="Explore pelo que você precisa, no seu ritmo."
+          title="Comece pelo que você procura"
+          description="Escolha uma área para encontrar serviços, produtos e profissionais relacionados."
           href="/descobrir"
           label="Todas as categorias"
         />
@@ -268,6 +261,12 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+      <Suspense fallback={<CatalogSkeleton />}>
+        <Vitrine />
+      </Suspense>
+      <Suspense fallback={<OpportunitySpotlightSkeleton />}>
+        <OpportunitySpotlight />
+      </Suspense>
       <section
         id="como-funciona"
         className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
@@ -461,7 +460,7 @@ async function Vitrine() {
     await getHomeData();
 
   return (
-    <section id="vitrine" className="scroll-mt-24 py-12 sm:py-16">
+    <section id="vitrine" className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16">
       <SectionHeading
         title="Encontre seu próximo Jobê"
         description="Serviços para contratar. Produtos digitais para levar sua ideia adiante."
