@@ -19,7 +19,7 @@ export function GigCard({
 }) {
   return (
     <article
-      className={`w-full overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/10 ${
+      className={`w-full overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) transition-colors hover:border-(--color-text-muted) ${
         compactOnMobile
           ? "grid min-h-40 grid-cols-[7.25rem_minmax(0,1fr)] sm:flex sm:min-h-0 sm:flex-col"
           : "flex flex-col"
@@ -102,7 +102,7 @@ export function GigCard({
         <div className="mt-auto pt-1">
           <RequestGigButton
             gig={gig}
-            className="flex min-h-8 w-full items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-3 py-1.5 text-xs font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
+            className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-(--radius-pill) border border-(--color-border) px-3 py-2 text-sm font-semibold text-(--color-text) hover:border-(--color-accent-text)"
           />
         </div>
       </div>

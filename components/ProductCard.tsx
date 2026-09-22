@@ -35,7 +35,7 @@ export function ProductCard({
           </span>
         ) : null}
         {product.promoPrice != null && product.promoPrice < product.price ? (
-          <span className="absolute right-2.5 top-2.5 rounded-(--radius-pill) bg-(--color-highlight-soft) px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-(--color-highlight)">
+          <span className="absolute right-2.5 top-2.5 rounded-(--radius-pill) bg-(--color-surface) px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-(--color-text)">
             Oferta
           </span>
         ) : null}

@@ -106,24 +106,25 @@ export function Header() {
   if (isConversationScreenPath(pathname)) return null;
 
   return (
-    <header className="sticky top-0 z-30 bg-(--color-surface)/95 backdrop-blur-md md:border-b md:border-(--color-border)">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4 sm:px-6">
+    <header className="sticky top-0 z-30 border-b border-(--color-border) bg-(--color-bg)/95 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:gap-5">
         <Link href="/" className="group relative shrink-0 py-2 text-xl font-bold tracking-tight text-(--color-text)">
           Jobê<span className="text-(--color-accent-text)">.</span>
           <span className="absolute bottom-0 left-0 h-0.5 w-5 rounded-full bg-(--color-accent) transition-[width] group-hover:w-8" />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {navigationLinks.map((link) => (
+        <nav aria-label="Navegação do cabeçalho" className="hidden items-center gap-1 md:flex">
+          {navigationLinks.filter((link) => !link.compact && link.href !== "/dashboard/oportunidades").map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`${link.compact ? "hidden xl:block" : ""} px-2 py-2 text-sm text-(--color-text-muted) transition-colors hover:text-(--color-text)`}
+              aria-current={pathname === link.href ? "page" : undefined}
+              className={`whitespace-nowrap px-2 py-3 text-sm transition-colors hover:text-(--color-text) ${pathname === link.href ? "font-semibold text-(--color-text)" : "text-(--color-text-muted)"}`}
             >
               {link.label}
             </Link>
           ))}
-          <div className="relative">
+          <div className="relative hidden xl:block">
             <button
               type="button"
               onClick={() => setCategoriesOpen((v) => !v)}
@@ -152,18 +153,21 @@ export function Header() {
 
         <form
           action="/descobrir"
-          className="ml-auto hidden max-w-xs flex-1 items-center gap-2 rounded-(--radius-pill) border border-(--color-border) bg-(--color-surface) px-4 py-2 md:flex"
+          role="search"
+          aria-label="Buscar no site"
+          className="ml-auto hidden min-w-0 max-w-52 flex-1 items-center gap-2 rounded-(--radius-pill) border border-(--color-border) bg-(--color-bg) px-4 py-2 xl:flex"
         >
           <Search size={14} className="text-(--color-text-subtle)" strokeWidth={1.5} />
           <input
             name="q"
             type="search"
-            placeholder="Buscar produtos ou criadores"
+            aria-label="Buscar serviços, produtos e profissionais"
+            placeholder="Buscar no Jobê"
             className="w-full bg-transparent text-sm text-(--color-text) placeholder:text-(--color-text-subtle) focus:outline-none"
           />
         </form>
 
-        <div className="ml-auto flex items-center gap-1 md:ml-0 md:gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-1 md:gap-2">
           <div className="hidden items-center gap-2 md:flex">
             <NotificationBell />
             {!authEmail ? (

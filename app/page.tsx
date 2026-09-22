@@ -68,13 +68,13 @@ export default function HomePage() {
             id="home-title"
             className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:text-5xl lg:text-6xl"
           >
-            Encontre. Compare.
+            Sua ideia merece
             <br />
-            <span className="text-(--color-accent-text)">Faça acontecer.</span>
+            alguém que faça.
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-text-muted) sm:text-lg">
-            Contrate profissionais, compre produtos prontos ou peça exatamente o
-            que precisa. No Jobê, você conhece quem faz antes de escolher.
+            Encontre serviços e produtos digitais para o seu próximo projeto.
+            Compare opções, conheça quem faz e converse antes de decidir.
           </p>
           <form
             action="/descobrir"
@@ -95,7 +95,7 @@ export default function HomePage() {
               name="q"
               type="search"
               maxLength={160}
-              placeholder="Busque por serviço, produto ou profissional"
+              placeholder="O que você precisa?"
               className="min-w-0 flex-1 bg-transparent py-3 text-base text-(--color-text) outline-none placeholder:text-(--color-text-muted)"
             />
             <button className="min-h-12 shrink-0 rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">
@@ -104,10 +104,10 @@ export default function HomePage() {
           </form>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Link
-              href="/descobrir"
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
+              href="/oportunidades/nova"
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-(--color-border) px-5 text-sm font-semibold text-(--color-text) hover:border-(--color-accent-text)"
             >
-              Explorar agora
+              Prefiro publicar um pedido
             </Link>
             <Link
               href="/dashboard"
@@ -133,11 +133,11 @@ export default function HomePage() {
           aria-label="Formas de comprar no Jobê"
           className="border-t border-(--color-border) pt-6 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"
         >
-          <p className="text-sm font-medium text-(--color-highlight)">
+          <p className="text-sm font-medium text-(--color-text-muted)">
             Escolha como começar
           </p>
           <h2 className="mt-1 text-xl font-semibold text-(--color-text)">
-            Compre pronto ou peça sob medida
+            Do seu jeito, no seu tempo
           </h2>
           {[
             [
@@ -231,21 +231,12 @@ export default function HomePage() {
           label="Todas as categorias"
         />
         <div className="mt-6 grid grid-cols-2 gap-x-6 sm:grid-cols-4">
-          {categories.map(([slug, name, description], i) => (
+          {categories.map(([slug, name, description]) => (
             <Link
               key={slug}
               href={"/categorias/" + slug}
-              className="group border-b border-(--color-border) py-5"
+              className="group border-b border-(--color-border) py-4 transition-colors hover:border-(--color-text-muted)"
             >
-              <span
-                className={
-                  "mb-3 inline-block h-2 w-8 rounded-full " +
-                  (i % 2 === 0
-                    ? "bg-(--color-accent)"
-                    : "bg-(--color-highlight)")
-                }
-                aria-hidden="true"
-              />
               <span className="flex items-center justify-between gap-2 text-base font-semibold text-(--color-text)">
                 {name}
                 <ArrowUpRight
@@ -291,8 +282,8 @@ export default function HomePage() {
             ],
           ].map(([title, text], i) => (
             <li key={title}>
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-(--color-accent-soft) text-sm font-semibold text-(--color-accent-text)">
-                {i + 1}
+              <span className="inline-flex h-9 items-center text-sm font-medium tabular-nums text-(--color-text-subtle)">
+                0{i + 1}
               </span>
               <h3 className="mb-2 mt-3 text-lg font-semibold">{title}</h3>
               <p className="max-w-sm text-sm leading-relaxed text-(--color-text-muted)">
@@ -309,21 +300,20 @@ export default function HomePage() {
           <ArrowUpRight size={16} aria-hidden="true" />
         </Link>
       </section>
-      <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-sm sm:p-10">
+      <section className="border-y border-(--color-border) py-8 sm:py-12">
         <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          Transforme seu talento em renda extra hoje!
+          Tem um trabalho para mostrar?
         </h2>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
-          No Jobê, pessoas estão procurando exatamente o que você sabe fazer.
-          Publique seus serviços, mostre seu trabalho pra quem precisa e comece
-          a fechar pedidos. Comece agora e veja seus ganhos crescerem!
+          Crie seu perfil, publique serviços ou produtos digitais e converse com
+          quem procura o que você oferece.
         </p>
         <div className="mt-6 border-t border-(--color-border) pt-6">
           <Link
             href="/dashboard"
             className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
           >
-            Quero oferecer meus serviços{" "}
+            Quero oferecer meu trabalho{" "}
             <ArrowUpRight size={18} aria-hidden="true" />
           </Link>
         </div>
@@ -408,7 +398,7 @@ async function OpportunitySpotlight() {
               Descreva o serviço ou produto que procura. Profissionais interessados podem responder e enviar uma proposta pelo Jobê.
             </p>
             <div className="mt-6 flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
-              <Link href="/oportunidades/nova" className="inline-flex min-h-11 items-center rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">
+              <Link href="/oportunidades/nova" className="inline-flex min-h-11 items-center justify-center rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">
                 Publicar o que preciso
               </Link>
               <Link href="/oportunidades" className="inline-flex min-h-11 items-center gap-2 px-1 text-sm font-semibold text-(--color-text) underline decoration-(--color-border) underline-offset-4 hover:decoration-(--color-text)">
@@ -462,7 +452,7 @@ async function Vitrine() {
   return (
     <section id="vitrine" className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16">
       <SectionHeading
-        title="Encontre seu próximo Jobê"
+        title="Explore o que já está disponível"
         description="Serviços para contratar. Produtos digitais para levar sua ideia adiante."
         href="/descobrir"
         label="Explorar tudo"
@@ -479,7 +469,7 @@ async function Vitrine() {
       {gigs.length ? (
         <div className="mt-8">
           <h3 className="mb-4 text-lg font-semibold">
-            Serviços de quem sabe fazer
+            Serviços para o seu projeto
           </h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {gigs.slice(0, 4).map((gig) => (
