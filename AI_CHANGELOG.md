@@ -3,6 +3,24 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-22 — Atalho condicional para o feed de oportunidades
+
+### Objetivo
+
+- Dar acesso rápido ao feed de pedidos sem mostrar uma opção inútil para compradores comuns.
+
+### Mudanças
+
+- `components/Header.tsx`: o cabeçalho consulta o campo `roles` do perfil autenticado e adiciona
+  “Feed de oportunidades” à navegação desktop e ao menu mobile somente quando a conta possui o
+  papel `creator`.
+- Visitantes, compradores e contas sem perfil de criador continuam vendo a navegação anterior.
+- A troca de sessão atualiza tanto a identidade exibida quanto a visibilidade do atalho.
+
+### Validação
+
+- ESLint, TypeScript e `git diff --check` concluídos sem erros.
+
 ## 2026-09-21 — Destaque de pedidos na home e feed exclusivo para criadores
 
 ### Objetivo

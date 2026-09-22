@@ -30,6 +30,12 @@ const NAV_LINKS = [
   { href: "/descobrir?ofertas=1", label: "Ofertas", compact: true },
 ];
 
+const CREATOR_FEED_LINK = {
+  href: "/dashboard/oportunidades",
+  label: "Feed de oportunidades",
+  compact: false,
+};
+
 export function Header() {
   const creatorUsername = useCreatorUsername();
 
@@ -46,16 +52,46 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
+  const [isCreator, setIsCreator] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const navigationLinks = isCreator
+    ? [NAV_LINKS[0], CREATOR_FEED_LINK, ...NAV_LINKS.slice(1)]
+    : NAV_LINKS;
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setAuthEmail(data.user?.email ?? null));
+    let active = true;
+
+    async function syncAccount(user: { id: string; email?: string } | null) {
+      if (!active) return;
+      setAuthEmail(user?.email ?? null);
+      if (!user) {
+        setIsCreator(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("roles")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (active) {
+        setIsCreator(Array.isArray(data?.roles) && data.roles.includes("creator"));
+      }
+    }
+
+    supabase.auth.getUser().then(({ data }) => syncAccount(data.user));
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => setAuthEmail(session?.user?.email ?? null));
-    return () => subscription.unsubscribe();
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      void syncAccount(session?.user ?? null);
+    });
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   async function handleSignOut() {
@@ -78,7 +114,7 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {NAV_LINKS.map((link) => (
+          {navigationLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -204,7 +240,7 @@ export function Header() {
           ) : null}
           <div className="grid grid-cols-2 gap-1">
             {[
-              ...NAV_LINKS,
+              ...navigationLinks,
               ...(!authEmail ? [{ href: "/entrar", label: "Entrar" }, { href: "/cadastro", label: "Criar conta" }] : []),
               ...ACCOUNT_LINKS,
             ].map((link) => (
