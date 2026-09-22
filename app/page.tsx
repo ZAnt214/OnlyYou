@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cache, Suspense } from "react";
 import type { Metadata } from "next";
-import { ArrowUpRight, BriefcaseBusiness, Search } from "lucide-react";
+import { ArrowUpRight, Search } from "lucide-react";
 import type { Gig, Product, ServiceRequest, User } from "@/lib/types";
 import { createPublicClient } from "@/lib/supabase/public";
 import { listActiveGigs } from "@/lib/supabase/gigs";
@@ -398,42 +398,39 @@ async function OpportunitySpotlight() {
 
   return (
     <section id="oportunidades" className="scroll-mt-24 py-12 sm:py-16">
-      <div className="overflow-hidden rounded-3xl border border-(--color-accent-text) bg-(--color-surface) shadow-sm">
-        <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[0.8fr_1.2fr] lg:p-10">
+      <div className="border-y border-(--color-border) bg-(--color-surface) sm:rounded-2xl sm:border sm:shadow-sm">
+        <div className="grid gap-8 px-1 py-7 sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:p-10">
           <div className="flex flex-col items-start">
-            <span className="inline-flex items-center gap-2 rounded-full bg-(--color-accent-soft) px-3 py-1.5 text-xs font-semibold text-(--color-accent-text)">
-              <BriefcaseBusiness size={15} aria-hidden="true" />
-              Novo jeito de contratar
-            </span>
-            <h2 className="mt-5 max-w-lg text-3xl font-semibold tracking-tight text-(--color-text) sm:text-4xl">
-              Diga o que você precisa. Quem sabe fazer encontra você.
+            <p className="text-sm font-medium text-(--color-text-muted)">Pedidos abertos</p>
+            <h2 className="mt-3 max-w-lg text-2xl font-semibold leading-tight tracking-tight text-(--color-text) sm:text-3xl">
+              Publique o que precisa e encontre quem pode fazer.
             </h2>
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-(--color-text-muted) sm:text-base">
-              Publique o serviço ou produto que procura e receba respostas de profissionais interessados, com conversa, proposta e pagamento pelo Jobê.
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
+              Descreva o serviço ou produto que procura. Profissionais interessados podem responder e enviar uma proposta pelo Jobê.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
               <Link href="/oportunidades/nova" className="inline-flex min-h-11 items-center rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">
                 Publicar o que preciso
               </Link>
-              <Link href="/oportunidades" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-(--color-border) px-5 text-sm font-semibold text-(--color-text) hover:border-(--color-accent-text)">
-                Ver pedidos publicados <ArrowUpRight size={16} aria-hidden="true" />
+              <Link href="/oportunidades" className="inline-flex min-h-11 items-center gap-2 px-1 text-sm font-semibold text-(--color-text) underline decoration-(--color-border) underline-offset-4 hover:decoration-(--color-text)">
+                Ver todos os pedidos <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
             </div>
           </div>
 
-          <div className="divide-y divide-(--color-border) border-y border-(--color-border)">
+          <div>
+            <h3 className="border-b border-(--color-border) pb-3 text-sm font-semibold text-(--color-text)">Pedidos recentes</h3>
+            <div className="divide-y divide-(--color-border)">
             {requests.length ? requests.map((request) => (
               <OpportunityPreview key={request.id} request={request} />
             )) : (
-              <div className="flex min-h-48 flex-col justify-center py-6">
+              <div className="flex min-h-32 flex-col justify-center py-6">
                 <p className="text-sm font-semibold text-(--color-text)">O próximo pedido pode começar por você.</p>
                 <p className="mt-1 text-sm text-(--color-text-muted)">Conte o que procura e abra espaço para profissionais apresentarem boas soluções.</p>
               </div>
             )}
+            </div>
           </div>
-        </div>
-        <div className="bg-(--color-accent) px-6 py-3 text-center text-sm font-semibold text-(--color-on-accent)">
-          Profissionais encontram novos trabalhos. Pessoas encontram quem resolve.
         </div>
       </div>
     </section>
@@ -444,8 +441,8 @@ function OpportunityPreview({ request }: { request: ServiceRequest }) {
   return (
     <Link href="/oportunidades" className="group flex items-center justify-between gap-4 py-5">
       <span className="min-w-0">
-        <span className="block text-xs font-semibold text-(--color-accent-text)">Alguém está procurando</span>
-        <span className="mt-1 block truncate text-base font-semibold text-(--color-text)">{request.title}</span>
+        <span className="block text-xs text-(--color-text-subtle)">Publicado recentemente</span>
+        <span className="mt-1 block truncate text-sm font-semibold text-(--color-text) sm:text-base">{request.title}</span>
         <span className="mt-1 block text-sm text-(--color-text-muted)">
           {request.budgetCents ? `Orçamento de até ${(request.budgetCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}` : "Orçamento a combinar"}
         </span>
@@ -456,7 +453,7 @@ function OpportunityPreview({ request }: { request: ServiceRequest }) {
 }
 
 function OpportunitySpotlightSkeleton() {
-  return <div className="my-12 h-80 animate-pulse rounded-3xl bg-(--color-surface-2)" aria-label="Carregando pedidos publicados" />;
+  return <div className="my-12 h-64 animate-pulse rounded-2xl bg-(--color-surface-2)" aria-label="Carregando pedidos publicados" />;
 }
 
 async function Vitrine() {

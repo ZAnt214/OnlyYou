@@ -3,6 +3,26 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-22 — Destaque de oportunidades mais limpo
+
+### Objetivo
+
+- Corrigir o peso visual excessivo do bloco de oportunidades na home e retirar elementos com
+  aparência de interface gerada por IA.
+
+### Mudanças
+
+- `app/page.tsx`: removidos o selo rosa com ícone, a borda colorida e a faixa rosa inferior.
+- O título ficou menor, mais direto e com quebras naturais no celular.
+- A descrição foi encurtada, o segundo CTA virou um link discreto e os pedidos recentes ganharam
+  uma apresentação mais compacta e neutra.
+- O bloco usa apenas bordas e superfícies do design system, sem texto decorativo sobre fundo
+  colorido e sem ícones de IA.
+
+### Validação
+
+- ESLint, TypeScript e `git diff --check` concluídos sem erros.
+
 ## 2026-09-22 — Oportunidades públicas na barra mobile
 
 ### Objetivo
