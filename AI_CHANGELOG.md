@@ -3,6 +3,24 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-22 — Oportunidades na barra inferior mobile
+
+### Objetivo
+
+- Colocar o acesso ao feed exclusivo no menu flutuante inferior indicado no mobile.
+
+### Mudanças
+
+- `components/MobileNav.tsx`: contas com papel `creator` recebem uma aba “Oportunidades”, com
+  ícone próprio, apontando para `/dashboard/oportunidades`.
+- A aba é omitida para visitantes e compradores comuns após consultar os papéis do perfil real.
+- Ao entrar no feed, somente a nova aba fica ativa; o item geral da área do criador não acende ao
+  mesmo tempo.
+
+### Validação
+
+- ESLint, TypeScript e `git diff --check` concluídos sem erros.
+
 ## 2026-09-22 — Atalho condicional para o feed de oportunidades
 
 ### Objetivo
