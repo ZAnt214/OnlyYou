@@ -2,13 +2,11 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/supabase/session";
 import { getServerPaymentProvider } from "@/lib/payments/getServerPaymentProvider";
 import { markConfirmationRefunded } from "@/lib/payments/paymentConfirmations";
-import { userRepository } from "@/lib/repositories/UserRepository";
 
 /** Só admins podem acionar reembolso — nunca o comprador ou o criador direto. */
 export async function POST(request: Request) {
   const realUser = await getCurrentUser();
-  const admin = realUser ?? (await userRepository.findMockCurrentAdmin());
-  if (!admin.roles.includes("admin")) {
+  if (!realUser?.roles.includes("admin")) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 403 });
   }
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { creators } from "@/lib/data/users";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 
 /**
@@ -21,14 +20,18 @@ import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
  * memoizada em getCurrentCreatorClient(), então Header e MobileNav
  * compartilham a mesma, sem duplicar rede.
  */
-export function useCreatorUsername(): string {
-  const [username, setUsername] = useState(creators[0].username);
+export function useCreatorUsername(): string | null {
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    getCurrentCreatorClient().then((user) => {
-      if (!cancelled) setUsername(user.username);
-    });
+    getCurrentCreatorClient()
+      .then((user) => {
+        if (!cancelled) setUsername(user.username);
+      })
+      .catch(() => {
+        if (!cancelled) setUsername(null);
+      });
     return () => {
       cancelled = true;
     };

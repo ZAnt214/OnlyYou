@@ -20,9 +20,8 @@ function needsVerifiedIdentity(pathname: string): boolean {
 /**
  * Renova a sessão do Supabase a cada request. O Jobê é um marketplace
  * público (a maior parte das páginas não exige login), então este proxy
- * só mantém a sessão viva — não redireciona ninguém. Proteção de rota
- * específica (ex.: dashboard exigir login de verdade) é uma decisão
- * separada, ainda não aplicada nesta etapa.
+ * só mantém a sessão viva. As áreas privadas fazem a autorização no
+ * servidor antes de renderizar qualquer conteúdo.
  */
 export async function updateSession(request: NextRequest) {
   // O middleware roda em praticamente toda request (ver matcher abaixo),

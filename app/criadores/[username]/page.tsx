@@ -29,9 +29,7 @@ export default async function CreatorProfilePage({
   const creator = realProfile ?? (await userRepository.findByUsername(username));
   if (!creator) notFound();
 
-  const isOwnProfile = currentUserId
-    ? currentUserId === creator.id
-    : creator.id === (await userRepository.findMockCurrentCreator()).id;
+  const isOwnProfile = currentUserId === creator.id;
 
   // Pessoa real, logada, vendo o próprio perfil, mas ainda não é criadora
   // (roles sem "creator" -> mapProfileRowToUser não preencheu creatorProfile).

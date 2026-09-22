@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { User } from "@/lib/types";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { createClient } from "@/lib/supabase/client";
 import { mapProfileRowToUser, type ProfileRow } from "@/lib/supabase/profile";
 
@@ -15,9 +14,7 @@ export default function DashboardConfiguracoesPage() {
   const [offeringsDescription, setOfferingsDescription] = useState("");
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  // Sem sessão Supabase real: mantém o comportamento mock de sempre
-  // (updateCreatorProfile em memória via UserRepository). Com sessão real:
-  // lê o perfil público e grava somente pela RPC controlada. O cliente não
+  // Lê o perfil autenticado e grava somente pela RPC controlada. O cliente não
   // possui UPDATE direto em profiles, então campos internos como roles,
   // verificação e avaliações não podem ser alterados pela API pública.
   const [realUserId, setRealUserId] = useState<string | null>(null);
@@ -46,12 +43,6 @@ export default function DashboardConfiguracoesPage() {
         }
       }
 
-      const c = await userRepository.findMockCurrentCreator();
-      setCreator(c);
-      setDisplayName(c.displayName);
-      setBio(c.creatorProfile?.bio ?? "");
-      setOfferings((c.creatorProfile?.offerings ?? []).join(", "));
-      setOfferingsDescription(c.creatorProfile?.offeringsDescription ?? "");
     })();
   }, []);
 
@@ -66,25 +57,17 @@ export default function DashboardConfiguracoesPage() {
       .map((tag) => tag.trim())
       .filter(Boolean);
 
-    if (realUserId) {
-      const supabase = createClient();
-      const { error } = await supabase.rpc("update_my_creator_profile", {
-        p_display_name: displayName,
-        p_bio: bio,
-        p_offerings: offeringsList,
-        p_offerings_description: offeringsDescription,
-      });
-      if (error) {
-        setSaveError(error.message);
-        return;
-      }
-    } else {
-      await userRepository.updateCreatorProfile(creator.id, {
-        displayName,
-        bio,
-        offerings: offeringsList,
-        offeringsDescription,
-      });
+    if (!realUserId) return;
+    const supabase = createClient();
+    const { error } = await supabase.rpc("update_my_creator_profile", {
+      p_display_name: displayName,
+      p_bio: bio,
+      p_offerings: offeringsList,
+      p_offerings_description: offeringsDescription,
+    });
+    if (error) {
+      setSaveError(error.message);
+      return;
     }
     setSaved(true);
   }

@@ -61,30 +61,6 @@ export class MockUserRepository implements UserRepository {
   }
 
   /**
-   * Nesta fase de mock não há autenticação real: a área do criador
-   * (dashboard) sempre opera como se a pessoa usuária fosse esta criadora
-   * verificada, para permitir navegar por todas as telas com dados
-   * consistentes.
-   */
-  async findMockCurrentCreator(): Promise<User> {
-    return creators[0];
-  }
-
-  /**
-   * Mesma ideia de "sessão mock fixa" usada por findMockCurrentCreator(),
-   * só que para a área administrativa: toda página /admin/* server-side
-   * consulta este usuário para decidir se autoriza o acesso.
-   *
-   * TODO(integração): autenticação real e autorização server-side (sessão,
-   * JWT, ou equivalente) — este check hoje usa um usuário mock fixo.
-   */
-  async findMockCurrentAdmin(): Promise<User> {
-    const admin = allUsers.find((u) => u.roles.includes("admin"));
-    if (!admin) throw new Error("Nenhum usuário admin mock encontrado.");
-    return admin;
-  }
-
-  /**
    * Mutação em memória, sem banco de dados: atualiza o objeto do usuário
    * diretamente no array mock. Persiste apenas enquanto o processo do
    * servidor estiver de pé (mesmo padrão usado por ReportRepository e

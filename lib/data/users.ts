@@ -172,6 +172,5 @@ export const buyers: User[] = [
 ];
 
 // Usuário mock usado como "sessão atual" por padrão (comprador logado).
-export const mockCurrentUser: User = buyers[0];
 
 export const allUsers: User[] = [...creators, ...buyers];

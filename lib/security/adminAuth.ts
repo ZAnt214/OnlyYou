@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import { getCurrentUser } from "@/lib/supabase/session";
 
 /**
@@ -11,18 +10,14 @@ import { getCurrentUser } from "@/lib/supabase/session";
  * roles é uma coluna com UPDATE revogado de `authenticated` (ver migration
  * de public.profiles), então ninguém consegue se autopromover a admin pela
  * API pública; só um processo com acesso direto ao banco altera isso.
- * Sem sessão real, cai no admin mock de sempre (comportamento de demo
- * inalterado).
- *
  * TODO(integração): quando existirem outros papéis administrativos
  * (moderator, support), refinar essa checagem além de só
  * `roles.includes("admin")`.
  */
 export async function requireAdmin() {
   const realUser = await getCurrentUser();
-  const admin = realUser ?? (await userRepository.findMockCurrentAdmin());
-  if (!admin.roles.includes("admin")) {
+  if (!realUser?.roles.includes("admin")) {
     notFound();
   }
-  return admin;
+  return realUser;
 }

@@ -13,7 +13,6 @@ import { orders as seedOrders } from "@/lib/data/orders";
 import { payments as seedPayments } from "@/lib/data/payments";
 import { sales as seedSales } from "@/lib/data/sales";
 import { entitlements as seedEntitlements } from "@/lib/data/entitlements";
-import { mockCurrentUser } from "@/lib/data/users";
 import { createClient } from "@/lib/supabase/client";
 
 /**
@@ -34,7 +33,7 @@ import { createClient } from "@/lib/supabase/client";
 const STORAGE_KEY = "jobe:mock-session:v1";
 
 export interface MockSessionState {
-  currentUserId: string;
+  currentUserId: string | null;
   orders: Order[];
   payments: Payment[];
   sales: Sale[];
@@ -44,7 +43,7 @@ export interface MockSessionState {
 
 function getInitialState(): MockSessionState {
   return {
-    currentUserId: mockCurrentUser.id,
+    currentUserId: null,
     orders: seedOrders,
     payments: seedPayments,
     sales: seedSales,
@@ -76,7 +75,9 @@ function hydrateOnce() {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<MockSessionState>;
-      store = { ...store, ...parsed };
+      // Identidade nunca é restaurada do estado mock. Quem está logado é
+      // definido exclusivamente pelo Supabase Auth abaixo.
+      store = { ...store, ...parsed, currentUserId: null };
     }
   } catch {
     // Ignora dados corrompidos e mantém o estado inicial.
@@ -104,7 +105,7 @@ function getServerSnapshot(): MockSessionState {
 }
 
 export interface MockSessionContextValue extends MockSessionState {
-  setCurrentUserId: (id: string) => void;
+  setCurrentUserId: (id: string | null) => void;
   addOrder: (order: Order) => void;
   updateOrder: (id: string, patch: Partial<Order>) => void;
   addPayment: (payment: Payment) => void;
@@ -133,7 +134,10 @@ export function MockSessionProvider({ children }: { children: ReactNode }) {
 
     supabase.auth.getUser().then(async ({ data }) => {
       const user = data.user;
-      if (!user || cancelled) return;
+      if (!user || cancelled) {
+        if (!cancelled) setStore((s) => ({ ...s, currentUserId: null }));
+        return;
+      }
       // Confirma que existe uma linha em profiles para este id antes de
       // assumir a identidade (deveria sempre existir, via trigger de
       // signup, mas evita assumir um id sem perfil correspondente).
@@ -148,10 +152,9 @@ export function MockSessionProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setStore((s) => ({ ...s, currentUserId: session.user.id }));
+      } else {
+        setStore((s) => ({ ...s, currentUserId: null }));
       }
-      // Sem sessão (logout): mantém currentUserId como está — não há
-      // redirecionamento forçado nesta fase, então reverter para o
-      // comprador mock não é necessário nem esperado.
     });
 
     return () => {

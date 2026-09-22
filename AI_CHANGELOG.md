@@ -3,6 +3,16 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-22 — Remoção da conta mock em dispositivos sem login
+
+- A identidade mock “Ana Rubi” deixou de ser iniciada ou restaurada pelo `MockSessionProvider`;
+  somente uma sessão válida do Supabase define `currentUserId`.
+- Dashboard e administração agora recusam visitantes no servidor, sem fallback para creator ou
+  administrador mock; o endpoint de reembolso recebeu a mesma proteção.
+- Links da área do criador deixaram de apontar para um perfil mock enquanto a sessão não existe.
+- Perfil próprio, configurações e denúncias também deixaram de assumir uma identidade fictícia.
+- Dados demonstrativos continuam disponíveis apenas como conteúdo público da vitrine.
+
 ## 2026-09-22 — Proteção das contas e ativação segura de creators
 
 - Removida a permissão de escrita direta de contas anônimas e autenticadas em `profiles`.

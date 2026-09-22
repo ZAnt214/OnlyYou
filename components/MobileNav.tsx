@@ -17,10 +17,10 @@ export function MobileNav() {
     { href: "/biblioteca", label: "Biblioteca", icon: Library },
     { href: "/pedidos", label: "Mensagens", icon: MessageSquare },
     {
-      href: `/criadores/${creatorUsername}`,
+      href: creatorUsername ? `/criadores/${creatorUsername}` : "/dashboard",
       label: "Criador",
       icon: LayoutDashboard,
-      matchPrefixes: [`/criadores/${creatorUsername}`, "/dashboard"],
+      matchPrefixes: creatorUsername ? [`/criadores/${creatorUsername}`, "/dashboard"] : ["/dashboard"],
       excludePrefixes: ["/oportunidades", "/dashboard/oportunidades"],
     },
   ];

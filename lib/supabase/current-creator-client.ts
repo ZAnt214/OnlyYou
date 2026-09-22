@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
 import { mapProfileRowToUser, type ProfileRow } from "@/lib/supabase/profile";
-import { userRepository } from "@/lib/repositories/UserRepository";
 import type { User } from "@/lib/types";
 
 /**
@@ -17,48 +16,36 @@ let cachedPromise: Promise<User> | null = null;
 let listenerAttached = false;
 
 async function resolveCreator(): Promise<User> {
-  try {
-    const supabase = createClient();
-    // getSession() lê do armazenamento local (sem round-trip ao servidor
-    // de auth) — suficiente aqui, já que isso só personaliza a tela; não é
-    // uma decisão de autorização, essa continua sendo sempre aplicada pelo
-    // RLS no banco, que nunca confia no que o cliente diz sobre si mesmo.
-    const { data } = await supabase.auth.getSession();
-    const authUser = data.session?.user;
-    if (!authUser) {
-      return userRepository.findMockCurrentCreator();
-    }
+  const supabase = createClient();
+  // getSession() lê do armazenamento local (sem round-trip ao servidor
+  // de auth) — suficiente aqui, já que o layout do dashboard já validou a
+  // identidade no servidor e o banco continua aplicando RLS.
+  const { data } = await supabase.auth.getSession();
+  const authUser = data.session?.user;
+  if (!authUser) throw new Error("Sessão necessária para acessar a área do criador.");
 
-    const { data: row, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", authUser.id)
-      .single();
+  const { data: row, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", authUser.id)
+    .single();
 
-    if (error || !row) {
-      return userRepository.findMockCurrentCreator();
-    }
+  if (error || !row) throw new Error("Perfil autenticado não encontrado.");
 
-    return mapProfileRowToUser(row as ProfileRow);
-  } catch {
-    return userRepository.findMockCurrentCreator();
-  }
+  const user = mapProfileRowToUser(row as ProfileRow);
+  if (!user.creatorProfile) throw new Error("A conta ainda não é creator.");
+  return user;
 }
 
 /**
- * Equivalente client-side de "creator = (await getCurrentUser()) ??
- * findMockCurrentCreator()" usado nas páginas server de /dashboard.
- *
  * As telas de /dashboard que são Client Components ("use client", já
  * existiam assim antes desta integração — leem o SaleRepository/etc. via
  * useMockSession) não podem importar
- * lib/supabase/session.ts (server-only, usa next/headers). Este helper faz
- * a mesma resolução de identidade real-com-fallback-mock, mas usando o
- * cliente Supabase do navegador — mesmo padrão já usado em Header.tsx e
- * MockSessionProvider.
+ * lib/supabase/session.ts (server-only, usa next/headers). Este helper
+ * resolve somente a identidade real do Supabase no navegador.
  *
- * app/dashboard/layout.tsx (Server Component) já garante que uma pessoa
- * real sem papel de criadora nunca chega a renderizar estas páginas.
+ * app/dashboard/layout.tsx garante que visitantes e compradores comuns
+ * nunca chegam a renderizar estas páginas.
  */
 export async function getCurrentCreatorClient(): Promise<User> {
   if (!listenerAttached) {
