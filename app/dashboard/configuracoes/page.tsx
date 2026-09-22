@@ -17,9 +17,9 @@ export default function DashboardConfiguracoesPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   // Sem sessão Supabase real: mantém o comportamento mock de sempre
   // (updateCreatorProfile em memória via UserRepository). Com sessão real:
-  // lê/grava diretamente em public.profiles, restrito pelo RLS à própria
-  // linha (auth.uid() = id) e apenas às colunas liberadas para
-  // `authenticated` (roles/verification_status nunca são enviadas daqui).
+  // lê o perfil público e grava somente pela RPC controlada. O cliente não
+  // possui UPDATE direto em profiles, então campos internos como roles,
+  // verificação e avaliações não podem ser alterados pela API pública.
   const [realUserId, setRealUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -68,16 +68,12 @@ export default function DashboardConfiguracoesPage() {
 
     if (realUserId) {
       const supabase = createClient();
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          display_name: displayName,
-          bio,
-          offerings: offeringsList,
-          offerings_description: offeringsDescription,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", realUserId);
+      const { error } = await supabase.rpc("update_my_creator_profile", {
+        p_display_name: displayName,
+        p_bio: bio,
+        p_offerings: offeringsList,
+        p_offerings_description: offeringsDescription,
+      });
       if (error) {
         setSaveError(error.message);
         return;
