@@ -3,6 +3,24 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-22 — Oportunidades públicas na barra mobile
+
+### Objetivo
+
+- Manter o atalho do feed visível para qualquer pessoa, inclusive visitantes e compradores.
+
+### Mudanças
+
+- `components/MobileNav.tsx`: a aba “Oportunidades” deixou de depender do papel `creator` e agora
+  aparece permanentemente na barra flutuante inferior.
+- O destino passou a ser `/oportunidades`, que é público; ações de responder e enviar proposta
+  continuam exigindo autenticação e as permissões já existentes.
+- Removida a consulta adicional de papel no Supabase feita exclusivamente pela barra mobile.
+
+### Validação
+
+- ESLint, TypeScript e `git diff --check` concluídos sem erros.
+
 ## 2026-09-22 — Oportunidades na barra inferior mobile
 
 ### Objetivo

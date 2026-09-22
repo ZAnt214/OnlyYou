@@ -1,52 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Home, Compass, Library, MessageSquare, LayoutDashboard, BriefcaseBusiness } from "lucide-react";
 import { useCreatorUsername } from "@/lib/supabase/useCreatorUsername";
 import { isConversationScreenPath } from "@/lib/isConversationScreenPath";
-import { createClient } from "@/lib/supabase/client";
 
 export function MobileNav() {
   const pathname = usePathname();
   const creatorUsername = useCreatorUsername();
-  const [isCreator, setIsCreator] = useState(false);
-
-  useEffect(() => {
-    const supabase = createClient();
-    let active = true;
-
-    async function syncCreatorRole(userId?: string) {
-      if (!userId) {
-        if (active) setIsCreator(false);
-        return;
-      }
-      const { data } = await supabase
-        .from("profiles")
-        .select("roles")
-        .eq("id", userId)
-        .maybeSingle();
-      if (active) setIsCreator(Array.isArray(data?.roles) && data.roles.includes("creator"));
-    }
-
-    supabase.auth.getUser().then(({ data }) => void syncCreatorRole(data.user?.id));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      void syncCreatorRole(session?.user?.id);
-    });
-
-    return () => {
-      active = false;
-      subscription.unsubscribe();
-    };
-  }, []);
 
   const TABS = [
     { href: "/", label: "Início", icon: Home },
     { href: "/descobrir", label: "Explorar", icon: Compass },
-    ...(isCreator
-      ? [{ href: "/dashboard/oportunidades", label: "Oportunidades", icon: BriefcaseBusiness }]
-      : []),
+    { href: "/oportunidades", label: "Oportunidades", icon: BriefcaseBusiness },
     { href: "/biblioteca", label: "Biblioteca", icon: Library },
     { href: "/pedidos", label: "Mensagens", icon: MessageSquare },
     {
@@ -54,7 +21,7 @@ export function MobileNav() {
       label: "Criador",
       icon: LayoutDashboard,
       matchPrefixes: [`/criadores/${creatorUsername}`, "/dashboard"],
-      excludePrefixes: ["/dashboard/oportunidades"],
+      excludePrefixes: ["/oportunidades", "/dashboard/oportunidades"],
     },
   ];
 
