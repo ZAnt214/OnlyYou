@@ -3,6 +3,21 @@
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 
+## 2026-09-22 — Fundo integrado no destaque de oportunidades
+
+### Objetivo
+
+- Eliminar o recorte branco do bloco e integrá-lo ao fundo marfim da página inicial.
+
+### Mudanças
+
+- `app/page.tsx`: o destaque de oportunidades passou de `--color-surface` para `--color-bg` e
+  perdeu a sombra, mantendo textos, espaçamentos, ações e divisores inalterados.
+
+### Validação
+
+- ESLint, TypeScript e `git diff --check` concluídos sem erros.
+
 ## 2026-09-22 — Destaque de oportunidades mais limpo
 
 ### Objetivo

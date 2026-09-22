@@ -398,7 +398,7 @@ async function OpportunitySpotlight() {
 
   return (
     <section id="oportunidades" className="scroll-mt-24 py-12 sm:py-16">
-      <div className="border-y border-(--color-border) bg-(--color-surface) sm:rounded-2xl sm:border sm:shadow-sm">
+      <div className="border-y border-(--color-border) bg-(--color-bg) sm:rounded-2xl sm:border">
         <div className="grid gap-8 px-1 py-7 sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:p-10">
           <div className="flex flex-col items-start">
             <p className="text-sm font-medium text-(--color-text-muted)">Pedidos abertos</p>
