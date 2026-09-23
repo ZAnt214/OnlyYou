@@ -37,6 +37,7 @@ import {
   cancelCustomProposal,
   expireUnpaidCustomProposal,
   createCustomServiceOrder,
+  sendCustomAttachment,
   sendCustomDelivery,
   confirmCustomReceipt,
   reportCustomOrderProblem,
@@ -167,6 +168,10 @@ export function ConversationView({
   const [blocked, setBlocked] = useState(false);
   const [problemReason, setProblemReason] = useState("");
   const [showProblemForm, setShowProblemForm] = useState(false);
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [attachmentCaption, setAttachmentCaption] = useState("");
+  const [showAttachmentForm, setShowAttachmentForm] = useState(false);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [deliveryFile, setDeliveryFile] = useState<File | null>(null);
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
   const [uploadingDelivery, setUploadingDelivery] = useState(false);
@@ -247,9 +252,9 @@ export function ConversationView({
         .eq("id", counterpartId)
         .maybeSingle();
 
-      const deliveryMessages = msgs.filter((m) => m.type === "delivery");
+      const messagesWithFiles = msgs.filter((m) => m.type === "delivery" || m.type === "attachment");
       const attachmentEntries = await Promise.all(
-        deliveryMessages.map(async (m) => [m.id, await listAttachmentsForMessage(supabase, m.id)] as const),
+        messagesWithFiles.map(async (m) => [m.id, await listAttachmentsForMessage(supabase, m.id)] as const),
       );
 
       const myReviewRow =
@@ -546,6 +551,39 @@ export function ConversationView({
     }
   }
 
+  async function handleSendAttachment(e: React.FormEvent) {
+    e.preventDefault();
+    if (!customServiceOrder || !conversation || !attachmentFile) return;
+    setError(null);
+    setBusy(true);
+    setUploadingAttachment(true);
+    try {
+      const fileUrl = await uploadFile(attachmentFile, "delivery");
+      await sendCustomAttachment(supabase, {
+        conversationId: conversation.id,
+        customServiceOrderId: customServiceOrder.id,
+        content: attachmentCaption.trim() || "Arquivo enviado para revisão.",
+        attachments: [
+          {
+            fileName: attachmentFile.name,
+            mimeType: attachmentFile.type || "application/octet-stream",
+            sizeBytes: attachmentFile.size,
+            storageKey: fileUrl,
+          },
+        ],
+      });
+      setShowAttachmentForm(false);
+      setAttachmentFile(null);
+      setAttachmentCaption("");
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível enviar o arquivo.");
+    } finally {
+      setBusy(false);
+      setUploadingAttachment(false);
+    }
+  }
+
   async function handleSendDelivery(e: React.FormEvent) {
     e.preventDefault();
     if (!customServiceOrder || !deliveryFile) return;
@@ -717,6 +755,21 @@ export function ConversationView({
               role="menu"
               className="absolute right-0 z-10 mt-2 w-64 rounded-xl border border-(--color-border) bg-(--color-surface) py-1 shadow-lg"
             >
+              {customServiceOrder?.status === "in_progress" && isCreator ? (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setShowAttachmentForm(false);
+                    setShowDeliveryForm(true);
+                  }}
+                  className="flex w-full items-center gap-2 border-b border-(--color-border) px-3 py-2 text-left text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
+                >
+                  <CheckCircle2 size={14} strokeWidth={1.5} />
+                  Finalizar entrega
+                </button>
+              ) : null}
               {reportSent ? (
                 <p className="px-3 py-2 text-sm text-(--color-text-muted)">
                   Denúncia enviada. Nossa equipe vai analisar.
@@ -891,13 +944,91 @@ export function ConversationView({
         </div>
       ) : null}
 
+      {customServiceOrder?.status === "in_progress" && isCreator && showAttachmentForm ? (
+        <div className="absolute inset-0 z-20 flex min-h-0 flex-col gap-3 overflow-y-auto rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-lg">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-(--color-text)">Enviar arquivo</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-(--color-text-muted)">
+                Compartilhe uma versão do trabalho para o cliente revisar. Isso não finaliza o pedido.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowAttachmentForm(false);
+                setAttachmentFile(null);
+                setAttachmentCaption("");
+              }}
+              aria-label="Fechar envio de arquivo"
+              title="Fechar"
+              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-(--color-text-muted) transition-colors hover:bg-(--color-surface-2) hover:text-(--color-text)"
+            >
+              <XCircle size={18} strokeWidth={1.5} />
+            </button>
+          </div>
+          <form onSubmit={handleSendAttachment} className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="attachment-file" className="text-sm font-medium text-(--color-text)">
+                Arquivo
+              </label>
+              <input
+                id="attachment-file"
+                type="file"
+                onChange={(e) => setAttachmentFile(e.target.files?.[0] ?? null)}
+                required
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base file:mr-3 file:rounded-full file:border-0 file:bg-(--color-accent) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-(--color-on-accent) sm:text-sm"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="attachment-caption" className="text-sm font-medium text-(--color-text)">
+                Mensagem para o cliente
+              </label>
+              <textarea
+                id="attachment-caption"
+                rows={2}
+                value={attachmentCaption}
+                onChange={(e) => setAttachmentCaption(e.target.value)}
+                placeholder="Ex.: Veja essa versão e me diga se quer algum ajuste."
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="submit"
+                disabled={busy || !attachmentFile}
+                className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
+              >
+                {uploadingAttachment ? (
+                  <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <Paperclip size={14} strokeWidth={1.5} />
+                )}
+                {uploadingAttachment ? "Enviando arquivo…" : "Enviar arquivo"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAttachmentForm(false);
+                  setAttachmentFile(null);
+                  setAttachmentCaption("");
+                }}
+                className="rounded-md px-3 py-2 text-sm text-(--color-text-muted) hover:text-(--color-text)"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
+
       {customServiceOrder?.status === "in_progress" && isCreator && showDeliveryForm ? (
         <div className="absolute inset-0 z-20 flex min-h-0 flex-col gap-3 overflow-y-auto rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-lg">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-(--color-text)">Enviar entrega</p>
-              <p className="mt-0.5 text-xs text-(--color-text-muted)">
-                Selecione o arquivo final que será entregue ao comprador.
+              <p className="text-sm font-semibold text-(--color-text)">Finalizar entrega</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-(--color-text-muted)">
+                Use esta opção somente quando o trabalho estiver concluído. O comprador poderá confirmar o recebimento ou relatar um problema.
               </p>
             </div>
             <button
@@ -935,9 +1066,9 @@ export function ConversationView({
                 {uploadingDelivery ? (
                   <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
                 ) : (
-                  <Paperclip size={14} strokeWidth={1.5} />
+                  <CheckCircle2 size={14} strokeWidth={1.5} />
                 )}
-                {uploadingDelivery ? "Enviando arquivo…" : "Confirmar entrega"}
+                {uploadingDelivery ? "Finalizando…" : "Finalizar e enviar"}
               </button>
               <button
                 type="button"
@@ -1077,7 +1208,7 @@ export function ConversationView({
       ) : null}
       </div>
 
-      {showProposalForm || showDeliveryForm ? null : isClosed ? (
+      {showProposalForm || showAttachmentForm || showDeliveryForm ? null : isClosed ? (
         <p className="text-center text-xs text-(--color-text-subtle)">Esta conversa está encerrada.</p>
       ) : (
         <form onSubmit={handleSend} className="w-full min-w-0">
@@ -1085,9 +1216,9 @@ export function ConversationView({
             {customServiceOrder?.status === "in_progress" && isCreator ? (
               <button
                 type="button"
-                onClick={() => setShowDeliveryForm(true)}
-                aria-label="Enviar entrega"
-                title="Enviar entrega"
+                onClick={() => setShowAttachmentForm(true)}
+                aria-label="Enviar arquivo para revisão"
+                title="Enviar arquivo para revisão"
                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-(--color-contrast) text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight)"
               >
                 <Paperclip size={18} strokeWidth={1.5} />
@@ -1363,6 +1494,46 @@ function MessageItem({
             Cancelar proposta
           </button>
         ) : null}
+      </div>
+    );
+  }
+
+  if (message.type === "attachment") {
+    const isOwn = message.senderId === actingUserId;
+    return (
+      <div
+        className={`flex max-w-[85%] flex-col gap-2 rounded-xl px-3.5 py-2.5 text-sm shadow-sm sm:max-w-sm ${
+          isOwn
+            ? "self-end bg-(--color-accent) text-(--color-on-accent)"
+            : "self-start bg-(--color-surface-2) text-(--color-text)"
+        }`}
+      >
+        <span className="text-xs font-semibold opacity-75">Arquivo para revisão</span>
+        <span>{message.content}</span>
+        {attachments.map((att) =>
+          att.storageKey.startsWith("http") ? (
+            <a
+              key={att.id}
+              href={att.storageKey}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center gap-1.5 break-all text-xs font-medium hover:underline ${
+                isOwn ? "text-(--color-on-accent)" : "text-(--color-accent-text)"
+              }`}
+            >
+              <Paperclip size={12} strokeWidth={1.5} />
+              {att.fileName} · {(att.size / 1024 / 1024).toFixed(1)} MB
+            </a>
+          ) : (
+            <span key={att.id} className="flex items-center gap-1.5 text-xs opacity-75">
+              <Paperclip size={12} strokeWidth={1.5} />
+              {att.fileName} · {(att.size / 1024 / 1024).toFixed(1)} MB
+            </span>
+          ),
+        )}
+        <span className={`text-[10px] ${isOwn ? "text-(--color-on-accent) opacity-70" : "text-(--color-text-subtle)"}`}>
+          {formatDateTime(message.createdAt)}
+        </span>
       </div>
     );
   }

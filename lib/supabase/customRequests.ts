@@ -595,17 +595,40 @@ export async function createCustomServiceOrder(
   return mapCustomServiceOrder(unwrap(data, error) as CustomServiceOrderRow);
 }
 
-export interface DeliveryAttachmentInput {
+export interface CustomAttachmentInput {
   fileName: string;
   mimeType: string;
   sizeBytes: number;
   storageKey: string;
 }
 
+export async function sendCustomAttachment(
+  supabase: SupabaseClient,
+  params: {
+    conversationId: string;
+    customServiceOrderId: string;
+    content: string;
+    attachments: CustomAttachmentInput[];
+  },
+): Promise<Message> {
+  const { data, error } = await supabase.rpc("send_custom_attachment", {
+    p_conversation_id: params.conversationId,
+    p_custom_service_order_id: params.customServiceOrderId,
+    p_content: params.content,
+    p_attachments: params.attachments.map((a) => ({
+      file_name: a.fileName,
+      mime_type: a.mimeType,
+      size_bytes: a.sizeBytes,
+      storage_key: a.storageKey,
+    })),
+  });
+  return mapMessage(unwrap(data, error) as MessageRow);
+}
+
 export async function sendCustomDelivery(
   supabase: SupabaseClient,
   customServiceOrderId: string,
-  attachments: DeliveryAttachmentInput[],
+  attachments: CustomAttachmentInput[],
 ): Promise<CustomServiceOrder> {
   const { data, error } = await supabase.rpc("send_custom_delivery", {
     p_custom_service_order_id: customServiceOrderId,

@@ -1,5 +1,27 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Separa arquivos de revisão da entrega final
+
+- Objetivo: o criador precisa poder enviar versões do trabalho ao cliente durante a produção para
+  pedir feedback e ajustes, sem transformar cada arquivo enviado em uma entrega final.
+- Banco: nova RPC `send_custom_attachment` cria uma mensagem do tipo `attachment` e grava os
+  arquivos em `message_attachments`, mas mantém `custom_service_orders.status = in_progress`.
+  Ela só aceita o criador do pedido, conversa aberta e pedido em produção. A RPC reutiliza
+  `send_custom_message` para preservar notificação e atualização da conversa.
+- `lib/supabase/customRequests.ts`: adicionada `sendCustomAttachment`.
+- `components/ConversationView.tsx`: o clipe ao lado do compositor agora abre “Enviar arquivo”,
+  com arquivo + mensagem opcional ao cliente e aviso explícito de que isso não finaliza o pedido.
+  Arquivos enviados aparecem como mensagens normais do chat com link para download/visualização.
+- “Finalizar entrega” virou uma ação separada no menu de três pontos do cabeçalho. Só essa ação
+  abre o fluxo de entrega final e chama `sendCustomDelivery`, que continua responsável por mudar
+  o pedido para entregue.
+- O painel de entrega final também ganhou texto mais explícito e o botão “Finalizar e enviar” para
+  reduzir finalizações acidentais.
+- Arquivos: `components/ConversationView.tsx`, `lib/supabase/customRequests.ts`,
+  `supabase/migrations/20260923211500_work_files_before_delivery.sql`, `AI_CHANGELOG.md`.
+- Validação: sem novas cores literais/classes fixas de paleta nos arquivos TSX alterados.
+
+
 ## 2026-09-23 — Move envio de entrega para o compositor e oculta avaliação vazia
 
 - Objetivo: usuário apontou dois elementos que ainda ocupavam espaço ou poluíam o cabeçalho:
