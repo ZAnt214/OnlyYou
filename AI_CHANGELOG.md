@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Move envio de entrega para o compositor e oculta avaliação vazia
+
+- Objetivo: usuário apontou dois elementos que ainda ocupavam espaço ou poluíam o cabeçalho:
+  “Sem avaliações” quebrando em duas linhas e o bloco grande “Enviar entrega” abaixo da conversa.
+- `components/ConversationView.tsx`: a avaliação no cabeçalho agora só aparece quando
+  `counterpartRatingCount > 0`. Sem avaliações, nada é renderizado.
+- Para o criador com pedido `in_progress`, “Enviar entrega” deixa de ocupar um card separado.
+  A ação agora vira um botão compacto com ícone de clipe na mesma linha do campo de mensagem.
+- Ao tocar no clipe, abre um painel interno sobre a área do chat com seleção do arquivo, ação
+  “Confirmar entrega”, botão “Cancelar” e X no cabeçalho. Enquanto esse painel está aberto, o
+  compositor fica oculto, seguindo o mesmo padrão usado pela criação de proposta.
+- O fluxo de upload e envio continua usando `handleSendDelivery`, sem mudança de regra de negócio.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: busca por cores literais/classes fixas de paleta no arquivo alterado, sem ocorrências.
+
+
 ## 2026-09-23 — Aplica a opção 6 ao card de proposta
 
 - Objetivo: usuário escolheu a opção 6 das prévias HTML para o card de proposta no chat.
