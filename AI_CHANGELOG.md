@@ -1,5 +1,51 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Expande categorias de serviço e mostra a taxa da plataforma pro criador
+
+- Objetivo: usuário pediu comparação com o concorrente VintePila (benchmark de preço/formato +
+  ideias de categoria) e, na sequência, pediu pra implementar as duas lacunas identificadas:
+  (1) o criador nunca via quanto ficava com o Jobê antes de publicar um preço — a taxa de 20%
+  só existe no banco (`platform_fee_cents`), nunca aparecia na UI de quem define o valor; (2)
+  `GigCategory` (categoria de serviço personalizado) só tinha 3 valores (`general`, `elojob`,
+  `play_together`), enquanto os produtos já usam uma taxonomia de 39 categorias — nenhuma delas
+  aplicada a serviços.
+- **Categorias de gig** (`supabase/migrations/20260923215541_expand_gig_categories.sql`,
+  aplicada via `apply_migration` e conferida com `get_advisors` antes/depois — sem regressão de
+  segurança): `gigs_category_check` e as RPCs `create_gig`/`update_gig` (`security invoker`,
+  `search_path ''`, mesmo padrão do resto do fluxo de pedidos) passam a aceitar 11 categorias —
+  as 3 antigas + `design`, `programacao`, `marketing`, `videos`, `redacao-e-copywriting`,
+  `ui-ux`, `consultorias` (reaproveitando os slugs que os produtos já usam) e
+  `assistente-virtual` (categoria nova, adicionada também a `lib/data/categories.ts` — não
+  existia em lugar nenhum da plataforma, é o gap mais concreto que o VintePila expôs). Os
+  campos especiais de jogo/elo/duração continuam restritos a `elojob`/`play_together` (antes a
+  condição era "qualquer coisa != general", o que agora pegaria as categorias novas por
+  engano — corrigido pra checar as duas categorias de jogo explicitamente).
+- `lib/types/gig.ts`: `GigCategory` expandido, `GIG_CATEGORY_LABELS` com os novos rótulos, e
+  novo `GAMING_GIG_CATEGORIES` (lista das categorias com campos especiais) pra não espalhar essa
+  lista mágica pelos componentes.
+- `app/dashboard/servicos/page.tsx`: select de categoria lista as 11 opções; bloco de
+  jogo/elo/duração agora só aparece pra `elojob`/`play_together`, não mais pra qualquer coisa
+  diferente de "geral".
+- **Taxa da plataforma pro criador** — `app/dashboard/servicos/page.tsx` (preço do anúncio) e
+  `components/ConversationView.tsx` (valor da proposta na conversa): abaixo do campo de preço,
+  uma linha mostra "Você recebe R$X — Jobê fica com 20%", calculada ao vivo a partir de
+  `platformConfig` (`lib/security/config.ts`, única fonte da porcentagem — nunca hardcoded em
+  outro lugar). Ficou de fora a exibição pro comprador: o modelo do Jobê é o criador absorver a
+  taxa (o comprador paga exatamente o valor combinado, sem taxa somada em cima, diferente do
+  VintePila) — mostrar "taxa" pro comprador seria enganoso, já que ele não paga nada a mais.
+- **Páginas de categoria** — `components/ExploreFilters.tsx` (resultados de busca/`/descobrir`)
+  e `app/categorias/[slug]/page.tsx`: agora reconhecem qualquer uma das 11 categorias de gig
+  (antes só reconheciam elojob/jogue-comigo), então `/categorias/design`,
+  `/categorias/marketing` etc. passam a mostrar os serviços publicados naquela categoria junto
+  com os produtos digitais existentes, em seções separadas.
+- Arquivos: `supabase/migrations/20260923215541_expand_gig_categories.sql` (novo),
+  `lib/types/gig.ts`, `lib/data/categories.ts`, `app/dashboard/servicos/page.tsx`,
+  `components/ConversationView.tsx`, `components/ExploreFilters.tsx`,
+  `app/categorias/[slug]/page.tsx`.
+- Validações: `npx tsc --noEmit`, `npx eslint` nos arquivos alterados e busca por cor fixa —
+  todos sem problemas. `get_advisors` (security) conferido antes e depois da migração, sem
+  novo achado.
+
 ## 2026-09-23 — Cria componente SectionLabel e padroniza as etiquetas de seção
 
 - Objetivo: feedback do usuário — os textos pequenos em caixa alta no topo de cada seção da

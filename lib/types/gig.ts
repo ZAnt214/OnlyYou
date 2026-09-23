@@ -6,10 +6,32 @@
  * a solicitação abre um pedido personalizado (chat) onde os detalhes
  * finais são acertados antes do pagamento. Ver lib/supabase/gigs.ts.
  */
-export type GigCategory = "general" | "elojob" | "play_together";
+export type GigCategory =
+  | "general"
+  | "design"
+  | "programacao"
+  | "marketing"
+  | "videos"
+  | "redacao-e-copywriting"
+  | "ui-ux"
+  | "consultorias"
+  | "assistente-virtual"
+  | "elojob"
+  | "play_together";
+
+/** Categorias com campos especiais de jogo/elo/duração — ver create_gig/update_gig. */
+export const GAMING_GIG_CATEGORIES: readonly GigCategory[] = ["elojob", "play_together"];
 
 export const GIG_CATEGORY_LABELS: Record<GigCategory, string> = {
   general: "Serviço geral",
+  design: "Design",
+  programacao: "Programação",
+  marketing: "Marketing",
+  videos: "Vídeo",
+  "redacao-e-copywriting": "Redação e copywriting",
+  "ui-ux": "UI/UX",
+  consultorias: "Consultoria",
+  "assistente-virtual": "Assistente virtual",
   elojob: "Elojob",
   play_together: "Jogue comigo",
 };

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { uploadFile } from "@/lib/uploadFile";
+import { platformConfig } from "@/lib/security/config";
 import {
   getCustomRequestById,
   listMessagesForConversation,
@@ -954,6 +955,12 @@ export function ConversationView({
                     onChange={(e) => setProposalDraft((d) => ({ ...d, price: e.target.value }))}
                     className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                   />
+                  {Number(proposalDraft.price) > 0 ? (
+                    <span className="text-xs text-(--color-text-subtle)">
+                      Você recebe {formatBRLFromCents(Math.round(Number(proposalDraft.price) * 100 * platformConfig.creatorRevenueShare))}{" "}
+                      (Jobê fica com {Math.round(platformConfig.platformRevenueShare * 100)}%)
+                    </span>
+                  ) : null}
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-(--color-text)">Revisões incluídas</label>

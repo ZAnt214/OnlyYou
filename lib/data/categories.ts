@@ -15,6 +15,7 @@ export const categories: Category[] = [
   { id: "cat-12", slug: "conteudo-exclusivo", name: "Conteúdo exclusivo" },
   { id: "cat-13", slug: "servicos-personalizados", name: "Serviços personalizados" },
   { id: "cat-14", slug: "consultorias", name: "Consultorias" },
+  { id: "cat-40", slug: "assistente-virtual", name: "Assistente virtual" },
   { id: "cat-15", slug: "marketing", name: "Marketing" },
   { id: "cat-16", slug: "social-media", name: "Social Media" },
   { id: "cat-17", slug: "programacao", name: "Programação" },

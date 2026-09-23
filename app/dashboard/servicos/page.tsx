@@ -2,14 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { Clock, Loader2, Megaphone, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
-import { GIG_CATEGORY_LABELS, type Gig, type GigCategory, type User } from "@/lib/types";
+import { GAMING_GIG_CATEGORIES, GIG_CATEGORY_LABELS, type Gig, type GigCategory, type User } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
 import { createGig, deleteGig, listGigsForCreator, updateGig, type GigInput } from "@/lib/supabase/gigs";
 import { uploadFile } from "@/lib/uploadFile";
-import { PriceTag } from "@/components/PriceTag";
+import { PriceTag, formatBRL } from "@/components/PriceTag";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { DashboardLoading } from "@/components/DashboardLoading";
+import { platformConfig } from "@/lib/security/config";
+
+const NON_GAMING_CATEGORIES = Object.keys(GIG_CATEGORY_LABELS).filter(
+  (category) => !GAMING_GIG_CATEGORIES.includes(category as GigCategory),
+) as GigCategory[];
 
 interface FormState {
   title: string;
@@ -358,13 +363,17 @@ export default function DashboardServicosPage() {
                   onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as GigCategory }))}
                   className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
                 >
-                  <option value="general">Serviço geral</option>
-                  <option value="elojob">Elojob</option>
-                  <option value="play_together">Jogue comigo</option>
+                  {NON_GAMING_CATEGORIES.map((category) => (
+                    <option key={category} value={category}>
+                      {GIG_CATEGORY_LABELS[category]}
+                    </option>
+                  ))}
+                  <option value="elojob">{GIG_CATEGORY_LABELS.elojob}</option>
+                  <option value="play_together">{GIG_CATEGORY_LABELS.play_together}</option>
                 </select>
               </label>
 
-              {form.category !== "general" ? (
+              {GAMING_GIG_CATEGORIES.includes(form.category) ? (
                 <div className="flex flex-col gap-3 rounded-xl bg-(--color-surface-2) p-3">
                   <label className="flex flex-col gap-1 text-sm text-(--color-text)">
                     Jogo
@@ -510,6 +519,16 @@ export default function DashboardServicosPage() {
                 Preço e prazo são indicativos — o valor final é combinado na conversa antes do
                 pagamento, igual a qualquer pedido personalizado.
               </p>
+              {inputToCents(form.price) > 0 ? (
+                <p className="text-xs text-(--color-text-subtle)">
+                  Desse valor, o Jobê fica com {Math.round(platformConfig.platformRevenueShare * 100)}%
+                  — você recebe{" "}
+                  <strong className="font-semibold text-(--color-text)">
+                    {formatBRL((inputToCents(form.price) * platformConfig.creatorRevenueShare) / 100)}
+                  </strong>
+                  .
+                </p>
+              ) : null}
               <label className="flex flex-col gap-1 text-sm text-(--color-text)">
                 Imagem de capa (opcional)
                 <div className="flex items-center gap-2">
