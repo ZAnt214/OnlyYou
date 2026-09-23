@@ -61,7 +61,7 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <section
         aria-labelledby="home-title"
-        className="grid gap-10 rounded-3xl bg-gradient-to-br from-(--color-accent-soft) via-(--color-surface) to-(--color-surface) px-5 py-10 sm:px-10 sm:py-16 lg:grid-cols-[1.25fr_0.75fr] lg:items-center lg:gap-16 lg:px-14"
+        className="grid gap-10 rounded-3xl bg-(--color-accent-soft) px-5 py-10 sm:px-10 sm:py-16 lg:grid-cols-[1.25fr_0.75fr] lg:items-center lg:gap-16 lg:px-14"
       >
         <div>
           <h1
