@@ -1226,23 +1226,24 @@ function MessageItem({
 
   if (message.type === "proposal" && proposal) {
     return (
-      <div className="flex w-full max-w-sm flex-col gap-3 self-center rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+      <div className="flex w-full max-w-sm flex-col gap-3 self-center rounded-2xl bg-(--color-contrast) p-4 text-(--color-on-contrast) shadow-lg">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-xs font-medium uppercase tracking-wide text-(--color-text-subtle)">
+          <span className="text-xs font-medium uppercase tracking-wide text-(--color-on-contrast) opacity-65">
             Proposta
           </span>
-          <StatusBadge status={proposal.status} />
+          <StatusBadge status={proposal.status} variant="inline" />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-sm font-semibold text-(--color-text)">{proposal.serviceType}</span>
-          <p className="text-sm text-(--color-text-muted)">{proposal.description}</p>
+          <span className="text-sm font-semibold text-(--color-on-contrast)">{proposal.serviceType}</span>
+          <p className="text-sm leading-relaxed text-(--color-on-contrast) opacity-75">{proposal.description}</p>
         </div>
-        <div className="flex items-end justify-between rounded-xl bg-(--color-surface-2) px-3 py-2">
-          <span className="text-lg font-bold text-(--color-accent-text)">
+        <div className="h-px bg-(--color-on-contrast) opacity-15" />
+        <div className="flex items-end justify-between gap-3">
+          <span className="text-xl font-bold text-(--color-accent)">
             {formatBRLFromCents(proposal.priceCents)}
           </span>
-          <div className="flex flex-col items-end gap-0.5 text-xs text-(--color-text-muted)">
-            <span>Prazo: {proposal.deliveryDays} dias</span>
+          <div className="flex flex-col items-end gap-0.5 text-xs text-(--color-on-contrast) opacity-70">
+            <span>Prazo · {proposal.deliveryDays} dias</span>
             {proposal.revisionCount !== undefined ? (
               <span>
                 {proposal.revisionCount === 0
@@ -1255,7 +1256,7 @@ function MessageItem({
         {proposal.includedItems.length > 0 ? (
           <ul className="flex flex-col gap-0.5">
             {proposal.includedItems.map((item, i) => (
-              <li key={i} className="flex items-start gap-1.5 text-xs text-(--color-text-muted)">
+              <li key={i} className="flex items-start gap-1.5 text-xs text-(--color-on-contrast) opacity-75">
                 <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-(--color-accent)" />
                 {item}
               </li>
@@ -1281,7 +1282,7 @@ function MessageItem({
               type="button"
               disabled={busy}
               onClick={() => onReject(proposal.id)}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-(--color-border) px-3 py-2 text-sm text-(--color-text) hover:bg-(--color-surface-2) disabled:opacity-60"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-(--color-on-contrast) px-3 py-2 text-sm text-(--color-on-contrast) opacity-80 transition-opacity hover:opacity-100 disabled:opacity-60"
             >
               {busy ? (
                 <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
@@ -1293,14 +1294,14 @@ function MessageItem({
           </div>
         ) : null}
         {proposal.status === "accepted" && proposal.paymentDueAt && !hasServiceOrder ? (
-          <p className="text-xs text-(--color-text-subtle)">
+          <p className="text-xs text-(--color-on-contrast) opacity-65">
             Pagamento até {formatDateTime(proposal.paymentDueAt)}
           </p>
         ) : null}
         {/* O botão de pagar some assim que a contratação existe: daí em diante
             quem conduz o pagamento é o painel de Pix, no rodapé da conversa. */}
         {isRequester && proposal.status === "accepted" && !hasServiceOrder ? (
-          <div className="flex flex-col gap-2 border-t border-(--color-border) pt-3">
+          <div className="flex flex-col gap-2 pt-1">
             <button
               type="button"
               disabled={busy}
@@ -1317,7 +1318,7 @@ function MessageItem({
             type="button"
             disabled={busy}
             onClick={() => onCancel(proposal.id)}
-            className="flex items-center justify-center gap-1.5 rounded-full border border-(--color-border) px-3 py-2 text-sm text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-60"
+            className="flex items-center justify-center gap-1.5 rounded-full border border-(--color-on-contrast) px-3 py-2 text-sm text-(--color-on-contrast) opacity-70 transition-opacity hover:opacity-100 disabled:opacity-60"
           >
             {busy ? (
               <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
