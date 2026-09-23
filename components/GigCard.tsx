@@ -22,7 +22,7 @@ export function GigCard({
 }) {
   return (
     <article
-      className={`w-full overflow-hidden ${marketplace ? "bg-transparent" : "rounded-2xl border border-(--color-border) bg-(--color-surface)"} transition-colors hover:border-(--color-text-muted) ${
+      className={`h-full w-full overflow-hidden ${marketplace ? "bg-transparent" : "rounded-2xl border border-(--color-border) bg-(--color-surface)"} transition-colors hover:border-(--color-text-muted) ${
         compactOnMobile
           ? "grid min-h-40 grid-cols-[7.25rem_minmax(0,1fr)] sm:flex sm:min-h-0 sm:flex-col"
           : "flex flex-col"
@@ -85,7 +85,18 @@ export function GigCard({
         <h3 className="line-clamp-2 min-h-10 text-sm font-semibold text-(--color-text)">
           {gig.title}
         </h3>
-        {marketplace ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-(--color-border) pt-3"><p className="text-xs text-(--color-text-muted)">{gig.deliveryDays ? `Entrega em ${gig.deliveryDays} ${gig.deliveryDays === 1 ? "dia" : "dias"}` : "Prazo a combinar"}</p><PriceTag price={gig.priceCents / 100} size="md" /></div> : null}
+        {marketplace ? (
+          <div className="mt-3 flex min-h-[4.25rem] flex-col items-start justify-between gap-1.5 border-t border-(--color-border) pt-3 sm:min-h-0 sm:flex-row sm:items-center sm:gap-2">
+            <p className="text-xs leading-5 text-(--color-text-muted)">
+              {gig.deliveryDays
+                ? `Entrega em ${gig.deliveryDays} ${gig.deliveryDays === 1 ? "dia" : "dias"}`
+                : "Prazo a combinar"}
+            </p>
+            <span className="shrink-0">
+              <PriceTag price={gig.priceCents / 100} size="md" />
+            </span>
+          </div>
+        ) : null}
         {gig.game ? (
           <p className="truncate text-xs text-(--color-text-muted)">
             {gig.game}
