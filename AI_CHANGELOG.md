@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Corrige duplicação de título/criador nos cards de serviço sem capa
+
+- Objetivo: corrigir bug reportado pelo usuário (print da home) — serviços sem capa cadastrada
+  ("Vou criar o logo da sua marca", "Vou editar seu vídeo do YouTube", "Vou organizar o seu
+  servidor de Discord", todos do Noisyboy) apareciam com categoria, título e nome do criador
+  repetidos duas vezes dentro do mesmo card na vitrine da home.
+- Causa: `components/GigCard.tsx`, variante `marketplace`, renderizava categoria + título +
+  criador dentro do placeholder que substitui a capa ausente (área da imagem) e o corpo do card
+  já renderiza esses mesmos dados logo abaixo (avatar, nome do criador, título, entrega e
+  preço) — informação duplicada sempre que `gig.coverImageUrl` não existe.
+- Arquivos: `components/GigCard.tsx`.
+- Correção: o placeholder da capa ausente (variante marketplace) agora mostra só o rótulo da
+  categoria, sem repetir título e criador, que continuam aparecendo uma única vez no corpo do
+  card.
+- Validações: `grep` por hex/paleta Tailwind fixa no arquivo alterado (nenhum resultado).
+
 ## 2026-09-23 — Continuação da home aprovada em HTML
 
 - Objetivo: aplicar a proposta aprovada da vitrine ao rodapé, substituindo o tutorial numerado por uma conversa explicitamente ilustrativa.
