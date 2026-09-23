@@ -4,8 +4,25 @@ import { MediaPlaceholder } from "./MediaPlaceholder";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { RatingStars } from "./RatingStars";
 
-export function CreatorCard({ creator }: { creator: User }) {
+export function CreatorCard({ creator, compactHome = false }: { creator: User; compactHome?: boolean }) {
   const profile = creator.creatorProfile;
+  if (compactHome) {
+    return (
+      <Link
+        href={`/criadores/${creator.username}`}
+        className="flex min-w-0 items-center gap-3 rounded-xl border border-(--color-border) bg-(--color-surface) p-3 transition-colors hover:border-(--color-accent-text)"
+      >
+        <MediaPlaceholder seed={creator.id} kind="avatar" className="h-11 w-11 shrink-0" label={creator.displayName} />
+        <span className="min-w-0">
+          <span className="flex items-center gap-1">
+            <span className="truncate text-sm font-semibold text-(--color-text)">{creator.displayName}</span>
+            {profile?.verificationStatus === "verified" ? <VerifiedBadge /> : null}
+          </span>
+          <span className="block truncate text-xs text-(--color-text-muted)">@{creator.username}</span>
+        </span>
+      </Link>
+    );
+  }
   return (
     <Link
       href={`/criadores/${creator.username}`}

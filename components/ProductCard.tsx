@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Product } from "@/lib/types";
 import { MediaPlaceholder } from "./MediaPlaceholder";
 import { RatingStars } from "./RatingStars";
@@ -15,17 +16,28 @@ export function ProductCard({
   return (
     <Link
       href={`/produto/${product.id}`}
-      className="group flex min-w-0 w-full flex-shrink-0 flex-col overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm transition-colors hover:border-(--color-accent-text) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent-text)"
+      className="group flex min-w-0 w-full flex-shrink-0 flex-col overflow-hidden rounded-xl border border-(--color-border) bg-(--color-surface) transition-colors hover:border-(--color-accent-text) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent-text)"
     >
-      <div className="relative overflow-hidden border-b border-(--color-border)">
-        <MediaPlaceholder
-          seed={product.id}
-          kind={product.type === "video" ? "video" : "image"}
-          className="aspect-[4/3] w-full transition-transform duration-300 group-hover:scale-[1.02]"
-          label={product.title}
-          flush
-          muted
-        />
+      <div className="relative aspect-[4/3] overflow-hidden border-b border-(--color-border) bg-(--color-surface-2)">
+        {product.coverImage ? (
+          <Image
+            src={product.coverImage}
+            alt={product.title}
+            fill
+            unoptimized
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover"
+          />
+        ) : (
+          <MediaPlaceholder
+            seed={product.id}
+            kind={product.type === "video" ? "video" : "image"}
+            className="h-full w-full"
+            label={product.title}
+            flush
+            muted
+          />
+        )}
         {product.type === "video" ? (
           <span
             className="absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-(--color-surface) text-(--color-accent-text) shadow-sm"

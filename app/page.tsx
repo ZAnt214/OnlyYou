@@ -94,34 +94,37 @@ export default function HomePage() {
       <Suspense fallback={<OpportunitySpotlightSkeleton />}>
         <OpportunitySpotlight />
       </Suspense>
+      <Suspense fallback={<CommunitySkeleton />}>
+        <Community />
+      </Suspense>
       <section
         id="como-funciona"
-        className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
+        className="scroll-mt-24 border-t border-(--color-border) py-10 sm:py-14"
       >
         <SectionHeading
-          title="Do primeiro oi ao trabalho entregue"
-          description="Para um serviço sob medida, comece por uma boa conversa."
+          title="Como funciona"
+          description="Encontre, converse e combine os detalhes do seu projeto."
         />
-        <ol className="mt-8 grid gap-8 md:grid-cols-3">
+        <ol className="mt-6 grid gap-0 border-t border-(--color-border) md:grid-cols-3 md:divide-x md:divide-(--color-border)">
           {[
             [
-              "Encontre seu profissional",
-              "Explore os serviços e visite os perfis. Compare o trabalho, a descrição e as avaliações disponíveis.",
+              "Encontre quem faz",
+              "Explore serviços, veja os perfis e compare o que cada profissional oferece.",
             ],
             [
-              "Combine os detalhes",
-              "Conte o que precisa. Acerte escopo, valor e prazo na conversa antes de aceitar a proposta.",
+              "Converse antes de fechar",
+              "Conte o que precisa e combine escopo, valor e prazo na conversa.",
             ],
             [
-              "Acompanhe por aqui",
-              "Mantenha as mensagens e a entrega no pedido. Confira o resultado e compartilhe sua avaliação.",
+              "Acompanhe seu pedido",
+              "Veja as mensagens e a entrega no Jobê e avalie o resultado.",
             ],
           ].map(([title, text], i) => (
-            <li key={title}>
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-(--color-accent-soft) text-sm font-semibold tabular-nums text-(--color-accent-text)">
+            <li key={title} className="border-b border-(--color-border) py-5 md:border-b-0 md:px-6 md:py-6 md:first:pl-0 md:last:pr-0">
+              <span className="text-sm font-bold tabular-nums text-(--color-accent-text)">
                 0{i + 1}
               </span>
-              <h3 className="mb-2 mt-3 text-lg font-semibold">{title}</h3>
+              <h3 className="mb-2 mt-3 text-lg font-semibold tracking-tight">{title}</h3>
               <p className="max-w-sm text-sm leading-relaxed text-(--color-text-muted)">
                 {text}
               </p>
@@ -130,49 +133,46 @@ export default function HomePage() {
         </ol>
         <Link
           href="/seguranca"
-          className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline underline-offset-4"
+          className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-(--color-accent-text) underline underline-offset-4"
         >
           Conheça os cuidados e as regras do Jobê{" "}
           <ArrowUpRight size={16} aria-hidden="true" />
         </Link>
       </section>
-      <section className="rounded-3xl bg-(--color-accent-soft) px-6 py-10 sm:px-10 sm:py-12">
-        <h2 className="text-2xl font-bold tracking-tight text-(--color-text) sm:text-3xl">
-          Tem um trabalho para mostrar?
-        </h2>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
-          Crie seu perfil, publique serviços ou produtos digitais e converse com
-          quem procura o que você oferece.
-        </p>
-        <div className="mt-6">
+      <section className="flex flex-col items-start justify-between gap-6 border-y border-(--color-border) py-9 sm:flex-row sm:items-center sm:py-12">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent-text)">Para profissionais</p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-(--color-text) sm:text-3xl">
+            Mostre o que você faz.
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
+            Crie seu perfil, publique serviços ou produtos digitais e converse com quem procura seu trabalho.
+          </p>
+        </div>
+        <div className="shrink-0">
           <Link
             href="/dashboard"
-            className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
+            className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-xl bg-(--color-accent) px-5 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
           >
             Quero oferecer meu trabalho{" "}
             <ArrowUpRight size={18} aria-hidden="true" />
           </Link>
         </div>
       </section>
-      <Suspense fallback={<CommunitySkeleton />}>
-        <Community />
-      </Suspense>
       <section
         id="duvidas"
-        className="mx-auto max-w-3xl scroll-mt-24 py-12 sm:py-16"
+        className="mx-auto max-w-3xl scroll-mt-24 py-10 sm:py-14"
       >
-        <h2 className="mb-6 text-2xl font-semibold tracking-tight">
-          Antes de começar
-        </h2>
+        <h2 className="mb-4 text-2xl font-bold tracking-tight sm:text-3xl">Dúvidas frequentes</h2>
         {questions.map(([question, answer]) => (
           <details
             key={question}
-            className="border-b border-(--color-border) py-1"
+            className="group border-b border-(--color-border)"
           >
-            <summary className="cursor-pointer py-5 pr-4 text-base font-medium text-(--color-text)">
+            <summary className="cursor-pointer py-5 pr-4 text-base font-semibold text-(--color-text) marker:text-(--color-accent-text)">
               {question}
             </summary>
-            <p className="pb-5 text-sm leading-relaxed text-(--color-text-muted)">
+            <p className="max-w-2xl pb-5 text-sm leading-relaxed text-(--color-text-muted)">
               {answer}
             </p>
           </details>
@@ -222,9 +222,10 @@ async function OpportunitySpotlight() {
   const requests = (await getLatestOpportunities()).slice(0, 3);
 
   return (
-    <section id="oportunidades" className="scroll-mt-24 border-t border-(--color-border) py-8 sm:py-10">
+    <section id="oportunidades" className="scroll-mt-24 border-t border-(--color-border) py-9 sm:py-12">
       <SectionHeading title="Pedidos publicados" href="/oportunidades" label="Ver todos" />
-      <div className="mt-4 divide-y divide-(--color-border)">
+      <p className="mt-2 text-sm leading-relaxed text-(--color-text-muted)">Pessoas que procuram um serviço ou produto. Veja o que elas precisam.</p>
+      <div className="mt-5 divide-y divide-(--color-border) border-t border-(--color-border)">
         {requests.length ? requests.map((request) => (
           <OpportunityPreview key={request.id} request={request} />
         )) : (
@@ -241,10 +242,10 @@ async function OpportunitySpotlight() {
 
 function OpportunityPreview({ request }: { request: ServiceRequest }) {
   return (
-    <Link href="/oportunidades" className="group flex items-center justify-between gap-4 py-5">
+    <Link href="/oportunidades" className="group flex min-h-24 items-center justify-between gap-4 py-4">
       <span className="min-w-0">
-        <span className="block text-xs text-(--color-text-subtle)">Publicado recentemente</span>
-        <span className="mt-1 block truncate text-sm font-semibold text-(--color-text) sm:text-base">{request.title}</span>
+        <span className="block text-xs text-(--color-text-muted)">Pedido aberto</span>
+        <span className="mt-1 block line-clamp-2 text-base font-semibold text-(--color-text) group-hover:text-(--color-accent-text)">{request.title}</span>
         <span className="mt-1 block text-sm text-(--color-text-muted)">
           {request.budgetCents ? `Orçamento de até ${(request.budgetCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}` : "Orçamento a combinar"}
         </span>
@@ -255,7 +256,7 @@ function OpportunityPreview({ request }: { request: ServiceRequest }) {
 }
 
 function OpportunitySpotlightSkeleton() {
-  return <div className="my-12 h-64 animate-pulse rounded-2xl bg-(--color-surface-2)" aria-label="Carregando pedidos publicados" />;
+  return <div role="status" className="my-9 space-y-4 border-t border-(--color-border) py-6" aria-label="Carregando pedidos publicados"><div className="h-6 w-1/2 animate-pulse rounded bg-(--color-surface-2)" /><div className="h-20 animate-pulse rounded bg-(--color-surface-2)" /></div>;
 }
 
 async function Vitrine() {
@@ -263,7 +264,7 @@ async function Vitrine() {
     await getHomeData();
 
   return (
-    <section id="vitrine" className="scroll-mt-24 py-8 sm:py-10">
+    <section id="vitrine" className="scroll-mt-24 py-9 sm:py-12">
       <SectionHeading
         title="Encontre quem faz"
         href="/descobrir"
@@ -279,9 +280,9 @@ async function Vitrine() {
         </p>
       ) : null}
       {gigs.length ? (
-        <div className="mt-8">
-          <h3 className="mb-4 text-lg font-semibold">
-            Serviços para o seu projeto
+        <div className="mt-7">
+          <h3 className="mb-4 text-lg font-semibold tracking-tight">
+            Serviços em destaque
           </h3>
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {gigs.slice(0, 4).map((gig) => (
@@ -296,9 +297,9 @@ async function Vitrine() {
         </div>
       ) : null}
       {approved.length ? (
-        <div className="mt-8">
-          <h3 className="mb-4 text-lg font-semibold">
-            Novidades em produtos digitais
+        <div className="mt-9">
+          <h3 className="mb-4 text-lg font-semibold tracking-tight">
+            Produtos digitais
           </h3>
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {approved.slice(0, 4).map((product) => (
@@ -324,9 +325,9 @@ async function Vitrine() {
         />
       ) : null}
       {offers.length ? (
-        <div className="mt-10">
+        <div className="mt-9 border-t border-(--color-border) pt-8">
           <SectionHeading
-            title="Uma boa ideia por menos"
+            title="Ofertas"
             href="/descobrir?ofertas=1"
             label="Ver ofertas"
           />
@@ -341,69 +342,52 @@ async function Vitrine() {
           </div>
         </div>
       ) : null}
-      <div className="mt-6 flex flex-wrap gap-5 text-sm font-medium">
-        <Link
-          href="/descobrir?sort=vendidos"
-          className="flex min-h-11 items-center underline underline-offset-4"
-        >
-          Explorar mais vendidos
+      {feed.length ? (
+        <Link href="/descobrir" className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-(--color-accent-text) underline underline-offset-4">
+          Ver mais serviços e produtos <ArrowUpRight size={16} aria-hidden="true" />
         </Link>
-        <Link
-          href="/descobrir"
-          className="flex min-h-11 items-center underline underline-offset-4"
-        >
-          Ver catálogo completo
-        </Link>
-      </div>
+      ) : null}
     </section>
   );
 }
 
 async function Community() {
   const { unavailable, creators, creatorById, feed } = await getHomeData();
+  const featuredCreators = creators.filter((creator) => creator.creatorProfile).slice(0, 4);
 
   return (
     <section
       id="comunidade"
-      className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16"
+      className="scroll-mt-24 border-t border-(--color-border) py-9 sm:py-12"
     >
       <SectionHeading
-        title="Por trás de cada trabalho, alguém"
-        description="Conheça os profissionais e acompanhe o que eles estão criando."
+        title="Conheça os profissionais"
+        description="Veja o perfil de quem publica serviços e produtos no Jobê."
         href="/criadores"
-        label="Conhecer profissionais"
+        label="Ver todos"
       />
-      {creators.length ? (
-        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {creators
-            .filter((c) => c.creatorProfile)
-            .slice(0, 4)
-            .map((creator) => (
-              <CreatorCard key={creator.id} creator={creator} />
-            ))}
+      {featuredCreators.length ? (
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+          {featuredCreators.map((creator) => (
+            <CreatorCard key={creator.id} creator={creator} compactHome />
+          ))}
         </div>
       ) : null}
       {feed.length ? (
-        <div className="mx-auto mt-10 max-w-2xl">
-          <h3 className="mb-5 text-lg font-semibold">
-            Acabou de chegar ao feed
+        <div className="mt-9 border-t border-(--color-border) pt-7">
+          <h3 className="mb-4 text-lg font-semibold tracking-tight">
+            Publicações recentes
           </h3>
-          <div className="flex flex-col gap-4">
-            {feed.slice(0, 3).map((item) => (
-              <FeedItemCard
-                key={item.kind + item.data.id}
-                item={item}
-                creator={creatorById.get(item.data.creatorId)}
-              />
-            ))}
+          <div className="max-w-2xl">
+            <FeedItemCard item={feed[0]} creator={creatorById.get(feed[0].data.creatorId)} />
           </div>
-          {feed.length > 3 ? (
-            <details className="mt-5">
-              <summary className="cursor-pointer py-3 text-center text-sm font-semibold underline underline-offset-4">
+          {feed.length > 1 ? (
+            <details className="mt-3 max-w-2xl">
+              <summary className="cursor-pointer py-3 text-sm font-semibold text-(--color-accent-text) underline underline-offset-4">
                 Ver mais publicações
               </summary>
               <div className="mt-4 flex flex-col gap-4">
-                {feed.slice(3, 12).map((item) => (
+                {feed.slice(1, 12).map((item) => (
                   <FeedItemCard
                     key={item.kind + item.data.id}
                     item={item}
@@ -411,22 +395,16 @@ async function Community() {
                   />
                 ))}
               </div>
-              <Link
-                href="/descobrir"
-                className="mt-6 block py-3 text-center text-sm font-semibold underline"
-              >
-                Continuar explorando
-              </Link>
             </details>
           ) : null}
         </div>
-      ) : (
+      ) : !featuredCreators.length ? (
         <p className="mt-6 text-sm text-(--color-text-muted)">
           {unavailable
-            ? "As publicações voltarão a aparecer quando a conexão for restabelecida."
-            : "As próximas publicações da comunidade aparecerão aqui."}
+            ? "Os perfis e as publicações voltarão a aparecer quando a conexão for restabelecida."
+            : "Os próximos perfis e publicações aparecerão aqui."}
         </p>
-      )}
+      ) : null}
     </section>
   );
 }
@@ -451,9 +429,9 @@ function SectionHeading({
   label?: string;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight text-(--color-text) sm:text-3xl">
+        <h2 className="text-2xl font-bold tracking-tight text-(--color-text) sm:text-3xl">
           {title}
         </h2>
         {description ? (
@@ -465,7 +443,7 @@ function SectionHeading({
       {href ? (
         <Link
           href={href}
-          className="flex min-h-11 items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) px-4 text-sm font-semibold text-(--color-text) transition-colors hover:border-(--color-accent-text)"
+          className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-(--color-accent-text) underline underline-offset-4 hover:text-(--color-text)"
         >
           {label}
           <ArrowUpRight size={16} aria-hidden="true" />

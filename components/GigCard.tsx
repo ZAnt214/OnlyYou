@@ -1,4 +1,5 @@
 import { GIG_CATEGORY_LABELS, type Gig } from "@/lib/types";
+import Image from "next/image";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { PriceTag } from "@/components/PriceTag";
 import { RequestGigButton } from "@/components/RequestGigButton";
@@ -21,31 +22,27 @@ export function GigCard({
 }) {
   return (
     <article
-      className={`w-full overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) transition-colors hover:border-(--color-text-muted) ${
+      className={`w-full overflow-hidden ${marketplace ? "rounded-xl" : "rounded-2xl"} border border-(--color-border) bg-(--color-surface) transition-colors hover:border-(--color-text-muted) ${
         compactOnMobile
           ? "grid min-h-40 grid-cols-[7.25rem_minmax(0,1fr)] sm:flex sm:min-h-0 sm:flex-col"
           : "flex flex-col"
       }`}
     >
-      <div className={compactOnMobile ? "min-h-40 sm:min-h-0" : undefined}>
+      <div className={`relative ${compactOnMobile ? "min-h-40 sm:aspect-[4/3] sm:min-h-0" : "aspect-[4/3]"}`}>
         {gig.coverImageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={gig.coverImageUrl}
             alt={gig.title}
-            className={
-              compactOnMobile
-                ? "h-full w-full object-cover sm:aspect-[4/3] sm:h-auto"
-                : "aspect-[4/3] w-full object-cover"
-            }
+            fill
+            unoptimized
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover"
           />
         ) : (
           <MediaPlaceholder
             seed={gig.id}
             className={
-              compactOnMobile
-                ? "h-full min-h-40 w-full sm:aspect-[4/3] sm:min-h-0"
-                : "aspect-[4/3] w-full"
+              compactOnMobile ? "h-full min-h-40 w-full sm:min-h-0" : "h-full w-full"
             }
             label={gig.title}
             flush

@@ -6,14 +6,15 @@
 - CTA laranja usa `--color-on-accent` escuro para contraste; texto e ícones sobre fundo claro usam `--color-accent-text`.
 - `--color-contrast` e `--color-on-contrast` definem o botão escuro sobre a faixa laranja.
 - Home: busca, chips de categorias, faixa compacta de publicação, vitrine real, pedidos publicados, conteúdo de apoio.
+- Continuação da home: cartões com capas reais quando existirem, lista de pedidos sem painel branco, profissionais em linhas compactas, uma publicação recente seguida de expansão opcional, etapas em divisores e dúvidas em acordeão.
 - Navegação mobile integrada ao rodapé, com ícones e rótulos visíveis; preservar o acesso à Biblioteca.
 - Sem gradientes, anúncios fictícios ou ilustrações geradas substituindo imagens reais dos serviços.
 
 
-O Jobê usa layout de rede social de criadores (feed de coluna única, cards de post, nav
-inferior em pill flutuante) com a paleta **Marfim + Framboesa Jobê**: fundo marfim suave, cards
-brancos, texto grafite esverdeado e framboesa viva como cor de marca. **Toda UI nova ou
-alterada deve seguir estas regras — sem exceção**, mesmo quando não for pedido explicitamente.
+O Jobê usa uma vitrine de marketplace na página inicial e um feed próprio para publicações.
+As regras de componentes abaixo seguem válidas quando não conflitarem com a direção laranja
+aprovada acima. Os exemplos antigos de framboesa devem ser lidos como referências ao token de
+marca, não como especificações de cor literal.
 
 ## Regra de ouro: nunca usar cor "crua"
 
@@ -83,9 +84,8 @@ shadow-black/10`, nunca sombra escura pesada).
   `--color-success` continua reservado só para os casos em que `--color-warning`/
   `--color-danger` já convivem lado a lado e um terceiro tom é indispensável — na dúvida, usar
   o accent (framboesa de marca).
-- **Navegação inferior mobile** (`components/MobileNav.tsx`): pill flutuante ancorada ao fundo
-  da tela, só ícones, item ativo com `bg-(--color-accent-soft) text-(--color-accent-text)`.
-  Qualquer nova aba entra nesse mesmo padrão, não numa barra reta com labels.
+- **Navegação inferior mobile** (`components/MobileNav.tsx`): barra integrada ao rodapé com
+  ícones e rótulos visíveis; item ativo no tom de marca, sem excluir o acesso à Biblioteca.
 - **Badge de verificado**: usa o token `--color-verified` (azul), intencionalmente separado do
   `--color-accent`/`--color-accent-text` framboesa — mantém a semântica de verificação (tipo
   Twitter/Meta) sem confundir com CTAs.

@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Direção laranja aplicada ao restante da home
+
+- `app/page.tsx`: vitrine e pedidos com divisores e textos mais diretos; profissionais e publicações reunidos antes de explicar a contratação. A primeira publicação fica à vista, com as demais acessíveis por expansão. O final agora segue uma sequência clara: como funciona, convite para publicar o próprio trabalho e dúvidas frequentes.
+- `components/ProductCard.tsx` e `components/GigCard.tsx`: capas reais aparecem quando cadastradas; placeholders permanecem para anúncios sem imagem. O card de produto perde a sombra e usa contorno mais leve.
+- `components/CreatorCard.tsx`: variante compacta para o início, com nome, usuário e selo quando aplicável, preservando o card completo nas outras páginas.
+- `CLAUDE.md`: documentada a ordem e os padrões da página completa.
+- Validação: TypeScript, ESLint, `git diff --check` e build Webpack concluídos. A compilação usou valores fictícios nas variáveis Supabase; os dados reais precisam ser conferidos no ambiente publicado.
+
+
 ## 2026-09-23 — Home laranja aprovada
 
 - `app/globals.css`: identidade laranja, marfim neutro e carvão com tokens claros/escuros e contraste de CTAs.
@@ -9,7 +18,7 @@
 - `CLAUDE.md`: documentação da direção aprovada; nenhuma imagem ou oferta fictícia da prévia foi incluída.
 - TypeScript e ESLint dos componentes alterados passaram sem erros.
 - Build compilou e validou tipos, mas a pré-renderização parou por ausência de `NEXT_PUBLIC_SUPABASE_URL` no ambiente. Inspeção visual não executada: `agent-browser` não está instalado.
-- Contrastes medidos: texto/CTA 5,39:1, hover 4,60:1 e links sobre marfim 6,32:1. Alterações ainda não publicadas.
+- Contrastes medidos: texto/CTA 5,39:1, hover 4,60:1 e links sobre marfim 6,32:1. Alterações integradas à main em b474cfc.
 
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
