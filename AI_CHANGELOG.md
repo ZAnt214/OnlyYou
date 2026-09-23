@@ -1,5 +1,23 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Reescreve o bloco de texto do hero da home
+
+- Objetivo: pedido do usuário para reestruturar as três frases do topo da home em papéis
+  distintos (chamada pequena de apoio, título principal acolhedor, descrição objetiva) em vez
+  de repetir o mesmo tom nas três.
+- `app/page.tsx`: troca o texto de apoio de "Serviços e produtos digitais" para "Veio contratar
+  ou mostrar o que sabe fazer?" (fala com os dois públicos do Jobê), o título de "Sua ideia
+  merece quem sabe fazer." para "Tem algo em mente? Vamos encontrar quem pode ajudar." (tom mais
+  de conversa) e a descrição para "No Jobê, você encontra profissionais, serviços e produtos
+  digitais para tirar sua ideia do papel." Peso do texto de apoio ajustado de `font-medium` para
+  `font-semibold` para dar um pouco mais de presença sem competir com o título — todo o resto
+  reaproveita as classes/tokens já existentes (`text-(--color-text-muted)`, tracking, tamanhos
+  responsivos), sem introduzir estilo novo.
+- Arquivos: `app/page.tsx`.
+- Validações: `npx tsc --noEmit`, `npx eslint app/page.tsx` e busca por cor fixa no arquivo
+  alterado — todos sem problemas. Mudança é só de texto/peso de fonte, sem alterar estrutura,
+  tokens ou comportamento.
+
 ## 2026-09-23 — Corrige desalinhamento dos cards de serviço na vitrine
 
 - Objetivo: com o upload de capa já funcionando (fix anterior), o usuário reportou que os cards

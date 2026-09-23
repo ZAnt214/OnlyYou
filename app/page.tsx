@@ -61,11 +61,11 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <section aria-labelledby="home-title" className="pb-6 pt-8 sm:pb-8 sm:pt-12">
-        <p className="text-xs font-medium uppercase tracking-[0.16em] text-(--color-text-muted)">Serviços e produtos digitais</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-(--color-text-muted)">Veio contratar ou mostrar o que sabe fazer?</p>
         <h1 id="home-title" className="mt-3 max-w-3xl text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-          Sua ideia merece<br />quem sabe fazer.
+          Tem algo em mente?<br />Vamos encontrar quem pode ajudar.
         </h1>
-        <p className="mt-4 text-base leading-relaxed text-(--color-text-muted) sm:text-lg">Encontre profissionais ou publique o que precisa.</p>
+        <p className="mt-4 text-base leading-relaxed text-(--color-text-muted) sm:text-lg">No Jobê, você encontra profissionais, serviços e produtos digitais para tirar sua ideia do papel.</p>
         <form action="/descobrir" role="search" aria-label="Buscar no Jobê" className="mt-6 flex items-center gap-2 rounded-xl border border-(--color-border) bg-(--color-surface) p-1.5 pl-4 focus-within:outline-2 focus-within:outline-(--color-accent-text)">
           <Search size={20} aria-hidden="true" className="hidden shrink-0 text-(--color-text-muted) sm:block" />
           <label htmlFor="home-search" className="sr-only">O que você está procurando?</label>
