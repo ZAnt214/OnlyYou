@@ -39,10 +39,8 @@ export function GigCard({
             className="object-cover"
           />
         ) : marketplace ? (
-          <div className="flex h-full flex-col justify-between bg-(--color-surface-2) p-4 sm:p-5">
+          <div className="flex h-full items-start bg-(--color-surface-2) p-4 sm:p-5">
             <span className="text-xs font-semibold uppercase tracking-widest text-(--color-text-muted)">{GIG_CATEGORY_LABELS[gig.category]}</span>
-            <span className="line-clamp-2 text-lg font-bold leading-tight tracking-tight text-(--color-text) sm:text-2xl">{gig.title}</span>
-            <span className="mt-2 text-xs text-(--color-text-muted)">{creatorName || "Serviço profissional"}</span>
           </div>
         ) : (
           <MediaPlaceholder
