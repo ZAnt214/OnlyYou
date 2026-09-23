@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Corrige desalinhamento dos cards de serviço na vitrine
+
+- Objetivo: com o upload de capa já funcionando (fix anterior), o usuário reportou que os cards
+  de serviço na vitrine da home ficam desalinhados entre si quando o título tem tamanhos
+  diferentes — "Teste" (1 linha) e "Vou criar o logo da sua marca" (2 linhas) lado a lado
+  fazem a linha de preço/prazo e o botão "Solicitar" ficarem em alturas diferentes.
+- Causa: `components/GigCard.tsx`, o `h3` do título usa `line-clamp-2` (até 2 linhas) mas sem
+  altura mínima reservada — um título de 1 linha ocupa menos espaço vertical que um de 2,
+  empurrando o resto do card pra cima. O `components/ProductCard.tsx` (mesmo padrão de card,
+  mesma vitrine) já resolve isso com `min-h-10` no título — só o `GigCard` estava sem.
+- Correção: adiciona `min-h-10` ao título do `GigCard`, igualando ao padrão já usado no
+  `ProductCard`.
+- Arquivos: `components/GigCard.tsx`.
+- Validações: `npx tsc --noEmit`, `npx eslint components/GigCard.tsx` e busca por cor fixa no
+  arquivo alterado — todos sem problemas.
+
 ## 2026-09-23 — Corrige (de vez) CSP bloqueando o upload pro Vercel Blob: faltava vercel.com
 
 - Objetivo: a entrada anterior deste changelog (mesmo dia) liberou
