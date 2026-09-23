@@ -1,1836 +1,1 @@
-# Hist√≥rico de altera√ß√µes para IAs
-
-Este documento mant√©m a continuidade t√©cnica do Job√™ entre diferentes IAs. Toda altera√ß√£o no
-site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
-
-## 2026-09-22 ‚Äî Remo√ß√£o da conta mock em dispositivos sem login
-
-- A identidade mock ‚ÄúAna Rubi‚Äù deixou de ser iniciada ou restaurada pelo `MockSessionProvider`;
-  somente uma sess√£o v√°lida do Supabase define `currentUserId`.
-- Dashboard e administra√ß√£o agora recusam visitantes no servidor, sem fallback para creator ou
-  administrador mock; o endpoint de reembolso recebeu a mesma prote√ß√£o.
-- Links da √°rea do criador deixaram de apontar para um perfil mock enquanto a sess√£o n√£o existe.
-- Perfil pr√≥prio, configura√ß√µes e den√∫ncias tamb√©m deixaram de assumir uma identidade fict√≠cia.
-- Dados demonstrativos continuam dispon√≠veis apenas como conte√∫do p√∫blico da vitrine.
-
-## 2026-09-22 ‚Äî Prote√ß√£o das contas e ativa√ß√£o segura de creators
-
-- Removida a permiss√£o de escrita direta de contas an√¥nimas e autenticadas em `profiles`.
-- Edi√ß√£o do perfil, compet√™ncias e idiomas agora passam por RPCs `security invoker`, com identidade
-  obtida por `auth.uid()`, escopo fixo, RLS e permiss√µes limitadas √†s colunas edit√°veis.
-- A ativa√ß√£o usa uma RPC `security definer` isolada, necess√°ria apenas para acrescentar o papel
-  `creator` √† pr√≥pria conta sem liberar escrita p√∫blica em `roles`.
-- `roles`, verifica√ß√£o, avalia√ß√µes e contadores internos deixaram de ser alter√°veis pela API p√∫blica.
-- A tela de ativa√ß√£o explica os pr√≥ximos passos e exige ci√™ncia dos termos e regras de seguran√ßa.
-- Valida√ß√£o: ESLint e TypeScript conclu√≠dos; testes SQL confirmaram bloqueio de `roles`, verifica√ß√£o
-  e avalia√ß√µes; advisors revisados. O build compilou e passou pelo TypeScript, mas a gera√ß√£o de
-  `/admin` exige as vari√°veis Supabase de service role, ausentes no ambiente local.
-
-## 2026-09-22 ‚Äî Refinamento editorial e visual da home
-
-- Cabe√ßalho integrado ao marfim, navega√ß√£o enxuta em telas intermedi√°rias e busca com r√≥tulo acess√≠vel.
-- Hero com linguagem concreta, busca principal e alternativa para publicar pedido.
-- Categorias sem barras decorativas; etapas neutras; convite profissional sem promessa de renda.
-- Cards de servi√ßo com a√ß√£o de 44 px e contorno discreto, sem anima√ß√£o de deslocamento.
-- Selo de oferta neutro; preservados dados reais, rotas e opera√ß√µes existentes.
-- Refer√™ncias p√∫blicas consultadas: GetNinjas, Workana, VintePila e Packzin.
-- Valida√ß√£o: lint e TypeScript executados; inspe√ß√£o visual em navegador e build completo n√£o realizados nesta revis√£o.
-
-## 2026-09-22 ‚Äî Jornada organizada na p√°gina inicial
-
-### Objetivo
-
-- Fazer a home conduzir a pessoa em uma ordem previs√≠vel, sem misturar descoberta, publica√ß√£o e
-  explica√ß√£o do processo.
-
-### Mudan√ßas
-
-- `app/page.tsx`: a navega√ß√£o interna virou um caminho numerado e horizontal com quatro a√ß√µes:
-  escolher categoria, ver op√ß√µes, publicar pedido e entender a contrata√ß√£o.
-- As se√ß√µes foram reordenadas para seguir esse mesmo percurso: categorias ‚Üí vitrine ‚Üí pedidos
-  publicados ‚Üí funcionamento ‚Üí √°rea para profissionais ‚Üí comunidade ‚Üí d√∫vidas.
-- O t√≠tulo de categorias agora explica com clareza que esse √© o primeiro ponto da jornada.
-- A navega√ß√£o continua rol√°vel no celular, sem cards coloridos ou √≠cones decorativos.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e `git diff --check` conclu√≠dos sem erros.
-
-## 2026-09-22 ‚Äî Fundo integrado no destaque de oportunidades
-
-### Objetivo
-
-- Eliminar o recorte branco do bloco e integr√°-lo ao fundo marfim da p√°gina inicial.
-
-### Mudan√ßas
-
-- `app/page.tsx`: o destaque de oportunidades passou de `--color-surface` para `--color-bg` e
-  perdeu a sombra, mantendo textos, espa√ßamentos, a√ß√µes e divisores inalterados.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e `git diff --check` conclu√≠dos sem erros.
-
-## 2026-09-22 ‚Äî Destaque de oportunidades mais limpo
-
-### Objetivo
-
-- Corrigir o peso visual excessivo do bloco de oportunidades na home e retirar elementos com
-  apar√™ncia de interface gerada por IA.
-
-### Mudan√ßas
-
-- `app/page.tsx`: removidos o selo rosa com √≠cone, a borda colorida e a faixa rosa inferior.
-- O t√≠tulo ficou menor, mais direto e com quebras naturais no celular.
-- A descri√ß√£o foi encurtada, o segundo CTA virou um link discreto e os pedidos recentes ganharam
-  uma apresenta√ß√£o mais compacta e neutra.
-- O bloco usa apenas bordas e superf√≠cies do design system, sem texto decorativo sobre fundo
-  colorido e sem √≠cones de IA.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e `git diff --check` conclu√≠dos sem erros.
-
-## 2026-09-22 ‚Äî Oportunidades p√∫blicas na barra mobile
-
-### Objetivo
-
-- Manter o atalho do feed vis√≠vel para qualquer pessoa, inclusive visitantes e compradores.
-
-### Mudan√ßas
-
-- `components/MobileNav.tsx`: a aba ‚ÄúOportunidades‚Äù deixou de depender do papel `creator` e agora
-  aparece permanentemente na barra flutuante inferior.
-- O destino passou a ser `/oportunidades`, que √© p√∫blico; a√ß√µes de responder e enviar proposta
-  continuam exigindo autentica√ß√£o e as permiss√µes j√° existentes.
-- Removida a consulta adicional de papel no Supabase feita exclusivamente pela barra mobile.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e `git diff --check` conclu√≠dos sem erros.
-
-## 2026-09-22 ‚Äî Oportunidades na barra inferior mobile
-
-### Objetivo
-
-- Colocar o acesso ao feed exclusivo no menu flutuante inferior indicado no mobile.
-
-### Mudan√ßas
-
-- `components/MobileNav.tsx`: contas com papel `creator` recebem uma aba ‚ÄúOportunidades‚Äù, com
-  √≠cone pr√≥prio, apontando para `/dashboard/oportunidades`.
-- A aba √© omitida para visitantes e compradores comuns ap√≥s consultar os pap√©is do perfil real.
-- Ao entrar no feed, somente a nova aba fica ativa; o item geral da √°rea do criador n√£o acende ao
-  mesmo tempo.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e `git diff --check` conclu√≠dos sem erros.
-
-## 2026-09-22 ‚Äî Atalho condicional para o feed de oportunidades
-
-### Objetivo
-
-- Dar acesso r√°pido ao feed de pedidos sem mostrar uma op√ß√£o in√∫til para compradores comuns.
-
-### Mudan√ßas
-
-- `components/Header.tsx`: o cabe√ßalho consulta o campo `roles` do perfil autenticado e adiciona
-  ‚ÄúFeed de oportunidades‚Äù √† navega√ß√£o desktop e ao menu mobile somente quando a conta possui o
-  papel `creator`.
-- Visitantes, compradores e contas sem perfil de criador continuam vendo a navega√ß√£o anterior.
-- A troca de sess√£o atualiza tanto a identidade exibida quanto a visibilidade do atalho.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e `git diff --check` conclu√≠dos sem erros.
-
-## 2026-09-21 ‚Äî Destaque de pedidos na home e feed exclusivo para criadores
-
-### Objetivo
-
-- Tornar a publica√ß√£o do que uma pessoa procura uma fun√ß√£o central e facilmente descoberta na home.
-- Entregar aos criadores um feed dedicado apenas a pedidos de servi√ßos ou produtos.
-
-### Mudan√ßas
-
-- `app/page.tsx`: adicionada uma se√ß√£o de alto destaque antes da vitrine, com explica√ß√£o do fluxo,
-  CTAs para publicar e explorar e pr√©via das tr√™s oportunidades mais recentes do banco.
-- `app/dashboard/oportunidades/*`: criado o feed exclusivo da √°rea do criador, em coluna √∫nica,
-  com filtros por categoria, skeleton pr√≥prio e somente publica√ß√µes de pessoas procurando algo.
-- `app/dashboard/page.tsx`: o novo feed ganhou acesso direto no hub do painel.
-- `components/ServiceRequestCard.tsx`: adicionado modo de feed com leitura mais confort√°vel, sem
-  duplicar componente nem fluxo de interesse.
-- Textos de descoberta e publica√ß√£o agora deixam expl√≠cito que a pessoa pode procurar um servi√ßo
-  ou produto, preservando o mesmo fluxo de conversa e proposta.
-
-### Valida√ß√£o
-
-- ESLint conclu√≠do sem avisos.
-- `git diff --check` conclu√≠do sem erros.
-- Busca nos arquivos alterados sem cores cruas ou classes fixas de paleta Tailwind.
-
-## 2026-09-21 ‚Äî Publica√ß√µes de servi√ßos procurados
-
-### Objetivo
-
-- Permitir que uma pessoa publique o servi√ßo que est√° procurando, como ‚Äúpreciso de algu√©m para
-  fazer a arte do meu canal‚Äù, e receba respostas de profissionais dentro do Job√™.
-- Reaproveitar toda a seguran√ßa e a jornada existente de conversa, proposta, pagamento, entrega e
-  avalia√ß√£o em vez de criar um fluxo de contrata√ß√£o paralelo.
-
-### Mudan√ßas
-
-- Supabase: criada a tabela `service_requests` com expira√ß√£o de 30 dias, RLS, √≠ndices e RPCs para
-  publicar, encerrar e demonstrar interesse. `custom_requests` ganhou o v√≠nculo
-  `source_service_request_id`, com unicidade por profissional/oportunidade.
-- `app/oportunidades/*`: novas p√°ginas p√∫blica, de publica√ß√£o e de gerenciamento, incluindo
-  skeleton de carregamento e filtros por categoria.
-- `components/ServiceRequestPublisher.tsx` e `components/ServiceRequestCard.tsx`: formul√°rio
-  responsivo, cards compactos, estados de autentica√ß√£o, encerramento e modal de apresenta√ß√£o.
-- Ao demonstrar interesse, o banco valida o perfil profissional, abre o pedido personalizado e a
-  conversa, registra a mensagem inicial e notifica o autor. O profissional segue ent√£o para a tela
-  existente de proposta.
-- `components/Header.tsx` e `app/page.tsx`: adicionados acessos para oportunidades, minhas
-  publica√ß√µes e ‚ÄúPublique o que precisa‚Äù, preservando os links anteriores no menu mobile.
-- `docs/SERVICE_REQUEST_OPPORTUNITIES.md`: documentada a arquitetura e as regras de continuidade
-  para outras IAs.
-
-### Valida√ß√£o
-
-- Fluxo de banco exercitado em transa√ß√£o com rollback: cria√ß√£o por comprador e resposta por criador
-  geraram exatamente um pedido personalizado; nenhuma linha de teste permaneceu no banco.
-- ESLint e TypeScript conclu√≠dos sem erros; build de produ√ß√£o conclu√≠do nas 41 rotas usando somente
-  vari√°veis fict√≠cias de valida√ß√£o.
-- Home, listagem, publica√ß√£o e gerenciamento responderam HTTP 200 no servidor de produ√ß√£o local; o
-  HTML confirmou os t√≠tulos, CTAs e estado vazio esperados.
-- Busca por cores cruas e `git diff --check` sem ocorr√™ncias; as telas usam somente os tokens do
-  design system e regras responsivas por breakpoint.
-- Supabase verificado com tr√™s RPCs `security invoker`, `search_path` vazio, tr√™s pol√≠ticas RLS,
-  √≠ndices de listagem/autor e √≠ndice √∫nico por oportunidade/profissional. Advisors n√£o apontaram
-  alerta novo ligado a `service_requests`; os avisos retornados s√£o preexistentes em outras tabelas
-  e na configura√ß√£o de senhas vazadas do Auth.
-- A inspe√ß√£o visual automatizada n√£o p√¥de ser executada: o navegador remoto bloqueia localhost e o
-  navegador local n√£o p√¥de baixar o bin√°rio por erro de certificado da rede. Build, HTML servido e
-  rotas foram validados como cobertura alternativa, sem afirmar uma captura visual inexistente.
-
-## 2026-09-21 ‚Äî Hero sem r√≥tulo decorativo
-
-### Objetivo
-
-- Remover o r√≥tulo em caixa alta acima do t√≠tulo da home, apontado pelo usu√°rio como pesado e
-  artificial no celular.
-- Dar mais impacto ao t√≠tulo principal e reduzir a quantidade de elementos competindo na
-  primeira dobra.
-
-### Mudan√ßas
-
-- `app/page.tsx`: removidos o texto ‚ÄúServi√ßos e produtos digitais em um s√≥ lugar‚Äù e sua barra
-  decorativa. O hero agora come√ßa diretamente pelo t√≠tulo e mant√©m a proposta completa no texto
-  de apoio logo abaixo, sem perder informa√ß√£o funcional.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o das 38 rotas conclu√≠dos sem erros.
-- Busca por cores cruas em `app/page.tsx` sem ocorr√™ncias.
-- Vers√£o publicada inspecionada em navegador: o r√≥tulo n√£o aparece mais, o t√≠tulo subiu 36 px
-  na primeira dobra e a p√°gina continua sem overflow horizontal ou erros da aplica√ß√£o.
-
-## 2026-09-21 ‚Äî Cards de servi√ßos compactos na home
-
-### Objetivo
-
-- Evitar que cada servi√ßo ocupe quase uma tela inteira no celular e melhorar o ritmo de leitura
-  da se√ß√£o ‚ÄúServi√ßos de quem sabe fazer‚Äù.
-
-### Mudan√ßas
-
-- `components/GigCard.tsx`: adicionada uma apresenta√ß√£o compacta opcional no mobile, com miniatura
-  lateral, conte√∫do hierarquizado e pre√ßo integrado ao cabe√ßalho do card em vez de sobreposto √†
-  imagem. Em telas maiores, o card retorna automaticamente ao formato vertical da grade.
-- `app/page.tsx`: a vitrine inicial passou a ativar a apresenta√ß√£o compacta. Explorar e p√°ginas
-  de categoria preservam sua grade em duas ou mais colunas e todas as a√ß√µes continuam usando o
-  mesmo componente e o mesmo fluxo de solicita√ß√£o.
-
-### Valida√ß√£o
-
-- ESLint e TypeScript conclu√≠dos sem erros.
-- Build de produ√ß√£o conclu√≠do com sucesso nas 38 rotas usando credenciais fict√≠cias de valida√ß√£o;
-  nenhuma credencial real foi necess√°ria ou inclu√≠da.
-- Busca por cores cruas nos componentes alterados sem ocorr√™ncias; o card usa somente tokens do
-  design system.
-- Vers√£o publicada inspecionada em navegador: cards, pre√ßo, autor, t√≠tulo e CTA renderizaram com
-  alturas consistentes, sem overflow horizontal e sem erros da aplica√ß√£o no console. O markup
-  publicado tamb√©m confirma o modo horizontal abaixo de `sm` e o retorno √† grade vertical acima.
-
-## 2026-09-21 ‚Äî Hero aberto e identidade Framboesa Job√™
-
-### Objetivo
-
-- Atender ao retorno do usu√°rio removendo o violeta, todo gradiente e o grande quadro colorido
-  que envolvia a busca na p√°gina inicial.
-- Manter energia comercial usando a cor com mais precis√£o, sem transformar se√ß√µes inteiras em
-  blocos preenchidos.
-
-### Mudan√ßas
-
-- `app/globals.css`: Violeta Job√™ substitu√≠do pela fam√≠lia Framboesa Job√™; accent e highlight
-  agora compartilham a mesma dire√ß√£o crom√°tica. Tema escuro atualizado em conjunto.
-- `app/page.tsx`: hero voltou a ser aberto sobre o marfim, sem gradiente e sem container
-  preenchido. A assinatura perdeu o formato de chip; o card lateral virou apenas uma √°rea
-  separada por divisor; a faixa de benef√≠cios tamb√©m deixou de usar tr√™s caixas.
-- `CLAUDE.md` e `docs/HOME_REDESIGN.md`: regras e continuidade visual atualizadas.
-
-### Contraste
-
-- Branco sobre framboesa: 4,65:1.
-- Framboesa textual sobre marfim: 7,23:1; sobre fundo suave: 6,25:1.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o conclu√≠dos sem erros.
-- Contrastes dos tokens medidos e componentes alterados sem cores cruas no TSX.
-- Vers√£o publicada inspecionada em navegador desktop: composi√ß√£o aberta, busca, CTA, divisores
-  e cor de marca renderizaram sem overflow e sem erros da aplica√ß√£o no console.
-
-## 2026-09-21 ‚Äî Violeta Job√™ e hero com presen√ßa de marca
-
-### Objetivo
-
-- Tirar a sensa√ß√£o visual de p√°gina sem energia e criar uma cor imediatamente reconhec√≠vel
-  como parte da identidade do Job√™.
-- Dar mais presen√ßa comercial √† primeira dobra sem sacrificar leitura ou desempenho.
-
-### Mudan√ßas
-
-- `app/globals.css`: o verde Mantis foi substitu√≠do pelo Violeta Job√™ nos tokens de marca;
-  highlight comercial passou a coral fechado. Temas claro e escuro foram ajustados juntos.
-- `app/page.tsx`: hero virou um plano violeta de alto impacto, com gradiente controlado,
-  tipografia clara, CTA branco e card de compra preservado sobre superf√≠cie leg√≠vel.
-- `CLAUDE.md` e `docs/HOME_REDESIGN.md`: dire√ß√£o visual e regras de uso da paleta atualizadas.
-
-### Contraste
-
-- Branco sobre Violeta Job√™: 5,03:1.
-- Violeta textual sobre marfim: 8,09:1; sobre violeta suave: 7,01:1.
-- Coral textual sobre marfim: 5,56:1; sobre coral suave: 4,94:1.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o conclu√≠dos sem erros.
-- Contrastes dos tokens medidos e componentes alterados sem cores cruas no TSX.
-- Vers√£o publicada inspecionada em navegador desktop: hero, busca, CTAs, card lateral e faixa
-  de benef√≠cios renderizaram sem overflow; nenhum erro da aplica√ß√£o apareceu no console.
-
-## 2026-09-21 ‚Äî Reverte a m√°quina de escrever do hero
-
-### Objetivo
-
-- Pedido expl√≠cito do usu√°rio: reverter a anima√ß√£o de m√°quina de escrever no t√≠tulo da home
-  (introduzida em duas mudan√ßas anteriores e ajustada depois por dois problemas de layout) e
-  voltar ao texto est√°tico original.
-
-### Mudan√ßas
-
-- `app/page.tsx`: t√≠tulo do hero volta a ser o texto fixo "Encontre. Compare. Fa√ßa acontecer.",
-  igual a antes de qualquer uma das mudan√ßas da m√°quina de escrever. Removidos o import de
-  `TypewriterHeadline` e a constante `heroPhrases`.
-- `components/TypewriterHeadline.tsx`: removido ‚Äî sem mais nenhuma refer√™ncia no projeto.
-
-### Valida√ß√£o
-
-- `grep` por hex em `app/page.tsx`: nenhuma ocorr√™ncia.
-- `npx eslint app/page.tsx`: sem erros.
-- `npm run build`: compila√ß√£o e checagem de TypeScript conclu√≠das com sucesso (falha de
-  pr√©-renderiza√ß√£o de `/admin` √© pr√©-existente, sem rela√ß√£o).
-
-## 2026-09-21 ‚Äî Remove o prefixo fixo do hero e estabiliza a altura do t√≠tulo
-
-### Objetivo
-
-- A mudan√ßa anterior (fix do `sr-only`) j√° estava correta e no ar, mas o usu√°rio mandou um print
-  mostrando que o problema real era outro: com a frase "Publique seus servi√ßos." o t√≠tulo
-  quebrava em 3 linhas no total ("Encontre. Compare." fixo + 2 linhas da frase animada), fazendo
-  a altura do hero pular a cada troca ‚Äî o que lia como "o texto passando da margem". Misturar o
-  prefixo fixo gen√©rico com frases voltadas ora a quem contrata, ora a quem vende, tamb√©m
-  soava estranho (frases de criador "penduradas" numa frase que come√ßa com "Encontre. Compare.").
-
-### Mudan√ßas
-
-- `app/page.tsx`
-  - O `<h1>` n√£o tem mais o prefixo fixo "Encontre. Compare." ‚Äî agora o `TypewriterHeadline` √© o
-    t√≠tulo inteiro, com cada frase sendo uma senten√ßa curta e completa por si s√≥ (n√£o depende de
-    nenhum texto fixo antes dela).
-  - `heroPhrases` ajustadas pra caber numa linha s√≥ no mobile: "Encontre quem faz.", "Venda o
-    que sabe.", "Pe√ßa sob medida.", "Publique um servi√ßo.", "Escolha com confian√ßa.", "Seu
-    talento vira renda."
-  - `<h1>` ganhou `min-h-[5rem] sm:min-h-[6.5rem] lg:min-h-[8.5rem]` ‚Äî reserva a altura de at√©
-    duas linhas em cada breakpoint, ent√£o mesmo se uma frase futura quebrar linha, o resto da
-    p√°gina (busca, bot√µes) n√£o pula de posi√ß√£o.
-
-### Valida√ß√£o
-
-- `grep` por hex nos arquivos alterados: nenhuma ocorr√™ncia.
-- `npx eslint app/page.tsx components/TypewriterHeadline.tsx`: sem erros.
-- `npm run build`: compila√ß√£o e checagem de TypeScript conclu√≠das com sucesso (falha de
-  pr√©-renderiza√ß√£o de `/admin` √© pr√©-existente, sem rela√ß√£o).
-- Screenshots reais em viewport mobile (412√ó900, Playwright + Chromium) capturados em 5 momentos
-  da anima√ß√£o (frases diferentes, incluindo a mais longa, "Publique um servi√ßo."): sempre uma
-  linha s√≥, `document.documentElement.scrollWidth` igual √† largura da viewport (sem overflow
-  horizontal), e o restante da p√°gina (busca, bot√µes, "Experimente:") sem pular de posi√ß√£o.
-
-## 2026-09-21 ‚Äî Corrige texto duplicado/estourando no hero e ajusta o tom das frases
-
-### Objetivo
-
-- O usu√°rio reportou dois problemas na m√°quina de escrever do hero (adicionada na mudan√ßa
-  anterior): o texto passava da margem da √°rea com fundo verde claro do hero, e havia um texto
-  fixo aparecendo em cima do texto animado. Tamb√©m pediu uma linguagem mais humana e
-  profissional nas frases.
-- Causa raiz: o fallback de acessibilidade (`sr-only`) estava concatenando as 6 frases inteiras
-  numa √∫nica senten√ßa gigante (`"Encontre quem faz.. Venda o que voc√™ sabe fazer.. ..."`) dentro
-  do mesmo `<h1>` do texto animado ‚Äî confirmado inspecionando o HTML renderizado. Mesmo com o
-  CSS `.sr-only` correto (`position: absolute; width:1px; height:1px; overflow:hidden`), esse
-  bloco de texto desnecessariamente grande dentro do t√≠tulo era arriscado e n√£o deveria existir
-  do jeito que estava.
-
-### Mudan√ßas
-
-- `components/TypewriterHeadline.tsx`: a prop `phrases` agora alimenta s√≥ a anima√ß√£o. Nova prop
-  obrigat√≥ria `srText` recebe uma frase curta e fixa pro leitor de tela, no lugar da
-  concatena√ß√£o de todas as frases. O `<span>` raiz ganhou `inline-block max-w-full break-words
-align-bottom` pra garantir que o texto sempre quebra dentro do cont√™iner do t√≠tulo, em vez de
-  arriscar estourar a largura em telas pequenas.
-- `app/page.tsx`: frases do hero reescritas num tom mais humano/profissional, mais curtas (perto
-  do tamanho do "Fa√ßa acontecer." original) pra caber bem em uma linha mesmo em telas pequenas:
-  "Encontre quem faz.", "Venda o que voc√™ sabe.", "Pe√ßa sob medida.", "Publique seus servi√ßos.",
-  "Escolha com confian√ßa.", "Seu talento vira renda." ‚Äî mantendo a altern√¢ncia entre quem busca
-  e quem oferece. `srText="Encontre quem faz ou venda o que voc√™ sabe fazer."`.
-
-### Valida√ß√£o
-
-- `grep` por hex nos arquivos alterados: nenhuma ocorr√™ncia.
-- `npx eslint app/page.tsx components/TypewriterHeadline.tsx`: sem erros.
-- `npm run build`: compila√ß√£o e checagem de TypeScript conclu√≠das com sucesso (falha de
-  pr√©-renderiza√ß√£o de `/admin` √© pr√©-existente, sem rela√ß√£o).
-- Inspe√ß√£o do HTML renderizado (`npm run dev` + fetch): confirmado que o `sr-only` agora cont√©m
-  s√≥ a frase curta fixa, n√£o a concatena√ß√£o das 6.
-- Screenshot real em viewport mobile (390√ó844, via Playwright + Chromium) em dois instantes da
-  anima√ß√£o: texto de uma linha s√≥, sem sobreposi√ß√£o, dentro da √°rea do gradiente, sem estourar a
-  largura da tela.
-
-## 2026-09-21 ‚Äî M√°quina de escrever no hero da home
-
-### Objetivo
-
-- Pedido do usu√°rio: uma anima√ß√£o tipo "sendo apagado e digitado", trocando palavras/frases,
-  rodando nos primeiros segundos ao entrar no site, com textos voltados tanto pra quem contrata
-  (usu√°rio) quanto pra quem oferece (criador). Perguntei onde deveria ficar; a escolha foi no
-  hero da home, no lugar do t√≠tulo fixo "Fa√ßa acontecer.".
-
-### Mudan√ßas
-
-- `components/TypewriterHeadline.tsx` (novo, client component): digita cada frase caractere por
-  caractere, pausa, apaga e passa pra pr√≥xima, em loop. Usa `useSyncExternalStore` pra checar
-  `prefers-reduced-motion` sem gerar mismatch de hidrata√ß√£o (SSR sempre parte de "sem
-  anima√ß√£o" at√© o client confirmar a prefer√™ncia real) ‚Äî quem prefere menos movimento v√™ s√≥ a
-  primeira frase, parada, sem cursor piscando. O texto animado fica `aria-hidden`, com um
-  `sr-only` ao lado listando todas as frases por extenso pra leitor de tela.
-- `app/page.tsx`: segunda linha do t√≠tulo do hero ("Fa√ßa acontecer.") virou
-  `<TypewriterHeadline phrases={heroPhrases} />`, alternando frases pra usu√°rio e pra criador:
-  "Encontre quem faz.", "Venda o que voc√™ sabe fazer.", "Pe√ßa sob medida.", "Publique seus
-  servi√ßos.", "Compre pronto, sem enrola√ß√£o.", "Transforme talento em renda.". Primeira linha
-  ("Encontre. Compare.") continua fixa.
-- Cor usada s√≥ no cursor piscando (`bg-(--color-accent-text)`), nenhum token novo.
-
-### Valida√ß√£o
-
-- `grep` por hex nos arquivos alterados: nenhuma ocorr√™ncia.
-- `npx eslint app/page.tsx components/TypewriterHeadline.tsx`: sem erros (corrigido um erro real
-  de `react-hooks/set-state-in-effect` ao trocar `useState` + `useEffect` manual por
-  `useSyncExternalStore` pra ler `prefers-reduced-motion`).
-- `npm run build`: compila√ß√£o e checagem de TypeScript conclu√≠das com sucesso (falha de
-  pr√©-renderiza√ß√£o de `/admin` √© pr√©-existente, sem rela√ß√£o com esta mudan√ßa).
-- `npm run dev` + fetch da home: HTTP 200; confirmado no HTML que o t√≠tulo est√°tico ("Encontre.
-  Compare.") e o fallback `sr-only` com as frases completas est√£o presentes.
-
-## 2026-09-21 ‚Äî CTA de creator no estilo refer√™ncia (card com divisor)
-
-### Objetivo
-
-- O usu√°rio mandou um print de um concorrente (VintePila) como refer√™ncia de estilo pro texto
-  de chamada: card branco, t√≠tulo grande e direto com exclama√ß√£o ("Transforme seu talento em
-  renda extra hoje!"), par√°grafo de apoio, linha divis√≥ria e bot√£o verde abaixo ‚Äî pediu o mesmo
-  estilo pro Job√™.
-
-### Mudan√ßas
-
-- `app/page.tsx` ‚Äî se√ß√£o de CTA pra criadores na home, reestruturada pra seguir essa refer√™ncia:
-  - Fundo mudou de `bg-(--color-accent-soft)` (card colorido, texto e bot√£o lado a lado) pra
-    `bg-(--color-surface)` com `border-(--color-border)` (card branco, como no exemplo).
-  - T√≠tulo direto com exclama√ß√£o: "Transforme seu talento em renda extra hoje!".
-  - Corpo reescrito no mesmo tom (demanda real + urg√™ncia): "No Job√™, pessoas est√£o procurando
-    exatamente o que voc√™ sabe fazer. Publique seus servi√ßos, mostre seu trabalho pra quem
-    precisa e comece a fechar pedidos. Comece agora e veja seus ganhos crescerem!".
-  - Layout mudou de duas colunas (texto ao lado do bot√£o) pra empilhado com uma linha divis√≥ria
-    (`border-t border-(--color-border)`) entre o texto e o bot√£o, igual ao print de refer√™ncia.
-  - Bot√£o continua "Quero oferecer meus servi√ßos" (mantido da mudan√ßa anterior).
-
-### Valida√ß√£o
-
-- `grep` por hex em `app/page.tsx`: nenhuma ocorr√™ncia.
-- `npx eslint app/page.tsx`: sem erros.
-- `npm run build`: compila√ß√£o e checagem de TypeScript conclu√≠das com sucesso (falha de
-  pr√©-renderiza√ß√£o de `/admin` √© pr√©-existente, sem rela√ß√£o com esta mudan√ßa).
-
-## 2026-09-21 ‚Äî Copy mais forte convidando pra oferecer servi√ßos
-
-### Objetivo
-
-- Pedido do usu√°rio: um texto forte, persuasivo, chamando as pessoas pra oferecer seus servi√ßos
-  na plataforma. Os tr√™s pontos onde o Job√™ convida algu√©m a virar criador tinham copy fraca ou
-  puramente informativa ("Voc√™ ainda n√£o √© um criador nesta plataforma."), sem apelo.
-
-### Mudan√ßas
-
-- `app/page.tsx` ‚Äî se√ß√£o de CTA pra criadores na home:
-  - Selo: "Para quem faz acontecer" ‚Üí "Pare de deixar seu talento parado".
-  - T√≠tulo: "Seu pr√≥ximo cliente pode come√ßar aqui." ‚Üí "Algu√©m est√° procurando exatamente o que
-    voc√™ sabe fazer."
-  - Corpo: refor√ßa autonomia (pre√ßo pr√≥prio, sem depender de indica√ß√£o) em vez de s√≥ listar
-    funcionalidades.
-  - Bot√£o: "Come√ßar a oferecer" ‚Üí "Quero oferecer meus servi√ßos" (a√ß√£o em primeira pessoa).
-- `components/BecomeCreatorPrompt.tsx` (tela exibida no pr√≥prio perfil de quem ainda n√£o √©
-  criador):
-  - T√≠tulo: "Voc√™ ainda n√£o √© um criador nesta plataforma." ‚Üí "Seu talento est√° parado. Vamos
-    mudar isso?"
-  - Corpo reescrito com o mesmo gancho (algu√©m procurando o que a pessoa sabe fazer, pre√ßo
-    pr√≥prio).
-  - Bot√£o: "Tornar-se criador" ‚Üí "Quero oferecer meus servi√ßos".
-- `components/BecomeCreatorBanner.tsx` (faixa compacta no topo do feed): "Torne-se creator.
-  Comece a faturar hoje." ‚Üí "Seu talento vale dinheiro. Comece a vender hoje." ‚Äî mesma estrutura
-  visual, copy mais direta.
-- Nenhuma cor nova: s√≥ texto, os componentes j√° usavam os tokens do design system.
-
-### Valida√ß√£o
-
-- `grep` por hex nos arquivos alterados: nenhuma ocorr√™ncia.
-- `npx eslint` nos tr√™s arquivos: sem erros.
-- `npm run build`: compila√ß√£o e checagem de TypeScript conclu√≠das com sucesso (falha de
-  pr√©-renderiza√ß√£o de `/admin` √© pr√©-existente, sem rela√ß√£o com esta mudan√ßa).
-
-## 2026-09-21 ‚Äî Remove a √∫ltima cor quente (`--color-highlight`)
-
-### Objetivo
-
-- O usu√°rio notou que, mesmo depois de adotar Milky + Mantis, ainda restava uma cor quente no
-  site: o terracota (`--color-highlight`, `#c2491e`/`#ff8a54`), usado em pre√ßos promocionais, no
-  badge "OFERTA" e em partes decorativas da home (gradiente do hero, badge "Escolha como
-  come√ßar", barrinhas de categoria).
-- Perguntei como tratar isso; a escolha foi substituir o terracota por um tom do pr√≥prio verde
-  Mantis em todo o site, mantendo `--color-highlight` como um tom **distinto** do
-  `--color-accent` (pra "oferta"/"pre√ßo promocional" continuar se destacando de um CTA comum),
-  s√≥ que dentro da fam√≠lia verde, sem nenhuma cor quente sobrando.
-
-### Mudan√ßas
-
-- `app/globals.css`
-  - Tema claro: `--color-highlight` `#c2491e` ‚Üí `#1c5f48` (verde-esmeralda escuro, tom diferente
-    do `--color-accent` #59c749); `--color-highlight-hover` ‚Üí `#154736`; `--color-highlight-soft`
-    ‚Üí `#e1f4e8` (tinta clara com leve vi√©s azulado, pra distinguir visualmente do
-    `--color-accent-soft`).
-  - Tema escuro: `--color-highlight` `#ff8a54` ‚Üí `#47d1c6` (verde-azulado vivo, distinto do
-    `--color-accent` #35c98a); `--color-highlight-hover` ‚Üí `#70dbd2`; `--color-highlight-soft` ‚Üí
-    `#19433f`; `--color-on-highlight` ‚Üí `#0c221d` (texto escuro sobre o novo highlight claro).
-  - Nenhum componente precisou mudar: `app/page.tsx`, `components/PriceTag.tsx` e
-    `components/ProductCard.tsx` j√° usavam s√≥ os tokens (`bg-(--color-highlight-soft)`,
-    `text-(--color-highlight)`), ent√£o a troca de valor se propagou sozinha.
-- `CLAUDE.md`: descri√ß√£o do token na tabela atualizada de "terracota" pra "verde-esmeralda
-  escuro (tom distinto do accent)".
-- `docs/HOME_REDESIGN.md`: nota sobre o highlight terracota atualizada pra registrar a troca.
-
-### Valida√ß√£o
-
-- `grep` por hex fora de `app/globals.css`: nenhuma ocorr√™ncia.
-- `npx eslint .`: sem erros.
-- `npm run build`: compila√ß√£o e checagem de TypeScript conclu√≠das com sucesso (falha de
-  pr√©-renderiza√ß√£o de `/admin` √© pr√©-existente, por falta de `SUPABASE_SERVICE_ROLE_KEY` local,
-  n√£o relacionada).
-- `npm run dev` + inspe√ß√£o do CSS gerado: confirmado que `--color-highlight`/`-soft` saem com os
-  novos valores nos dois temas (claro: `#1c5f48`/`#e1f4e8`; escuro: `#47d1c6`/`#19433f`).
-- Contraste (WCAG) recalculado: `--color-highlight` sobre `--color-bg`/`--color-surface` (claro)
-  ‚âà 7,2:1; `--color-on-highlight` sobre `--color-highlight` (escuro) ‚âà 9:1 ‚Äî acima do m√≠nimo de
-  4,5:1.
-
-## 2026-09-21 ‚Äî Paleta Milky + Mantis e novo token `--color-accent-text`
-
-### Objetivo
-
-- O usu√°rio enviou um swatch de marca com duas cores exatas ‚Äî **Milky** (`#FFFDF1`) e **Mantis**
-  (`#59C749`) ‚Äî pedindo para aplic√°-las como a nova paleta viva do Job√™.
-- Milky √© praticamente o `--color-bg` atual (creme claro), ent√£o virou o novo valor exato desse
-  token. Mantis √© bem mais claro/saturado que o verde-s√°lvia anterior e n√£o teria contraste
-  suficiente (~2,1:1) se usado tamb√©m como cor de texto sobre fundo claro ‚Äî abaixo do m√≠nimo de
-  4,5:1 do WCAG AA, o que quebraria a leitura de pre√ßos, links, badges etc.
-- Perguntei ao usu√°rio como resolver esse conflito; a resposta escolhida foi "Mantis s√≥ em
-  fundos, com uma variante escura pro texto" (mesma matiz, mais escura, s√≥ pra garantir leitura).
-
-### Mudan√ßas
-
-- `app/globals.css` (tema claro)
-  - `--color-bg`: `#fffdf1` (Milky, valor exato do swatch).
-  - `--color-accent`: `#59c749` (Mantis, valor exato do swatch) ‚Äî usado s√≥ como **preenchimento**
-    (`bg-*`): bot√µes/CTA, estado ativo, elementos decorativos.
-  - `--color-accent-hover`: `#42a432` (Mantis escurecido, mesma matiz).
-  - `--color-accent-soft`: `#e4f4e1` (tinta clara de Mantis).
-  - `--color-on-accent`: `#183414` (verde bem escuro, texto sobre o fundo Mantis ‚Äî branco n√£o
-    tinha contraste suficiente: ~2,2:1; o escuro d√° ~6,3:1).
-  - **Novo token `--color-accent-text`: `#256b20`** ‚Äî mesma matiz do Mantis, escurecida o
-    suficiente pra funcionar como `text-*`/`border-*`/`ring-*`/`outline-*`/`accent-*` sobre
-    `--color-bg`/`--color-surface` (contraste ‚â• 5:1 nos pares testados).
-- `app/globals.css` (tema escuro): adicionado `--color-accent-text` apontando pro mesmo valor de
-  `--color-accent` (`#35c98a`) ‚Äî no escuro o fundo j√° √© escuro, ent√£o o verde vivo funciona bem
-  como texto tamb√©m (contraste ‚âà 9,3:1), n√£o precisa de uma segunda variante.
-- `::selection` em `app/globals.css`: cor do texto selecionado trocada de `--color-accent` pra
-  `--color-accent-text`, pelo mesmo motivo de contraste.
-- **48 arquivos** em `app/` e `components/`: toda ocorr√™ncia de `text-`, `border-`,
-  `focus:border-`, `hover:border-`, `hover:text-`, `group-hover:text-`, `focus-within:border-`,
-  `focus-within:outline-` e `focus-visible:ring-` apontando pra `(--color-accent)` passou a
-  apontar pra `(--color-accent-text)`. Ocorr√™ncias de `bg-` (incluindo `hover:bg-` e `file:bg-`)
-  continuam em `(--color-accent)`, j√° que representam preenchimento. √önico ajuste manual depois
-  do replace em massa: `accent-(--color-accent)` nativo do checkbox em
-  `components/ResumeSection.tsx` voltou pro Mantis vivo (√© um preenchimento, n√£o texto).
-- `CLAUDE.md`: tabela de tokens e todos os padr√µes de componente (badges, chips, nav mobile)
-  atualizados pra usar `--color-accent-text` em contextos de texto/borda; nova se√ß√£o explicando
-  a distin√ß√£o entre `--color-accent` (fundo) e `--color-accent-text` (texto) e por que ela
-  existe.
-
-### Valida√ß√£o
-
-- `grep` por hex fora de `app/globals.css` nos arquivos alterados: nenhuma ocorr√™ncia ‚Äî s√≥ o
-  arquivo de tokens tem valor literal.
-- `npx eslint .`: sem erros.
-- `npm run build`: compila√ß√£o e checagem de TypeScript conclu√≠das com sucesso (a falha de
-  pr√©-renderiza√ß√£o de `/admin` √© pr√©-existente, por falta de `SUPABASE_SERVICE_ROLE_KEY` no
-  ambiente local, n√£o relacionada a esta mudan√ßa).
-- `npm run dev` + fetch da home: HTTP 200; conferido no CSS gerado que `--color-accent-text` e
-  `--color-accent` saem com os valores corretos nos dois temas (claro: `#256b20`/`#59c749`;
-  escuro: `#35c98a` nos dois).
-- Contraste (WCAG) recalculado para os pares novos: `--color-accent-text` sobre `--color-bg`
-  ‚âà 5,0:1; sobre `--color-surface` ‚âà 5,1:1; sobre `--color-accent-soft` ‚âà 5,7:1;
-  `--color-on-accent` sobre `--color-accent` ‚âà 6,3:1 (claro) e ‚âà 7,9:1 (escuro) ‚Äî todos acima do
-  m√≠nimo de 4,5:1 (texto) / 3:1 (bordas e indicadores de foco).
-
-## 2026-09-21 ‚Äî Paleta mais viva (tokens de cor)
-
-### Objetivo
-
-- A pedido do usu√°rio, deixar a pr√≥pria paleta de cores mais viva (mais saturada), n√£o s√≥ o
-  layout da home ‚Äî mudando os valores dos tokens em `app/globals.css`, o que propaga
-  automaticamente para toda a aplica√ß√£o (light e dark), como o design system prev√™.
-
-### Mudan√ßas
-
-- `app/globals.css` (`:root` e `:root[data-theme="dark"]`)
-  - `--color-accent`/`--color-accent-hover`/`--color-accent-soft`: verde-s√°lvia mais saturado
-    (de `#456c58` para `#146b48` no claro; de `#7fa58f` para `#35c98a` no escuro), mantendo a
-    identidade "fechada" da marca mas com bem mais vivacidade.
-  - `--color-highlight`/`--color-highlight-hover`/`--color-highlight-soft`: terracota mais
-    vibrante (de `#995334` para `#c2491e` no claro; de `#d3906f` para `#ff8a54` no escuro).
-  - `--color-verified`: azul mais saturado (`#4f7199` ‚Üí `#1f74c4` no claro; `#83a8d1` ‚Üí
-    `#4fa8e8` no escuro).
-  - `--color-success`/`--color-warning`/`--color-danger`: mesma l√≥gica de satura√ß√£o aplicada
-    aos estados sem√¢nticos, mantendo `--color-success` visualmente distinto do accent.
-  - `--color-on-accent` no escuro ajustado de `#102018` para `#072013` para preservar contraste
-    com o novo verde mais claro/saturado.
-  - Nenhum componente foi tocado: como todos j√° usam os tokens (`bg-(--color-accent)` etc.), a
-    mudan√ßa de paleta se propagou sozinha para toda a UI.
-
-### Valida√ß√£o
-
-- `grep` pelos hex antigos em `.tsx`/`.ts`/`.css` (fora de `.next`/`node_modules`): nenhuma
-  ocorr√™ncia ‚Äî confirma que tudo referencia os tokens, n√£o valores fixos.
-- `npm run build`: compila√ß√£o e checagem de TypeScript conclu√≠das com sucesso (a falha de
-  pr√©-renderiza√ß√£o de `/admin` √© pr√©-existente, por falta de `SUPABASE_SERVICE_ROLE_KEY` no
-  ambiente local, n√£o relacionada a esta mudan√ßa).
-- Contraste recalculado (WCAG) para os pares mais usados: `--color-on-accent` sobre
-  `--color-accent` ‚âà 5,3:1 no claro e ‚âà 7,9:1 no escuro; `--color-accent` sobre
-  `--color-accent-soft` ‚âà 5,4:1 no claro; `--color-on-highlight` sobre `--color-highlight`
-  ‚âà 4,9:1 no claro ‚Äî todos dentro do m√≠nimo de 4,5:1 para texto normal em componentes-chave
-  (CTAs, badges).
-
-## 2026-09-21 ‚Äî Mais cor viva na p√°gina inicial
-
-### Objetivo
-
-- Deixar a p√°gina inicial mais viva visualmente, sem sair da paleta Marfim + S√°lvia nem
-  introduzir cor fora dos tokens existentes.
-
-### Mudan√ßas
-
-- `app/page.tsx`
-  - Hero: gradiente radial passou a combinar `--color-highlight-soft` (canto superior direito)
-    com `--color-accent-soft` (canto inferior esquerdo), em vez de um √∫nico tom neutro.
-  - Faixa de destaques ("Pre√ßo vis√≠vel" / "Conversa antes de fechar" / "Compra em um s√≥
-    lugar"): trocou divis√≥rias finas em fundo neutro por tr√™s p√≠lulas coloridas
-    (`--color-accent-soft`/`--color-accent` e `--color-highlight-soft`/`--color-highlight`
-    alternados), dando mais peso visual √† se√ß√£o.
-  - Categorias: cada card ganhou uma barrinha colorida acima do t√≠tulo, alternando
-    `--color-accent` e `--color-highlight` por item.
-  - "Como funciona": os n√∫meros de passo (01/02/03) passaram de texto simples para um c√≠rculo
-    preenchido com `--color-accent-soft`/`--color-accent`.
-- Nenhum token novo foi necess√°rio; todas as cores usadas j√° existiam em `app/globals.css`.
-
-### Valida√ß√£o
-
-- `grep` por hex e por classes de paleta fixa do Tailwind em `app/page.tsx`: nenhuma ocorr√™ncia.
-- `npx eslint app/page.tsx`: sem erros.
-- `npm run build`: compila√ß√£o e checagem de TypeScript conclu√≠das com sucesso (a falha de
-  pr√©-renderiza√ß√£o de `/admin` √© pr√©-existente, por falta de `SUPABASE_SERVICE_ROLE_KEY` no
-  ambiente local, e n√£o relacionada a esta mudan√ßa).
-
-## 2026-09-21 ‚Äî Home com presen√ßa comercial
-
-### Objetivo
-
-- Dar √† p√°gina inicial apar√™ncia clara de marketplace, mantendo a paleta confort√°vel e a
-  identidade humana do Job√™.
-- Exibir ofertas reais antes de categorias e conte√∫do explicativo.
-
-### Mudan√ßas
-
-- `app/page.tsx`
-  - Hero orientado a busca, compara√ß√£o e contrata√ß√£o, com CTA para explorar e para vender.
-  - Bloco lateral diferencia servi√ßos, produtos digitais e Jogue comigo.
-  - Vitrine real movida para cima; categorias, como funciona e comunidade v√™m depois.
-  - Vitrine e comunidade separadas em Suspense pr√≥prios e compartilham uma leitura memoizada
-    no servidor, evitando consultas duplicadas e JavaScript adicional no navegador.
-  - Atalhos ganharam formato de a√ß√£o e skeletons espec√≠ficos para cada trecho.
-- `app/globals.css` e `CLAUDE.md`
-  - Adicionados tokens terracota de highlight para ofertas e energia comercial, sem substituir
-    o verde-s√°lvia dos CTAs principais.
-- `components/ProductCard.tsx` e `components/PriceTag.tsx`
-  - Ofertas e pre√ßos promocionais usam o novo highlight quente.
-- `docs/HOME_REDESIGN.md` atualizado com a nova hierarquia e decis√£o de cor.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o.
-- Checagem de cores fixas, diff e reutiliza√ß√£o da consulta no servidor.
-- Contraste do terracota sobre fundo suave: 4,56:1; texto branco sobre terracota: 5,77:1.
-- Smoke test da home em servidor de produ√ß√£o, confirmando resposta HTML e CTAs principais.
-
-## 2026-09-21 ‚Äî Paleta Marfim + S√°lvia
-
-### Objetivo
-
-- Substituir o verde vivo por uma identidade mais calma, amig√°vel e confort√°vel para leitura.
-- Garantir contraste adequado nos textos, bot√µes e estados sem√¢nticos do tema claro.
-- Preparar o tema escuro para usar texto pr√≥prio sobre o accent, sem presumir branco.
-
-### Mudan√ßas
-
-- `app/globals.css`
-  - Fundo marfim, superf√≠cies neutras, textos grafite esverdeados e verde-s√°lvia fechado.
-  - Estados de sucesso, aten√ß√£o, erro e verifica√ß√£o ficaram menos saturados.
-  - Criado o token `--color-on-accent`, branco no tema claro e escuro profundo no tema escuro.
-- Componentes e p√°ginas com CTA verde passaram de `text-white` para
-  `text-(--color-on-accent)`, preservando legibilidade nos dois temas.
-- `CLAUDE.md` e `docs/HOME_REDESIGN.md` atualizados para tornar Marfim + S√°lvia a refer√™ncia
-  do projeto e impedir que a paleta anterior volte em altera√ß√µes futuras.
-
-### Contraste medido
-
-- Texto principal sobre o fundo: 12,43:1.
-- Texto secund√°rio sobre o fundo: 5,73:1.
-- Texto sutil sobre o fundo marfim: 4,61:1; sobre superf√≠cie branca: 5,03:1.
-- Texto do CTA sobre o verde-s√°lvia: 5,93:1.
-- Verde-s√°lvia sobre o fundo suave de accent: 4,92:1.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o.
-- Checagem dos tokens e dos CTAs que usam fundo de accent.
-- Confer√™ncia contra cores fixas fora do arquivo central de tokens.
-
-## 2026-09-21 ‚Äî Home orientada √† descoberta e contrata√ß√£o
-
-### Objetivo
-
-- Adaptar princ√≠pios √∫teis de VintePila, Workana e Packzin √† p√°gina inicial,
-  preservando o feed, as fun√ß√µes existentes e a paleta Milky + Mantis.
-
-### Mudan√ßas
-
-- `app/page.tsx`: busca com r√≥tulo acess√≠vel, sugest√µes, atalhos por objetivo,
-  navega√ß√£o por √¢ncoras, categorias compactas, vitrine condicional, profissionais
-  reais, feed expans√≠vel, como funciona, chamada para criadores e FAQ nativo.
-- Removida a depend√™ncia de perfis mock da home. Autores de produtos e servi√ßos
-  s√£o resolvidos em uma consulta em lote, sem ranking artificial.
-- Mantidos ISR de 60 s e componentes existentes; cat√°logo isolado com Suspense,
-  skeleton e tratamento de falhas parciais. Consultas limitadas e paralelas.
-- `docs/HOME_REDESIGN.md`: refer√™ncias, decis√µes, limites, roteiro de valida√ß√£o
-  e possibilidades futuras. Nenhuma migration ou altera√ß√£o de pagamentos.
-
-### Valida√ß√£o
-
-- Lint, TypeScript e build completo aprovados com vari√°veis fict√≠cias de teste.
-- Leitura p√∫blica real de produtos, servi√ßos e perfis aprovada.
-- HTML gerado verificado, incluindo o estado de indisponibilidade.
-- Segundo build com chave public√°vel real aprovado: HTML da home cont√©m servi√ßos
-  e feed reais, sem aviso de falha. Service role fict√≠cia apenas para satisfazer
-  a configura√ß√£o de build preexistente; nenhuma escrita ou teste administrativo.
-- Revis√£o de cores e diff; nenhuma nova depend√™ncia do projeto.
-- Valida√ß√£o visual e de cliques pendente: navegador indispon√≠vel por falhas de
-  instala√ß√£o (certificado/timeout). N√£o foram medidos Core Web Vitals.
-
-## 2026-09-21 ‚Äî Paleta definitiva: Milky + Mantis
-
-### Objetivo
-
-- Depois de 13 paletas testadas nesta sess√£o, o usu√°rio escolheu **Milky + Mantis** (j√° tinha
-  sido testada antes, ver entrada "Teste de paleta: Milky + Mantis") como a paleta definitiva do
-  Job√™. Diferente das entradas anteriores desta sequ√™ncia (todas marcadas como "teste,
-  substitu√≠vel a qualquer momento"), esta fecha a identidade visual ‚Äî por isso tamb√©m atualizei
-  o `CLAUDE.md`, que ainda descrevia o sistema antigo (laranja + cinza-n√©voa).
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro voltam exatamente aos valores da paleta Milky/Mantis
-  (fundo creme `#fffdf1`, accent verde `#59c749`) ‚Äî mesmos hex j√° validados na entrada anterior,
-  reaplicados por cima da √∫ltima paleta de teste (Barley White/Mikado Yellow).
-- `CLAUDE.md`:
-  - Trocado "laranja como cor de marca" / "fundo cinza-n√©voa frio" pela descri√ß√£o real (verde
-    Mantis / creme Milky).
-  - Exemplo de hex "cru" da regra de ouro atualizado de `#f5821f` (laranja antigo) pra `#59c749`
-    (verde atual).
-  - Nota sobre `--color-success` reescrita: a justificativa antiga ("verde destoa da paleta
-    laranja+cinza") n√£o fazia mais sentido com o accent sendo verde. A regra em si continua
-    valendo (badge positivo usa `bg-(--color-accent-soft) text-(--color-accent)`, nunca
-    `--color-success`) ‚Äî s√≥ a raz√£o mudou: `--color-success` √© um verde **diferente** do accent,
-    e os dois lado a lado confundiriam duas sem√¢nticas distintas (aprovado vs. mensagem de
-    sucesso).
-  - Badge de verificado: "separado do `--color-accent` laranja" ‚Üí "separado do `--color-accent`
-    verde".
-
-### Ponto que continua em aberto (n√£o resolvido nesta entrada)
-
-- `--color-success` (`#1f9d55`) e `--color-accent` (`#59c749`) continuam sendo dois verdes
-  parecidos, mesmo com a regra do CLAUDE.md minimizando o uso de `--color-success` em badges. Se
-  algum dia esses dois tons precisarem aparecer juntos na mesma tela, vale revisitar se um dos
-  dois deveria mudar de matiz ‚Äî n√£o fiz isso agora porque o usu√°rio s√≥ pediu pra fixar a paleta,
-  n√£o pra resolver esse ponto.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- `grep` por "laranja"/"cinza-n√©voa" no `CLAUDE.md`: nenhuma ocorr√™ncia restante.
-
-## 2026-09-21 ‚Äî Teste de paleta: Barley White + Mikado Yellow
-
-### Objetivo
-
-- D√©cimo terceiro teste de paleta seguido: Barley White `#FFF4CC` e Mikado Yellow `#FFBE00`.
-  Substitui a paleta Cotton/Electric Blue/Moonless Night da entrada anterior.
-
-### Mapeamento pros tokens
-
-- **Barley White** ‚Üí `--color-bg` no tema claro; reaproveitado como `--color-text` no escuro.
-- **Mikado Yellow** ‚Üí `--color-accent`/`--color-accent-hover`, mesmo hex nos dois temas (√© claro
-  o bastante pra funcionar como texto/√≠cone sobre fundo escuro).
-- `--color-text` no claro foi pra um marrom bem escuro (`#2b2100`) em vez do neutro, mesma
-  fam√≠lia do amarelo. `--color-surface-2`/`--color-border`/`--color-accent-soft` derivados em
-  tons de √¢mbar/dourado claro.
-
-### Alerta mais forte desta sequ√™ncia de testes: contraste, n√£o s√≥ combina√ß√£o de cor
-
-- Nas entradas anteriores os avisos eram sobre **duas cores da mesma fam√≠lia aparecendo em
-  contextos diferentes** (dourado√ódourado, verde√óverde, vermelho√óvermelho) ‚Äî inc√¥modo visual,
-  mas ainda leg√≠vel. Aqui o problema √© outro e mais s√©rio: **amarelo vibrante com texto branco
-  em cima tem contraste muito baixo** (a conta de lumin√¢ncia d√° around 1.6:1 ‚Äî bem abaixo do
-  m√≠nimo de acessibilidade). E o app fixa `text-white` (branco literal, n√£o um token) em 52
-  lugares que usam `bg-(--color-accent)` ‚Äî ver a mesma observa√ß√£o j√° feita na entrada
-  monocrom√°tica (Pale Ash/Black Ink). L√° o problema s√≥ existia no tema escuro; aqui existe
-  **nos dois temas**, porque Mikado Yellow j√° nasce claro. Isso significa que, com esta paleta,
-  praticamente todo bot√£o de call-to-action do site (comprar, aceitar, publicar, enviar
-  proposta) fica com o texto dif√≠cil de ler. Implementei do jeito que foi pedido (o hex exato),
-  mas se esta for a paleta escolhida de verdade, o pr√≥ximo passo obrigat√≥rio n√£o √© ajustar o
-  token ‚Äî √© trocar `text-white` por uma cor escura nesses 52 lugares (ou um novo token
-  `--color-accent-text` que j√° nas√ßa correto pra cada paleta).
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio ‚Äî praticamente obrigat√≥rio desta vez, dado o
-  problema de contraste descrito acima.
-
-## 2026-09-21 ‚Äî Teste de paleta: Cotton + Electric Blue + Moonless Night
-
-### Objetivo
-
-- D√©cimo segundo teste de paleta seguido: Cotton `#F4F3F1`, Electric Blue `#3171C6`, Moonless
-  Night `#2D2D2D`. Substitui a paleta Milano Red/Cararra da entrada anterior ‚Äî some o risco de
-  confus√£o accent√ódanger que eu tinha avisado ali, j√° que o accent volta a ser azul.
-
-### Mapeamento pros tokens
-
-- **Cotton** ‚Üí `--color-bg` no tema claro; reaproveitado como `--color-text` no escuro.
-- **Electric Blue** ‚Üí `--color-accent`/`--color-accent-hover`. No tema escuro, uma vers√£o um
-  pouco mais clara do mesmo azul (`#4a86d6`) em vez do hex exato ‚Äî d√° mais margem de contraste
-  como texto/√≠cone direto sobre o fundo escuro, sem precisar de uma clareada t√£o grande quanto a
-  do Royal Blue/Milano Red (Electric Blue j√° n√£o era t√£o escuro assim).
-- **Moonless Night** ‚Üí `--color-text` no tema claro; `--color-bg` no tema escuro.
-- `--color-surface-2`/`--color-border`/`--color-accent-soft` derivados na mesma fam√≠lia
-  cinza-azulada, nos dois temas.
-- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` n√£o mudaram ‚Äî
-  `--color-verified` (azul) volta a ficar na mesma fam√≠lia do novo accent (mesma observa√ß√£o j√°
-  feita quando testamos Royal Blue), mas sem o risco mais s√©rio de confus√£o com danger que a
-  paleta anterior tinha.
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-21 ‚Äî Teste de paleta: Milano Red + Cararra
-
-### Objetivo
-
-- D√©cimo primeiro teste de paleta seguido: Milano Red `#BB080B` (vermelho profundo) e Cararra
-  `#F0EDE8` (bege/cinza quente). Substitui a paleta Peach/Lilac Ice da entrada anterior.
-
-### Mapeamento pros tokens
-
-- **Cararra** ‚Üí `--color-bg` no tema claro; reaproveitado como `--color-text` no escuro.
-- **Milano Red** ‚Üí `--color-accent`/`--color-accent-hover` no tema claro. No tema escuro o
-  accent precisou clarear (`#e8353a`) pelo mesmo motivo do Royal Blue e do cinza monocrom√°tico:
-  o tom original √© escuro demais pra funcionar como texto/√≠cone direto sobre um fundo j√° escuro.
-- `--color-text`, `--color-surface-2`/`--color-border`/`--color-accent-soft` derivados na mesma
-  fam√≠lia bege/vermelho quente, nos dois temas.
-
-### Ponto de aten√ß√£o importante (avisado ao usu√°rio antes de implementar)
-
-- `--color-danger` (`#c0392b` no claro, `#c9484e` no escuro ‚Äî usado em recusar/cancelar/excluir/
-  den√∫ncia) j√° era vermelho, e agora o `--color-accent` (Milano Red) **tamb√©m √© vermelho, num
-  tom bem pr√≥ximo**. Diferente das outras observa√ß√µes de "cores parecidas" desta sequ√™ncia
-  (dourado√ódourado, verde√óverde), este √© o par mais arriscado at√© agora: um usu√°rio pode ler um
-  bot√£o de accent (comprar, aceitar) e um bot√£o de perigo (recusar, cancelar, excluir) como a
-  mesma cor, especialmente lado a lado numa mesma tela (ex.: card de proposta com "Aceitar" e
-  "Recusar"). N√£o ajustei `--color-danger` porque n√£o fazia parte da paleta pedida, mas se os
-  dois bot√µes ficarem confusos na pr√°tica, a corre√ß√£o certa √© afastar `--color-danger` do
-  vermelho (pra um tom mais alaranjado ou naming diferente), n√£o o contr√°rio.
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio ‚Äî aten√ß√£o especial a telas com bot√µes de
-  accent e de perigo lado a lado (ex.: card de proposta na conversa).
-
-## 2026-09-21 ‚Äî Teste de paleta: Peach + Lilac Ice
-
-### Objetivo
-
-- D√©cimo teste de paleta seguido: Peach `#FF8C36` (laranja) e Lilac Ice `#F6F5FF` (lavanda bem
-  clara). Substitui a paleta monocrom√°tica Pale Ash/Black Ink da entrada anterior. Estrutura
-  parecida com o primeiro teste da sequ√™ncia (laranja + lavanda clara), tons diferentes.
-
-### Mapeamento pros tokens
-
-- **Lilac Ice** ‚Üí `--color-bg` no tema claro; reaproveitado como `--color-text` no escuro.
-- **Peach** ‚Üí `--color-accent`/`--color-accent-hover` ‚Äî mesmo hex nos dois temas (laranja √©
-  claro/saturado o bastante pra funcionar como texto/√≠cone direto sobre fundo escuro, sem
-  precisar do ajuste que Royal Blue e o cinza monocrom√°tico da entrada anterior precisaram).
-- `--color-text` no claro foi pra um roxo bem escuro (`#1c1a29`) em vez do neutro cinza-chumbo,
-  pra ficar na mesma fam√≠lia da lavanda. `--color-surface-2`/`--color-border`/`--color-accent-soft`
-  derivados na mesma l√≥gica lavanda/p√™ssego, nos dois temas.
-- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` n√£o mudaram.
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-21 ‚Äî Teste de paleta: Pale Ash + Black Ink (monocrom√°tica)
-
-### Objetivo
-
-- Nono teste de paleta seguido. Diferente de todas as anteriores: s√≥ duas cores neutras, **sem
-  nenhum accent colorido** ‚Äî Pale Ash `#E5E5E5` e Black Ink `#1C1C1C`. Substitui a paleta Deep
-  Charcoal/Gold Green/Apricot White da entrada anterior.
-
-### Mapeamento pros tokens e um problema real que isso exp√¥s
-
-- **Pale Ash** ‚Üí `--color-bg` no tema claro; reaproveitado como `--color-text` no escuro.
-- **Black Ink** ‚Üí `--color-text` no tema claro; `--color-bg` no tema escuro.
-- Sem uma terceira cor de accent, a leitura mais fiel ao print √© um design monocrom√°tico: CTA
-  tamb√©m em preto/cinza, n√£o colorido ‚Äî `--color-accent` = Black Ink no tema claro.
-- **Isso esbarrou num problema real**: 52 lugares no c√≥digo usam literalmente
-  `bg-(--color-accent) text-white` (texto branco fixo, n√£o um token) ‚Äî funcionava em todas as
-  paletas anteriores porque o accent sempre foi uma cor de satura√ß√£o m√©dia/alta. Se o
-  `--color-accent` do tema escuro virasse Pale Ash (quase branco, pra "inverter" como nas
-  entradas anteriores), esses 52 bot√µes ficariam com texto branco sobre fundo quase branco ‚Äî
-  ileg√≠vel. Por isso, **s√≥ nesta entrada**, o accent do tema escuro n√£o √© a cor clara invertida:
-  √© um cinza m√©dio (`#4a4a4a`) escolhido especificamente pra manter esse texto branco
-  fixo leg√≠vel, com hover mais claro (`#666666`) e um badge/soft bem mais claro (`#d5d5d5`) pra o
-  texto do accent (agora cinza m√©dio) continuar vis√≠vel em cima.
-- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` n√£o mudaram ‚Äî nesta
-  paleta eles s√£o as √öNICAS cores saturadas que sobram na tela, o que pode ficar estranho
-  (destoam mais do que em qualquer paleta anterior, j√° que tudo o resto √© cinza/preto/branco).
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio ‚Äî vale prestar aten√ß√£o especial nos bot√µes de
-  CTA no tema escuro, √© o ponto mais delicado desta entrada.
-
-## 2026-09-21 ‚Äî Teste de paleta: Deep Charcoal + Gold Green + Apricot White
-
-### Objetivo
-
-- Oitavo teste de paleta seguido: Deep Charcoal `#222222`, Gold Green `#CAC426`, Apricot White
-  `#EED3BA`. Substitui a paleta Titan White/Crocus Purple/Ebony Clay da entrada anterior.
-
-### Mapeamento pros tokens
-
-- **Apricot White** ‚Üí `--color-bg` no tema claro (creme quente, n√£o mais lavanda); reaproveitado
-  como `--color-text` no tema escuro.
-- **Gold Green** ‚Üí `--color-accent`/`--color-accent-hover` ‚Äî oliva/verde-dourado, mesmo hex nos
-  dois temas (√© claro o bastante pra funcionar como texto/√≠cone direto sobre fundo escuro, igual
-  ao Crocus Purple da entrada anterior ‚Äî s√≥ o hover que muda de dire√ß√£o: mais escuro no claro,
-  mais claro no escuro).
-- **Deep Charcoal** ‚Üí `--color-text` no tema claro; `--color-bg`/`--color-surface` no tema
-  escuro (encaixa bem com o nome ‚Äî "Deep" j√° sugeria fundo escuro).
-- `--color-surface-2`/`--color-border`/`--color-accent-soft` derivados na mesma fam√≠lia
-  creme/oliva quente, nos dois temas.
-- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` n√£o mudaram.
-
-### Ponto de aten√ß√£o
-
-- `--color-warning` (`#b58a1a`, dourado-acastanhado) e o novo `--color-accent` (Gold Green,
-  tamb√©m um dourado-esverdeado) ficam de novo pr√≥ximos em fam√≠lia de cor ‚Äî mesma observa√ß√£o j√°
-  feita na entrada de Sunglow. N√£o ajustei por n√£o fazer parte da paleta pedida.
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-21 ‚Äî Teste de paleta: Titan White + Crocus Purple + Ebony Clay
-
-### Objetivo
-
-- S√©timo teste de paleta seguido: Titan White `#EBF0FF`, Crocus Purple `#9687F5`, Ebony Clay
-  `#2D284B`. Substitui a paleta Royal Blue/Light Cream da entrada anterior.
-
-### Mapeamento pros tokens
-
-- **Titan White** ‚Üí `--color-bg` no tema claro; reaproveitado como `--color-text` no tema
-  escuro (mesmo truque de sempre: cor clara vira texto quando o fundo escurece).
-- **Crocus Purple** ‚Üí `--color-accent`/`--color-accent-hover` ‚Äî dessa vez o mesmo hex funciona
-  nos dois temas sem precisar clarear pro escuro (diferente das duas entradas anteriores com
-  Royal Blue): Crocus Purple j√° √© claro o bastante pra servir de texto/√≠cone direto sobre um
-  fundo escuro.
-- **Ebony Clay** ‚Üí `--color-text` no tema claro (encaixou bem como texto principal, j√° que √© um
-  roxo bem escuro) e `--color-bg`/`--color-surface` no tema escuro.
-- `--color-surface-2`/`--color-border`/`--color-accent-soft` derivados na mesma fam√≠lia
-  lavanda/roxo, nos dois temas.
-- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` n√£o mudaram.
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-21 ‚Äî Teste de paleta: Royal Blue + Light Cream
-
-### Objetivo
-
-- Sexto teste de paleta seguido: Royal Blue `#014BAA` e Light Cream `#F8F3F0` ‚Äî s√≥ duas cores
-  desta vez (print de post de design, n√£o relacionado ao projeto). Substitui a paleta Royal
-  Blue/Light Grey/Sky Blue da entrada anterior (mesmo nome "Royal Blue", hex ligeiramente
-  diferente ‚Äî `#014BAA` em vez de `#10367D`).
-
-### Mapeamento pros tokens
-
-- **Light Cream** ‚Üí `--color-bg` no tema claro.
-- **Royal Blue** ‚Üí `--color-accent`/`--color-accent-hover` no tema claro; `--color-accent-soft`
-  ganhou um azul bem claro derivado dele (n√£o fazia parte do print, mas segue o mesmo princ√≠pio
-  de contraste das entradas anteriores: accent escuro precisa de um tom claro pra funcionar como
-  fundo de badge).
-- Tema escuro: mesma solu√ß√£o da entrada anterior ‚Äî Royal Blue √© escuro demais pra virar texto
-  direto sobre fundo j√° escuro, ent√£o o accent no escuro usa uma vers√£o mais clara do mesmo azul;
-  `--color-text` do escuro reusa o Light Cream.
-- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` n√£o mudaram.
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-21 ‚Äî Teste de paleta: Royal Blue + Light Grey + Sky Blue
-
-### Objetivo
-
-- Quinto teste de paleta seguido (mesmo contexto de liberdade das entradas anteriores): Royal
-  Blue `#10367D`, Light Grey `#EBEBEB`, Sky Blue `#74B4D9` ‚Äî sem legenda de
-  dominante/secund√°ria/accent desta vez, mandado s√≥ como print de 3 blocos de cor.
-
-### Mapeamento pros tokens
-
-- **Light Grey** ‚Üí `--color-bg` (quase o mesmo valor do cinza-n√©voa original do Job√™, antes de
-  toda essa sequ√™ncia de testes) ‚Äî volta a ser um fundo neutro claro, n√£o colorido como nas
-  entradas anteriores.
-- **Royal Blue** ‚Üí `--color-accent`/`--color-accent-hover` no tema claro ‚Äî CTAs, pre√ßos, estado
-  ativo.
-- **Sky Blue** ‚Üí `--color-accent-soft` no tema claro (fundo de badge/chip ativo, com texto na cor
-  Royal Blue por cima ‚Äî contraste bom, azul escuro sobre azul claro).
-- `--color-surface-2`/`--color-border` derivados numa fam√≠lia cinza-azulada leve, entre o fundo e
-  o branco dos cards.
-- **Tema escuro quebra o padr√£o das 4 entradas anteriores**: nelas, `--color-accent` era
-  id√™ntico nos dois temas. Aqui n√£o d√° ‚Äî Royal Blue √© escuro demais pra funcionar como cor de
-  texto/√≠cone direto sobre um fundo j√° escuro (ficaria ileg√≠vel). Ent√£o no escuro
-  `--color-accent` vira uma vers√£o mais clara do mesmo azul (`#4a85d6`), e Sky Blue passa a ser o
-  `--color-accent-hover` (mais claro ainda) em vez do soft; `--color-text` do tema escuro reusa o
-  Light Grey (mesmo truque das entradas anteriores, cor clara virando texto no escuro).
-- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` n√£o mudaram ‚Äî note que
-  `--color-verified` (`#3b82f6`) j√° era um azul, agora parecido em fam√≠lia com o novo accent; n√£o
-  ajustei por n√£o fazer parte da paleta pedida.
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-21 ‚Äî Teste de paleta: Milky + Mantis
-
-### Objetivo
-
-- Quarto teste de paleta seguido (mesmo contexto de liberdade dado pelo usu√°rio nas entradas
-  anteriores): Milky `#FFFDF1` (creme) e Mantis `#59C749` (verde vibrante). Diferente das duas
-  anteriores, essa √© uma paleta **clara** ‚Äî volta o site a abrir com fundo claro por padr√£o.
-
-### Mapeamento pros tokens
-
-- **Milky** ‚Üí `--color-bg` (fundo creme) e base do `--color-text` do tema escuro (ver abaixo).
-  `--color-surface` (cards) ficou branco puro, um tom acima do creme, mesmo princ√≠pio de
-  separa√ß√£o card/fundo das entradas anteriores.
-- **Mantis** ‚Üí `--color-accent`/`--color-accent-hover` ‚Äî CTAs, pre√ßos, estado ativo.
-- `--color-text` no tema claro foi pra um verde bem escuro (`#182619`, quase preto com leve
-  matiz verde) em vez do neutro anterior, pra manter tudo na mesma fam√≠lia de cor.
-  `--color-text-muted`/`--color-text-subtle`, `--color-surface-2`/`--color-border` e
-  `--color-accent-soft` s√£o derivados da mesma fam√≠lia (verde claro/creme).
-- Tema escuro: inverte a l√≥gica (fundo bem escuro com leve matiz verde, texto no tom Milky).
-- `--color-warning`/`--color-danger`/`--color-verified` n√£o mudaram.
-
-### Ponto de aten√ß√£o
-
-- `--color-success` (`#1f9d55`, usado em confirma√ß√µes ‚Äî pouco exercitado no app hoje, ver regra
-  do CLAUDE.md sobre preferir laranja/accent pra positivo) √© outro tom de **verde**, agora bem
-  parecido com o novo `--color-accent` (Mantis). Se algum lugar espec√≠fico usar as duas cores
-  lado a lado, pode ficar confuso "isso √© sucesso ou √© o bot√£o de a√ß√£o?". N√£o mudei
-  `--color-success` porque n√£o fazia parte da paleta pedida.
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-20 ‚Äî Teste de paleta: Midnight Blue + Neon Purple + Ice White
-
-### Objetivo
-
-- Mais um print de paleta pra testar (segundo teste seguido, mesmo processo de "ignorar
-  CLAUDE.md por enquanto" da entrada anterior): Midnight Blue `#1E1E2F`, Neon Purple `#8A2BE2`,
-  Ice White `#F4F6FC`. Substitui a paleta Dark Purple/Wisteria/Sunglow do teste anterior.
-
-### Mapeamento pros tokens
-
-- **Midnight Blue** ‚Üí `--color-bg`/`--color-surface` (fundo geral e cards, com o card um tom
-  mais claro que o fundo pra dar separa√ß√£o) ‚Äî continua dark-first, como o teste anterior.
-- **Neon Purple** ‚Üí `--color-accent`/`--color-accent-hover` ‚Äî CTAs, pre√ßos, estado ativo, no
-  lugar do dourado.
-- **Ice White** ‚Üí `--color-text` (texto principal), usado no hex exato dado.
-- `--color-text-muted`/`--color-text-subtle`, `--color-surface-2`/`--color-border` e
-  `--color-accent-soft` foram derivados pra manter a mesma disciplina de contraste das entradas
-  anteriores (texto claro sobre fundo escuro, nunca claro sobre claro).
-- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` n√£o mudaram.
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados (o escuro √© uma vers√£o ainda mais profunda
-  do mesmo esquema, mesma l√≥gica das duas entradas anteriores).
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-20 ‚Äî Teste de paleta: Dark Purple + Wisteria + Sunglow
-
-### Objetivo
-
-- Usu√°rio mandou print de uma paleta de 3 cores (dominante/secund√°ria/accent) pra testar no
-  site: Dark Purple `#210B2C` (dominante), Wisteria `#BC96E6` (secund√°ria), Sunglow `#FFD166`
-  (accent). Substitui a paleta laranja+azul-gelo da entrada anterior ‚Äî troca expl√≠cita, n√£o uma
-  adi√ß√£o.
-
-### Mapeamento pros tokens
-
-- **Dark Purple** ‚Üí `--color-bg`/`--color-surface` (fundo geral e cards, num tom levemente mais
-  claro que o fundo pra dar separa√ß√£o) ‚Äî o site passa a abrir com fundo escuro por padr√£o em vez
-  de claro (decis√£o expl√≠cita do usu√°rio pra este teste; `color-scheme: only light` permanece
-  como estava, n√£o afeta a est√©tica, s√≥ o hint de widgets nativos do navegador).
-- **Sunglow** ‚Üí `--color-accent`/`--color-accent-hover` ‚Äî CTAs, pre√ßos, estado ativo, no lugar
-  do laranja.
-- **Wisteria** ‚Üí em vez de virar fundo de painel (`--color-surface-2`), virou a cor do **texto
-  secund√°rio** (`--color-text-muted`). Motivo: como o fundo agora √© bem escuro e o texto
-  prim√°rio √© quase branco, usar Wisteria (claro) como fundo de painel deixaria qualquer texto
-  claro em cima dele ileg√≠vel (claro sobre claro). Como cor de texto direto sobre o fundo roxo
-  escuro, o contraste √© √≥timo e a cor aparece de verdade em nomes de usu√°rio, legendas,
-  hor√°rios ‚Äî muito mais vis√≠vel do que confinada a um painel que quase n√£o aparece na tela.
-  `--color-text-subtle` ganhou uma vers√£o mais escura/dessaturada do mesmo Wisteria, mantendo a
-  hierarquia de texto.
-- `--color-surface-2`/`--color-border` ficaram numa fam√≠lia de roxo intermedi√°ria (nem t√£o
-  escura quanto o fundo, nem clara como o Wisteria) ‚Äî mant√©m pain√©is/hover/divisores leg√≠veis
-  com o texto claro que j√° existe em todo o app.
-- `--color-success`/`--color-warning`/`--color-danger`/`--color-verified` n√£o mudaram.
-
-### Mudan√ßas
-
-- `app/globals.css`: tema claro e escuro atualizados com a paleta acima (o escuro √© uma vers√£o
-  ainda mais profunda do mesmo esquema, j√° que a paleta em si j√° nasceu escura).
-
-### Ponto de aten√ß√£o
-
-- `--color-warning` (dourado-acastanhado, `#b58a1a`) ficou visualmente pr√≥ximo do novo
-  `--color-accent` (Sunglow, `#ffd166`) ‚Äî os dois l√™em como "dourado". N√£o mudei porque n√£o fazia
-  parte da paleta pedida, mas se causar confus√£o entre "aviso" e "call-to-action" na pr√°tica, √©
-  candidato a ajuste.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio ‚Äî √© uma mudan√ßa de identidade bem mais radical
-  que a anterior (site inteiro passa a ter fundo escuro).
-
-## 2026-09-20 ‚Äî Redesenho da paleta: Ice Cream Blue ganha presen√ßa real
-
-### Objetivo
-
-- Usu√°rio pediu explicitamente pra eu redesenhar a paleta com liberdade total ("pode colocar do
-  jeito que achar melhor, pode ignorar o CLAUDE.md nesse momento") ‚Äî resposta direta ao ponto de
-  aten√ß√£o que eu tinha levantado na entrada anterior: laranja sobre o azul gelo, usado s√≥ como
-  `--color-accent-soft`, tinha contraste baixo demais pra texto de badge, e o azul mal aparecia
-  no resto do site.
-
-### Decis√£o de design
-
-- **Atomic Orange continua a cor de marca** (`--color-accent`) ‚Äî CTAs, pre√ßos, estado ativo,
-  como j√° estava.
-- **Ice Cream Blue passa a ter presen√ßa de verdade no site**, em vez de ficar restrito a um
-  token pequeno: vira a base do fundo geral (`--color-bg`, num tom bem claro) e das superf√≠cies
-  secund√°rias/hover (`--color-surface-2`) nos dois temas. Cards continuam brancos
-  (`--color-surface`) ‚Äî o contraste entre card branco e fundo azulado √© o que d√° a sensa√ß√£o de
-  "sorvete" (creme + laranja) em vez de cinza-n√©voa neutro.
-- **`--color-accent-soft` volta a ser um tom claro do pr√≥prio laranja** (n√£o mais o azul) ‚Äî troca
-  que resolve o problema de contraste: texto laranja em cima de p√™ssego claro tem a mesma
-  qualidade de legibilidade que o esquema original, s√≥ que com o novo tom de laranja.
-- `--color-verified` (selo azul de verificado) e as cores sem√¢nticas (success/warning/danger)
-  n√£o mudaram.
-
-### Mudan√ßas
-
-- `app/globals.css`
-  - Tema claro: `--color-bg: #eaf8fc` (era `#f5f6f8`, cinza neutro); `--color-surface-2: #c8f3ff`
-    (era `#eceef2`, cinza neutro ‚Äî agora √© o Ice Cream Blue puro); `--color-border: #a9e2ef`
-    (era `#e4e7ec`, ajustado pra combinar com o novo fundo/superf√≠cie); `--color-accent-soft:
-#ffe1d2` (p√™ssego claro derivado do novo laranja, era o azul gelo na entrada anterior).
-  - Tema escuro: `--color-bg: #0d1b20`, `--color-surface: #15262c`, `--color-surface-2: #1d3540`
-    (an√°logos escuros da mesma fam√≠lia azul-petr√≥leo, substituindo os cinzas neutros anteriores);
-    `--color-border: #2a4750`; `--color-accent-soft: #40200f` (marrom-p√™ssego escuro, mesma
-    l√≥gica do claro).
-  - `--color-accent`/`--color-accent-hover` (o laranja em si) n√£o mudaram nesta entrada ‚Äî s√≥ a
-    entrada anterior j√° tinha trocado para `#ff5c23`.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros.
-- Teste visual pendente de confirma√ß√£o do usu√°rio ‚Äî como isso muda o fundo geral de toda
-  p√°gina (n√£o s√≥ um token isolado), vale conferir v√°rias telas (feed, dashboard, conversa) antes
-  de considerar fechado.
-
-## 2026-09-20 ‚Äî Nova paleta: Atomic Orange + Ice Cream Blue
-
-### Objetivo
-
-- Atualizar a cor de marca do Job√™ a pedido do usu√°rio: "Atomic Orange" (`#FF5C23`) e "Ice Cream
-  Blue" (`#C8F3FF`).
-- Decis√£o confirmada com o usu√°rio antes de mexer (impacto visual em todo o site): Atomic Orange
-  substitui `--color-accent` (√≥bvio ‚Äî √© a nova cor de marca); Ice Cream Blue substitui
-  especificamente `--color-accent-soft` (fundo dos chips/badges ativos), n√£o `--color-verified`
-  nem um token √† parte.
-
-### Mudan√ßas
-
-- `app/globals.css`
-  - Tema claro: `--color-accent: #ff5c23` (era `#f5821f`); `--color-accent-hover: #e04a15`
-    (vers√£o mais escura, mesma rela√ß√£o de contraste que j√° existia); `--color-accent-soft:
-#c8f3ff` (era um p√™ssego bem claro derivado do laranja antigo ‚Äî agora √© o azul gelo).
-  - Tema escuro: `--color-accent: #ff5c23`; `--color-accent-hover: #ff7d4f` (vers√£o mais clara,
-    mesma rela√ß√£o que j√° existia no escuro); `--color-accent-soft: #123540` (an√°logo escuro do
-    azul gelo ‚Äî usar o mesmo tom claro de `#c8f3ff` como fundo no escuro ficaria estouradoÔºõ
-    mant√©m o matiz, ajusta luminosidade pro tema).
-  - `--color-verified` (selo azul de verificado) e as cores sem√¢nticas
-    (success/warning/danger) n√£o mudaram ‚Äî continuam com os valores antigos, como confirmado.
-  - `grep` por hex antigo (`f5821f`, `dd6f10`, `fdead6`, `ff9a40`, `3a2712`) no repo inteiro:
-    nenhuma ocorr√™ncia fora de `globals.css` ‚Äî a paleta j√° era 100% centralizada em tokens, sem
-    cor hardcoded em componente nenhum, ent√£o a troca n√£o exigiu tocar em mais nenhum arquivo.
-
-### Ponto de aten√ß√£o (n√£o implementado ‚Äî decis√£o de design, n√£o bug)
-
-- `--color-accent-soft` (`#c8f3ff`) √© usado como fundo de chip com **texto na cor
-  `--color-accent`** (`bg-(--color-accent-soft) text-(--color-accent)`, o padr√£o de badge
-  ativo/positivo do Job√™). No tema claro, laranja `#ff5c23` sobre azul gelo `#c8f3ff` tem
-  contraste baixo (abaixo do m√≠nimo recomendado pra texto pequeno) ‚Äî leg√≠vel, mas menos n√≠tido
-  que a combina√ß√£o anterior (laranja sobre p√™ssego, mesma fam√≠lia de cor). Se algum badge
-  espec√≠fico ficar dif√≠cil de ler na pr√°tica, a corre√ß√£o √© ajustar s√≥ o tom do azul (mais escuro)
-  ou a cor do texto naquele componente, n√£o reverter a decis√£o de paleta.
-
-### Valida√ß√£o
-
-- `tsc --noEmit`: sem erros (CSS n√£o passa por TypeScript/ESLint, validado visualmente pela
-  aus√™ncia de qualquer outra ocorr√™ncia hardcoded no repo).
-- Teste visual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-20 ‚Äî Corre√ß√£o: comprador perdia acesso ao produto despublicado
-
-### Objetivo
-
-- Reportado pelo usu√°rio: o produto some da biblioteca do comprador depois que o criador
-  despublica o an√∫ncio.
-
-### Causa
-
-- RLS de `products` s√≥ tinha duas policies de `SELECT`: p√∫blico v√™ `status = 'approved'`, dono v√™
-  as pr√≥prias linhas. Nenhuma delas cobre "comprador com `product_entitlements` ativo, mas o
-  produto n√£o √© mais `approved`" ‚Äî ent√£o `listOwnedProductsForUser` (biblioteca) simplesmente
-  parava de enxergar a linha assim que o criador despublicava (`status` vira `draft`). O acesso
-  j√° tinha sido pago e concedido; a compra n√£o deveria depender do an√∫ncio continuar publicado.
-- No mesmo caminho: `delete_product` n√£o tinha nenhuma prote√ß√£o contra apagar um produto que j√°
-  tivesse `product_entitlements` ‚Äî a constraint de chave estrangeira (sem `ON DELETE`) at√©
-  impedia o `DELETE`, mas com um erro cru de Postgres em vez de uma mensagem que fizesse sentido.
-
-### Mudan√ßas
-
-- Supabase: nova policy `products_select_entitled_buyer` ‚Äî quem tem entitlement ativo pro
-  produto continua enxergando a linha independentemente do `status` atual.
-- `delete_product` (RPC) agora barra explicitamente a exclus√£o de um produto com pelo menos um
-  `product_entitlements`, com mensagem orientando a despublicar em vez de excluir.
-
-### Valida√ß√£o
-
-- `get_advisors` (security) checado depois das duas mudan√ßas: nenhum alerta novo.
-- Reprodu√ß√£o manual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-20 ‚Äî Corre√ß√£o: erro de servidor ao abrir perfil de criador mock
-
-### Objetivo
-
-- Reportado pelo usu√°rio: "This page couldn't load. A server error occurred." ao entrar numa
-  conta e clicar para ir a um perfil de criador.
-
-### Causa
-
-- A home ainda mistura criadores reais com criadores fict√≠cios de demonstra√ß√£o
-  (`userRepository.findCreators()` concatena `profiles` reais com o array mock de
-  `lib/data/users.ts`). Ao abrir o perfil de um criador fict√≠cio, `getProfileByUsername` n√£o
-  encontra linha real, e `app/criadores/[username]/page.tsx` cai no fallback
-  `userRepository.findByUsername` ‚Äî que devolve um `creator.id` como `"user-c01"`, n√£o um uuid.
-  Antes, os produtos desse criador vinham de um array em mem√≥ria (`Array.filter`, nunca lan√ßa
-  erro para um id que n√£o bate com nada). Com a fatia anterior (produtos reais), a mesma busca
-  virou uma consulta Postgres contra uma coluna `uuid` ‚Äî e um valor como `"user-c01"` faz o
-  pr√≥prio banco rejeitar a consulta (erro de cast), n√£o devolver uma lista vazia. Isso derrubava
-  a p√°gina inteira com erro 500.
-
-### Mudan√ßas
-
-- `app/criadores/[username]/page.tsx`: produtos, avalia√ß√µes, portf√≥lio e curr√≠culo reais s√≥ s√£o
-  buscados quando existe de fato um perfil real (`realProfile`) por tr√°s ‚Äî criador mock cai
-  direto nas quatro listas vazias, igual ao comportamento antigo.
-- `lib/supabase/products.ts`: `listProductsForCreator`, `getPublicProductById` e
-  `getProductOrderById` ganharam uma checagem de formato de uuid antes de consultar o Postgres ‚Äî
-  qualquer id que n√£o seja um uuid v√°lido (criador mock, URL adulterada, etc.) devolve
-  vazio/`null` em vez de propagar um erro. Blinda a causa raiz, n√£o s√≥ o ponto que quebrou desta
-  vez ‚Äî protege qualquer chamador futuro que ainda misture ids mock com dados reais.
-
-### Valida√ß√£o
-
-- `tsc --noEmit` e `eslint` nos arquivos alterados: sem erros.
-- Reprodu√ß√£o manual pendente de confirma√ß√£o do usu√°rio.
-
-## 2026-09-20 ‚Äî Corre√ß√£o: RLS bloqueava publicar produto
-
-### Objetivo
-
-- Reportado pelo usu√°rio ao testar a fatia anterior: `new row violates row-level security policy
-for table "products"` ao clicar em "Publicar produto" em `/dashboard/produtos/novo`.
-
-### Causa
-
-- A migra√ß√£o `products_orders_entitlements_schema` ativou RLS em `products` e `product_orders`
-  mas s√≥ criou policies de `SELECT`. `create_product`/`update_product`/`delete_product` e
-  `create_product_order` s√£o `security invoker` (rodam com o privil√©gio de quem chama, igual √†s
-  RPCs de `gigs`) ‚Äî sem policy de `INSERT`/`UPDATE`/`DELETE` para `authenticated`, o pr√≥prio
-  INSERT dentro da fun√ß√£o era negado por padr√£o. `gigs` j√° tinha esse conjunto completo
-  (`creator_inserts_gigs`/`creator_updates_gigs`/`creator_deletes_gigs`); a migra√ß√£o de produtos
-  esqueceu de replicar o mesmo padr√£o.
-
-### Mudan√ßas
-
-- Supabase (migra√ß√£o `products_and_product_orders_write_policies`): adiciona
-  `products_insert_own`/`products_update_own`/`products_delete_own` (`creator_id = auth.uid()`)
-  e `product_orders_insert_own` (`buyer_id = auth.uid()`) ‚Äî mesmo modelo de `gigs`.
-  `product_entitlements` continua de prop√≥sito sem nenhuma policy de escrita para
-  `authenticated`: s√≥ o service role (webhook) concede acesso.
-- Nenhuma mudan√ßa de c√≥digo ‚Äî √© s√≥ corre√ß√£o de policy no banco (n√£o h√° migrations versionadas em
-  arquivo neste repo, ver nota em entradas anteriores), efeito imediato sem novo deploy.
-
-### Valida√ß√£o
-
-- `get_advisors` (security) checado depois da corre√ß√£o: nenhum alerta novo.
-- Reprodu√ß√£o manual pendente de confirma√ß√£o do usu√°rio (publicar um produto de teste deve
-  funcionar agora).
-
-## 2026-09-20 ‚Äî Produtos digitais: cat√°logo, compra e biblioteca reais
-
-### Objetivo
-
-- Segunda fatia da evolu√ß√£o do Job√™. A primeira an√°lise (ver entrada anterior) identificou uma
-  viola√ß√£o s√©ria da pr√≥pria regra de persist√™ncia do CLAUDE.md: **produtos digitais** ‚Äî e, na
-  investiga√ß√£o, na verdade um ecossistema inteiro paralelo (`ProductRepository`, `OrderRepository`,
-  `PaymentRepository`, `EntitlementRepository`, `SaleRepository`, `WalletService`,
-  `EntitlementService`, `OrderService`, `PaymentService`) ‚Äî viviam inteiramente em
-  `localStorage` via `MockSessionProvider`. O pagamento em si j√° era real (Mercado Pago +
-  `payment_confirmations`, com `kind: "product"` j√° previsto no schema), mas o acesso concedido
-  ao comprador (biblioteca) nunca era: ficava preso ao navegador de quem comprou, sem
-  sobreviver a reload/dispositivo ‚Äî ou seja, dinheiro real por um "acesso" que s√≥ existia
-  localmente.
-- Usu√°rio confirmou escopo completo: cat√°logo + compra + biblioteca, ponta a ponta, reaproveitando
-  ao m√°ximo a infraestrutura real j√° existente (Mercado Pago, `payment_confirmations`, `wallet`).
-
-### Mudan√ßas
-
-- Supabase (projeto `onlyyou`), migra√ß√£o `products_orders_entitlements_schema`
-  - `products`: cat√°logo real (t√≠tulo, descri√ß√£o, categoria, tags, tipo, pre√ßo/pre√ßo promocional
-    em centavos, capa, galeria, `file_url` ‚Äî o arquivo real entregue ‚Äî, status, rating/vendas).
-    RLS: p√∫blico s√≥ v√™ `approved`; dono v√™ tudo. RPCs `create_product`/`update_product`/
-    `delete_product` (mesma disciplina de `gigs`: `security invoker`, `search_path` vazio,
-    sanitiza√ß√£o de arrays no banco).
-  - `product_orders`: pedido de compra com pre√ßo **travado no momento da cria√ß√£o**
-    (`create_product_order`, RPC) ‚Äî vira o `order_id` levado ao Mercado Pago. RLS: s√≥
-    comprador/criador leem a pr√≥pria linha; nenhuma policy de update para `authenticated` (s√≥
-    service role, via webhook).
-  - `product_entitlements`: acesso concedido ‚Äî s√≥ gravada pelo servidor (nunca pelo
-    comprador). `unique(product_id, buyer_id)`.
-  - `get_advisors` (security) checado depois da migra√ß√£o: nenhum alerta novo.
-- `lib/payments/activateProductOrderAfterPayment.ts` (novo, mesma forma de
-  `activateCustomServiceOrder.ts`): chamado pelo webhook quando `payment_confirmations` confirma
-  `paid` com `kind: "product"` ‚Äî marca o pedido como pago, concede o entitlement, incrementa
-  `sales_count`, notifica os dois lados. Idempotente.
-  - Ligado em `app/api/mercadopago/webhook/route.ts` (confirma√ß√£o ass√≠ncrona) e
-    `app/api/mercadopago/status/route.ts` (reconcilia√ß√£o ativa do retorno do Checkout Pro),
-    espelhando exatamente como `custom_service` j√° funcionava.
-  - **Achado de seguran√ßa corrigido no caminho**: `app/api/mercadopago/checkout/route.ts`
-    confiava num `orderId` inventado pelo navegador e recalculava o valor a partir do produto "ao
-    vivo" a cada chamada. Agora exige um `product_orders` real (criado antes pela RPC, pre√ßo j√°
-    travado) e s√≥ confere que ele pertence ao comprador autenticado ‚Äî nunca mais confia em nada
-    vindo do cliente para decidir valor/criador.
-  - `getCreatorBalance` (`lib/supabase/wallet.ts`) j√° somava `payment_confirmations` por
-    `creator_id` sem filtrar por `kind` ‚Äî carteira/saque do criador passam a refletir vendas de
-    produto automaticamente, **sem nenhuma mudan√ßa** nessa fun√ß√£o.
-- `lib/supabase/products.ts` (novo, mesmo padr√£o de `gigs.ts`): leituras p√∫blicas
-  (`listApprovedProducts`, `listApprovedProductsByCategory`, `searchApprovedProducts`,
-  `getPublicProductById`) nunca selecionam `file_url` ‚Äî s√≥ `listProductsForCreator` (painel do
-  dono) e `listOwnedProductsForUser` (biblioteca de quem comprou) trazem essa coluna. Isso evita
-  que o link de download vaze para quem n√£o pagou, j√° que RLS √© por linha, n√£o por coluna.
-- `app/api/upload/route.ts`, `lib/uploadFile.ts`: dois `UploadKind` novos ‚Äî
-  `product-image` (mesmas regras de `portfolio-image`) e `product-file` (qualquer arquivo at√©
-  500 MB, s√≥ para criadores) ‚Äî upload real via Vercel Blob, mesmo mecanismo j√° usado em entrega
-  de pedido/portf√≥lio.
-- `app/dashboard/produtos/novo/page.tsx`: assistente de publica√ß√£o deixou de ser uma simula√ß√£o
-  (`moderationService.submitForReview()`, "simular envio de arquivo") ‚Äî agora envia arquivo de
-  verdade e publica via `createProduct` (RPC), direto como `approved` (sem fila de modera√ß√£o,
-  mesma pol√≠tica self-serve de `gigs`).
-  `app/dashboard/produtos/page.tsx`: listagem real, publicar/despublicar e excluir via RPC.
-- `components/ProductPurchaseArea.tsx`, `components/CheckoutFlow.tsx`,
-  `app/checkout/[productId]/page.tsx`, `app/checkout/retorno/page.tsx`: reescritos sem
-  `useMockSession`/`useCheckoutServices` ‚Äî criam pedido real, chamam o checkout real, e s√≥
-  liberam a tela de "pago" quando `/api/mercadopago/status` confirma (que √© quem concede o
-  entitlement de verdade). `MercadoPagoPixPanel` perdeu o acoplamento ao tipo concreto
-  `PaymentService` (agora s√≥ exige um `syncStatus`, sem reposit√≥rio mock nenhum por tr√°s).
-- `app/biblioteca/page.tsx`: l√™ `product_entitlements` de verdade (via `useCurrentUserId` real),
-  com bot√£o "Baixar" para o `file_url` de cada produto comprado.
-- Substitui√ß√µes diretas de `productRepository` (mock) por `lib/supabase/products.ts` em:
-  `app/page.tsx`, `app/produto/[id]/page.tsx` (perdeu `generateStaticParams` ‚Äî produto agora √©
-  dado real e din√¢mico, virou ISR com `revalidate = 60`, igual √† home), `app/categorias/[slug]/page.tsx`,
-  `app/criadores/[username]/page.tsx`, `app/descobrir/page.tsx`, `app/favoritos/page.tsx`,
-  `app/admin/page.tsx` (contagem real via `service.ts`), `app/dashboard/{estatisticas,page,vendas}.tsx`.
-- Removidos por ficarem sem nenhum consumidor real: `lib/repositories/ProductRepository.ts`,
-  `lib/repositories/PaymentRepository.ts`, `lib/repositories/EntitlementRepository.ts`,
-  `lib/services/{useCheckoutServices,PaymentService,OrderService,WalletService,EntitlementService}.ts`,
-  `lib/checkout/finalizeCheckout.ts`, `lib/access/content-release.ts`, `lib/data/products.ts`.
-
-### Fora do escopo desta fatia (permanece mock, documentado para n√£o confundir depois)
-
-- `app/dashboard/vendas/page.tsx` e `app/dashboard/estatisticas/page.tsx` ainda leem
-  `OrderRepository`/`SaleRepository` mock para o **hist√≥rico** de vendas (lista/gr√°fico) ‚Äî a
-  fonte de verdade financeira real j√° √© `payment_confirmations` (usada por `wallet.ts`); migrar
-  essas duas telas para consultar `payment_confirmations` diretamente √© o pr√≥ximo passo natural,
-  n√£o feito agora para n√£o ampliar ainda mais esta mudan√ßa.
-- Favoritos (`FavoriteRepository`), cupons (`CouponRepository`), avalia√ß√£o de produto
-  (`ReviewRepository`, diferente de `custom_order_reviews`) e den√∫ncias de produto
-  (`ReportRepository`) continuam mock ‚Äî nenhum desses foi pedido nesta fatia.
-- Nenhuma fila de modera√ß√£o para produto (`pending_review`/`rejected`/`suspended`): publica√ß√£o √©
-  self-serve, igual a `gigs`. As colunas/valores continuam existindo no banco para o dia em que
-  isso for constru√≠do.
-
-### Valida√ß√£o
-
-- `tsc --noEmit` no projeto inteiro: sem erros.
-- `eslint .` no projeto inteiro: sem erros (2 avisos de `set-state-in-effect` encontrados e
-  corrigidos em `app/biblioteca/page.tsx` e `components/ProductPurchaseArea.tsx`).
-- `npx next build`: compila√ß√£o e checagem de tipos conclu√≠das; a gera√ß√£o est√°tica chegou a
-  28/38 p√°ginas fazendo chamadas reais ao Supabase antes de ser bloqueada pela pol√≠tica de rede
-  deste sandbox (host n√£o liberado no allowlist) ‚Äî confirma que o c√≥digo chega a fazer requests
-  reais, n√£o √© um erro de l√≥gica. Falta validar a build completa e o fluxo de compra ponta a
-  ponta (Pix real) num ambiente com rede liberada e `.env.local` configurado.
-- Migra√ß√£o e RPCs aplicadas diretamente no projeto Supabase real via MCP; `get_advisors`
-  (security) conferido: nenhum alerta novo al√©m dos j√° documentados.
-- Checagem de cores fixas nos arquivos alterados: nenhuma ocorr√™ncia.
-
-## 2026-09-20 ‚Äî Ofertas com revis√µes e "o que est√° incluso"
-
-### Objetivo
-
-- Primeira fatia de uma evolu√ß√£o maior do Job√™ (marketplace de servi√ßos prontos, pedidos
-  personalizados, propostas, combos, produtos digitais, recompra e reputa√ß√£o), inspirada em
-  conceitos de GetNinjas/Workana/VintePila/Packzin sem copiar identidade ou funcionalidades ‚Äî
-  aplicada sobre a estrutura j√° existente, sem recriar nada do zero.
-- Antes de tudo: mapeamento completo do que j√° existe (gigs, pedidos personalizados, chat,
-  categorias, avalia√ß√µes, portf√≥lio, banco) para reaproveitar em vez de duplicar. O fluxo de
-  pedido personalizado j√° √© essencialmente 1:1 direcionado a um criador (n√£o √© bidding aberto a
-  v√°rios profissionais) ‚Äî decis√£o de manter assim por ora.
-- Nesta fatia: dar estrutura ao que hoje era s√≥ texto livre na descri√ß√£o do gig e da proposta ‚Äî
-  quantas revis√µes est√£o inclu√≠das, o que est√° incluso (lista) e uma galeria de imagens no gig,
-  al√©m da capa. √â a base pras pr√≥ximas fatias (combos reaproveitam os mesmos campos; briefing por
-  categoria e recompra ficam para depois).
-
-### Mudan√ßas
-
-- Supabase (projeto `onlyyou`)
-  - Migra√ß√£o `gig_and_proposal_structured_offer_fields`: `gigs` ganha `revision_count`,
-    `included_items` (`text[]`) e `gallery_urls` (`text[]`); `custom_proposals` ganha
-    `revision_count` e `included_items`. Checks garantem `revision_count >= 0` quando informado.
-  - `create_gig`/`update_gig`/`create_custom_proposal` recriadas com os novos par√¢metros
-    (adicionados ao final, com default, preservando a assinatura como replace ‚Äî n√£o overload).
-    Sanitizam os arrays no banco: trim, remove itens vazios, corta cada item em 140 caracteres e
-    limita a 8 itens.
-  - `get_advisors` (security) executado ap√≥s a migra√ß√£o: nenhum alerta novo ‚Äî s√≥ os avisos
-    pr√©-existentes j√° documentados (fun√ß√µes `security definer` de `become_creator` e
-    `submit_custom_order_review`, prote√ß√£o de senha vazada).
-- `lib/types/gig.ts`, `lib/supabase/gigs.ts`
-  - `Gig`/`GigInput` ganham `revisionCount?`, `includedItems: string[]`, `galleryUrls: string[]`.
-  - Novo `getGigById` ‚Äî usado para pr√©-preencher a proposta a partir do gig de origem.
-- `lib/types/custom-proposal.ts`, `lib/types/custom-request.ts`, `lib/supabase/customRequests.ts`
-  - `CustomProposal` ganha `revisionCount?`/`includedItems`; `createCustomProposal` aceita e
-    envia os dois campos.
-  - `CustomRequest` passa a expor `sourceGigId` (a coluna j√° existia no banco, mas n√£o estava
-    mapeada no tipo/mapper) ‚Äî permite ligar a proposta ao an√∫ncio que originou o pedido.
-- `app/dashboard/servicos/page.tsx`
-  - Formul√°rio de an√∫ncio ganha "Revis√µes inclu√≠das" (n√∫mero opcional), "O que est√° incluso"
-    (lista, uma linha por item) e "Mais imagens" (galeria, reaproveitando o mesmo padr√£o de
-    upload/lista de URLs j√° usado em `PortfolioSection.tsx`).
-- `components/GigCard.tsx`, `components/GigFeedCard.tsx`
-  - Exibem a quantidade de revis√µes; o card de feed tamb√©m mostra os 3 primeiros itens inclusos.
-- `components/ConversationView.tsx`
-  - Formul√°rio de proposta ganha os mesmos dois campos (revis√µes, o que est√° incluso).
-  - Ao abrir "Criar proposta" num pedido que nasceu de um gig (`sourceGigId`), o formul√°rio √©
-    pr√©-preenchido a partir do an√∫ncio (`getGigById`) ‚Äî o criador s√≥ confirma ou ajusta.
-  - Card de proposta na conversa passa a exibir revis√µes e itens inclusos quando informados.
-
-### Valida√ß√£o
-
-- ESLint e `tsc --noEmit` sem erros nos arquivos alterados.
-- `npx next build`: compila√ß√£o e checagem de tipos conclu√≠das com sucesso; a etapa de
-  pr√©-renderiza√ß√£o falha neste sandbox por falta de `.env.local` (sem `NEXT_PUBLIC_SUPABASE_URL`)
-  ‚Äî limita√ß√£o pr√©-existente do ambiente, n√£o relacionada a esta mudan√ßa.
-- Checagem de cores fixas (`grep` por hex e classes de paleta Tailwind) nos arquivos alterados:
-  nenhuma ocorr√™ncia.
-- Migra√ß√£o e RPCs aplicadas diretamente no projeto Supabase real via MCP; advisors de seguran√ßa
-  conferidos ap√≥s a mudan√ßa.
-
-### Pr√≥ximos passos sugeridos (n√£o implementados nesta fatia)
-
-- Produtos digitais reais (hoje s√≥ mock em `lib/data/products.ts`, viola a regra de persist√™ncia).
-- Combos/pacotes de servi√ßos.
-- Propostas abertas a m√∫ltiplos profissionais para o mesmo pedido.
-- Briefing din√¢mico por categoria p√≥s-aceite.
-- Recompra ("contratar novamente") a partir do hist√≥rico de pedidos.
-
-## 2026-09-20 ‚Äî Alinhamento dos controles do cabe√ßalho
-
-### Objetivo
-
-- Corrigir o desalinhamento visual entre o sino de notifica√ß√µes e o avatar no mobile.
-
-### Mudan√ßas
-
-- `components/NotificationBell.tsx`
-  - No mobile, sino e avatar usam c√≠rculos id√™nticos de 40 px, com os √≠cones centralizados.
-  - O contador textual que desequilibrava o alinhamento √≥ptico foi substitu√≠do por um ponto
-    discreto; a quantidade continua informada no texto acess√≠vel do link.
-- `components/Header.tsx`
-  - Cont√™iner mobile do sino passou a compartilhar a mesma altura e eixo vertical do avatar.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o.
-- Checagem de cores fixas nos arquivos alterados.
-
-## 2026-09-20 ‚Äî Cabe√ßalho e navega√ß√£o mobile mais leves
-
-### Objetivo
-
-- Integrar melhor o cabe√ßalho ao conte√∫do e reduzir o peso visual da navega√ß√£o inferior.
-- Evitar que controles redundantes e fundos grandes deem sensa√ß√£o de interface gen√©rica ou
-  encubram o conte√∫do no celular.
-
-### Mudan√ßas
-
-- `components/Header.tsx`
-  - Cabe√ßalho passou a usar superf√≠cie transl√∫cida e compacta, com assinatura laranja discreta
-    sob a marca e sem a linha divis√≥ria no mobile.
-  - Removido o atalho redundante de Explorar, j√° presente na navega√ß√£o inferior.
-  - Notifica√ß√µes foram levadas ao cabe√ßalho mobile e o acesso √† conta perdeu borda desnecess√°ria.
-  - Menu mobile virou um painel flutuante compacto, com links em duas colunas e √°rea rol√°vel.
-  - Menus receberam `aria-expanded` para comunicar corretamente o estado a leitores de tela.
-- `components/MobileNav.tsx`
-  - Dock ficou mais baixo e ocupa uma largura previs√≠vel, com √≠cones melhor distribu√≠dos.
-  - Estado ativo deixou de usar um c√≠rculo preenchido grande; agora usa cor e um tra√ßo curto.
-  - Adicionados nome acess√≠vel da navega√ß√£o e `aria-current` na rota ativa.
-- `components/PageMain.tsx`
-  - Reserva inferior ajustada para impedir que a dock cubra o fim do conte√∫do.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o.
-- Revis√£o de acessibilidade, estados ativos e √°reas de toque no mobile.
-- Checagem de cores fixas nos arquivos alterados.
-
-## 2026-09-20 ‚Äî Categorias Elojob e Jogue comigo
-
-### Objetivo
-
-- Criar duas categorias gamer completas dentro do fluxo real de servi√ßos.
-- Permitir que pre√ßo, dura√ß√£o, jogo e progress√£o de elo sejam cadastrados e persistidos.
-
-### Mudan√ßas
-
-- Supabase `gigs`
-  - Adicionadas as colunas `category`, `game`, `platform`, `session_minutes`, `current_rank` e
-    `target_rank` pela migration `add_gaming_service_categories`.
-  - RPCs `create_gig` e `update_gig` recriadas como `security invoker`, com `search_path` vazio,
-    acesso exclusivo a `authenticated` e valida√ß√µes espec√≠ficas por categoria.
-  - Jogue comigo exige jogo e sess√£o m√≠nima de 15 minutos; Elojob exige jogo, elo atual, elo
-    desejado e prazo.
-- `app/dashboard/servicos/page.tsx`
-  - O formul√°rio ganhou seletor de categoria e campos condicionais para os dois servi√ßos gamer.
-  - Jogue comigo cadastra pre√ßo por sess√£o e dura√ß√£o em minutos.
-  - Elojob cadastra pre√ßo, jogo, plataforma/servidor, elo atual, elo desejado e prazo.
-- `lib/types/gig.ts` e `lib/supabase/gigs.ts`
-  - Tipos, mapeamento, leitura, pesquisa e muta√ß√µes atualizados para os novos dados.
-- `lib/data/categories.ts`, `app/descobrir/page.tsx` e `components/ExploreFilters.tsx`
-  - Elojob e Jogue comigo adicionados √†s categorias em destaque da p√°gina Explorar.
-  - O filtro agora exibe apenas os servi√ßos da categoria gamer selecionada.
-- `app/categorias/[slug]/page.tsx`
-  - As duas categorias ganharam p√°ginas pr√≥prias com servi√ßos reais do Supabase.
-- `components/GigCard.tsx`, `components/GigFeedCard.tsx` e `components/RequestGigButton.tsx`
-  - Cards mostram jogo, sess√£o ou progress√£o de elo.
-  - A solicita√ß√£o enviada para a conversa inclui automaticamente os detalhes gamer.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o.
-- Migration aplicada e colunas conferidas no projeto Supabase `onlyyou`.
-- RPC testada em transa√ß√£o com rollback para Jogue comigo e Elojob.
-- Advisors de seguran√ßa e desempenho executados; nenhum novo alerta ligado √†s colunas ou RPCs.
-- Permanecem avisos anteriores do projeto sobre duas fun√ß√µes `security definer`, prote√ß√£o de
-  senhas vazadas, √≠ndices e pol√≠ticas RLS n√£o relacionados a esta mudan√ßa.
-
-## 2026-09-20 ‚Äî Cards de produtos reorganizados
-
-### Objetivo
-
-- Melhorar a leitura e o equil√≠brio visual dos cards de produtos, principalmente na grade de
-  duas colunas do mobile.
-
-### Mudan√ßas
-
-- `components/ProductCard.tsx`
-  - O pre√ßo saiu da m√≠dia e passou para uma √°rea pr√≥pria abaixo do t√≠tulo.
-  - Promo√ß√µes agora mostram um badge pequeno de oferta, pre√ßo anterior discreto e pre√ßo atual em
-    destaque, sem o bal√£o grande que quebrava o layout.
-  - A √°rea da imagem ficou mais baixa e passou a usar um fundo uniforme na grade.
-  - Criador, t√≠tulo, pre√ßo e avalia√ß√£o receberam espa√ßamento e hierarquia consistentes.
-  - O bot√£o circular com seta foi removido; o card inteiro continua sendo o link do produto.
-- `components/MediaPlaceholder.tsx`
-  - Adicionada a op√ß√£o `muted` para grades que precisam de placeholders com fundo uniforme.
-- `components/PriceTag.tsx`
-  - `formatBRL` passou a ser exportado para manter a mesma formata√ß√£o de pre√ßo no novo card.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o.
-- Confer√™ncia dos estados com pre√ßo normal, promocional, v√≠deo e sem avalia√ß√µes.
-- Checagem de cores fixas nos arquivos alterados.
-
-## 2026-09-20 ‚Äî Pesquisa em tempo real e skeleton de carregamento
-
-### Objetivo
-
-- Atualizar os resultados da p√°gina Explorar durante a digita√ß√£o e edi√ß√£o da pesquisa.
-- Dar feedback visual imediato enquanto uma nova consulta est√° sendo processada.
-
-### Mudan√ßas
-
-- `components/LiveExploreSearch.tsx`
-  - Novo campo controlado com atualiza√ß√£o autom√°tica ap√≥s 350 ms sem digita√ß√£o.
-  - A tecla Enter antecipa a busca e o bot√£o de limpar remove o termo imediatamente.
-  - A URL continua refletindo o termo pesquisado sem rolar a p√°gina para o topo.
-  - Um skeleton local aparece enquanto a navega√ß√£o e os novos resultados est√£o pendentes.
-- `app/descobrir/page.tsx`
-  - O formul√°rio tradicional com bot√£o Buscar foi substitu√≠do pela pesquisa ao vivo.
-- `app/descobrir/loading.tsx`
-  - O indicador gen√©rico foi substitu√≠do por um skeleton responsivo que acompanha o desenho da
-    p√°gina Explorar.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o.
-- Verifica√ß√£o do debounce, limpeza, Enter e sincroniza√ß√£o do termo na URL.
-- Checagem de cores fixas nos arquivos alterados.
-
-## 2026-09-20 ‚Äî Explorar com visual mais aberto e editorial
-
-### Objetivo
-
-- Remover a apar√™ncia excessivamente baseada em caixas e cart√µes na p√°gina Explorar.
-- Dar ao cabe√ßalho e aos t√≠tulos de se√ß√£o uma composi√ß√£o mais natural, limpa e menos gen√©rica.
-
-### Mudan√ßas
-
-- `app/descobrir/page.tsx`
-  - O cabe√ßalho deixou de ser um card fechado com formas decorativas e virou uma abertura livre,
-    com destaque tipogr√°fico e busca integrada.
-  - As buscas populares agora s√£o links de texto, sem uma cole√ß√£o de pills com borda.
-  - T√≠tulos de profissionais e servi√ßos perderam √≠cones em caixas e passaram a usar hierarquia
-    tipogr√°fica, espa√ßo e uma linha divis√≥ria discreta.
-  - O estado vazio deixou de ficar dentro de outro card.
-- `components/ExploreFilters.tsx`
-  - Categorias e ordena√ß√£o passaram de chips contornados para abas de texto compactas.
-  - O bloco de ordena√ß√£o perdeu o card externo e o √≠cone decorativo.
-  - O resumo de busca virou uma indica√ß√£o lateral discreta.
-  - O t√≠tulo de produtos deixou de usar √≠cone dentro de caixa.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o.
-- Confer√™ncia responsiva do fluxo horizontal de categorias e ordena√ß√£o.
-- Checagem de cores fixas nos arquivos alterados.
-
-## 2026-09-20 ‚Äî Categorias compactas e pesquisa revisada
-
-### Objetivo
-
-- Reduzir o espa√ßo ocupado pelas categorias na p√°gina Explorar.
-- Remover os √≠cones decorativos das categorias.
-- Verificar e melhorar o comportamento da pesquisa da p√°gina.
-
-### Mudan√ßas
-
-- `components/ExploreFilters.tsx`
-  - Os oito cart√µes grandes de categorias e a segunda faixa de chips foram substitu√≠dos por uma
-    √∫nica faixa horizontal compacta.
-  - Todas as categorias continuam acess√≠veis por rolagem horizontal, com as populares primeiro.
-  - O filtro continua instant√¢neo, acess√≠vel por teclado e sincronizado com a URL.
-- `lib/repositories/ProductRepository.ts`
-  - A pesquisa local de produtos passou a ignorar diferen√ßas de acentua√ß√£o e caixa em t√≠tulo,
-    descri√ß√£o e tags.
-- `app/descobrir/page.tsx`
-  - A busca de profissionais tamb√©m passou a ignorar diferen√ßas de acentua√ß√£o e caixa no nome e
-    no nome de usu√°rio.
-  - O fluxo foi conferido: produtos usam t√≠tulo/descri√ß√£o/tags; profissionais usam nome/usu√°rio;
-    servi√ßos ativos usam t√≠tulo/descri√ß√£o no Supabase.
-- `CLAUDE.md`
-  - Adicionada a obriga√ß√£o de atualizar este hist√≥rico em toda mudan√ßa futura do site.
-
-### Valida√ß√£o
-
-- ESLint.
-- Build de produ√ß√£o e verifica√ß√£o do TypeScript.
-- Busca testada com termos acentuados e sem acento.
-- Checagem de cores fixas nos arquivos alterados.
-
-## 2026-09-20 ‚Äî Cards e filtros da p√°gina Explorar
-
-### Mudan√ßas
-
-- `components/ProductCard.tsx`: card redesenhado com m√≠dia mais valorizada, pre√ßo sobreposto,
-  identifica√ß√£o de v√≠deo, melhor hierarquia e a√ß√£o visual.
-- `components/ExploreFilters.tsx`: categorias, ordena√ß√£o e ofertas migradas para estado local,
-  removendo o recarregamento percept√≠vel a cada sele√ß√£o e mantendo a URL sincronizada.
-- `app/descobrir/page.tsx`: integra√ß√£o do novo fluxo de filtros sem alterar a busca principal.
-
-### Valida√ß√£o
-
-- ESLint, TypeScript e build de produ√ß√£o conclu√≠dos.
+Y™Áäx-ÆÈ‹j◊ù¢Îi∫⁄+äßj[hëÈ‹¢ÈÌﬂ}∑Â:-jZ.∂õ≠ñ)ﬁ≥R2Üó7L;7&ñ6ÚFR«FW&:|;VW2&î0†§W7FRFˆ7V÷VÁFÚ÷ÁL:ñ“6ˆÁFñÁVñFFRL:ñ6Êñ6FÚ¶ˆ,:¢VÁG&RFñfW&VÁFW2î2‚FˆF«FW&:|:6ÚÊß6óFRFWfRvW&"V÷VÁG&FÊ˜fÊÚF˜ÚFW7FR'VófÚ¬6ˆÊf˜&÷R&Vw&FÚ4ƒTDRÊ÷F‡†¢22##b”í”#"(	B&V÷¸:|:6ÚF6ˆÁF÷ˆ6≤V“Fó7˜6óFóf˜26V“∆ˆvñ‡†¢“ñFVÁFñFFR÷ˆ6≤(	ƒÊ'V&û(	“FVóÜ˜RFR6W"ñÊñ6ñF˜R&W7FW&FV∆Ú÷ˆ6µ6W76ñˆÂ&˜fñFW&∞¢6ˆ÷VÁFRV÷6W7<:6Úl:∆ñFFÚ7W&6RFVfñÊR7W'&VÁEW6W$ñF‡¢“F6Ü&ˆ&BRF÷ñÊó7G&:|:6Úv˜&&V7W6“fó6óFÁFW2ÊÚ6W'fñF˜"¬6V“f∆∆&6≤&7&VF˜"˜P¢F÷ñÊó7G&F˜"÷ˆ6≥≤ÚVÊGˆñÁBFR&VV÷&ˆ«6Ú&V6V&WR÷W6÷&˜F\:|:6Ú‡¢“∆ñÊ∑2F:&VFÚ7&ñF˜"FVóÜ&“FRˆÁF"&V“W&fñ¬÷ˆ6≤VÁVÁFÚ6W7<:6ÚÏ:6ÚWÜó7FR‡¢“W&fñ¬,;7&ñÚ¬6ˆÊfñwW&:|;VW2RFVÏ;¶Ê6ñ2F÷,:ñ“FVóÜ&“FR77V÷ó"V÷ñFVÁFñFFRfñ7L:÷6ñ‡¢“FF˜2FV÷ˆÁ7G&Fóf˜26ˆÁFñÁV“Fó7ˆÏ:◊fVó2VÊ26ˆ÷Ú6ˆÁF\;¶FÚ;¶&∆ñ6ÚFfóG&ñÊR‡†¢22##b”í”#"(	B&˜F\:|:6ÚF26ˆÁF2RFóf:|:6Ú6VwW&FR7&VF˜'0†¢“&V÷˜fñFW&÷ó7<:6ÚFRW67&óFFó&WFFR6ˆÁF2Ï;FÊñ÷2RWFVÁFñ6F2V“&ˆfñ∆W6‡¢“VFú:|:6ÚFÚW&fñ¬¬6ˆ◊WL:¶Ê6ñ2RñFñˆ÷2v˜&76“˜"%726V7W&óGíñÁfˆ∂W&¬6ˆ“ñFVÁFñFFP¢ˆ'FñF˜"WFÇÁVñBÇñ¬W66˜ÚfóÜÚ¬$≈2RW&÷ó7<;VW2∆ñ÷óFF2:26ˆ«VÊ2VFóL:fVó2‡¢“Fóf:|:6ÚW6V÷%26V7W&óGíFVfñÊW&ó6ˆ∆F¬ÊV6W7<:&ñVÊ2&7&W66VÁF"ÚV¿¢7&VF˜&:,;7&ñ6ˆÁF6V“∆ñ&W&"W67&óF;¶&∆ñ6V“&ˆ∆W6‡¢“&ˆ∆W6¬fW&ñfñ6:|:6Ú¬f∆ñ:|;VW2R6ˆÁFF˜&W2ñÁFW&Ê˜2FVóÜ&“FR6W"«FW,:fVó2V∆í;¶&∆ñ6‡¢“FV∆FRFóf:|:6ÚWá∆ñ6˜2,;7Üñ÷˜276˜2RWÜñvR6ú:¶Ê6ñF˜2FW&÷˜2R&Vw&2FR6VwW&Ï:v‡¢“f∆ñF:|:6Û¢U4∆ñÁBRGóU67&óB6ˆÊ6«\:÷F˜3≤FW7FW25¬6ˆÊfó&÷&“&∆˜VVñÚFR&ˆ∆W6¬fW&ñfñ6:|:6¢Rf∆ñ:|;VW3≤Gfó6˜'2&Wfó6F˜2‚Ú'Vñ∆B6ˆ◊ñ∆˜RR76˜RV∆ÚGóU67&óB¬÷2vW&:|:6ÚFP¢ˆF÷ñÊWÜñvR2f&ú:fVó27W&6RFR6W'fñ6R&ˆ∆R¬W6VÁFW2ÊÚ÷&ñVÁFR∆ˆ6¬‡†¢22##b”í”#"(	B&VfñÊ÷VÁFÚVFóF˜&ñ¬Rfó7V¬FÜˆ÷P†¢“6&\:v∆ÜÚñÁFVw&FÚÚ÷&fñ“¬ÊfVv:|:6ÚVÁáWFV“FV∆2ñÁFW&÷VFú:&ñ2R'W666ˆ“,;7GV∆Ú6W7<:◊fV¬‡¢“ÜW&Ú6ˆ“∆ñÊwVvV“6ˆÊ7&WF¬'W66&ñÊ6ó¬R«FW&ÊFóf&V&∆ñ6"VFñFÚ‡¢“6FVv˜&ñ26V“&'&2FV6˜&Fóf3≤WF2ÊWWG&3≤6ˆÁfóFR&ˆfó76ñˆÊ¬6V“&ˆ÷W76FR&VÊF‡¢“6&G2FR6W'fú:vÚ6ˆ“:|:6ÚFRCBÇR6ˆÁF˜&ÊÚFó67&WFÚ¬6V“Êñ÷:|:6ÚFRFW6∆ˆ6÷VÁFÚ‡¢“6V∆ÚFRˆfW'FÊWWG&Û≤&W6W'fF˜2FF˜2&Vó2¬&˜F2R˜W&:|;VW2WÜó7FVÁFW2‡¢“&VfW,:¶Ê6ñ2;¶&∆ñ626ˆÁ7V«FF3¢vWDÊñÊ¶2¬v˜&∂Ê¬fñÁFUñ∆R6∑¶ñ‚‡¢“f∆ñF:|:6Û¢∆ñÁBRGóU67&óBWÜV7WFF˜3≤ñÁ7\:|:6Úfó7V¬V“ÊfVvF˜"R'Vñ∆B6ˆ◊∆WFÚÏ:6Ú&V∆ó¶F˜2ÊW7F&Wfó<:6Ú‡†¢22##b”í”#"(	B¶˜&ÊF˜&vÊó¶FÊ:vñÊñÊñ6ñ¿†¢222ˆ&¶WFóf†¢“f¶W"Üˆ÷R6ˆÊGW¶ó"W76ˆV“V÷˜&FV“&Wfó<:◊fV¬¬6V“÷ó7GW&"FW66ˆ&W'F¬V&∆ñ6:|:6ÚP¢Wá∆ñ6:|:6ÚFÚ&ˆ6W76Ú‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü¢ÊfVv:|:6ÚñÁFW&Êfó&˜RV“6÷ñÊÜÚÁV÷W&FÚRÜ˜&ó¶ˆÁF¬6ˆ“VG&Ú:|;VW3†¢W66ˆ∆ÜW"6FVv˜&ñ¬fW"˜:|;VW2¬V&∆ñ6"VFñFÚRVÁFVÊFW"6ˆÁG&F:|:6Ú‡¢“26\:|;VW2f˜&“&V˜&FVÊF2&6VwVó"W76R÷W6÷ÚW&7W'6Û¢6FVv˜&ñ2(i"fóG&ñÊR(i"VFñF˜0¢V&∆ñ6F˜2(i"gVÊ6ñˆÊ÷VÁFÚ(i":&V&&ˆfó76ñˆÊó2(i"6ˆ◊VÊñFFR(i"L;ßfñF2‡¢“ÚL:◊GV∆ÚFR6FVv˜&ñ2v˜&Wá∆ñ66ˆ“6∆&W¶VRW76R:íÚ&ñ÷Vó&ÚˆÁFÚF¶˜&ÊF‡¢“ÊfVv:|:6Ú6ˆÁFñÁV&ˆÃ:fV¬ÊÚ6V«V∆"¬6V“6&G26ˆ∆˜&ñF˜2˜R:÷6ˆÊW2FV6˜&Fóf˜2‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBRvóBFñfb“÷6ÜV6∂6ˆÊ6«\:÷F˜26V“W'&˜2‡†¢22##b”í”#"(	BgVÊFÚñÁFVw&FÚÊÚFW7FVRFR˜˜'GVÊñFFW0†¢222ˆ&¶WFóf†¢“V∆ñ÷ñÊ"Ú&V6˜'FR'&Ê6ÚFÚ&∆ˆ6ÚRñÁFVw,:÷∆ÚÚgVÊFÚ÷&fñ“F:vñÊñÊñ6ñ¬‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü¢ÚFW7FVRFR˜˜'GVÊñFFW276˜RFR“÷6ˆ∆˜"◊7W&f6V&“÷6ˆ∆˜"÷&vP¢W&FWR6ˆ÷'&¬÷ÁFVÊFÚFWáF˜2¬W7:v÷VÁF˜2¬:|;VW2RFófó6˜&W2ñÊ«FW&F˜2‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBRvóBFñfb“÷6ÜV6∂6ˆÊ6«\:÷F˜26V“W'&˜2‡†¢22##b”í”#"(	BFW7FVRFR˜˜'GVÊñFFW2÷ó2∆ñ◊†¢222ˆ&¶WFóf†¢“6˜'&ñvó"ÚW6Úfó7V¬WÜ6W76ófÚFÚ&∆ˆ6ÚFR˜˜'GVÊñFFW2ÊÜˆ÷RR&WFó&"V∆V÷VÁF˜26ˆ–¢,:¶Ê6ñFRñÁFW&f6RvW&F˜"î‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü¢&V÷˜fñF˜2Ú6V∆Ú&˜66ˆ“:÷6ˆÊR¬&˜&F6ˆ∆˜&ñFRfóÜ&˜6ñÊfW&ñ˜"‡¢“ÚL:◊GV∆Úfñ6˜R÷VÊ˜"¬÷ó2Fó&WFÚR6ˆ“VV'&2ÊGW&ó2ÊÚ6V«V∆"‡¢“FW67&ú:|:6ÚfˆíVÊ7W'FF¬Ú6VwVÊFÚ5Dfó&˜RV“∆ñÊ≤Fó67&WFÚR˜2VFñF˜2&V6VÁFW2vÊÜ&–¢V÷&W6VÁF:|:6Ú÷ó26ˆ◊7FRÊWWG&‡¢“Ú&∆ˆ6ÚW6VÊ2&˜&F2R7WW&l:÷6ñW2FÚFW6ñv‚7ó7FV“¬6V“FWáFÚFV6˜&FófÚ6ˆ'&RgVÊF¢6ˆ∆˜&ñFÚR6V“:÷6ˆÊW2FRî‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBRvóBFñfb“÷6ÜV6∂6ˆÊ6«\:÷F˜26V“W'&˜2‡†¢22##b”í”#"(	B˜˜'GVÊñFFW2;¶&∆ñ62Ê&'&÷ˆ&ñ∆P†¢222ˆ&¶WFóf†¢“÷ÁFW"ÚF∆ÜÚFÚfVVBfó<:◊fV¬&V«VW"W76ˆ¬ñÊ6«W6ófRfó6óFÁFW2R6ˆ◊&F˜&W2‡†¢222◊VFÏ:v0†¢“6ˆ◊ˆÊVÁG2Ù÷ˆ&ñ∆TÊbÁG7Ü¢&(	ƒ˜˜'GVÊñFFW>(	“FVóÜ˜RFRFWVÊFW"FÚV¬7&VF˜&Rv˜&¢&V6RW&÷ÊVÁFV÷VÁFRÊ&'&f«WGVÁFRñÊfW&ñ˜"‡¢“ÚFW7FñÊÚ76˜R6W"ˆ˜˜'GVÊñFFW6¬VR:í;¶&∆ñ6Û≤:|;VW2FR&W7ˆÊFW"RVÁfñ"&˜˜7F¢6ˆÁFñÁV“WÜñvñÊFÚWFVÁFñ6:|:6ÚR2W&÷ó7<;VW2¨:WÜó7FVÁFW2‡¢“&V÷˜fñF6ˆÁ7V«FFñ6ñˆÊ¬FRV¬ÊÚ7W&6RfVóFWÜ6«W6óf÷VÁFRV∆&'&÷ˆ&ñ∆R‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBRvóBFñfb“÷6ÜV6∂6ˆÊ6«\:÷F˜26V“W'&˜2‡†¢22##b”í”#"(	B˜˜'GVÊñFFW2Ê&'&ñÊfW&ñ˜"÷ˆ&ñ∆P†¢222ˆ&¶WFóf†¢“6ˆ∆ˆ6"Ú6W76ÚÚfVVBWÜ6«W6ófÚÊÚ÷VÁRf«WGVÁFRñÊfW&ñ˜"ñÊFñ6FÚÊÚ÷ˆ&ñ∆R‡†¢222◊VFÏ:v0†¢“6ˆ◊ˆÊVÁG2Ù÷ˆ&ñ∆TÊbÁG7Ü¢6ˆÁF26ˆ“V¬7&VF˜&&V6V&V“V÷&(	ƒ˜˜'GVÊñFFW>(	“¬6ˆ–¢:÷6ˆÊR,;7&ñÚ¬ˆÁFÊFÚ&ˆF6Ü&ˆ&Bˆ˜˜'GVÊñFFW6‡¢“&:íˆ÷óFñF&fó6óFÁFW2R6ˆ◊&F˜&W26ˆ◊VÁ2;726ˆÁ7V«F"˜2:ñó2FÚW&fñ¬&V¬‡¢“ÚVÁG&"ÊÚfVVB¬6ˆ÷VÁFRÊ˜f&fñ6Fóf≤ÚóFV“vW&¬F:&VFÚ7&ñF˜"Ï:6Ú6VÊFR¢÷W6÷ÚFV◊Ú‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBRvóBFñfb“÷6ÜV6∂6ˆÊ6«\:÷F˜26V“W'&˜2‡†¢22##b”í”#"(	BF∆ÜÚ6ˆÊFñ6ñˆÊ¬&ÚfVVBFR˜˜'GVÊñFFW0†¢222ˆ&¶WFóf†¢“F"6W76Ú,:ñFÚÚfVVBFRVFñF˜26V“÷˜7G&"V÷˜:|:6ÚñÏ;ßFñ¬&6ˆ◊&F˜&W26ˆ◊VÁ2‡†¢222◊VFÏ:v0†¢“6ˆ◊ˆÊVÁG2ÙÜVFW"ÁG7Ü¢Ú6&\:v∆ÜÚ6ˆÁ7V«FÚ6◊Ú&ˆ∆W6FÚW&fñ¬WFVÁFñ6FÚRFñ6ñˆÊ¢(	ƒfVVBFR˜˜'GVÊñFFW>(	“:ÊfVv:|:6ÚFW6∑F˜RÚ÷VÁR÷ˆ&ñ∆R6ˆ÷VÁFRVÊFÚ6ˆÁF˜77Ví¢V¬7&VF˜&‡¢“fó6óFÁFW2¬6ˆ◊&F˜&W2R6ˆÁF26V“W&fñ¬FR7&ñF˜"6ˆÁFñÁV“fVÊFÚÊfVv:|:6ÚÁFW&ñ˜"‡¢“G&ˆ6FR6W7<:6ÚGV∆ó¶FÁFÚñFVÁFñFFRWÜñ&ñFVÁFÚfó6ñ&ñ∆ñFFRFÚF∆ÜÚ‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBRvóBFñfb“÷6ÜV6∂6ˆÊ6«\:÷F˜26V“W'&˜2‡†¢22##b”í”#(	BFW7FVRFRVFñF˜2ÊÜˆ÷RRfVVBWÜ6«W6ófÚ&7&ñF˜&W0†¢222ˆ&¶WFóf†¢“F˜&Ê"V&∆ñ6:|:6ÚFÚVRV÷W76ˆ&ˆ7W&V÷gVÏ:|:6Ú6VÁG&¬Rf6ñ∆÷VÁFRFW66ˆ&W'FÊÜˆ÷R‡¢“VÁG&Vv"˜27&ñF˜&W2V“fVVBFVFñ6FÚVÊ2VFñF˜2FR6W'fú:v˜2˜R&ˆGWF˜2‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü¢Fñ6ñˆÊFV÷6\:|:6ÚFR«FÚFW7FVRÁFW2FfóG&ñÊR¬6ˆ“Wá∆ñ6:|:6ÚFÚf«WÜÚ¿¢5D2&V&∆ñ6"RWá∆˜&"R,:ófñF2G,:ß2˜˜'GVÊñFFW2÷ó2&V6VÁFW2FÚ&Ê6Ú‡¢“ˆF6Ü&ˆ&Bˆ˜˜'GVÊñFFW2Ú¶¢7&ñFÚÚfVVBWÜ6«W6ófÚF:&VFÚ7&ñF˜"¬V“6ˆ«VÊ;¶Êñ6¿¢6ˆ“fñ«G&˜2˜"6FVv˜&ñ¬6∂V∆WFˆ‚,;7&ñÚR6ˆ÷VÁFRV&∆ñ6:|;VW2FRW76ˆ2&ˆ7W&ÊFÚ∆vÚ‡¢“ˆF6Ü&ˆ&B˜vRÁG7Ü¢ÚÊ˜fÚfVVBvÊÜ˜R6W76ÚFó&WFÚÊÚáV"FÚñÊV¬‡¢“6ˆ◊ˆÊVÁG2ı6W'fñ6U&WVW7D6&BÁG7Ü¢Fñ6ñˆÊFÚ÷ˆFÚFRfVVB6ˆ“∆VóGW&÷ó26ˆÊf˜'L:fV¬¬6V–¢GW∆ñ6"6ˆ◊ˆÊVÁFRÊV“f«WÜÚFRñÁFW&W76R‡¢“FWáF˜2FRFW66ˆ&W'FRV&∆ñ6:|:6Úv˜&FVóÜ“WáÃ:÷6óFÚVRW76ˆˆFR&ˆ7W&"V“6W'fú:v¢˜R&ˆGWFÚ¬&W6W'fÊFÚÚ÷W6÷Úf«WÜÚFR6ˆÁfW'6R&˜˜7F‡†¢222f∆ñF:|:6†¢“U4∆ñÁB6ˆÊ6«\:÷FÚ6V“fó6˜2‡¢“vóBFñfb“÷6ÜV6∂6ˆÊ6«\:÷FÚ6V“W'&˜2‡¢“'W66Ê˜2'Vóf˜2«FW&F˜26V“6˜&W27'V2˜R6∆76W2fóÜ2FR∆WFFñ«vñÊB‡†¢22##b”í”#(	BV&∆ñ6:|;VW2FR6W'fú:v˜2&ˆ7W&F˜0†¢222ˆ&¶WFóf†¢“W&÷óFó"VRV÷W76ˆV&∆óVRÚ6W'fú:vÚVRW7L:&ˆ7W&ÊFÚ¬6ˆ÷Ú(	«&V6ó6ÚFR∆w\:ñ“&¢f¶W"'FRFÚ÷WR6ÊŒ(	“¬R&V6V&&W7˜7F2FR&ˆfó76ñˆÊó2FVÁG&ÚFÚ¶ˆ,:¢‡¢“&V&˜fVóF"FˆF6VwW&Ï:vR¶˜&ÊFWÜó7FVÁFRFR6ˆÁfW'6¬&˜˜7F¬v÷VÁFÚ¬VÁG&VvP¢f∆ñ:|:6ÚV“fW¢FR7&ñ"V“f«WÜÚFR6ˆÁG&F:|:6Ú&∆V∆Ú‡†¢222◊VFÏ:v0†¢“7W&6S¢7&ñFF&V∆6W'fñ6U˜&WVW7G66ˆ“Wáó&:|:6ÚFR3Fñ2¬$≈2¬:÷ÊFñ6W2R%72&¢V&∆ñ6"¬VÊ6W'&"RFV÷ˆÁ7G&"ñÁFW&W76R‚7W7Fˆ’˜&WVW7G6vÊÜ˜RÚl:÷Ê7V∆¢6˜W&6U˜6W'fñ6U˜&WVW7EˆñF¬6ˆ“VÊñ6ñFFR˜"&ˆfó76ñˆÊ¬ˆ˜˜'GVÊñFFR‡¢“ˆ˜˜'GVÊñFFW2Ú¶¢Ê˜f2:vñÊ2;¶&∆ñ6¬FRV&∆ñ6:|:6ÚRFRvW&VÊ6ñ÷VÁFÚ¬ñÊ6«VñÊF¢6∂V∆WFˆ‚FR6'&Vv÷VÁFÚRfñ«G&˜2˜"6FVv˜&ñ‡¢“6ˆ◊ˆÊVÁG2ı6W'fñ6U&WVW7EV&∆ó6ÜW"ÁG7ÜR6ˆ◊ˆÊVÁG2ı6W'fñ6U&WVW7D6&BÁG7Ü¢f˜&◊VÃ:&ñ¢&W7ˆÁ6ófÚ¬6&G26ˆ◊7F˜2¬W7FF˜2FRWFVÁFñ6:|:6Ú¬VÊ6W'&÷VÁFÚR÷ˆF¬FR&W6VÁF:|:6Ú‡¢“ÚFV÷ˆÁ7G&"ñÁFW&W76R¬Ú&Ê6Úf∆ñFÚW&fñ¬&ˆfó76ñˆÊ¬¬'&RÚVFñFÚW'6ˆÊ∆ó¶FÚR¢6ˆÁfW'6¬&Vvó7G&÷VÁ6vV“ñÊñ6ñ¬RÊ˜Fñfñ6ÚWF˜"‚Ú&ˆfó76ñˆÊ¬6VwVRVÁL:6Ú&FV∆¢WÜó7FVÁFRFR&˜˜7F‡¢“6ˆ◊ˆÊVÁG2ÙÜVFW"ÁG7ÜR˜vRÁG7Ü¢Fñ6ñˆÊF˜26W76˜2&˜˜'GVÊñFFW2¬÷ñÊÜ0¢V&∆ñ6:|;VW2R(	≈V&∆óVRÚVR&V6ó6(	“¬&W6W'fÊFÚ˜2∆ñÊ∑2ÁFW&ñ˜&W2ÊÚ÷VÁR÷ˆ&ñ∆R‡¢“Fˆ72ı4U%dî4Uı$UTU5EÙıı%ET‰ïDîU2Ê÷F¢Fˆ7V÷VÁFF'VóFWGW&R2&Vw&2FR6ˆÁFñÁVñFFP¢&˜WG&2î2‡†¢222f∆ñF:|:6†¢“f«WÜÚFR&Ê6ÚWÜW&6óFFÚV“G&Á6:|:6Ú6ˆ“&ˆ∆∆&6≥¢7&ñ:|:6Ú˜"6ˆ◊&F˜"R&W7˜7F˜"7&ñF˜ ¢vW&&“WÜF÷VÁFRV“VFñFÚW'6ˆÊ∆ó¶FÛ≤ÊVÊáV÷∆ñÊÜFRFW7FRW&÷ÊV6WRÊÚ&Ê6Ú‡¢“U4∆ñÁBRGóU67&óB6ˆÊ6«\:÷F˜26V“W'&˜3≤'Vñ∆BFR&ˆG\:|:6Ú6ˆÊ6«\:÷FÚÊ2C&˜F2W6ÊFÚ6ˆ÷VÁFP¢f&ú:fVó2fñ7L:÷6ñ2FRf∆ñF:|:6Ú‡¢“Üˆ÷R¬∆ó7FvV“¬V&∆ñ6:|:6ÚRvW&VÊ6ñ÷VÁFÚ&W7ˆÊFW&“ÖEE#ÊÚ6W'fñF˜"FR&ˆG\:|:6Ú∆ˆ6√≤¢ÖD‘¬6ˆÊfó&÷˜R˜2L:◊GV∆˜2¬5D2RW7FFÚf¶ñÚW7W&F˜2‡¢“'W66˜"6˜&W27'V2RvóBFñfb“÷6ÜV6∂6V“ˆ6˜',:¶Ê6ñ3≤2FV∆2W6“6ˆ÷VÁFR˜2Fˆ∂VÁ2F¢FW6ñv‚7ó7FV“R&Vw&2&W7ˆÁ6óf2˜"'&V∑ˆñÁB‡¢“7W&6RfW&ñfñ6FÚ6ˆ“G,:ß2%726V7W&óGíñÁfˆ∂W&¬6V&6Ö˜FÜf¶ñÚ¬G,:ß2ˆÃ:◊Fñ62$≈2¿¢:÷ÊFñ6W2FR∆ó7FvV“ˆWF˜"R:÷ÊFñ6R;¶Êñ6Ú˜"˜˜'GVÊñFFR˜&ˆfó76ñˆÊ¬‚Gfó6˜'2Ï:6ÚˆÁF&–¢∆W'FÊ˜fÚ∆ñvFÚ6W'fñ6U˜&WVW7G6≤˜2fó6˜2&WF˜&ÊF˜2<:6Ú&VWÜó7FVÁFW2V“˜WG&2F&V∆0¢RÊ6ˆÊfñwW&:|:6ÚFR6VÊÜ2f¶F2FÚWFÇ‡¢“ñÁ7\:|:6Úfó7V¬WFˆ÷Fó¶FÏ:6Ú;FFR6W"WÜV7WFF¢ÚÊfVvF˜"&V÷˜FÚ&∆˜VVñ∆ˆ6∆Ü˜7BR¢ÊfVvF˜"∆ˆ6¬Ï:6Ú;FFR&óÜ"Ú&ñÏ:&ñÚ˜"W'&ÚFR6W'Fñfñ6FÚF&VFR‚'Vñ∆B¬ÖD‘¬6W'fñFÚP¢&˜F2f˜&“f∆ñFF˜26ˆ÷Ú6ˆ&W'GW&«FW&ÊFóf¬6V“fó&÷"V÷6GW&fó7V¬ñÊWÜó7FVÁFR‡†¢22##b”í”#(	BÜW&Ú6V“,;7GV∆ÚFV6˜&Fóf†¢222ˆ&¶WFóf†¢“&V÷˜fW"Ú,;7GV∆ÚV“6óÜ«F6ñ÷FÚL:◊GV∆ÚFÜˆ÷R¬ˆÁFFÚV∆ÚW7\:&ñÚ6ˆ÷ÚW6FÚP¢'Fñfñ6ñ¬ÊÚ6V«V∆"‡¢“F"÷ó2ñ◊7FÚÚL:◊GV∆Ú&ñÊ6ó¬R&VGW¶ó"VÁFñFFRFRV∆V÷VÁF˜26ˆ◊WFñÊFÚÊ¢&ñ÷Vó&Fˆ'&‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü¢&V÷˜fñF˜2ÚFWáFÚ(	≈6W'fú:v˜2R&ˆGWF˜2FñvóFó2V“V“<;2«Vv.(	“R7V&'&¢FV6˜&Fóf‚ÚÜW&Úv˜&6ˆ÷\:vFó&WF÷VÁFRV∆ÚL:◊GV∆ÚR÷ÁL:ñ“&˜˜7F6ˆ◊∆WFÊÚFWáF¢FRˆñÚ∆ˆvÚ&óÜÚ¬6V“W&FW"ñÊf˜&÷:|:6ÚgVÊ6ñˆÊ¬‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBR'Vñ∆BFR&ˆG\:|:6ÚF23Ç&˜F26ˆÊ6«\:÷F˜26V“W'&˜2‡¢“'W66˜"6˜&W27'V2V“˜vRÁG7Ü6V“ˆ6˜',:¶Ê6ñ2‡¢“fW'<:6ÚV&∆ñ6FñÁ7V6ñˆÊFV“ÊfVvF˜#¢Ú,;7GV∆ÚÏ:6Ú&V6R÷ó2¬ÚL:◊GV∆Ú7V&óR3bÄ¢Ê&ñ÷Vó&Fˆ'&R:vñÊ6ˆÁFñÁV6V“˜fW&f∆˜rÜ˜&ó¶ˆÁF¬˜RW'&˜2F∆ñ6:|:6Ú‡†¢22##b”í”#(	B6&G2FR6W'fú:v˜26ˆ◊7F˜2ÊÜˆ÷P†¢222ˆ&¶WFóf†¢“WfóF"VR6F6W'fú:vÚˆ7WRV6RV÷FV∆ñÁFVó&ÊÚ6V«V∆"R÷V∆Ü˜&"Ú&óF÷ÚFR∆VóGW&¢F6\:|:6Ú(	≈6W'fú:v˜2FRVV“6&Rf¶W.(	“‡†¢222◊VFÏ:v0†¢“6ˆ◊ˆÊVÁG2Ùvñt6&BÁG7Ü¢Fñ6ñˆÊFV÷&W6VÁF:|:6Ú6ˆ◊7F˜6ñˆÊ¬ÊÚ÷ˆ&ñ∆R¬6ˆ“÷ñÊñGW&¢∆FW&¬¬6ˆÁF\;¶FÚÜñW&'Vó¶FÚR&\:vÚñÁFVw&FÚÚ6&\:v∆ÜÚFÚ6&BV“fW¢FR6ˆ'&W˜7FÚ: ¢ñ÷vV“‚V“FV∆2÷ñ˜&W2¬Ú6&B&WF˜&ÊWFˆ÷Fñ6÷VÁFRÚf˜&÷FÚfW'Fñ6¬Fw&FR‡¢“˜vRÁG7Ü¢fóG&ñÊRñÊñ6ñ¬76˜RFóf"&W6VÁF:|:6Ú6ˆ◊7F‚Wá∆˜&"R:vñÊ0¢FR6FVv˜&ñ&W6W'f“7Vw&FRV“GV2˜R÷ó26ˆ«VÊ2RFˆF22:|;VW26ˆÁFñÁV“W6ÊFÚ¢÷W6÷Ú6ˆ◊ˆÊVÁFRRÚ÷W6÷Úf«WÜÚFR6ˆ∆ñ6óF:|:6Ú‡†¢222f∆ñF:|:6†¢“U4∆ñÁBRGóU67&óB6ˆÊ6«\:÷F˜26V“W'&˜2‡¢“'Vñ∆BFR&ˆG\:|:6Ú6ˆÊ6«\:÷FÚ6ˆ“7V6W76ÚÊ23Ç&˜F2W6ÊFÚ7&VFVÊ6ñó2fñ7L:÷6ñ2FRf∆ñF:|:6Û∞¢ÊVÊáV÷7&VFVÊ6ñ¬&V¬fˆíÊV6W7<:&ñ˜RñÊ6«\:÷F‡¢“'W66˜"6˜&W27'V2Ê˜26ˆ◊ˆÊVÁFW2«FW&F˜26V“ˆ6˜',:¶Ê6ñ3≤Ú6&BW66ˆ÷VÁFRFˆ∂VÁ2F¢FW6ñv‚7ó7FV“‡¢“fW'<:6ÚV&∆ñ6FñÁ7V6ñˆÊFV“ÊfVvF˜#¢6&G2¬&\:vÚ¬WF˜"¬L:◊GV∆ÚR5D&VÊFW&ó¶&“6ˆ–¢«GW&26ˆÁ6ó7FVÁFW2¬6V“˜fW&f∆˜rÜ˜&ó¶ˆÁF¬R6V“W'&˜2F∆ñ6:|:6ÚÊÚ6ˆÁ6ˆ∆R‚Ú÷&∑W ¢V&∆ñ6FÚF÷,:ñ“6ˆÊfó&÷Ú÷ˆFÚÜ˜&ó¶ˆÁF¬&óÜÚFR6÷RÚ&WF˜&ÊÚ:w&FRfW'Fñ6¬6ñ÷‡†¢22##b”í”#(	BÜW&Ú&W'FÚRñFVÁFñFFRg&÷&ˆW6¶ˆ,:††¢222ˆ&¶WFóf†¢“FVÊFW"Ú&WF˜&ÊÚFÚW7\:&ñÚ&V÷˜fVÊFÚÚfñˆ∆WF¬FˆFÚw&FñVÁFRRÚw&ÊFRVG&Ú6ˆ∆˜&ñF¢VRVÁfˆ«fñ'W66Ê:vñÊñÊñ6ñ¬‡¢“÷ÁFW"VÊW&vñ6ˆ÷W&6ñ¬W6ÊFÚ6˜"6ˆ“÷ó2&V6ó<:6Ú¬6V“G&Á6f˜&÷"6\:|;VW2ñÁFVó&2V–¢&∆ˆ6˜2&VVÊ6ÜñF˜2‡†¢222◊VFÏ:v0†¢“ˆv∆ˆ&«2Ê776¢fñˆ∆WF¶ˆ,:¢7V'7FóG\:÷FÚV∆f‹:÷∆ñg&÷&ˆW6¶ˆ,:£≤66VÁBRÜñvÜ∆ñvá@¢v˜&6ˆ◊'Fñ∆Ü“÷W6÷Fó&\:|:6Ú7&ˆ‹:Fñ6‚FV÷W67W&ÚGV∆ó¶FÚV“6ˆÊßVÁFÚ‡¢“˜vRÁG7Ü¢ÜW&Úfˆ«F˜R6W"&W'FÚ6ˆ'&RÚ÷&fñ“¬6V“w&FñVÁFRR6V“6ˆÁFñÊW ¢&VVÊ6ÜñFÚ‚76ñÊGW&W&FWRÚf˜&÷FÚFR6Üó≤Ú6&B∆FW&¬fó&˜RVÊ2V÷:&V¢6W&F˜"Fófó6˜#≤fóÜFR&VÊVl:÷6ñ˜2F÷,:ñ“FVóÜ˜RFRW6"G,:ß26óÜ2‡¢“4ƒTDRÊ÷FRFˆ72ÙÑÙ‘Uı$TDU4ît‚Ê÷F¢&Vw&2R6ˆÁFñÁVñFFRfó7V¬GV∆ó¶F2‡†¢2226ˆÁG&7FP†¢“'&Ê6Ú6ˆ'&Rg&÷&ˆW6¢B√cS£‡¢“g&÷&ˆW6FWáGV¬6ˆ'&R÷&fñ”¢r√#3£≤6ˆ'&RgVÊFÚ7VfS¢b√#S£‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBR'Vñ∆BFR&ˆG\:|:6Ú6ˆÊ6«\:÷F˜26V“W'&˜2‡¢“6ˆÁG&7FW2F˜2Fˆ∂VÁ2÷VFñF˜2R6ˆ◊ˆÊVÁFW2«FW&F˜26V“6˜&W27'V2ÊÚE5Ç‡¢“fW'<:6ÚV&∆ñ6FñÁ7V6ñˆÊFV“ÊfVvF˜"FW6∑F˜¢6ˆ◊˜6ú:|:6Ú&W'F¬'W66¬5D¬Fófó6˜&W0¢R6˜"FR÷&6&VÊFW&ó¶&“6V“˜fW&f∆˜rR6V“W'&˜2F∆ñ6:|:6ÚÊÚ6ˆÁ6ˆ∆R‡†¢22##b”í”#(	Bfñˆ∆WF¶ˆ,:¢RÜW&Ú6ˆ“&W6VÏ:vFR÷&6†¢222ˆ&¶WFóf†¢“Fó&"6VÁ6:|:6Úfó7V¬FR:vñÊ6V“VÊW&vñR7&ñ"V÷6˜"ñ÷VFñF÷VÁFR&V6ˆÊÜV<:◊fV¿¢6ˆ÷Ú'FRFñFVÁFñFFRFÚ¶ˆ,:¢‡¢“F"÷ó2&W6VÏ:v6ˆ÷W&6ñ¬:&ñ÷Vó&Fˆ'&6V“67&ñfñ6"∆VóGW&˜RFW6V◊VÊÜÚ‡†¢222◊VFÏ:v0†¢“ˆv∆ˆ&«2Ê776¢ÚfW&FR÷ÁFó2fˆí7V'7FóG\:÷FÚV∆Úfñˆ∆WF¶ˆ,:¢Ê˜2Fˆ∂VÁ2FR÷&6∞¢ÜñvÜ∆ñváB6ˆ÷W&6ñ¬76˜R6˜&¬fV6ÜFÚ‚FV÷26∆&ÚRW67W&Úf˜&“ßW7FF˜2ßVÁF˜2‡¢“˜vRÁG7Ü¢ÜW&Úfó&˜RV“∆ÊÚfñˆ∆WFFR«FÚñ◊7FÚ¬6ˆ“w&FñVÁFR6ˆÁG&ˆ∆FÚ¿¢Fóˆw&fñ6∆&¬5D'&Ê6ÚR6&BFR6ˆ◊&&W6W'fFÚ6ˆ'&R7WW&l:÷6ñR∆V|:◊fV¬‡¢“4ƒTDRÊ÷FRFˆ72ÙÑÙ‘Uı$TDU4ît‚Ê÷F¢Fó&\:|:6Úfó7V¬R&Vw&2FRW6ÚF∆WFGV∆ó¶F2‡†¢2226ˆÁG&7FP†¢“'&Ê6Ú6ˆ'&Rfñˆ∆WF¶ˆ,:£¢R√3£‡¢“fñˆ∆WFFWáGV¬6ˆ'&R÷&fñ”¢Ç√ì£≤6ˆ'&Rfñˆ∆WF7VfS¢r√£‡¢“6˜&¬FWáGV¬6ˆ'&R÷&fñ”¢R√Sc£≤6ˆ'&R6˜&¬7VfS¢B√ìC£‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBR'Vñ∆BFR&ˆG\:|:6Ú6ˆÊ6«\:÷F˜26V“W'&˜2‡¢“6ˆÁG&7FW2F˜2Fˆ∂VÁ2÷VFñF˜2R6ˆ◊ˆÊVÁFW2«FW&F˜26V“6˜&W27'V2ÊÚE5Ç‡¢“fW'<:6ÚV&∆ñ6FñÁ7V6ñˆÊFV“ÊfVvF˜"FW6∑F˜¢ÜW&Ú¬'W66¬5D2¬6&B∆FW&¬RfóÜ¢FR&VÊVl:÷6ñ˜2&VÊFW&ó¶&“6V“˜fW&f∆˜s≤ÊVÊáV“W'&ÚF∆ñ6:|:6Ú&V6WRÊÚ6ˆÁ6ˆ∆R‡†¢22##b”í”#(	B&WfW'FR‹:VñÊFRW67&WfW"FÚÜW&†¢222ˆ&¶WFóf†¢“VFñFÚWáÃ:÷6óFÚFÚW7\:&ñÛ¢&WfW'FW"Êñ÷:|:6ÚFR‹:VñÊFRW67&WfW"ÊÚL:◊GV∆ÚFÜˆ÷P¢ÜñÁG&ˆGW¶ñFV“GV2◊VFÏ:v2ÁFW&ñ˜&W2RßW7FFFWˆó2˜"Fˆó2&ˆ&∆V÷2FR∆ñ˜WBíP¢fˆ«F"ÚFWáFÚW7L:Fñ6Ú˜&ñvñÊ¬‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü¢L:◊GV∆ÚFÚÜW&Úfˆ«F6W"ÚFWáFÚfóÜÚ$VÊ6ˆÁG&R‚6ˆ◊&R‚f:v6ˆÁFV6W"‚"¿¢ñwV¬ÁFW2FRV«VW"V÷F2◊VFÏ:v2F‹:VñÊFRW67&WfW"‚&V÷˜fñF˜2Úñ◊˜'BFP¢GóWw&óFW$ÜVF∆ñÊVR6ˆÁ7FÁFRÜW&ıá&6W6‡¢“6ˆ◊ˆÊVÁG2ıGóWw&óFW$ÜVF∆ñÊRÁG7Ü¢&V÷˜fñFÚ(	B6V“÷ó2ÊVÊáV÷&VfW,:¶Ê6ñÊÚ&ˆ¶WFÚ‡†¢222f∆ñF:|:6†¢“w&W˜"ÜWÇV“˜vRÁG7Ü¢ÊVÊáV÷ˆ6˜',:¶Ê6ñ‡¢“ÁÇW6∆ñÁB˜vRÁG7Ü¢6V“W'&˜2‡¢“Á“'V‚'Vñ∆F¢6ˆ◊ñ∆:|:6ÚR6ÜV6vV“FRGóU67&óB6ˆÊ6«\:÷F26ˆ“7V6W76ÚÜf∆ÜFP¢,:í◊&VÊFW&ó¶:|:6ÚFRˆF÷ñÊ:í,:í÷WÜó7FVÁFR¬6V“&V∆:|:6Úí‡†¢22##b”í”#(	B&V÷˜fRÚ&VfóÜÚfóÜÚFÚÜW&ÚRW7F&ñ∆ó¶«GW&FÚL:◊GV∆†¢222ˆ&¶WFóf†¢“◊VFÏ:vÁFW&ñ˜"ÜfóÇFÚ7"÷ˆÊ«ñí¨:W7Ff6˜'&WFRÊÚ"¬÷2ÚW7\:&ñÚ÷ÊF˜RV“&ñÁ@¢÷˜7G&ÊFÚVRÚ&ˆ&∆V÷&V¬W&˜WG&Û¢6ˆ“g&6R%V&∆óVR6WW26W'fú:v˜2‚"ÚL:◊GV∆¢VV'&fV“2∆ñÊÜ2ÊÚF˜F¬Ç$VÊ6ˆÁG&R‚6ˆ◊&R‚"fóÜÚ≤"∆ñÊÜ2Fg&6RÊñ÷Fí¬f¶VÊF¢«GW&FÚÜW&ÚV∆"6FG&ˆ6(	BÚVR∆ñ6ˆ÷Ú&ÚFWáFÚ76ÊFÚF÷&vV“"‚÷ó7GW&"¢&VfóÜÚfóÜÚvVÏ:ó&ñ6Ú6ˆ“g&6W2fˆ«FF2˜&VV“6ˆÁG&F¬˜&VV“fVÊFR¬F÷,:ñ–¢6ˆfW7G&ÊÜÚÜg&6W2FR7&ñF˜"'VÊGW&F2"ÁV÷g&6RVR6ˆ÷\:v6ˆ“$VÊ6ˆÁG&R‚6ˆ◊&R‚"í‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü ¢“Ú∆ÉÊÏ:6ÚFV“÷ó2Ú&VfóÜÚfóÜÚ$VÊ6ˆÁG&R‚6ˆ◊&R‚"(	Bv˜&ÚGóWw&óFW$ÜVF∆ñÊV:í¢L:◊GV∆ÚñÁFVó&Ú¬6ˆ“6Fg&6R6VÊFÚV÷6VÁFVÏ:v7W'FR6ˆ◊∆WF˜"6í<;2ÜÏ:6ÚFWVÊFRFP¢ÊVÊáV“FWáFÚfóÜÚÁFW2FV∆í‡¢“ÜW&ıá&6W6ßW7FF2&6&W"ÁV÷∆ñÊÜ<;2ÊÚ÷ˆ&ñ∆S¢$VÊ6ˆÁG&RVV“f¢‚"¬%fVÊF¢VR6&R‚"¬%\:v6ˆ"÷VFñF‚"¬%V&∆óVRV“6W'fú:vÚ‚"¬$W66ˆ∆Ü6ˆ“6ˆÊfñÏ:v‚"¬%6WP¢F∆VÁFÚfó&&VÊF‚ ¢“∆ÉÊvÊÜ˜R÷ñ‚÷Ç’≥W&V’“6”¶÷ñ‚÷Ç’≥b„W&V’“∆s¶÷ñ‚÷Ç’≥Ç„W&V’÷(	B&W6W'f«GW&FRL:ê¢GV2∆ñÊÜ2V“6F'&V∑ˆñÁB¬VÁL:6Ú÷W6÷Ú6RV÷g&6RgWGW&VV'&"∆ñÊÜ¬Ú&W7FÚF¢:vñÊÜ'W66¬&˜L;VW2íÏ:6ÚV∆FR˜6ú:|:6Ú‡†¢222f∆ñF:|:6†¢“w&W˜"ÜWÇÊ˜2'Vóf˜2«FW&F˜3¢ÊVÊáV÷ˆ6˜',:¶Ê6ñ‡¢“ÁÇW6∆ñÁB˜vRÁG7Ç6ˆ◊ˆÊVÁG2ıGóWw&óFW$ÜVF∆ñÊRÁG7Ü¢6V“W'&˜2‡¢“Á“'V‚'Vñ∆F¢6ˆ◊ñ∆:|:6ÚR6ÜV6vV“FRGóU67&óB6ˆÊ6«\:÷F26ˆ“7V6W76ÚÜf∆ÜFP¢,:í◊&VÊFW&ó¶:|:6ÚFRˆF÷ñÊ:í,:í÷WÜó7FVÁFR¬6V“&V∆:|:6Úí‡¢“67&VVÁ6Ü˜G2&Vó2V“fñWw˜'B÷ˆ&ñ∆RÉC,9sì¬∆ów&ñváB≤6á&ˆ÷óV“í6GW&F˜2V“R÷ˆ÷VÁF˜0¢FÊñ÷:|:6ÚÜg&6W2FñfW&VÁFW2¬ñÊ6«VñÊFÚ÷ó2∆ˆÊv¬%V&∆óVRV“6W'fú:vÚ‚"ì¢6V◊&RV÷¢∆ñÊÜ<;2¬Fˆ7V÷VÁBÊFˆ7V÷VÁDV∆V÷VÁBÁ67&ˆ∆≈vñGFÜñwV¬:∆&wW&FfñWw˜'Bá6V“˜fW&f∆˜p¢Ü˜&ó¶ˆÁF¬í¬RÚ&W7FÁFRF:vñÊÜ'W66¬&˜L;VW2¬$WáW&ñ÷VÁFS¢"í6V“V∆"FR˜6ú:|:6Ú‡†¢22##b”í”#(	B6˜'&ñvRFWáFÚGW∆ñ6FÚˆW7F˜W&ÊFÚÊÚÜW&ÚRßW7FÚFˆ“F2g&6W0†¢222ˆ&¶WFóf†¢“ÚW7\:&ñÚ&W˜'F˜RFˆó2&ˆ&∆V÷2Ê‹:VñÊFRW67&WfW"FÚÜW&ÚÜFñ6ñˆÊFÊ◊VFÏ:v¢ÁFW&ñ˜"ì¢ÚFWáFÚ76fF÷&vV“F:&V6ˆ“gVÊFÚfW&FR6∆&ÚFÚÜW&Ú¬RÜfñV“FWáF¢fóÜÚ&V6VÊFÚV“6ñ÷FÚFWáFÚÊñ÷FÚ‚F÷,:ñ“VFóRV÷∆ñÊwVvV“÷ó2áV÷ÊP¢&ˆfó76ñˆÊ¬Ê2g&6W2‡¢“6W6&ó£¢Úf∆∆&6≤FR6W76ñ&ñ∆ñFFRÜ7"÷ˆÊ«ñíW7Ff6ˆÊ6FVÊÊFÚ2bg&6W2ñÁFVó&0¢ÁV÷;¶Êñ66VÁFVÏ:vvñvÁFRÜ$VÊ6ˆÁG&RVV“f¢‚‚fVÊFÚVRfˆ<:¢6&Rf¶W"‚‚‚‚‚&íFVÁG&¢FÚ÷W6÷Ú∆ÉÊFÚFWáFÚÊñ÷FÚ(	B6ˆÊfó&÷FÚñÁ7V6ñˆÊÊFÚÚÖD‘¬&VÊFW&ó¶FÚ‚÷W6÷Ú6ˆ“¢552Á7"÷ˆÊ«ñ6˜'&WFÚÜ˜6óFñˆ„¢'6ˆ«WFS≤vñGFÉ£É≤ÜVñváC£É≤˜fW&f∆˜s¶ÜñFFVÊí¬W76P¢&∆ˆ6ÚFRFWáFÚFW6ÊV6W76&ñ÷VÁFRw&ÊFRFVÁG&ÚFÚL:◊GV∆ÚW&'&ó66FÚRÏ:6ÚFWfW&ñWÜó7Fó ¢FÚ¶VóFÚVRW7Ff‡†¢222◊VFÏ:v0†¢“6ˆ◊ˆÊVÁG2ıGóWw&óFW$ÜVF∆ñÊRÁG7Ü¢&˜á&6W6v˜&∆ñ÷VÁF<;2Êñ÷:|:6Ú‚Ê˜f&˜ ¢ˆ'&ñvL;7&ñ7%FWáF&V6V&RV÷g&6R7W'FRfóÜ&Ú∆VóF˜"FRFV∆¬ÊÚ«Vv"F¢6ˆÊ6FVÊ:|:6ÚFRFˆF22g&6W2‚Ú«7„Ê&ó¢vÊÜ˜RñÊ∆ñÊR÷&∆ˆ6≤÷Ç◊r÷gV∆¬'&V≤◊v˜&G0¶∆ñv‚÷&˜GFˆ÷&v&ÁFó"VRÚFWáFÚ6V◊&RVV'&FVÁG&ÚFÚ6ˆÁL:¶ñÊW"FÚL:◊GV∆Ú¬V“fW¢FP¢'&ó66"W7F˜W&"∆&wW&V“FV∆2WVVÊ2‡¢“˜vRÁG7Ü¢g&6W2FÚÜW&Ú&VW67&óF2ÁV“Fˆ“÷ó2áV÷ÊÚ˜&ˆfó76ñˆÊ¬¬÷ó27W'F2áW'F¢FÚF÷ÊÜÚFÚ$f:v6ˆÁFV6W"‚"˜&ñvñÊ¬í&6&W"&V“V“V÷∆ñÊÜ÷W6÷ÚV“FV∆2WVVÊ3†¢$VÊ6ˆÁG&RVV“f¢‚"¬%fVÊFÚVRfˆ<:¢6&R‚"¬%\:v6ˆ"÷VFñF‚"¬%V&∆óVR6WW26W'fú:v˜2‚"¿¢$W66ˆ∆Ü6ˆ“6ˆÊfñÏ:v‚"¬%6WRF∆VÁFÚfó&&VÊF‚"(	B÷ÁFVÊFÚ«FW&Ï:&Ê6ñVÁG&RVV“'W66¢RVV“ˆfW&V6R‚7%FWáC“$VÊ6ˆÁG&RVV“f¢˜RfVÊFÚVRfˆ<:¢6&Rf¶W"‚&‡†¢222f∆ñF:|:6†¢“w&W˜"ÜWÇÊ˜2'Vóf˜2«FW&F˜3¢ÊVÊáV÷ˆ6˜',:¶Ê6ñ‡¢“ÁÇW6∆ñÁB˜vRÁG7Ç6ˆ◊ˆÊVÁG2ıGóWw&óFW$ÜVF∆ñÊRÁG7Ü¢6V“W'&˜2‡¢“Á“'V‚'Vñ∆F¢6ˆ◊ñ∆:|:6ÚR6ÜV6vV“FRGóU67&óB6ˆÊ6«\:÷F26ˆ“7V6W76ÚÜf∆ÜFP¢,:í◊&VÊFW&ó¶:|:6ÚFRˆF÷ñÊ:í,:í÷WÜó7FVÁFR¬6V“&V∆:|:6Úí‡¢“ñÁ7\:|:6ÚFÚÖD‘¬&VÊFW&ó¶FÚÜÁ“'V‚FWf≤fWF6Çì¢6ˆÊfó&÷FÚVRÚ7"÷ˆÊ«ñv˜&6ˆÁL:ñ–¢<;2g&6R7W'FfóÜ¬Ï:6Ú6ˆÊ6FVÊ:|:6ÚF2b‡¢“67&VVÁ6Ü˜B&V¬V“fñWw˜'B÷ˆ&ñ∆RÉ3ì9sÉCB¬fñ∆ów&ñváB≤6á&ˆ÷óV“íV“Fˆó2ñÁ7FÁFW2F¢Êñ÷:|:6Û¢FWáFÚFRV÷∆ñÊÜ<;2¬6V“6ˆ'&W˜6ú:|:6Ú¬FVÁG&ÚF:&VFÚw&FñVÁFR¬6V“W7F˜W&"¢∆&wW&FFV∆‡†¢22##b”í”#(	B‹:VñÊFRW67&WfW"ÊÚÜW&ÚFÜˆ÷P†¢222ˆ&¶WFóf†¢“VFñFÚFÚW7\:&ñÛ¢V÷Êñ÷:|:6ÚFóÚ'6VÊFÚvFÚRFñvóFFÚ"¬G&ˆ6ÊFÚ∆g&2ˆg&6W2¿¢&ˆFÊFÚÊ˜2&ñ÷Vó&˜26VwVÊF˜2ÚVÁG&"ÊÚ6óFR¬6ˆ“FWáF˜2fˆ«FF˜2FÁFÚ&VV“6ˆÁG&F¢áW7\:&ñÚíVÁFÚ&VV“ˆfW&V6RÜ7&ñF˜"í‚W&wVÁFVíˆÊFRFWfW&ñfñ6#≤W66ˆ∆ÜfˆíÊ¢ÜW&ÚFÜˆ÷R¬ÊÚ«Vv"FÚL:◊GV∆ÚfóÜÚ$f:v6ˆÁFV6W"‚"‡†¢222◊VFÏ:v0†¢“6ˆ◊ˆÊVÁG2ıGóWw&óFW$ÜVF∆ñÊRÁG7ÜÜÊ˜fÚ¬6∆ñVÁB6ˆ◊ˆÊVÁBì¢FñvóF6Fg&6R6&7FW&R˜ ¢6&7FW&R¬W6¬vR76&,;7Üñ÷¬V“∆ˆ˜‚W6W6U7ñÊ4WáFW&Ê≈7F˜&V&6ÜV6 ¢&VfW'2◊&VGV6VB÷÷˜FñˆÊ6V“vW&"÷ó6÷F6ÇFRÜñG&F:|:6ÚÖ55"6V◊&R'FRFR'6V–¢Êñ÷:|:6Ú"L:íÚ6∆ñVÁB6ˆÊfó&÷"&VfW,:¶Ê6ñ&V¬í(	BVV“&VfW&R÷VÊ˜2÷˜fñ÷VÁFÚl:¢<;2¢&ñ÷Vó&g&6R¬&F¬6V“7W'6˜"ó66ÊFÚ‚ÚFWáFÚÊñ÷FÚfñ6&ñ÷ÜñFFVÊ¬6ˆ“V–¢7"÷ˆÊ«ñÚ∆FÚ∆ó7FÊFÚFˆF22g&6W2˜"WáFVÁ6Ú&∆VóF˜"FRFV∆‡¢“˜vRÁG7Ü¢6VwVÊF∆ñÊÜFÚL:◊GV∆ÚFÚÜW&ÚÇ$f:v6ˆÁFV6W"‚"ífó&˜P¢≈GóWw&óFW$ÜVF∆ñÊRá&6W3◊∂ÜW&ıá&6W7“ÛÊ¬«FW&ÊÊFÚg&6W2&W7\:&ñÚR&7&ñF˜#†¢$VÊ6ˆÁG&RVV“f¢‚"¬%fVÊFÚVRfˆ<:¢6&Rf¶W"‚"¬%\:v6ˆ"÷VFñF‚"¬%V&∆óVR6WW0¢6W'fú:v˜2‚"¬$6ˆ◊&R&ˆÁFÚ¬6V“VÁ&ˆ∆:|:6Ú‚"¬%G&Á6f˜&÷RF∆VÁFÚV“&VÊF‚"‚&ñ÷Vó&∆ñÊÜ¢Ç$VÊ6ˆÁG&R‚6ˆ◊&R‚"í6ˆÁFñÁVfóÜ‡¢“6˜"W6F<;2ÊÚ7W'6˜"ó66ÊFÚÜ&r“Ç“÷6ˆ∆˜"÷66VÁB◊FWáBñí¬ÊVÊáV“Fˆ∂V‚Ê˜fÚ‡†¢222f∆ñF:|:6†¢“w&W˜"ÜWÇÊ˜2'Vóf˜2«FW&F˜3¢ÊVÊáV÷ˆ6˜',:¶Ê6ñ‡¢“ÁÇW6∆ñÁB˜vRÁG7Ç6ˆ◊ˆÊVÁG2ıGóWw&óFW$ÜVF∆ñÊRÁG7Ü¢6V“W'&˜2Ü6˜'&ñvñFÚV“W'&Ú&V¿¢FR&V7B÷Üˆˆ∑2˜6WB◊7FFR÷ñ‚÷VffV7FÚG&ˆ6"W6U7FFV≤W6TVffV7F÷ÁV¬˜ ¢W6U7ñÊ4WáFW&Ê≈7F˜&V&∆W"&VfW'2◊&VGV6VB÷÷˜FñˆÊí‡¢“Á“'V‚'Vñ∆F¢6ˆ◊ñ∆:|:6ÚR6ÜV6vV“FRGóU67&óB6ˆÊ6«\:÷F26ˆ“7V6W76ÚÜf∆ÜFP¢,:í◊&VÊFW&ó¶:|:6ÚFRˆF÷ñÊ:í,:í÷WÜó7FVÁFR¬6V“&V∆:|:6Ú6ˆ“W7F◊VFÏ:ví‡¢“Á“'V‚FWf≤fWF6ÇFÜˆ÷S¢ÖEE#≤6ˆÊfó&÷FÚÊÚÖD‘¬VRÚL:◊GV∆ÚW7L:Fñ6ÚÇ$VÊ6ˆÁG&R‡¢6ˆ◊&R‚"íRÚf∆∆&6≤7"÷ˆÊ«ñ6ˆ“2g&6W26ˆ◊∆WF2W7L:6Ú&W6VÁFW2‡†¢22##b”í”#(	B5DFR7&VF˜"ÊÚW7Fñ∆Ú&VfW,:¶Ê6ñÜ6&B6ˆ“Fófó6˜"ê†¢222ˆ&¶WFóf†¢“ÚW7\:&ñÚ÷ÊF˜RV“&ñÁBFRV“6ˆÊ6˜'&VÁFRÖfñÁFUñ∆í6ˆ÷Ú&VfW,:¶Ê6ñFRW7Fñ∆Ú&ÚFWáF¢FR6Ü÷F¢6&B'&Ê6Ú¬L:◊GV∆Úw&ÊFRRFó&WFÚ6ˆ“WÜ6∆÷:|:6ÚÇ%G&Á6f˜&÷R6WRF∆VÁFÚV–¢&VÊFWáG&Üˆ¶R"í¬,:w&fÚFRˆñÚ¬∆ñÊÜFófó<;7&ñR&˜L:6ÚfW&FR&óÜÚ(	BVFóRÚ÷W6÷¢W7Fñ∆Ú&Ú¶ˆ,:¢‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü(	B6\:|:6ÚFR5D&7&ñF˜&W2ÊÜˆ÷R¬&VW7G'WGW&F&6VwVó"W76&VfW,:¶Ê6ñ†¢“gVÊFÚ◊VF˜RFR&r“Ç“÷6ˆ∆˜"÷66VÁB◊6ˆgBñÜ6&B6ˆ∆˜&ñFÚ¬FWáFÚR&˜L:6Ú∆FÚ∆FÚí&¢&r“Ç“÷6ˆ∆˜"◊7W&f6Rñ6ˆ“&˜&FW"“Ç“÷6ˆ∆˜"÷&˜&FW"ñÜ6&B'&Ê6Ú¬6ˆ÷ÚÊÚWÜV◊∆Úí‡¢“L:◊GV∆ÚFó&WFÚ6ˆ“WÜ6∆÷:|:6Û¢%G&Á6f˜&÷R6WRF∆VÁFÚV“&VÊFWáG&Üˆ¶R"‡¢“6˜'Ú&VW67&óFÚÊÚ÷W6÷ÚFˆ“ÜFV÷ÊF&V¬≤W&|:¶Ê6ñì¢$ÊÚ¶ˆ,:¢¬W76ˆ2W7L:6Ú&ˆ7W&ÊF¢WÜF÷VÁFRÚVRfˆ<:¢6&Rf¶W"‚V&∆óVR6WW26W'fú:v˜2¬÷˜7G&R6WRG&&∆ÜÚ&VV–¢&V6ó6R6ˆ÷V6RfV6Ü"VFñF˜2‚6ˆ÷V6Rv˜&RfV¶6WW2vÊÜ˜27&W66W&V“"‡¢“∆ñ˜WB◊VF˜RFRGV26ˆ«VÊ2áFWáFÚÚ∆FÚFÚ&˜L:6Úí&V◊ñ∆ÜFÚ6ˆ“V÷∆ñÊÜFófó<;7&ñ¢Ü&˜&FW"◊B&˜&FW"“Ç“÷6ˆ∆˜"÷&˜&FW"ñíVÁG&RÚFWáFÚRÚ&˜L:6Ú¬ñwV¬Ú&ñÁBFR&VfW,:¶Ê6ñ‡¢“&˜L:6Ú6ˆÁFñÁV%VW&ÚˆfW&V6W"÷WW26W'fú:v˜2"Ü÷ÁFñFÚF◊VFÏ:vÁFW&ñ˜"í‡†¢222f∆ñF:|:6†¢“w&W˜"ÜWÇV“˜vRÁG7Ü¢ÊVÊáV÷ˆ6˜',:¶Ê6ñ‡¢“ÁÇW6∆ñÁB˜vRÁG7Ü¢6V“W'&˜2‡¢“Á“'V‚'Vñ∆F¢6ˆ◊ñ∆:|:6ÚR6ÜV6vV“FRGóU67&óB6ˆÊ6«\:÷F26ˆ“7V6W76ÚÜf∆ÜFP¢,:í◊&VÊFW&ó¶:|:6ÚFRˆF÷ñÊ:í,:í÷WÜó7FVÁFR¬6V“&V∆:|:6Ú6ˆ“W7F◊VFÏ:ví‡†¢22##b”í”#(	B6˜í÷ó2f˜'FR6ˆÁfñFÊFÚ&ˆfW&V6W"6W'fú:v˜0†¢222ˆ&¶WFóf†¢“VFñFÚFÚW7\:&ñÛ¢V“FWáFÚf˜'FR¬W'7V6ófÚ¬6Ü÷ÊFÚ2W76ˆ2&ˆfW&V6W"6WW26W'fú:v˜0¢Ê∆Ff˜&÷‚˜2G,:ß2ˆÁF˜2ˆÊFRÚ¶ˆ,:¢6ˆÁfñF∆w\:ñ“fó&"7&ñF˜"FñÊÜ“6˜íg&6˜P¢W&÷VÁFRñÊf˜&÷FófÇ%fˆ<:¢ñÊFÏ:6Ú:íV“7&ñF˜"ÊW7F∆Ff˜&÷‚"í¬6V“V∆Ú‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü(	B6\:|:6ÚFR5D&7&ñF˜&W2ÊÜˆ÷S†¢“6V∆Û¢%&VV“f¢6ˆÁFV6W""(i"%&RFRFVóÜ"6WRF∆VÁFÚ&FÚ"‡¢“L:◊GV∆Û¢%6WR,;7Üñ÷Ú6∆ñVÁFRˆFR6ˆ÷\:v"Ví‚"(i"$∆w\:ñ“W7L:&ˆ7W&ÊFÚWÜF÷VÁFRÚVP¢fˆ<:¢6&Rf¶W"‚ ¢“6˜'Û¢&Vf˜,:vWFˆÊˆ÷ñá&\:vÚ,;7&ñÚ¬6V“FWVÊFW"FRñÊFñ6:|:6ÚíV“fW¢FR<;2∆ó7F ¢gVÊ6ñˆÊ∆ñFFW2‡¢“&˜L:6Û¢$6ˆ÷\:v"ˆfW&V6W""(i"%VW&ÚˆfW&V6W"÷WW26W'fú:v˜2"Ü:|:6ÚV“&ñ÷Vó&W76ˆí‡¢“6ˆ◊ˆÊVÁG2Ù&V6ˆ÷T7&VF˜%&ˆ◊BÁG7ÜáFV∆WÜñ&ñFÊÚ,;7&ñÚW&fñ¬FRVV“ñÊFÏ:6Ú:ê¢7&ñF˜"ì†¢“L:◊GV∆Û¢%fˆ<:¢ñÊFÏ:6Ú:íV“7&ñF˜"ÊW7F∆Ff˜&÷‚"(i"%6WRF∆VÁFÚW7L:&FÚ‚f÷˜0¢◊VF"ó76ÛÚ ¢“6˜'Ú&VW67&óFÚ6ˆ“Ú÷W6÷ÚvÊ6ÜÚÜ∆w\:ñ“&ˆ7W&ÊFÚÚVRW76ˆ6&Rf¶W"¬&\:v¢,;7&ñÚí‡¢“&˜L:6Û¢%F˜&Ê"◊6R7&ñF˜""(i"%VW&ÚˆfW&V6W"÷WW26W'fú:v˜2"‡¢“6ˆ◊ˆÊVÁG2Ù&V6ˆ÷T7&VF˜$&ÊÊW"ÁG7ÜÜfóÜ6ˆ◊7FÊÚF˜ÚFÚfVVBì¢%F˜&ÊR◊6R7&VF˜"‡¢6ˆ÷V6RfGW&"Üˆ¶R‚"(i"%6WRF∆VÁFÚf∆RFñÊÜVó&Ú‚6ˆ÷V6RfVÊFW"Üˆ¶R‚"(	B÷W6÷W7G'WGW&¢fó7V¬¬6˜í÷ó2Fó&WF‡¢“ÊVÊáV÷6˜"Ê˜f¢<;2FWáFÚ¬˜26ˆ◊ˆÊVÁFW2¨:W6f“˜2Fˆ∂VÁ2FÚFW6ñv‚7ó7FV“‡†¢222f∆ñF:|:6†¢“w&W˜"ÜWÇÊ˜2'Vóf˜2«FW&F˜3¢ÊVÊáV÷ˆ6˜',:¶Ê6ñ‡¢“ÁÇW6∆ñÁFÊ˜2G,:ß2'Vóf˜3¢6V“W'&˜2‡¢“Á“'V‚'Vñ∆F¢6ˆ◊ñ∆:|:6ÚR6ÜV6vV“FRGóU67&óB6ˆÊ6«\:÷F26ˆ“7V6W76ÚÜf∆ÜFP¢,:í◊&VÊFW&ó¶:|:6ÚFRˆF÷ñÊ:í,:í÷WÜó7FVÁFR¬6V“&V∆:|:6Ú6ˆ“W7F◊VFÏ:ví‡†¢22##b”í”#(	B&V÷˜fR;¶«Fñ÷6˜"VVÁFRÜ“÷6ˆ∆˜"÷ÜñvÜ∆ñváFê†¢222ˆ&¶WFóf†¢“ÚW7\:&ñÚÊ˜F˜RVR¬÷W6÷ÚFWˆó2FRF˜F"÷ñ∆∑í≤÷ÁFó2¬ñÊF&W7FfV÷6˜"VVÁFRÊ¢6óFS¢ÚFW'&6˜FÜ“÷6ˆ∆˜"÷ÜñvÜ∆ñváF¬63#CìVˆ6fcÜSFí¬W6FÚV“&\:v˜2&ˆ÷ˆ6ñˆÊó2¬Ê¢&FvR$ÙdU%D"RV“'FW2FV6˜&Fóf2FÜˆ÷RÜw&FñVÁFRFÚÜW&Ú¬&FvR$W66ˆ∆Ü6ˆ÷¢6ˆ÷\:v""¬&'&ñÊÜ2FR6FVv˜&ñí‡¢“W&wVÁFVí6ˆ÷ÚG&F"ó76Û≤W66ˆ∆Üfˆí7V'7FóGVó"ÚFW'&6˜F˜"V“Fˆ“FÚ,;7&ñÚfW&FP¢÷ÁFó2V“FˆFÚÚ6óFR¬÷ÁFVÊFÚ“÷6ˆ∆˜"÷ÜñvÜ∆ñváF6ˆ÷ÚV“Fˆ“¢¶Fó7FñÁFÚ¢¢F¢“÷6ˆ∆˜"÷66VÁFá&&ˆfW'F"Ú'&\:vÚ&ˆ÷ˆ6ñˆÊ¬"6ˆÁFñÁV"6RFW7F6ÊFÚFRV“5D6ˆ◊V“í¿¢<;2VRFVÁG&ÚFf‹:÷∆ñfW&FR¬6V“ÊVÊáV÷6˜"VVÁFR6ˆ'&ÊFÚ‡†¢222◊VFÏ:v0†¢“ˆv∆ˆ&«2Ê776 ¢“FV÷6∆&Û¢“÷6ˆ∆˜"÷ÜñvÜ∆ñváF63#CìV(i"33VcCÜáfW&FR÷W6÷W&∆FW67W&Ú¬Fˆ“FñfW&VÁFP¢FÚ“÷6ˆ∆˜"÷66VÁF3Sñ3sCíì≤“÷6ˆ∆˜"÷ÜñvÜ∆ñváB÷Ü˜fW&(i"3SCs3f≤“÷6ˆ∆˜"÷ÜñvÜ∆ñváB◊6ˆgF ¢(i"6ScFSÜáFñÁF6∆&6ˆ“∆WfRfú:ó2ßV∆FÚ¬&Fó7FñÊwVó"fó7V∆÷VÁFRF¢“÷6ˆ∆˜"÷66VÁB◊6ˆgFí‡¢“FV÷W67W&Û¢“÷6ˆ∆˜"÷ÜñvÜ∆ñváF6fcÜSF(i"3CvC3fáfW&FR÷ßV∆FÚfófÚ¬Fó7FñÁFÚF¢“÷6ˆ∆˜"÷66VÁF33V3ìÜì≤“÷6ˆ∆˜"÷ÜñvÜ∆ñváB÷Ü˜fW&(i"3sF&C&≤“÷6ˆ∆˜"÷ÜñvÜ∆ñváB◊6ˆgF(i ¢3ìC36f≤“÷6ˆ∆˜"÷ˆ‚÷ÜñvÜ∆ñváF(i"33##FáFWáFÚW67W&Ú6ˆ'&RÚÊ˜fÚÜñvÜ∆ñváB6∆&Úí‡¢“ÊVÊáV“6ˆ◊ˆÊVÁFR&V6ó6˜R◊VF#¢˜vRÁG7Ü¬6ˆ◊ˆÊVÁG2ı&ñ6UFrÁG7ÜP¢6ˆ◊ˆÊVÁG2ı&ˆGV7D6&BÁG7Ü¨:W6f“<;2˜2Fˆ∂VÁ2Ü&r“Ç“÷6ˆ∆˜"÷ÜñvÜ∆ñváB◊6ˆgBñ¿¢FWáB“Ç“÷6ˆ∆˜"÷ÜñvÜ∆ñváBñí¬VÁL:6ÚG&ˆ6FRf∆˜"6R&˜v˜R6˜¶ñÊÜ‡¢“4ƒTDRÊ÷F¢FW67&ú:|:6ÚFÚFˆ∂V‚ÊF&V∆GV∆ó¶FFR'FW'&6˜F"&'fW&FR÷W6÷W&∆F¢W67W&ÚáFˆ“Fó7FñÁFÚFÚ66VÁBí"‡¢“Fˆ72ÙÑÙ‘Uı$TDU4ît‚Ê÷F¢Ê˜F6ˆ'&RÚÜñvÜ∆ñváBFW'&6˜FGV∆ó¶F&&Vvó7G&"G&ˆ6‡†¢222f∆ñF:|:6†¢“w&W˜"ÜWÇf˜&FRˆv∆ˆ&«2Ê776¢ÊVÊáV÷ˆ6˜',:¶Ê6ñ‡¢“ÁÇW6∆ñÁBÊ¢6V“W'&˜2‡¢“Á“'V‚'Vñ∆F¢6ˆ◊ñ∆:|:6ÚR6ÜV6vV“FRGóU67&óB6ˆÊ6«\:÷F26ˆ“7V6W76ÚÜf∆ÜFP¢,:í◊&VÊFW&ó¶:|:6ÚFRˆF÷ñÊ:í,:í÷WÜó7FVÁFR¬˜"f«FFR5U$4Uı4U%dî4Uı$ÙƒUÙ¥Uñ∆ˆ6¬¿¢Ï:6Ú&V∆6ñˆÊFí‡¢“Á“'V‚FWf≤ñÁ7\:|:6ÚFÚ552vW&FÛ¢6ˆÊfó&÷FÚVR“÷6ˆ∆˜"÷ÜñvÜ∆ñváFˆ◊6ˆgF6V“6ˆ“˜0¢Ê˜f˜2f∆˜&W2Ê˜2Fˆó2FV÷2Ü6∆&Û¢33VcCÜˆ6ScFSÜ≤W67W&Û¢3CvC3fˆ3ìC36fí‡¢“6ˆÁG&7FRÖt4rí&V6∆7V∆FÛ¢“÷6ˆ∆˜"÷ÜñvÜ∆ñváF6ˆ'&R“÷6ˆ∆˜"÷&vˆ“÷6ˆ∆˜"◊7W&f6VÜ6∆&Úê¢(òÇr√#£≤“÷6ˆ∆˜"÷ˆ‚÷ÜñvÜ∆ñváF6ˆ'&R“÷6ˆ∆˜"÷ÜñvÜ∆ñváFÜW67W&Úí(òÇì£(	B6ñ÷FÚ‹:÷Êñ÷ÚFP¢B√S£‡†¢22##b”í”#(	B∆WF÷ñ∆∑í≤÷ÁFó2RÊ˜fÚFˆ∂V‚“÷6ˆ∆˜"÷66VÁB◊FWáF †¢222ˆ&¶WFóf†¢“ÚW7\:&ñÚVÁfñ˜RV“7vF6ÇFR÷&66ˆ“GV26˜&W2WÜF2(	B¢§÷ñ∆∑í¢¢Ü4dddDcíR¢§÷ÁFó2¢†¢Ü3Sî3sCñí(	BVFñÊFÚ&∆ñ<:÷∆26ˆ÷ÚÊ˜f∆WFfófFÚ¶ˆ,:¢‡¢“÷ñ∆∑í:í&Fñ6÷VÁFRÚ“÷6ˆ∆˜"÷&vGV¬Ü7&V÷R6∆&Úí¬VÁL:6Úfó&˜RÚÊ˜fÚf∆˜"WÜFÚFW76P¢Fˆ∂V‚‚÷ÁFó2:í&V“÷ó26∆&Ú˜6GW&FÚVRÚfW&FR◊<:«fñÁFW&ñ˜"RÏ:6ÚFW&ñ6ˆÁG&7FP¢7Vfñ6ñVÁFRá„"√£í6RW6FÚF÷,:ñ“6ˆ÷Ú6˜"FRFWáFÚ6ˆ'&RgVÊFÚ6∆&Ú(	B&óÜÚFÚ‹:÷Êñ÷ÚFP¢B√S£FÚt4r¬ÚVRVV'&&ñ∆VóGW&FR&\:v˜2¬∆ñÊ∑2¬&FvW2WF2‡¢“W&wVÁFVíÚW7\:&ñÚ6ˆ÷Ú&W6ˆ«fW"W76R6ˆÊf∆óFÛ≤&W7˜7FW66ˆ∆ÜñFfˆí$÷ÁFó2<;2V–¢gVÊF˜2¬6ˆ“V÷f&ñÁFRW67W&&ÚFWáFÚ"Ü÷W6÷÷Fó¢¬÷ó2W67W&¬<;2&v&ÁFó"∆VóGW&í‡†¢222◊VFÏ:v0†¢“ˆv∆ˆ&«2Ê776áFV÷6∆&Úê¢““÷6ˆ∆˜"÷&v¢6fffFcÑ÷ñ∆∑í¬f∆˜"WÜFÚFÚ7vF6Çí‡¢““÷6ˆ∆˜"÷66VÁF¢3Sñ3sCñÑ÷ÁFó2¬f∆˜"WÜFÚFÚ7vF6Çí(	BW6FÚ<;26ˆ÷Ú¢ß&VVÊ6Üñ÷VÁFÚ¢†¢Ü&r“¶ì¢&˜L;VW2Ù5D¬W7FFÚFófÚ¬V∆V÷VÁF˜2FV6˜&Fóf˜2‡¢““÷6ˆ∆˜"÷66VÁB÷Ü˜fW&¢3C&C3&Ñ÷ÁFó2W67W&V6ñFÚ¬÷W6÷÷Fó¢í‡¢““÷6ˆ∆˜"÷66VÁB◊6ˆgF¢6SFcFSáFñÁF6∆&FR÷ÁFó2í‡¢““÷6ˆ∆˜"÷ˆ‚÷66VÁF¢3É3CFáfW&FR&V“W67W&Ú¬FWáFÚ6ˆ'&RÚgVÊFÚ÷ÁFó2(	B'&Ê6ÚÏ:6¢FñÊÜ6ˆÁG&7FR7Vfñ6ñVÁFS¢„"√#£≤ÚW67W&ÚL:„b√3£í‡¢“¢§Ê˜fÚFˆ∂V‚“÷6ˆ∆˜"÷66VÁB◊FWáF¢3#Sf##¢¢(	B÷W6÷÷Fó¢FÚ÷ÁFó2¬W67W&V6ñF¢7Vfñ6ñVÁFR&gVÊ6ñˆÊ"6ˆ÷ÚFWáB“¶ˆ&˜&FW"“¶ˆ&ñÊr“¶ˆ˜WF∆ñÊR“¶ˆ66VÁB“¶6ˆ'&P¢“÷6ˆ∆˜"÷&vˆ“÷6ˆ∆˜"◊7W&f6VÜ6ˆÁG&7FR(öRS£Ê˜2&W2FW7FF˜2í‡¢“ˆv∆ˆ&«2Ê776áFV÷W67W&Úì¢Fñ6ñˆÊFÚ“÷6ˆ∆˜"÷66VÁB◊FWáFˆÁFÊFÚ&Ú÷W6÷Úf∆˜"FP¢“÷6ˆ∆˜"÷66VÁFÜ33V3ìÜí(	BÊÚW67W&ÚÚgVÊFÚ¨::íW67W&Ú¬VÁL:6ÚÚfW&FRfófÚgVÊ6ñˆÊ&V–¢6ˆ÷ÚFWáFÚF÷,:ñ“Ü6ˆÁG&7FR(òÇí√3£í¬Ï:6Ú&V6ó6FRV÷6VwVÊFf&ñÁFR‡¢“£ß6V∆V7FñˆÊV“ˆv∆ˆ&«2Ê776¢6˜"FÚFWáFÚ6V∆V6ñˆÊFÚG&ˆ6FFR“÷6ˆ∆˜"÷66VÁF&¢“÷6ˆ∆˜"÷66VÁB◊FWáF¬V∆Ú÷W6÷Ú÷˜FófÚFR6ˆÁG&7FR‡¢“¢£CÇ'Vóf˜2¢¢V“ˆR6ˆ◊ˆÊVÁG2ˆ¢FˆFˆ6˜',:¶Ê6ñFRFWáB÷¬&˜&FW"÷¿¢fˆ7W3¶&˜&FW"÷¬Ü˜fW#¶&˜&FW"÷¬Ü˜fW#ßFWáB÷¬w&˜W÷Ü˜fW#ßFWáB÷¬fˆ7W2◊vóFÜñ„¶&˜&FW"÷¿¢fˆ7W2◊vóFÜñ„¶˜WF∆ñÊR÷Rfˆ7W2◊fó6ñ&∆Sß&ñÊr÷ˆÁFÊFÚ&Ç“÷6ˆ∆˜"÷66VÁBñ76˜R¢ˆÁF"&Ç“÷6ˆ∆˜"÷66VÁB◊FWáBñ‚ˆ6˜',:¶Ê6ñ2FR&r÷ÜñÊ6«VñÊFÚÜ˜fW#¶&r÷Rfñ∆S¶&r÷ê¢6ˆÁFñÁV“V“Ç“÷6ˆ∆˜"÷66VÁBñ¬¨:VR&W&W6VÁF“&VVÊ6Üñ÷VÁFÚ‚9¶Êñ6ÚßW7FR÷ÁV¬FWˆó0¢FÚ&W∆6RV“÷76¢66VÁB“Ç“÷6ˆ∆˜"÷66VÁBñÊFófÚFÚ6ÜV6∂&˜ÇV–¢6ˆ◊ˆÊVÁG2ı&W7V÷U6V7Fñˆ‚ÁG7Üfˆ«F˜R&Ú÷ÁFó2fófÚå:íV“&VVÊ6Üñ÷VÁFÚ¬Ï:6ÚFWáFÚí‡¢“4ƒTDRÊ÷F¢F&V∆FRFˆ∂VÁ2RFˆF˜2˜2G,;VW2FR6ˆ◊ˆÊVÁFRÜ&FvW2¬6Üó2¬Êb÷ˆ&ñ∆Rê¢GV∆ó¶F˜2&W6"“÷6ˆ∆˜"÷66VÁB◊FWáFV“6ˆÁFWáF˜2FRFWáFÚˆ&˜&F≤Ê˜f6\:|:6ÚWá∆ñ6ÊF¢Fó7FñÏ:|:6ÚVÁG&R“÷6ˆ∆˜"÷66VÁFÜgVÊFÚíR“÷6ˆ∆˜"÷66VÁB◊FWáFáFWáFÚíR˜"VRV∆¢WÜó7FR‡†¢222f∆ñF:|:6†¢“w&W˜"ÜWÇf˜&FRˆv∆ˆ&«2Ê776Ê˜2'Vóf˜2«FW&F˜3¢ÊVÊáV÷ˆ6˜',:¶Ê6ñ(	B<;2¢'VófÚFRFˆ∂VÁ2FV“f∆˜"∆óFW&¬‡¢“ÁÇW6∆ñÁBÊ¢6V“W'&˜2‡¢“Á“'V‚'Vñ∆F¢6ˆ◊ñ∆:|:6ÚR6ÜV6vV“FRGóU67&óB6ˆÊ6«\:÷F26ˆ“7V6W76ÚÜf∆ÜFP¢,:í◊&VÊFW&ó¶:|:6ÚFRˆF÷ñÊ:í,:í÷WÜó7FVÁFR¬˜"f«FFR5U$4Uı4U%dî4Uı$ÙƒUÙ¥UñÊ¢÷&ñVÁFR∆ˆ6¬¬Ï:6Ú&V∆6ñˆÊFW7F◊VFÏ:ví‡¢“Á“'V‚FWf≤fWF6ÇFÜˆ÷S¢ÖEE#≤6ˆÊfW&ñFÚÊÚ552vW&FÚVR“÷6ˆ∆˜"÷66VÁB◊FWáFP¢“÷6ˆ∆˜"÷66VÁF6V“6ˆ“˜2f∆˜&W26˜'&WF˜2Ê˜2Fˆó2FV÷2Ü6∆&Û¢3#Sf##ˆ3Sñ3sCñ∞¢W67W&Û¢33V3ìÜÊ˜2Fˆó2í‡¢“6ˆÁG&7FRÖt4rí&V6∆7V∆FÚ&˜2&W2Ê˜f˜3¢“÷6ˆ∆˜"÷66VÁB◊FWáF6ˆ'&R“÷6ˆ∆˜"÷&v ¢(òÇR√£≤6ˆ'&R“÷6ˆ∆˜"◊7W&f6V(òÇR√£≤6ˆ'&R“÷6ˆ∆˜"÷66VÁB◊6ˆgF(òÇR√s£∞¢“÷6ˆ∆˜"÷ˆ‚÷66VÁF6ˆ'&R“÷6ˆ∆˜"÷66VÁF(òÇb√3£Ü6∆&ÚíR(òÇr√ì£ÜW67W&Úí(	BFˆF˜26ñ÷F¢‹:÷Êñ÷ÚFRB√S£áFWáFÚíÚ3£Ü&˜&F2RñÊFñ6F˜&W2FRfˆ6Úí‡†¢22##b”í”#(	B∆WF÷ó2fófáFˆ∂VÁ2FR6˜"ê†¢222ˆ&¶WFóf†¢“VFñFÚFÚW7\:&ñÚ¬FVóÜ",;7&ñ∆WFFR6˜&W2÷ó2fófÜ÷ó26GW&Fí¬Ï:6Ú<;2¢∆ñ˜WBFÜˆ÷R(	B◊VFÊFÚ˜2f∆˜&W2F˜2Fˆ∂VÁ2V“ˆv∆ˆ&«2Ê776¬ÚVR&˜v¢WFˆ÷Fñ6÷VÁFR&FˆF∆ñ6:|:6ÚÜ∆ñváBRF&≤í¬6ˆ÷ÚÚFW6ñv‚7ó7FV“&Wl:¢‡†¢222◊VFÏ:v0†¢“ˆv∆ˆ&«2Ê776Üß&ˆ˜FRß&ˆ˜E∂FF◊FÜV÷S“&F&≤%÷ê¢““÷6ˆ∆˜"÷66VÁFˆ“÷6ˆ∆˜"÷66VÁB÷Ü˜fW&ˆ“÷6ˆ∆˜"÷66VÁB◊6ˆgF¢fW&FR◊<:«fñ÷ó26GW&F¢ÜFR3CSf3SÜ&3Cf#CÜÊÚ6∆&Û≤FR3vfSÜf&33V3ìÜÊÚW67W&Úí¬÷ÁFVÊFÚ¢ñFVÁFñFFR&fV6ÜF"F÷&6÷26ˆ“&V“÷ó2fóf6ñFFR‡¢““÷6ˆ∆˜"÷ÜñvÜ∆ñváFˆ“÷6ˆ∆˜"÷ÜñvÜ∆ñváB÷Ü˜fW&ˆ“÷6ˆ∆˜"÷ÜñvÜ∆ñváB◊6ˆgF¢FW'&6˜F÷ó0¢fñ'&ÁFRÜFR3ììS33F&63#CìVÊÚ6∆&Û≤FR6C3ìff&6fcÜSFÊÚW67W&Úí‡¢““÷6ˆ∆˜"◊fW&ñfñVF¢ßV¬÷ó26GW&FÚÜ3Fcsìñ(i"3csF3FÊÚ6∆&Û≤3É6ÜC(i ¢3FfÜSÜÊÚW67W&Úí‡¢““÷6ˆ∆˜"◊7V66W76ˆ“÷6ˆ∆˜"◊v&ÊñÊvˆ“÷6ˆ∆˜"÷FÊvW&¢÷W6÷Ã;6vñ6FR6GW&:|:6Ú∆ñ6F¢˜2W7FF˜26V‹:&ÁFñ6˜2¬÷ÁFVÊFÚ“÷6ˆ∆˜"◊7V66W76fó7V∆÷VÁFRFó7FñÁFÚFÚ66VÁB‡¢““÷6ˆ∆˜"÷ˆ‚÷66VÁFÊÚW67W&ÚßW7FFÚFR3#Ü&3s#6&&W6W'f"6ˆÁG&7FP¢6ˆ“ÚÊ˜fÚfW&FR÷ó26∆&Ú˜6GW&FÚ‡¢“ÊVÊáV“6ˆ◊ˆÊVÁFRfˆíFˆ6FÛ¢6ˆ÷ÚFˆF˜2¨:W6“˜2Fˆ∂VÁ2Ü&r“Ç“÷6ˆ∆˜"÷66VÁBñWF2‚í¬¢◊VFÏ:vFR∆WF6R&˜v˜R6˜¶ñÊÜ&FˆFTí‡†¢222f∆ñF:|:6†¢“w&WV∆˜2ÜWÇÁFñv˜2V“ÁG7ÜˆÁG6ˆÊ776Üf˜&FRÊÊWáFˆÊˆFUˆ÷ˆGV∆W6ì¢ÊVÊáV÷¢ˆ6˜',:¶Ê6ñ(	B6ˆÊfó&÷VRGVFÚ&VfW&VÊ6ñ˜2Fˆ∂VÁ2¬Ï:6Úf∆˜&W2fóÜ˜2‡¢“Á“'V‚'Vñ∆F¢6ˆ◊ñ∆:|:6ÚR6ÜV6vV“FRGóU67&óB6ˆÊ6«\:÷F26ˆ“7V6W76ÚÜf∆ÜFP¢,:í◊&VÊFW&ó¶:|:6ÚFRˆF÷ñÊ:í,:í÷WÜó7FVÁFR¬˜"f«FFR5U$4Uı4U%dî4Uı$ÙƒUÙ¥UñÊ¢÷&ñVÁFR∆ˆ6¬¬Ï:6Ú&V∆6ñˆÊFW7F◊VFÏ:ví‡¢“6ˆÁG&7FR&V6∆7V∆FÚÖt4rí&˜2&W2÷ó2W6F˜3¢“÷6ˆ∆˜"÷ˆ‚÷66VÁF6ˆ'&P¢“÷6ˆ∆˜"÷66VÁF(òÇR√3£ÊÚ6∆&ÚR(òÇr√ì£ÊÚW67W&Û≤“÷6ˆ∆˜"÷66VÁF6ˆ'&P¢“÷6ˆ∆˜"÷66VÁB◊6ˆgF(òÇR√C£ÊÚ6∆&Û≤“÷6ˆ∆˜"÷ˆ‚÷ÜñvÜ∆ñváF6ˆ'&R“÷6ˆ∆˜"÷ÜñvÜ∆ñváF ¢(òÇB√ì£ÊÚ6∆&Ú(	BFˆF˜2FVÁG&ÚFÚ‹:÷Êñ÷ÚFRB√S£&FWáFÚÊ˜&÷¬V“6ˆ◊ˆÊVÁFW2÷6ÜfP¢Ñ5D2¬&FvW2í‡†¢22##b”í”#(	B÷ó26˜"fófÊ:vñÊñÊñ6ñ¿†¢222ˆ&¶WFóf†¢“FVóÜ":vñÊñÊñ6ñ¬÷ó2fóffó7V∆÷VÁFR¬6V“6ó"F∆WF÷&fñ“≤<:«fñÊV–¢ñÁG&ˆGW¶ó"6˜"f˜&F˜2Fˆ∂VÁ2WÜó7FVÁFW2‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü ¢“ÜW&Û¢w&FñVÁFR&Fñ¬76˜R6ˆ÷&ñÊ"“÷6ˆ∆˜"÷ÜñvÜ∆ñváB◊6ˆgFÜ6ÁFÚ7WW&ñ˜"Fó&VóFÚê¢6ˆ““÷6ˆ∆˜"÷66VÁB◊6ˆgFÜ6ÁFÚñÊfW&ñ˜"W7VW&FÚí¬V“fW¢FRV“;¶Êñ6ÚFˆ“ÊWWG&Ú‡¢“fóÜFRFW7FVW2Ç%&\:vÚfó<:◊fV¬"Ú$6ˆÁfW'6ÁFW2FRfV6Ü""Ú$6ˆ◊&V“V“<;0¢«Vv""ì¢G&ˆ6˜RFófó<;7&ñ2fñÊ2V“gVÊFÚÊWWG&Ú˜"G,:ß2:÷«V∆26ˆ∆˜&ñF0¢Ü“÷6ˆ∆˜"÷66VÁB◊6ˆgFˆ“÷6ˆ∆˜"÷66VÁFR“÷6ˆ∆˜"÷ÜñvÜ∆ñváB◊6ˆgFˆ“÷6ˆ∆˜"÷ÜñvÜ∆ñváF ¢«FW&ÊF˜2í¬FÊFÚ÷ó2W6Úfó7V¬:6\:|:6Ú‡¢“6FVv˜&ñ3¢6F6&BvÊÜ˜RV÷&'&ñÊÜ6ˆ∆˜&ñF6ñ÷FÚL:◊GV∆Ú¬«FW&ÊÊF¢“÷6ˆ∆˜"÷66VÁFR“÷6ˆ∆˜"÷ÜñvÜ∆ñváF˜"óFV“‡¢“$6ˆ÷ÚgVÊ6ñˆÊ#¢˜2Ï;¶÷W&˜2FR76ÚÉÛ"Û2í76&“FRFWáFÚ6ñ◊∆W2&V“<:◊&7V∆¢&VVÊ6ÜñFÚ6ˆ““÷6ˆ∆˜"÷66VÁB◊6ˆgFˆ“÷6ˆ∆˜"÷66VÁF‡¢“ÊVÊáV“Fˆ∂V‚Ê˜fÚfˆíÊV6W7<:&ñÛ≤FˆF226˜&W2W6F2¨:WÜó7Fñ“V“ˆv∆ˆ&«2Ê776‡†¢222f∆ñF:|:6†¢“w&W˜"ÜWÇR˜"6∆76W2FR∆WFfóÜFÚFñ«vñÊBV“˜vRÁG7Ü¢ÊVÊáV÷ˆ6˜',:¶Ê6ñ‡¢“ÁÇW6∆ñÁB˜vRÁG7Ü¢6V“W'&˜2‡¢“Á“'V‚'Vñ∆F¢6ˆ◊ñ∆:|:6ÚR6ÜV6vV“FRGóU67&óB6ˆÊ6«\:÷F26ˆ“7V6W76ÚÜf∆ÜFP¢,:í◊&VÊFW&ó¶:|:6ÚFRˆF÷ñÊ:í,:í÷WÜó7FVÁFR¬˜"f«FFR5U$4Uı4U%dî4Uı$ÙƒUÙ¥UñÊ¢÷&ñVÁFR∆ˆ6¬¬RÏ:6Ú&V∆6ñˆÊFW7F◊VFÏ:ví‡†¢22##b”í”#(	BÜˆ÷R6ˆ“&W6VÏ:v6ˆ÷W&6ñ¿†¢222ˆ&¶WFóf†¢“F"::vñÊñÊñ6ñ¬,:¶Ê6ñ6∆&FR÷&∂WG∆6R¬÷ÁFVÊFÚ∆WF6ˆÊf˜'L:fV¬R¢ñFVÁFñFFRáV÷ÊFÚ¶ˆ,:¢‡¢“WÜñ&ó"ˆfW'F2&Vó2ÁFW2FR6FVv˜&ñ2R6ˆÁF\;¶FÚWá∆ñ6FófÚ‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü ¢“ÜW&Ú˜&ñVÁFFÚ'W66¬6ˆ◊&:|:6ÚR6ˆÁG&F:|:6Ú¬6ˆ“5D&Wá∆˜&"R&fVÊFW"‡¢“&∆ˆ6Ú∆FW&¬FñfW&VÊ6ñ6W'fú:v˜2¬&ˆGWF˜2FñvóFó2R¶ˆwVR6ˆ÷ñvÚ‡¢“fóG&ñÊR&V¬÷˜fñF&6ñ÷≤6FVv˜&ñ2¬6ˆ÷ÚgVÊ6ñˆÊR6ˆ◊VÊñFFRl:¶“FWˆó2‡¢“fóG&ñÊRR6ˆ◊VÊñFFR6W&F2V“7W7VÁ6R,;7&ñ˜2R6ˆ◊'Fñ∆Ü“V÷∆VóGW&÷V÷ˆó¶F¢ÊÚ6W'fñF˜"¬WfóFÊFÚ6ˆÁ7V«F2GW∆ñ6F2R¶f67&óBFñ6ñˆÊ¬ÊÚÊfVvF˜"‡¢“F∆Ü˜2vÊÜ&“f˜&÷FÚFR:|:6ÚR6∂V∆WFˆÁ2W7V<:÷fñ6˜2&6FG&V6ÜÚ‡¢“ˆv∆ˆ&«2Ê776R4ƒTDRÊ÷F ¢“Fñ6ñˆÊF˜2Fˆ∂VÁ2FW'&6˜FFRÜñvÜ∆ñváB&ˆfW'F2RVÊW&vñ6ˆ÷W&6ñ¬¬6V“7V'7FóGVó ¢ÚfW&FR◊<:«fñF˜25D2&ñÊ6óó2‡¢“6ˆ◊ˆÊVÁG2ı&ˆGV7D6&BÁG7ÜR6ˆ◊ˆÊVÁG2ı&ñ6UFrÁG7Ü ¢“ˆfW'F2R&\:v˜2&ˆ÷ˆ6ñˆÊó2W6“ÚÊ˜fÚÜñvÜ∆ñváBVVÁFR‡¢“Fˆ72ÙÑÙ‘Uı$TDU4ît‚Ê÷FGV∆ó¶FÚ6ˆ“Ê˜fÜñW&'VñRFV6ó<:6ÚFR6˜"‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBR'Vñ∆BFR&ˆG\:|:6Ú‡¢“6ÜV6vV“FR6˜&W2fóÜ2¬FñfbR&WWFñ∆ó¶:|:6ÚF6ˆÁ7V«FÊÚ6W'fñF˜"‡¢“6ˆÁG&7FRFÚFW'&6˜F6ˆ'&RgVÊFÚ7VfS¢B√Sc£≤FWáFÚ'&Ê6Ú6ˆ'&RFW'&6˜F¢R√ss£‡¢“6÷ˆ∂RFW7BFÜˆ÷RV“6W'fñF˜"FR&ˆG\:|:6Ú¬6ˆÊfó&÷ÊFÚ&W7˜7FÖD‘¬R5D2&ñÊ6óó2‡†¢22##b”í”#(	B∆WF÷&fñ“≤<:«fñ†¢222ˆ&¶WFóf†¢“7V'7FóGVó"ÚfW&FRfófÚ˜"V÷ñFVÁFñFFR÷ó26∆÷¬÷ñ|:fV¬R6ˆÊf˜'L:fV¬&∆VóGW&‡¢“v&ÁFó"6ˆÁG&7FRFWVFÚÊ˜2FWáF˜2¬&˜L;VW2RW7FF˜26V‹:&ÁFñ6˜2FÚFV÷6∆&Ú‡¢“&W&"ÚFV÷W67W&Ú&W6"FWáFÚ,;7&ñÚ6ˆ'&RÚ66VÁB¬6V“&W7V÷ó"'&Ê6Ú‡†¢222◊VFÏ:v0†¢“ˆv∆ˆ&«2Ê776 ¢“gVÊFÚ÷&fñ“¬7WW&l:÷6ñW2ÊWWG&2¬FWáF˜2w&fóFRW7fW&FVF˜2RfW&FR◊<:«fñfV6ÜFÚ‡¢“W7FF˜2FR7V6W76Ú¬FVÏ:|:6Ú¬W'&ÚRfW&ñfñ6:|:6Úfñ6&“÷VÊ˜26GW&F˜2‡¢“7&ñFÚÚFˆ∂V‚“÷6ˆ∆˜"÷ˆ‚÷66VÁF¬'&Ê6ÚÊÚFV÷6∆&ÚRW67W&Ú&ˆgVÊFÚÊÚFV÷W67W&Ú‡¢“6ˆ◊ˆÊVÁFW2R:vñÊ26ˆ“5DfW&FR76&“FRFWáB◊vÜóFV&¢FWáB“Ç“÷6ˆ∆˜"÷ˆ‚÷66VÁBñ¬&W6W'fÊFÚ∆Vvñ&ñ∆ñFFRÊ˜2Fˆó2FV÷2‡¢“4ƒTDRÊ÷FRFˆ72ÙÑÙ‘Uı$TDU4ît‚Ê÷FGV∆ó¶F˜2&F˜&Ê"÷&fñ“≤<:«fñ&VfW,:¶Ê6ñ¢FÚ&ˆ¶WFÚRñ◊VFó"VR∆WFÁFW&ñ˜"fˆ«FRV“«FW&:|;VW2gWGW&2‡†¢2226ˆÁG&7FR÷VFñF†¢“FWáFÚ&ñÊ6ó¬6ˆ'&RÚgVÊFÛ¢"√C3£‡¢“FWáFÚ6V7VÊL:&ñÚ6ˆ'&RÚgVÊFÛ¢R√s3£‡¢“FWáFÚ7WFñ¬6ˆ'&RÚgVÊFÚ÷&fñ”¢B√c£≤6ˆ'&R7WW&l:÷6ñR'&Ê6¢R√3£‡¢“FWáFÚFÚ5D6ˆ'&RÚfW&FR◊<:«fñ¢R√ì3£‡¢“fW&FR◊<:«fñ6ˆ'&RÚgVÊFÚ7VfRFR66VÁC¢B√ì#£‡†¢222f∆ñF:|:6†¢“U4∆ñÁB¬GóU67&óBR'Vñ∆BFR&ˆG\:|:6Ú‡¢“6ÜV6vV“F˜2Fˆ∂VÁ2RF˜25D2VRW6“gVÊFÚFR66VÁB‡¢“6ˆÊfW,:¶Ê6ñ6ˆÁG&6˜&W2fóÜ2f˜&FÚ'VófÚ6VÁG&¬FRFˆ∂VÁ2‡†¢22##b”í”#(	BÜˆ÷R˜&ñVÁFF:FW66ˆ&W'FR6ˆÁG&F:|:6†¢222ˆ&¶WFóf†¢“FF"&ñÊ<:◊ñ˜2;ßFVó2FRfñÁFUñ∆¬v˜&∂ÊR6∑¶ñ‚::vñÊñÊñ6ñ¬¿¢&W6W'fÊFÚÚfVVB¬2gVÏ:|;VW2WÜó7FVÁFW2R∆WF÷ñ∆∑í≤÷ÁFó2‡†¢222◊VFÏ:v0†¢“˜vRÁG7Ü¢'W666ˆ“,;7GV∆Ú6W7<:◊fV¬¬7VvW7L;VW2¬F∆Ü˜2˜"ˆ&¶WFófÚ¿¢ÊfVv:|:6Ú˜":&Ê6˜&2¬6FVv˜&ñ26ˆ◊7F2¬fóG&ñÊR6ˆÊFñ6ñˆÊ¬¬&ˆfó76ñˆÊó0¢&Vó2¬fVVBWáÁ<:◊fV¬¬6ˆ÷ÚgVÊ6ñˆÊ¬6Ü÷F&7&ñF˜&W2RdÊFófÚ‡¢“&V÷˜fñFFWVÊL:¶Ê6ñFRW&fó2÷ˆ6≤FÜˆ÷R‚WF˜&W2FR&ˆGWF˜2R6W'fú:v˜0¢<:6Ú&W6ˆ«fñF˜2V“V÷6ˆÁ7V«FV“∆˜FR¬6V“&Ê∂ñÊr'Fñfñ6ñ¬‡¢“÷ÁFñF˜2ï5"FRc2R6ˆ◊ˆÊVÁFW2WÜó7FVÁFW3≤6L:∆ˆvÚó6ˆ∆FÚ6ˆ“7W7VÁ6R¿¢6∂V∆WFˆ‚RG&F÷VÁFÚFRf∆Ü2&6ñó2‚6ˆÁ7V«F2∆ñ÷óFF2R&∆V∆2‡¢“Fˆ72ÙÑÙ‘Uı$TDU4ît‚Ê÷F¢&VfW,:¶Ê6ñ2¬FV6ó<;VW2¬∆ñ÷óFW2¬&˜FVó&ÚFRf∆ñF:|:6¢R˜76ñ&ñ∆ñFFW2gWGW&2‚ÊVÊáV÷÷ñw&Fñˆ‚˜R«FW&:|:6ÚFRv÷VÁF˜2‡†¢222f∆ñF:|:6†¢“∆ñÁB¬GóU67&óBR'Vñ∆B6ˆ◊∆WFÚ&˜fF˜26ˆ“f&ú:fVó2fñ7L:÷6ñ2FRFW7FR‡¢“∆VóGW&;¶&∆ñ6&V¬FR&ˆGWF˜2¬6W'fú:v˜2RW&fó2&˜fF‡¢“ÖD‘¬vW&FÚfW&ñfñ6FÚ¬ñÊ6«VñÊFÚÚW7FFÚFRñÊFó7ˆÊñ&ñ∆ñFFR‡¢“6VwVÊFÚ'Vñ∆B6ˆ“6ÜfRV&∆ñ<:fV¬&V¬&˜fFÛ¢ÖD‘¬FÜˆ÷R6ˆÁL:ñ“6W'fú:v˜0¢RfVVB&Vó2¬6V“fó6ÚFRf∆Ü‚6W'fñ6R&ˆ∆Rfñ7L:÷6ñVÊ2&6Fó6f¶W ¢6ˆÊfñwW&:|:6ÚFR'Vñ∆B&VWÜó7FVÁFS≤ÊVÊáV÷W67&óF˜RFW7FRF÷ñÊó7G&FófÚ‡¢“&Wfó<:6ÚFR6˜&W2RFñfc≤ÊVÊáV÷Ê˜fFWVÊL:¶Ê6ñFÚ&ˆ¶WFÚ‡¢“f∆ñF:|:6Úfó7V¬RFR6∆óVW2VÊFVÁFS¢ÊfVvF˜"ñÊFó7ˆÏ:◊fV¬˜"f∆Ü2FP¢ñÁ7F∆:|:6ÚÜ6W'Fñfñ6FÚ˜Fñ÷V˜WBí‚Ï:6Úf˜&“÷VFñF˜26˜&RvV"fóF«2‡†¢22##b”í”#(	B∆WFFVfñÊóFóf¢÷ñ∆∑í≤÷ÁFó0†¢222ˆ&¶WFóf†¢“FWˆó2FR2∆WF2FW7FF2ÊW7F6W7<:6Ú¬ÚW7\:&ñÚW66ˆ∆ÜWR¢§÷ñ∆∑í≤÷ÁFó2¢¢Ü¨:FñÊÜ¢6ñFÚFW7FFÁFW2¬fW"VÁG&F%FW7FRFR∆WF¢÷ñ∆∑í≤÷ÁFó2"í6ˆ÷Ú∆WFFVfñÊóFófF¢¶ˆ,:¢‚FñfW&VÁFRF2VÁG&F2ÁFW&ñ˜&W2FW7F6W\:¶Ê6ñáFˆF2÷&6F26ˆ÷Ú'FW7FR¿¢7V'7FóG\:◊fV¬V«VW"÷ˆ÷VÁFÚ"í¬W7FfV6ÜñFVÁFñFFRfó7V¬(	B˜"ó76ÚF÷,:ñ“GV∆ó¶Vê¢Ú4ƒTDRÊ÷F¬VRñÊFFW67&WfñÚ6ó7FV÷ÁFñvÚÜ∆&Ê¶≤6ñÁ¶÷Ï:ófˆí‡†¢222◊VFÏ:v0†¢“ˆv∆ˆ&«2Ê776¢FV÷6∆&ÚRW67W&Úfˆ«F“WÜF÷VÁFR˜2f∆˜&W2F∆WF÷ñ∆∑íÙ÷ÁFó0¢ÜgVÊFÚ7&V÷R6fffFc¬66VÁBfW&FR3Sñ3sCñí(	B÷W6÷˜2ÜWÇ¨:f∆ñFF˜2ÊVÁG&FÁFW&ñ˜"¿¢&V∆ñ6F˜2˜"6ñ÷F;¶«Fñ÷∆WFFRFW7FRÑ&&∆WívÜóFRÙ÷ñ∂FÚñV∆∆˜rí‡¢“4ƒTDRÊ÷F†¢“G&ˆ6FÚ&∆&Ê¶6ˆ÷Ú6˜"FR÷&6"Ú&gVÊFÚ6ñÁ¶÷Ï:ófˆg&ñÚ"V∆FW67&ú:|:6Ú&V¬áfW&FP¢÷ÁFó2Ú7&V÷R÷ñ∆∑íí‡¢“WÜV◊∆ÚFRÜWÇ&7'R"F&Vw&FR˜W&ÚGV∆ó¶FÚFR6cSÉ#fÜ∆&Ê¶ÁFñvÚí&3Sñ3sCñ ¢áfW&FRGV¬í‡¢“Ê˜F6ˆ'&R“÷6ˆ∆˜"◊7V66W76&VW67&óF¢ßW7Fñfñ6FófÁFñvÇ'fW&FRFW7FˆF∆WF¢∆&Ê¶∂6ñÁ¶"íÏ:6Úf¶ñ÷ó26VÁFñFÚ6ˆ“Ú66VÁB6VÊFÚfW&FR‚&Vw&V“6í6ˆÁFñÁV¢f∆VÊFÚÜ&FvR˜6óFófÚW6&r“Ç“÷6ˆ∆˜"÷66VÁB◊6ˆgBíFWáB“Ç“÷6ˆ∆˜"÷66VÁBñ¬ÁVÊ6¢“÷6ˆ∆˜"◊7V66W76í(	B<;2&¨:6Ú◊VF˜S¢“÷6ˆ∆˜"◊7V66W76:íV“fW&FR¢¶FñfW&VÁFR¢¢FÚ66VÁB¿¢R˜2Fˆó2∆FÚ∆FÚ6ˆÊgVÊFó&ñ“GV26V‹:&ÁFñ62Fó7FñÁF2Ü&˜fFÚg2‚÷VÁ6vV“FP¢7V6W76Úí‡¢“&FvRFRfW&ñfñ6FÛ¢'6W&FÚFÚ“÷6ˆ∆˜"÷66VÁF∆&Ê¶"(i"'6W&FÚFÚ“÷6ˆ∆˜"÷66VÁF ¢fW&FR"‡†¢222ˆÁFÚVR6ˆÁFñÁVV“&W'FÚÜÏ:6Ú&W6ˆ«fñFÚÊW7FVÁG&Fê†¢““÷6ˆ∆˜"◊7V66W76Ü3cñCSVíR“÷6ˆ∆˜"÷66VÁFÜ3Sñ3sCñí6ˆÁFñÁV“6VÊFÚFˆó2fW&FW0¢&V6ñF˜2¬÷W6÷Ú6ˆ“&Vw&FÚ4ƒTDRÊ÷B÷ñÊñ÷ó¶ÊFÚÚW6ÚFR“÷6ˆ∆˜"◊7V66W76V“&FvW2‚6P¢∆wV“FñW76W2Fˆó2FˆÁ2&V6ó6&V“&V6W"ßVÁF˜2Ê÷W6÷FV∆¬f∆R&Wfó6óF"6RV“F˜0¢Fˆó2FWfW&ñ◊VF"FR÷Fó¢(	BÏ:6Úfó¢ó76Úv˜&˜'VRÚW7\:&ñÚ<;2VFóR&fóÜ"∆WF¿¢Ï:6Ú&&W6ˆ«fW"W76RˆÁFÚ‡†¢222f∆ñF:|:6†¢“G62“÷ÊÙV÷óF¢6V“W'&˜2‡¢“w&W˜"&∆&Ê¶"Ú&6ñÁ¶÷Ï:ófˆ"ÊÚ4ƒTDRÊ÷F¢ÊVÊáV÷ˆ6˜',:¶Ê6ñ&W7FÁFR‡†¢22##b”í”#(	BFW7FRFR∆WF¢&&∆WívÜóFR≤÷ñ∂FÚñV∆∆˜p†¢222ˆ&¶WFóf†¢“L:ñ6ñ÷ÚFW&6Vó&ÚFW7FRFR∆WF6VwVñFÛ¢&&∆WívÜóFR4ddcD46R÷ñ∂FÚñV∆∆˜r4dd$S‡¢7V'7FóGVí∆WF6˜GFˆ‚ÙV∆V7G&ñ2&«VRÙ÷ˆˆÊ∆W72ÊñváBFVÁG&FÁFW&ñ˜"‡†¢222÷V÷VÁFÚ&˜2Fˆ∂VÁ0†¢“¢§&&∆WívÜóFR¢¢(i"“÷6ˆ∆˜"÷&vÊÚFV÷6∆&Û≤&V&˜fVóFFÚ6ˆ÷Ú“÷6ˆ∆˜"◊FWáFÊÚW67W&Ú‡¢“¢§÷ñ∂FÚñV∆∆˜r¢¢(i"“÷6ˆ∆˜"÷66VÁFˆ“÷6ˆ∆˜"÷66VÁB÷Ü˜fW&¬÷W6÷ÚÜWÇÊ˜2Fˆó2FV÷2å:í6∆&¢Ú&7FÁFR&gVÊ6ñˆÊ"6ˆ÷ÚFWáFÚ¸:÷6ˆÊR6ˆ'&RgVÊFÚW67W&Úí‡¢““÷6ˆ∆˜"◊FWáFÊÚ6∆&Úfˆí&V“÷'&ˆ“&V“W67W&ÚÜ3&##íV“fW¢FÚÊWWG&Ú¬÷W6÷¢f‹:÷∆ñFÚ÷&V∆Ú‚“÷6ˆ∆˜"◊7W&f6R”&ˆ“÷6ˆ∆˜"÷&˜&FW&ˆ“÷6ˆ∆˜"÷66VÁB◊6ˆgFFW&ófF˜2V–¢FˆÁ2FR:&÷&"˝ˆﬂõhëÈÏ∂ªßq´^t¥µçΩ±Ω»µÕ’ççïÕÕÄΩÄ¥µçΩ±Ω»µ›Ö…π•πùÄΩÄ¥µçΩ±Ω»µëÖπùï…ÄΩÄ¥µçΩ±Ω»µŸï…•ô•ïëÄÅªçºÅµ’ëÖ…Ö¥∏((åååÅAΩπ—ºÅëîÅÖ—ïªüçº((¥ÅÄ¥µçΩ±Ω»µ›Ö…π•πùÄÄ°Äçà‘·Ñ≈ÖÄ∞ÅëΩ’…ÖëºµÖçÖÕ—Öπ°Öëº§ÅîÅºÅπΩŸºÅÄ¥µçΩ±Ω»µÖççïπ—ÄÄ°Ω±êÅ…ïï∏∞(ÄÅ—Öµã•¥Å’¥ÅëΩ’…ÖëºµïÕŸï…ëïÖëº§Åô•çÖ¥ÅëîÅπΩŸºÅ¡ÀÕ·•µΩÃÅï¥ÅôÖ∑µ±•ÑÅëîÅçΩ»ÉäPÅµïÕµÑÅΩâÕï…ŸáüçºÅ´Ñ(ÄÅôï•—ÑÅπÑÅïπ—…ÖëÑÅëîÅM’πù±Ω‹∏Å;çºÅÖ©’Õ—ï§Å¡Ω»ÅªçºÅôÖÈï»Å¡Ö…—îÅëÑÅ¡Ö±ï—ÑÅ¡ïë•ëÑ∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿Ωù±ΩâÖ±ÃπçÕÕÄËÅ—ïµÑÅç±Ö…ºÅîÅïÕç’…ºÅÖ—’Ö±•ÈÖëΩÃÅçΩ¥ÅÑÅ¡Ö±ï—ÑÅÖç•µÑ∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄËÅÕï¥Åï……ΩÃ∏(¥ÅQïÕ—îÅŸ•Õ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•º∏((ååÄ»¿»ÿ¥¿‰¥»ƒÉäPÅQïÕ—îÅëîÅ¡Ö±ï—ÑËÅQ•—Ö∏Å]°•—îÄ¨Å…Ωç’ÃÅA’…¡±îÄ¨ÅâΩπ‰Å±Ö‰((åååÅ=â©ï—•Ÿº((¥ÅO•—•µºÅ—ïÕ—îÅëîÅ¡Ö±ï—ÑÅÕïù’•ëºËÅQ•—Ö∏Å]°•—îÅÄç	¡Ä∞Å…Ωç’ÃÅA’…¡±îÅÄå‰ÿ‡›’Ä∞ÅâΩπ‰Å±Ö‰(ÄÅÄå…»‡—	Ä∏ÅM’âÕ—•—’§ÅÑÅ¡Ö±ï—ÑÅIΩÂÖ∞Å	±’îΩ1•ù°–Å…ïÖ¥ÅëÑÅïπ—…ÖëÑÅÖπ—ï…•Ω»∏((åååÅ5Ö¡ïÖµïπ—ºÅ¡…ΩÃÅ—Ω≠ïπÃ((¥Ä®©Q•—Ö∏Å]°•—î®®ÉäHÅÄ¥µçΩ±Ω»µâùÄÅπºÅ—ïµÑÅç±Ö…ºÏÅ…ïÖ¡…ΩŸï•—ÖëºÅçΩµºÅÄ¥µçΩ±Ω»µ—ï·—ÄÅπºÅ—ïµÑ(ÄÅïÕç’…ºÄ°µïÕµºÅ—…’≈’îÅëîÅÕïµ¡…îËÅçΩ»Åç±Ö…ÑÅŸ•…ÑÅ—ï·—ºÅ≈’ÖπëºÅºÅô’πëºÅïÕç’…ïçî§∏(¥Ä®©…Ωç’ÃÅA’…¡±î®®ÉäHÅÄ¥µçΩ±Ω»µÖççïπ—ÄΩÄ¥µçΩ±Ω»µÖççïπ–µ°ΩŸï…ÄÉäPÅëïÕÕÑÅŸïËÅºÅµïÕµºÅ°ï‡Åô’πç•ΩπÑ(ÄÅπΩÃÅëΩ•ÃÅ—ïµÖÃÅÕï¥Å¡…ïç•ÕÖ»Åç±Ö…ïÖ»Å¡…ºÅïÕç’…ºÄ°ë•ôï…ïπ—îÅëÖÃÅë’ÖÃÅïπ—…ÖëÖÃÅÖπ—ï…•Ω…ïÃÅçΩ¥(ÄÅIΩÂÖ∞Å	±’î§ËÅ…Ωç’ÃÅA’…¡±îÅ´ÑÉ§Åç±Ö…ºÅºÅâÖÕ—Öπ—îÅ¡…ÑÅÕï…Ÿ•»ÅëîÅ—ï·—ºøµçΩπîÅë•…ï—ºÅÕΩâ…îÅ’¥(ÄÅô’πëºÅïÕç’…º∏(¥Ä®©âΩπ‰Å±Ö‰®®ÉäHÅÄ¥µçΩ±Ω»µ—ï·—ÄÅπºÅ—ïµÑÅç±Ö…ºÄ°ïπçÖ•·Ω‘Åâï¥ÅçΩµºÅ—ï·—ºÅ¡…•πç•¡Ö∞∞Å´ÑÅ≈’îÉ§Å’¥(ÄÅ…Ω·ºÅâï¥ÅïÕç’…º§ÅîÅÄ¥µçΩ±Ω»µâùÄΩÄ¥µçΩ±Ω»µÕ’…ôÖçïÄÅπºÅ—ïµÑÅïÕç’…º∏(¥ÅÄ¥µçΩ±Ω»µÕ’…ôÖçî¥…ÄΩÄ¥µçΩ±Ω»µâΩ…ëï…ÄΩÄ¥µçΩ±Ω»µÖççïπ–µÕΩô—ÄÅëï…•ŸÖëΩÃÅπÑÅµïÕµÑÅôÖ∑µ±•Ñ(ÄÅ±ÖŸÖπëÑΩ…Ω·º∞ÅπΩÃÅëΩ•ÃÅ—ïµÖÃ∏(¥ÅÄ¥µçΩ±Ω»µÕ’ççïÕÕÄΩÄ¥µçΩ±Ω»µ›Ö…π•πùÄΩÄ¥µçΩ±Ω»µëÖπùï…ÄΩÄ¥µçΩ±Ω»µŸï…•ô•ïëÄÅªçºÅµ’ëÖ…Ö¥∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿Ωù±ΩâÖ±ÃπçÕÕÄËÅ—ïµÑÅç±Ö…ºÅîÅïÕç’…ºÅÖ—’Ö±•ÈÖëΩÃÅçΩ¥ÅÑÅ¡Ö±ï—ÑÅÖç•µÑ∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄËÅÕï¥Åï……ΩÃ∏(¥ÅQïÕ—îÅŸ•Õ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•º∏((ååÄ»¿»ÿ¥¿‰¥»ƒÉäPÅQïÕ—îÅëîÅ¡Ö±ï—ÑËÅIΩÂÖ∞Å	±’îÄ¨Å1•ù°–Å…ïÖ¥((åååÅ=â©ï—•Ÿº((¥ÅMï·—ºÅ—ïÕ—îÅëîÅ¡Ö±ï—ÑÅÕïù’•ëºËÅIΩÂÖ∞Å	±’îÅÄå¿ƒ—	ÄÅîÅ1•ù°–Å…ïÖ¥ÅÄç·Õ¡ÄÉäPÅœÃÅë’ÖÃÅçΩ…ïÃ(ÄÅëïÕ—ÑÅŸïËÄ°¡…•π–ÅëîÅ¡ΩÕ–ÅëîÅëïÕ•ù∏∞ÅªçºÅ…ï±Öç•ΩπÖëºÅÖºÅ¡…Ω©ï—º§∏ÅM’âÕ—•—’§ÅÑÅ¡Ö±ï—ÑÅIΩÂÖ∞(ÄÅ	±’îΩ1•ù°–Å…ï‰ΩM≠‰Å	±’îÅëÑÅïπ—…ÖëÑÅÖπ—ï…•Ω»Ä°µïÕµºÅπΩµîÄâIΩÂÖ∞Å	±’îà∞Å°ï‡Å±•ùï•…Öµïπ—î(ÄÅë•ôï…ïπ—îÉäPÅÄå¿ƒ—	ÄÅï¥ÅŸïËÅëîÅÄåƒ¿Ãÿ›Ä§∏((åååÅ5Ö¡ïÖµïπ—ºÅ¡…ΩÃÅ—Ω≠ïπÃ((¥Ä®©1•ù°–Å…ïÖ¥®®ÉäHÅÄ¥µçΩ±Ω»µâùÄÅπºÅ—ïµÑÅç±Ö…º∏(¥Ä®©IΩÂÖ∞Å	±’î®®ÉäHÅÄ¥µçΩ±Ω»µÖççïπ—ÄΩÄ¥µçΩ±Ω»µÖççïπ–µ°ΩŸï…ÄÅπºÅ—ïµÑÅç±Ö…ºÏÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô—Ä(ÄÅùÖπ°Ω‘Å’¥ÅÖÈ’∞Åâï¥Åç±Ö…ºÅëï…•ŸÖëºÅëï±îÄ°ªçºÅôÖÈ•ÑÅ¡Ö…—îÅëºÅ¡…•π–∞ÅµÖÃÅÕïù’îÅºÅµïÕµºÅ¡…•πèµ¡•º(ÄÅëîÅçΩπ—…ÖÕ—îÅëÖÃÅïπ—…ÖëÖÃÅÖπ—ï…•Ω…ïÃËÅÖççïπ–ÅïÕç’…ºÅ¡…ïç•ÕÑÅëîÅ’¥Å—Ω¥Åç±Ö…ºÅ¡…ÑÅô’πç•ΩπÖ»ÅçΩµº(ÄÅô’πëºÅëîÅâÖëùî§∏(¥ÅQïµÑÅïÕç’…ºËÅµïÕµÑÅÕΩ±◊üçºÅëÑÅïπ—…ÖëÑÅÖπ—ï…•Ω»ÉäPÅIΩÂÖ∞Å	±’îÉ§ÅïÕç’…ºÅëïµÖ•ÃÅ¡…ÑÅŸ•…Ö»Å—ï·—º(ÄÅë•…ï—ºÅÕΩâ…îÅô’πëºÅ´ÑÅïÕç’…º∞Åïπ”çºÅºÅÖççïπ–ÅπºÅïÕç’…ºÅ’ÕÑÅ’µÑÅŸï…œçºÅµÖ•ÃÅç±Ö…ÑÅëºÅµïÕµºÅÖÈ’∞Ï(ÄÅÄ¥µçΩ±Ω»µ—ï·—ÄÅëºÅïÕç’…ºÅ…ï’ÕÑÅºÅ1•ù°–Å…ïÖ¥∏(¥ÅÄ¥µçΩ±Ω»µÕ’ççïÕÕÄΩÄ¥µçΩ±Ω»µ›Ö…π•πùÄΩÄ¥µçΩ±Ω»µëÖπùï…ÄΩÄ¥µçΩ±Ω»µŸï…•ô•ïëÄÅªçºÅµ’ëÖ…Ö¥∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿Ωù±ΩâÖ±ÃπçÕÕÄËÅ—ïµÑÅç±Ö…ºÅîÅïÕç’…ºÅÖ—’Ö±•ÈÖëΩÃÅçΩ¥ÅÑÅ¡Ö±ï—ÑÅÖç•µÑ∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄËÅÕï¥Åï……ΩÃ∏(¥ÅQïÕ—îÅŸ•Õ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•º∏((ååÄ»¿»ÿ¥¿‰¥»ƒÉäPÅQïÕ—îÅëîÅ¡Ö±ï—ÑËÅIΩÂÖ∞Å	±’îÄ¨Å1•ù°–Å…ï‰Ä¨ÅM≠‰Å	±’î((åååÅ=â©ï—•Ÿº((¥ÅE’•π—ºÅ—ïÕ—îÅëîÅ¡Ö±ï—ÑÅÕïù’•ëºÄ°µïÕµºÅçΩπ—ï·—ºÅëîÅ±•âï…ëÖëîÅëÖÃÅïπ—…ÖëÖÃÅÖπ—ï…•Ω…ïÃ§ËÅIΩÂÖ∞(ÄÅ	±’îÅÄåƒ¿Ãÿ›Ä∞Å1•ù°–Å…ï‰ÅÄç			Ä∞ÅM≠‰Å	±’îÅÄå‹——ÂÄÉäPÅÕï¥Å±ïùïπëÑÅëî(ÄÅëΩµ•πÖπ—îΩÕïç’πìÖ…•ÑΩÖççïπ–ÅëïÕ—ÑÅŸïË∞ÅµÖπëÖëºÅœÃÅçΩµºÅ¡…•π–ÅëîÄÃÅâ±ΩçΩÃÅëîÅçΩ»∏((åååÅ5Ö¡ïÖµïπ—ºÅ¡…ΩÃÅ—Ω≠ïπÃ((¥Ä®©1•ù°–Å…ï‰®®ÉäHÅÄ¥µçΩ±Ω»µâùÄÄ°≈’ÖÕîÅºÅµïÕµºÅŸÖ±Ω»ÅëºÅç•πÈÑµª•ŸΩÑÅΩ…•ù•πÖ∞ÅëºÅ)Ωã®∞ÅÖπ—ïÃÅëî(ÄÅ—ΩëÑÅïÕÕÑÅÕï≈◊©πç•ÑÅëîÅ—ïÕ—ïÃ§ÉäPÅŸΩ±—ÑÅÑÅÕï»Å’¥Åô’πëºÅπï’—…ºÅç±Ö…º∞ÅªçºÅçΩ±Ω…•ëºÅçΩµºÅπÖÃ(ÄÅïπ—…ÖëÖÃÅÖπ—ï…•Ω…ïÃ∏(¥Ä®©IΩÂÖ∞Å	±’î®®ÉäHÅÄ¥µçΩ±Ω»µÖççïπ—ÄΩÄ¥µçΩ±Ω»µÖççïπ–µ°ΩŸï…ÄÅπºÅ—ïµÑÅç±Ö…ºÉäPÅQÃ∞Å¡…óùΩÃ∞ÅïÕ—Öëº(ÄÅÖ—•Ÿº∏(¥Ä®©M≠‰Å	±’î®®ÉäHÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô—ÄÅπºÅ—ïµÑÅç±Ö…ºÄ°ô’πëºÅëîÅâÖëùîΩç°•¿ÅÖ—•Ÿº∞ÅçΩ¥Å—ï·—ºÅπÑÅçΩ»(ÄÅIΩÂÖ∞Å	±’îÅ¡Ω»Åç•µÑÉäPÅçΩπ—…ÖÕ—îÅâΩ¥∞ÅÖÈ’∞ÅïÕç’…ºÅÕΩâ…îÅÖÈ’∞Åç±Ö…º§∏(¥ÅÄ¥µçΩ±Ω»µÕ’…ôÖçî¥…ÄΩÄ¥µçΩ±Ω»µâΩ…ëï…ÄÅëï…•ŸÖëΩÃÅπ’µÑÅôÖ∑µ±•ÑÅç•πÈÑµÖÈ’±ÖëÑÅ±ïŸî∞Åïπ—…îÅºÅô’πëºÅî(ÄÅºÅâ…ÖπçºÅëΩÃÅçÖ…ëÃ∏(¥Ä®©QïµÑÅïÕç’…ºÅ≈’ïâ…ÑÅºÅ¡ÖëÀçºÅëÖÃÄ–Åïπ—…ÖëÖÃÅÖπ—ï…•Ω…ïÃ®®ËÅπï±ÖÃ∞ÅÄ¥µçΩ±Ω»µÖççïπ—ÄÅï…Ñ(ÄÅ•ì©π—•çºÅπΩÃÅëΩ•ÃÅ—ïµÖÃ∏Å≈’§ÅªçºÅìÑÉäPÅIΩÂÖ∞Å	±’îÉ§ÅïÕç’…ºÅëïµÖ•ÃÅ¡…ÑÅô’πç•ΩπÖ»ÅçΩµºÅçΩ»Åëî(ÄÅ—ï·—ºøµçΩπîÅë•…ï—ºÅÕΩâ…îÅ’¥Åô’πëºÅ´ÑÅïÕç’…ºÄ°ô•çÖ…•ÑÅ•±ïüµŸï∞§∏Åπ”çºÅπºÅïÕç’…º(ÄÅÄ¥µçΩ±Ω»µÖççïπ—ÄÅŸ•…ÑÅ’µÑÅŸï…œçºÅµÖ•ÃÅç±Ö…ÑÅëºÅµïÕµºÅÖÈ’∞Ä°Äå—Ñ‡’êŸÄ§∞ÅîÅM≠‰Å	±’îÅ¡ÖÕÕÑÅÑÅÕï»Åº(ÄÅÄ¥µçΩ±Ω»µÖççïπ–µ°ΩŸï…ÄÄ°µÖ•ÃÅç±Ö…ºÅÖ•πëÑ§Åï¥ÅŸïËÅëºÅÕΩô–ÏÅÄ¥µçΩ±Ω»µ—ï·—ÄÅëºÅ—ïµÑÅïÕç’…ºÅ…ï’ÕÑÅº(ÄÅ1•ù°–Å…ï‰Ä°µïÕµºÅ—…’≈’îÅëÖÃÅïπ—…ÖëÖÃÅÖπ—ï…•Ω…ïÃ∞ÅçΩ»Åç±Ö…ÑÅŸ•…ÖπëºÅ—ï·—ºÅπºÅïÕç’…º§∏(¥ÅÄ¥µçΩ±Ω»µÕ’ççïÕÕÄΩÄ¥µçΩ±Ω»µ›Ö…π•πùÄΩÄ¥µçΩ±Ω»µëÖπùï…ÄΩÄ¥µçΩ±Ω»µŸï…•ô•ïëÄÅªçºÅµ’ëÖ…Ö¥ÉäPÅπΩ—îÅ≈’î(ÄÅÄ¥µçΩ±Ω»µŸï…•ô•ïëÄÄ°ÄåÕà‡…òŸÄ§Å´ÑÅï…ÑÅ’¥ÅÖÈ’∞∞ÅÖùΩ…ÑÅ¡Ö…ïç•ëºÅï¥ÅôÖ∑µ±•ÑÅçΩ¥ÅºÅπΩŸºÅÖççïπ–ÏÅªçº(ÄÅÖ©’Õ—ï§Å¡Ω»ÅªçºÅôÖÈï»Å¡Ö…—îÅëÑÅ¡Ö±ï—ÑÅ¡ïë•ëÑ∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿Ωù±ΩâÖ±ÃπçÕÕÄËÅ—ïµÑÅç±Ö…ºÅîÅïÕç’…ºÅÖ—’Ö±•ÈÖëΩÃÅçΩ¥ÅÑÅ¡Ö±ï—ÑÅÖç•µÑ∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄËÅÕï¥Åï……ΩÃ∏(¥ÅQïÕ—îÅŸ•Õ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•º∏((ååÄ»¿»ÿ¥¿‰¥»ƒÉäPÅQïÕ—îÅëîÅ¡Ö±ï—ÑËÅ5•±≠‰Ä¨Å5Öπ—•Ã((åååÅ=â©ï—•Ÿº((¥ÅE’Ö…—ºÅ—ïÕ—îÅëîÅ¡Ö±ï—ÑÅÕïù’•ëºÄ°µïÕµºÅçΩπ—ï·—ºÅëîÅ±•âï…ëÖëîÅëÖëºÅ¡ï±ºÅ’Õ◊Ö…•ºÅπÖÃÅïπ—…ÖëÖÃ(ÄÅÖπ—ï…•Ω…ïÃ§ËÅ5•±≠‰ÅÄç≈ÄÄ°ç…ïµî§ÅîÅ5Öπ—•ÃÅÄå‘Â‹–ÂÄÄ°Ÿï…ëîÅŸ•â…Öπ—î§∏Å•ôï…ïπ—îÅëÖÃÅë’ÖÃ(ÄÅÖπ—ï…•Ω…ïÃ∞ÅïÕÕÑÉ§Å’µÑÅ¡Ö±ï—ÑÄ®©ç±Ö…Ñ®®ÉäPÅŸΩ±—ÑÅºÅÕ•—îÅÑÅÖâ…•»ÅçΩ¥Åô’πëºÅç±Ö…ºÅ¡Ω»Å¡ÖëÀçº∏((åååÅ5Ö¡ïÖµïπ—ºÅ¡…ΩÃÅ—Ω≠ïπÃ((¥Ä®©5•±≠‰®®ÉäHÅÄ¥µçΩ±Ω»µâùÄÄ°ô’πëºÅç…ïµî§ÅîÅâÖÕîÅëºÅÄ¥µçΩ±Ω»µ—ï·—ÄÅëºÅ—ïµÑÅïÕç’…ºÄ°Ÿï»ÅÖâÖ•·º§∏(ÄÅÄ¥µçΩ±Ω»µÕ’…ôÖçïÄÄ°çÖ…ëÃ§Åô•çΩ‘Åâ…ÖπçºÅ¡’…º∞Å’¥Å—Ω¥ÅÖç•µÑÅëºÅç…ïµî∞ÅµïÕµºÅ¡…•πèµ¡•ºÅëî(ÄÅÕï¡Ö…áüçºÅçÖ…êΩô’πëºÅëÖÃÅïπ—…ÖëÖÃÅÖπ—ï…•Ω…ïÃ∏(¥Ä®©5Öπ—•Ã®®ÉäHÅÄ¥µçΩ±Ω»µÖççïπ—ÄΩÄ¥µçΩ±Ω»µÖççïπ–µ°ΩŸï…ÄÉäPÅQÃ∞Å¡…óùΩÃ∞ÅïÕ—ÖëºÅÖ—•Ÿº∏(¥ÅÄ¥µçΩ±Ω»µ—ï·—ÄÅπºÅ—ïµÑÅç±Ö…ºÅôΩ§Å¡…ÑÅ’¥ÅŸï…ëîÅâï¥ÅïÕç’…ºÄ°Äåƒ‡»ÿƒÂÄ∞Å≈’ÖÕîÅ¡…ï—ºÅçΩ¥Å±ïŸî(ÄÅµÖ—•ËÅŸï…ëî§Åï¥ÅŸïËÅëºÅπï’—…ºÅÖπ—ï…•Ω»∞Å¡…ÑÅµÖπ—ï»Å—’ëºÅπÑÅµïÕµÑÅôÖ∑µ±•ÑÅëîÅçΩ»∏(ÄÅÄ¥µçΩ±Ω»µ—ï·–µµ’—ïëÄΩÄ¥µçΩ±Ω»µ—ï·–µÕ’â—±ïÄ∞ÅÄ¥µçΩ±Ω»µÕ’…ôÖçî¥…ÄΩÄ¥µçΩ±Ω»µâΩ…ëï…ÄÅî(ÄÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô—ÄÅœçºÅëï…•ŸÖëΩÃÅëÑÅµïÕµÑÅôÖ∑µ±•ÑÄ°Ÿï…ëîÅç±Ö…ºΩç…ïµî§∏(¥ÅQïµÑÅïÕç’…ºËÅ•πŸï…—îÅÑÅ≥Õù•çÑÄ°ô’πëºÅâï¥ÅïÕç’…ºÅçΩ¥Å±ïŸîÅµÖ—•ËÅŸï…ëî∞Å—ï·—ºÅπºÅ—Ω¥Å5•±≠‰§∏(¥ÅÄ¥µçΩ±Ω»µ›Ö…π•πùÄΩÄ¥µçΩ±Ω»µëÖπùï…ÄΩÄ¥µçΩ±Ω»µŸï…•ô•ïëÄÅªçºÅµ’ëÖ…Ö¥∏((åååÅAΩπ—ºÅëîÅÖ—ïªüçº((¥ÅÄ¥µçΩ±Ω»µÕ’ççïÕÕÄÄ°Äå≈òÂê‘’Ä∞Å’ÕÖëºÅï¥ÅçΩπô•…µáü’ïÃÉäPÅ¡Ω’çºÅï·ï…ç•—ÖëºÅπºÅÖ¡¿Å°Ω©î∞ÅŸï»Å…ïù…Ñ(ÄÅëºÅ1UπµêÅÕΩâ…îÅ¡…ïôï…•»Å±Ö…Öπ©ÑΩÖççïπ–Å¡…ÑÅ¡ΩÕ•—•Ÿº§É§ÅΩ’—…ºÅ—Ω¥ÅëîÄ®©Ÿï…ëî®®∞ÅÖùΩ…ÑÅâï¥(ÄÅ¡Ö…ïç•ëºÅçΩ¥ÅºÅπΩŸºÅÄ¥µçΩ±Ω»µÖççïπ—ÄÄ°5Öπ—•Ã§∏ÅMîÅÖ±ù’¥Å±’ùÖ»ÅïÕ¡ïèµô•çºÅ’ÕÖ»ÅÖÃÅë’ÖÃÅçΩ…ïÃ(ÄÅ±ÖëºÅÑÅ±Öëº∞Å¡ΩëîÅô•çÖ»ÅçΩπô’ÕºÄâ•ÕÕºÉ§ÅÕ’çïÕÕºÅΩ‘É§ÅºÅâΩ”çºÅëîÅáüçº¸à∏Å;çºÅµ’ëï§(ÄÅÄ¥µçΩ±Ω»µÕ’ççïÕÕÄÅ¡Ω…≈’îÅªçºÅôÖÈ•ÑÅ¡Ö…—îÅëÑÅ¡Ö±ï—ÑÅ¡ïë•ëÑ∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿Ωù±ΩâÖ±ÃπçÕÕÄËÅ—ïµÑÅç±Ö…ºÅîÅïÕç’…ºÅÖ—’Ö±•ÈÖëΩÃÅçΩ¥ÅÑÅ¡Ö±ï—ÑÅÖç•µÑ∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄËÅÕï¥Åï……ΩÃ∏(¥ÅQïÕ—îÅŸ•Õ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•º∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅQïÕ—îÅëîÅ¡Ö±ï—ÑËÅ5•ëπ•ù°–Å	±’îÄ¨Å9ïΩ∏ÅA’…¡±îÄ¨Å%çîÅ]°•—î((åååÅ=â©ï—•Ÿº((¥Å5Ö•ÃÅ’¥Å¡…•π–ÅëîÅ¡Ö±ï—ÑÅ¡…ÑÅ—ïÕ—Ö»Ä°Õïù’πëºÅ—ïÕ—îÅÕïù’•ëº∞ÅµïÕµºÅ¡…ΩçïÕÕºÅëîÄâ•ùπΩ…Ö»(ÄÅ1UπµêÅ¡Ω»Åïπ≈’Öπ—ºàÅëÑÅïπ—…ÖëÑÅÖπ—ï…•Ω»§ËÅ5•ëπ•ù°–Å	±’îÅÄå≈≈…Ä∞Å9ïΩ∏ÅA’…¡±îÅÄå·…	…Ä∞(ÄÅ%çîÅ]°•—îÅÄç—ŸÄ∏ÅM’âÕ—•—’§ÅÑÅ¡Ö±ï—ÑÅÖ…¨ÅA’…¡±îΩ]•Õ—ï…•ÑΩM’πù±Ω‹ÅëºÅ—ïÕ—îÅÖπ—ï…•Ω»∏((åååÅ5Ö¡ïÖµïπ—ºÅ¡…ΩÃÅ—Ω≠ïπÃ((¥Ä®©5•ëπ•ù°–Å	±’î®®ÉäHÅÄ¥µçΩ±Ω»µâùÄΩÄ¥µçΩ±Ω»µÕ’…ôÖçïÄÄ°ô’πëºÅùï…Ö∞ÅîÅçÖ…ëÃ∞ÅçΩ¥ÅºÅçÖ…êÅ’¥Å—Ω¥(ÄÅµÖ•ÃÅç±Ö…ºÅ≈’îÅºÅô’πëºÅ¡…ÑÅëÖ»ÅÕï¡Ö…áüçº§ÉäPÅçΩπ—•π’ÑÅëÖ…¨µô•…Õ–∞ÅçΩµºÅºÅ—ïÕ—îÅÖπ—ï…•Ω»∏(¥Ä®©9ïΩ∏ÅA’…¡±î®®ÉäHÅÄ¥µçΩ±Ω»µÖççïπ—ÄΩÄ¥µçΩ±Ω»µÖççïπ–µ°ΩŸï…ÄÉäPÅQÃ∞Å¡…óùΩÃ∞ÅïÕ—ÖëºÅÖ—•Ÿº∞Åπº(ÄÅ±’ùÖ»ÅëºÅëΩ’…Öëº∏(¥Ä®©%çîÅ]°•—î®®ÉäHÅÄ¥µçΩ±Ω»µ—ï·—ÄÄ°—ï·—ºÅ¡…•πç•¡Ö∞§∞Å’ÕÖëºÅπºÅ°ï‡Åï·Ö—ºÅëÖëº∏(¥ÅÄ¥µçΩ±Ω»µ—ï·–µµ’—ïëÄΩÄ¥µçΩ±Ω»µ—ï·–µÕ’â—±ïÄ∞ÅÄ¥µçΩ±Ω»µÕ’…ôÖçî¥…ÄΩÄ¥µçΩ±Ω»µâΩ…ëï…ÄÅî(ÄÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô—ÄÅôΩ…Ö¥Åëï…•ŸÖëΩÃÅ¡…ÑÅµÖπ—ï»ÅÑÅµïÕµÑÅë•Õç•¡±•πÑÅëîÅçΩπ—…ÖÕ—îÅëÖÃÅïπ—…ÖëÖÃ(ÄÅÖπ—ï…•Ω…ïÃÄ°—ï·—ºÅç±Ö…ºÅÕΩâ…îÅô’πëºÅïÕç’…º∞Åπ’πçÑÅç±Ö…ºÅÕΩâ…îÅç±Ö…º§∏(¥ÅÄ¥µçΩ±Ω»µÕ’ççïÕÕÄΩÄ¥µçΩ±Ω»µ›Ö…π•πùÄΩÄ¥µçΩ±Ω»µëÖπùï…ÄΩÄ¥µçΩ±Ω»µŸï…•ô•ïëÄÅªçºÅµ’ëÖ…Ö¥∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿Ωù±ΩâÖ±ÃπçÕÕÄËÅ—ïµÑÅç±Ö…ºÅîÅïÕç’…ºÅÖ—’Ö±•ÈÖëΩÃÄ°ºÅïÕç’…ºÉ§Å’µÑÅŸï…œçºÅÖ•πëÑÅµÖ•ÃÅ¡…Ωô’πëÑ(ÄÅëºÅµïÕµºÅïÕ≈’ïµÑ∞ÅµïÕµÑÅ≥Õù•çÑÅëÖÃÅë’ÖÃÅïπ—…ÖëÖÃÅÖπ—ï…•Ω…ïÃ§∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄËÅÕï¥Åï……ΩÃ∏(¥ÅQïÕ—îÅŸ•Õ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•º∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅQïÕ—îÅëîÅ¡Ö±ï—ÑËÅÖ…¨ÅA’…¡±îÄ¨Å]•Õ—ï…•ÑÄ¨ÅM’πù±Ω‹((åååÅ=â©ï—•Ÿº((¥ÅUÕ◊Ö…•ºÅµÖπëΩ‘Å¡…•π–ÅëîÅ’µÑÅ¡Ö±ï—ÑÅëîÄÃÅçΩ…ïÃÄ°ëΩµ•πÖπ—îΩÕïç’πìÖ…•ÑΩÖççïπ–§Å¡…ÑÅ—ïÕ—Ö»Åπº(ÄÅÕ•—îËÅÖ…¨ÅA’…¡±îÅÄå»ƒ¡…ÄÄ°ëΩµ•πÖπ—î§∞Å]•Õ—ï…•ÑÅÄç	‰ŸŸÄÄ°Õïç’πìÖ…•Ñ§∞ÅM’πù±Ω‹ÅÄçƒÿŸÄ(ÄÄ°Öççïπ–§∏ÅM’âÕ—•—’§ÅÑÅ¡Ö±ï—ÑÅ±Ö…Öπ©Ñ≠ÖÈ’∞µùï±ºÅëÑÅïπ—…ÖëÑÅÖπ—ï…•Ω»ÉäPÅ—…ΩçÑÅï·¡≥µç•—Ñ∞ÅªçºÅ’µÑ(ÄÅÖëßüçº∏((åååÅ5Ö¡ïÖµïπ—ºÅ¡…ΩÃÅ—Ω≠ïπÃ((¥Ä®©Ö…¨ÅA’…¡±î®®ÉäHÅÄ¥µçΩ±Ω»µâùÄΩÄ¥µçΩ±Ω»µÕ’…ôÖçïÄÄ°ô’πëºÅùï…Ö∞ÅîÅçÖ…ëÃ∞Åπ’¥Å—Ω¥Å±ïŸïµïπ—îÅµÖ•Ã(ÄÅç±Ö…ºÅ≈’îÅºÅô’πëºÅ¡…ÑÅëÖ»ÅÕï¡Ö…áüçº§ÉäPÅºÅÕ•—îÅ¡ÖÕÕÑÅÑÅÖâ…•»ÅçΩ¥Åô’πëºÅïÕç’…ºÅ¡Ω»Å¡ÖëÀçºÅï¥ÅŸïË(ÄÅëîÅç±Ö…ºÄ°ëïç•œçºÅï·¡≥µç•—ÑÅëºÅ’Õ◊Ö…•ºÅ¡…ÑÅïÕ—îÅ—ïÕ—îÏÅÅçΩ±Ω»µÕç°ïµîËÅΩπ±‰Å±•ù°—ÄÅ¡ï…µÖπïçî(ÄÅçΩµºÅïÕ—ÖŸÑ∞ÅªçºÅÖôï—ÑÅÑÅïÕ”•—•çÑ∞ÅœÃÅºÅ°•π–ÅëîÅ›•ëùï—ÃÅπÖ—•ŸΩÃÅëºÅπÖŸïùÖëΩ»§∏(¥Ä®©M’πù±Ω‹®®ÉäHÅÄ¥µçΩ±Ω»µÖççïπ—ÄΩÄ¥µçΩ±Ω»µÖççïπ–µ°ΩŸï…ÄÉäPÅQÃ∞Å¡…óùΩÃ∞ÅïÕ—ÖëºÅÖ—•Ÿº∞ÅπºÅ±’ùÖ»(ÄÅëºÅ±Ö…Öπ©Ñ∏(¥Ä®©]•Õ—ï…•Ñ®®ÉäHÅï¥ÅŸïËÅëîÅŸ•…Ö»Åô’πëºÅëîÅ¡Ö•πï∞Ä°Ä¥µçΩ±Ω»µÕ’…ôÖçî¥…Ä§∞ÅŸ•…Ω‘ÅÑÅçΩ»ÅëºÄ®©—ï·—º(ÄÅÕïç’πìÖ…•º®®Ä°Ä¥µçΩ±Ω»µ—ï·–µµ’—ïëÄ§∏Å5Ω—•ŸºËÅçΩµºÅºÅô’πëºÅÖùΩ…ÑÉ§Åâï¥ÅïÕç’…ºÅîÅºÅ—ï·—º(ÄÅ¡…•∑Ö…•ºÉ§Å≈’ÖÕîÅâ…Öπçº∞Å’ÕÖ»Å]•Õ—ï…•ÑÄ°ç±Ö…º§ÅçΩµºÅô’πëºÅëîÅ¡Ö•πï∞Åëï•·Ö…•ÑÅ≈’Ö±≈’ï»Å—ï·—º(ÄÅç±Ö…ºÅï¥Åç•µÑÅëï±îÅ•±ïüµŸï∞Ä°ç±Ö…ºÅÕΩâ…îÅç±Ö…º§∏ÅΩµºÅçΩ»ÅëîÅ—ï·—ºÅë•…ï—ºÅÕΩâ…îÅºÅô’πëºÅ…Ω·º(ÄÅïÕç’…º∞ÅºÅçΩπ—…ÖÕ—îÉ§ÉÕ—•µºÅîÅÑÅçΩ»ÅÖ¡Ö…ïçîÅëîÅŸï…ëÖëîÅï¥ÅπΩµïÃÅëîÅ’Õ◊Ö…•º∞Å±ïùïπëÖÃ∞(ÄÅ°ΩÀÖ…•ΩÃÉäPÅµ’•—ºÅµÖ•ÃÅŸ•œµŸï∞ÅëºÅ≈’îÅçΩπô•πÖëÑÅÑÅ’¥Å¡Ö•πï∞Å≈’îÅ≈’ÖÕîÅªçºÅÖ¡Ö…ïçîÅπÑÅ—ï±Ñ∏(ÄÅÄ¥µçΩ±Ω»µ—ï·–µÕ’â—±ïÄÅùÖπ°Ω‘Å’µÑÅŸï…œçºÅµÖ•ÃÅïÕç’…ÑΩëïÕÕÖ—’…ÖëÑÅëºÅµïÕµºÅ]•Õ—ï…•Ñ∞ÅµÖπ—ïπëºÅÑ(ÄÅ°•ï…Ö…≈’•ÑÅëîÅ—ï·—º∏(¥ÅÄ¥µçΩ±Ω»µÕ’…ôÖçî¥…ÄΩÄ¥µçΩ±Ω»µâΩ…ëï…ÄÅô•çÖ…Ö¥Åπ’µÑÅôÖ∑µ±•ÑÅëîÅ…Ω·ºÅ•π—ï…µïëßÖ…•ÑÄ°πï¥Å”çº(ÄÅïÕç’…ÑÅ≈’Öπ—ºÅºÅô’πëº∞Åπï¥Åç±Ö…ÑÅçΩµºÅºÅ]•Õ—ï…•Ñ§ÉäPÅµÖπ”•¥Å¡Ö•ª••ÃΩ°ΩŸï»Ωë•Ÿ•ÕΩ…ïÃÅ±ïüµŸï•Ã(ÄÅçΩ¥ÅºÅ—ï·—ºÅç±Ö…ºÅ≈’îÅ´ÑÅï·•Õ—îÅï¥Å—ΩëºÅºÅÖ¡¿∏(¥ÅÄ¥µçΩ±Ω»µÕ’ççïÕÕÄΩÄ¥µçΩ±Ω»µ›Ö…π•πùÄΩÄ¥µçΩ±Ω»µëÖπùï…ÄΩÄ¥µçΩ±Ω»µŸï…•ô•ïëÄÅªçºÅµ’ëÖ…Ö¥∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿Ωù±ΩâÖ±ÃπçÕÕÄËÅ—ïµÑÅç±Ö…ºÅîÅïÕç’…ºÅÖ—’Ö±•ÈÖëΩÃÅçΩ¥ÅÑÅ¡Ö±ï—ÑÅÖç•µÑÄ°ºÅïÕç’…ºÉ§Å’µÑÅŸï…œçº(ÄÅÖ•πëÑÅµÖ•ÃÅ¡…Ωô’πëÑÅëºÅµïÕµºÅïÕ≈’ïµÑ∞Å´ÑÅ≈’îÅÑÅ¡Ö±ï—ÑÅï¥ÅÕ§Å´ÑÅπÖÕçï‘ÅïÕç’…Ñ§∏((åååÅAΩπ—ºÅëîÅÖ—ïªüçº((¥ÅÄ¥µçΩ±Ω»µ›Ö…π•πùÄÄ°ëΩ’…ÖëºµÖçÖÕ—Öπ°Öëº∞ÅÄçà‘·Ñ≈ÖÄ§Åô•çΩ‘ÅŸ•Õ’Ö±µïπ—îÅ¡ÀÕ·•µºÅëºÅπΩŸº(ÄÅÄ¥µçΩ±Ω»µÖççïπ—ÄÄ°M’πù±Ω‹∞ÅÄçôôêƒÿŸÄ§ÉäPÅΩÃÅëΩ•ÃÅ≥©ï¥ÅçΩµºÄâëΩ’…Öëºà∏Å;çºÅµ’ëï§Å¡Ω…≈’îÅªçºÅôÖÈ•Ñ(ÄÅ¡Ö…—îÅëÑÅ¡Ö±ï—ÑÅ¡ïë•ëÑ∞ÅµÖÃÅÕîÅçÖ’ÕÖ»ÅçΩπô’œçºÅïπ—…îÄâÖŸ•ÕºàÅîÄâçÖ±∞µ—ºµÖç—•Ω∏àÅπÑÅ¡ÀÖ—•çÑ∞É§(ÄÅçÖπë•ëÖ—ºÅÑÅÖ©’Õ—î∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄËÅÕï¥Åï……ΩÃ∏(¥ÅQïÕ—îÅŸ•Õ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•ºÉäPÉ§Å’µÑÅµ’ëÖªùÑÅëîÅ•ëïπ—•ëÖëîÅâï¥ÅµÖ•ÃÅ…Öë•çÖ∞(ÄÅ≈’îÅÑÅÖπ—ï…•Ω»Ä°Õ•—îÅ•π—ï•…ºÅ¡ÖÕÕÑÅÑÅ—ï»Åô’πëºÅïÕç’…º§∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅIïëïÕïπ°ºÅëÑÅ¡Ö±ï—ÑËÅ%çîÅ…ïÖ¥Å	±’îÅùÖπ°ÑÅ¡…ïÕïªùÑÅ…ïÖ∞((åååÅ=â©ï—•Ÿº((¥ÅUÕ◊Ö…•ºÅ¡ïë•‘Åï·¡±•ç•—Öµïπ—îÅ¡…ÑÅï‘Å…ïëïÕïπ°Ö»ÅÑÅ¡Ö±ï—ÑÅçΩ¥Å±•âï…ëÖëîÅ—Ω—Ö∞Ä†â¡ΩëîÅçΩ±ΩçÖ»Åëº(ÄÅ©ï•—ºÅ≈’îÅÖç°Ö»Åµï±°Ω»∞Å¡ΩëîÅ•ùπΩ…Ö»ÅºÅ1UπµêÅπïÕÕîÅµΩµïπ—ºà§ÉäPÅ…ïÕ¡ΩÕ—ÑÅë•…ï—ÑÅÖºÅ¡Ωπ—ºÅëî(ÄÅÖ—ïªüçºÅ≈’îÅï‘Å—•π°ÑÅ±ïŸÖπ—ÖëºÅπÑÅïπ—…ÖëÑÅÖπ—ï…•Ω»ËÅ±Ö…Öπ©ÑÅÕΩâ…îÅºÅÖÈ’∞Åùï±º∞Å’ÕÖëºÅœÃÅçΩµº(ÄÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô—Ä∞Å—•π°ÑÅçΩπ—…ÖÕ—îÅâÖ•·ºÅëïµÖ•ÃÅ¡…ÑÅ—ï·—ºÅëîÅâÖëùî∞ÅîÅºÅÖÈ’∞ÅµÖ∞ÅÖ¡Ö…ïç•Ñ(ÄÅπºÅ…ïÕ—ºÅëºÅÕ•—î∏((åååÅïç•œçºÅëîÅëïÕ•ù∏((¥Ä®©—Ωµ•åÅ=…ÖπùîÅçΩπ—•π’ÑÅÑÅçΩ»ÅëîÅµÖ…çÑ®®Ä°Ä¥µçΩ±Ω»µÖççïπ—Ä§ÉäPÅQÃ∞Å¡…óùΩÃ∞ÅïÕ—ÖëºÅÖ—•Ÿº∞(ÄÅçΩµºÅ´ÑÅïÕ—ÖŸÑ∏(¥Ä®©%çîÅ…ïÖ¥Å	±’îÅ¡ÖÕÕÑÅÑÅ—ï»Å¡…ïÕïªùÑÅëîÅŸï…ëÖëîÅπºÅÕ•—î®®∞Åï¥ÅŸïËÅëîÅô•çÖ»Å…ïÕ—…•—ºÅÑÅ’¥(ÄÅ—Ω≠ï∏Å¡ï≈’ïπºËÅŸ•…ÑÅÑÅâÖÕîÅëºÅô’πëºÅùï…Ö∞Ä°Ä¥µçΩ±Ω»µâùÄ∞Åπ’¥Å—Ω¥Åâï¥Åç±Ö…º§ÅîÅëÖÃÅÕ’¡ï…õµç•ïÃ(ÄÅÕïç’πìÖ…•ÖÃΩ°ΩŸï»Ä°Ä¥µçΩ±Ω»µÕ’…ôÖçî¥…Ä§ÅπΩÃÅëΩ•ÃÅ—ïµÖÃ∏ÅÖ…ëÃÅçΩπ—•π’Ö¥Åâ…ÖπçΩÃ(ÄÄ°Ä¥µçΩ±Ω»µÕ’…ôÖçïÄ§ÉäPÅºÅçΩπ—…ÖÕ—îÅïπ—…îÅçÖ…êÅâ…ÖπçºÅîÅô’πëºÅÖÈ’±ÖëºÉ§ÅºÅ≈’îÅìÑÅÑÅÕïπÕáüçºÅëî(ÄÄâÕΩ…Ÿï—îàÄ°ç…ïµîÄ¨Å±Ö…Öπ©Ñ§Åï¥ÅŸïËÅëîÅç•πÈÑµª•ŸΩÑÅπï’—…º∏(¥Ä®©Ä¥µçΩ±Ω»µÖççïπ–µÕΩô—ÄÅŸΩ±—ÑÅÑÅÕï»Å’¥Å—Ω¥Åç±Ö…ºÅëºÅ¡ÀÕ¡…•ºÅ±Ö…Öπ©Ñ®®Ä°ªçºÅµÖ•ÃÅºÅÖÈ’∞§ÉäPÅ—…ΩçÑ(ÄÅ≈’îÅ…ïÕΩ±ŸîÅºÅ¡…Ωâ±ïµÑÅëîÅçΩπ—…ÖÕ—îËÅ—ï·—ºÅ±Ö…Öπ©ÑÅï¥Åç•µÑÅëîÅ√©ÕÕïùºÅç±Ö…ºÅ—ï¥ÅÑÅµïÕµÑ(ÄÅ≈’Ö±•ëÖëîÅëîÅ±ïù•â•±•ëÖëîÅ≈’îÅºÅïÕ≈’ïµÑÅΩ…•ù•πÖ∞∞ÅœÃÅ≈’îÅçΩ¥ÅºÅπΩŸºÅ—Ω¥ÅëîÅ±Ö…Öπ©Ñ∏(¥ÅÄ¥µçΩ±Ω»µŸï…•ô•ïëÄÄ°Õï±ºÅÖÈ’∞ÅëîÅŸï…•ô•çÖëº§ÅîÅÖÃÅçΩ…ïÃÅÕï∑âπ—•çÖÃÄ°Õ’ççïÕÃΩ›Ö…π•πúΩëÖπùï»§(ÄÅªçºÅµ’ëÖ…Ö¥∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿Ωù±ΩâÖ±ÃπçÕÕÄ(ÄÄ¥ÅQïµÑÅç±Ö…ºËÅÄ¥µçΩ±Ω»µâúËÄçïÖò·ôçÄÄ°ï…ÑÅÄçò’òŸò·Ä∞Åç•πÈÑÅπï’—…º§ÏÅÄ¥µçΩ±Ω»µÕ’…ôÖçî¥»ËÄçå·òÕôôÄ(ÄÄÄÄ°ï…ÑÅÄçïçïïò…Ä∞Åç•πÈÑÅπï’—…ºÉäPÅÖùΩ…ÑÉ§ÅºÅ%çîÅ…ïÖ¥Å	±’îÅ¡’…º§ÏÅÄ¥µçΩ±Ω»µâΩ…ëï»ËÄçÑÂî…ïôÄ(ÄÄÄÄ°ï…ÑÅÄçî—î›ïçÄ∞ÅÖ©’Õ—ÖëºÅ¡…ÑÅçΩµâ•πÖ»ÅçΩ¥ÅºÅπΩŸºÅô’πëºΩÕ’¡ï…õµç•î§ÏÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô–Ë(çôôî≈ê…ÄÄ°√©ÕÕïùºÅç±Ö…ºÅëï…•ŸÖëºÅëºÅπΩŸºÅ±Ö…Öπ©Ñ∞Åï…ÑÅºÅÖÈ’∞Åùï±ºÅπÑÅïπ—…ÖëÑÅÖπ—ï…•Ω»§∏(ÄÄ¥ÅQïµÑÅïÕç’…ºËÅÄ¥µçΩ±Ω»µâúËÄå¡ê≈à»¡Ä∞ÅÄ¥µçΩ±Ω»µÕ’…ôÖçîËÄåƒ‘»ÿ…çÄ∞ÅÄ¥µçΩ±Ω»µÕ’…ôÖçî¥»ËÄå≈êÃ‘–¡Ä(ÄÄÄÄ°ÖªÖ±ΩùΩÃÅïÕç’…ΩÃÅëÑÅµïÕµÑÅôÖ∑µ±•ÑÅÖÈ’∞µ¡ï—ÀÕ±ïº∞ÅÕ’âÕ—•—’•πëºÅΩÃÅç•πÈÖÃÅπï’—…ΩÃÅÖπ—ï…•Ω…ïÃ§Ï(ÄÄÄÅÄ¥µçΩ±Ω»µâΩ…ëï»ËÄå…Ñ–‹‘¡ÄÏÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô–ËÄå–¿»¿¡ôÄÄ°µÖ……Ω¥µ√©ÕÕïùºÅïÕç’…º∞ÅµïÕµÑ(ÄÄÄÅ≥Õù•çÑÅëºÅç±Ö…º§∏(ÄÄ¥ÅÄ¥µçΩ±Ω»µÖççïπ—ÄΩÄ¥µçΩ±Ω»µÖççïπ–µ°ΩŸï…ÄÄ°ºÅ±Ö…Öπ©ÑÅï¥ÅÕ§§ÅªçºÅµ’ëÖ…Ö¥ÅπïÕ—ÑÅïπ—…ÖëÑÉäPÅœÃÅÑ(ÄÄÄÅïπ—…ÖëÑÅÖπ—ï…•Ω»Å´ÑÅ—•π°ÑÅ—…ΩçÖëºÅ¡Ö…ÑÅÄçôò’å»ÕÄ∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄËÅÕï¥Åï……ΩÃ∏(¥ÅQïÕ—îÅŸ•Õ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•ºÉäPÅçΩµºÅ•ÕÕºÅµ’ëÑÅºÅô’πëºÅùï…Ö∞ÅëîÅ—ΩëÑ(ÄÅ√Öù•πÑÄ°ªçºÅœÃÅ’¥Å—Ω≠ï∏Å•ÕΩ±Öëº§∞ÅŸÖ±îÅçΩπôï…•»Å€Ö…•ÖÃÅ—ï±ÖÃÄ°ôïïê∞ÅëÖÕ°âΩÖ…ê∞ÅçΩπŸï…ÕÑ§ÅÖπ—ïÃ(ÄÅëîÅçΩπÕ•ëï…Ö»Åôïç°Öëº∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅ9ΩŸÑÅ¡Ö±ï—ÑËÅ—Ωµ•åÅ=…ÖπùîÄ¨Å%çîÅ…ïÖ¥Å	±’î((åååÅ=â©ï—•Ÿº((¥Å—’Ö±•ÈÖ»ÅÑÅçΩ»ÅëîÅµÖ…çÑÅëºÅ)Ωã®ÅÑÅ¡ïë•ëºÅëºÅ’Õ◊Ö…•ºËÄâ—Ωµ•åÅ=…ÖπùîàÄ°Äç’»ÕÄ§ÅîÄâ%çîÅ…ïÖ¥(ÄÅ	±’îàÄ°Äç·ÕÄ§∏(¥Åïç•œçºÅçΩπô•…µÖëÑÅçΩ¥ÅºÅ’Õ◊Ö…•ºÅÖπ—ïÃÅëîÅµï·ï»Ä°•µ¡Öç—ºÅŸ•Õ’Ö∞Åï¥Å—ΩëºÅºÅÕ•—î§ËÅ—Ωµ•åÅ=…Öπùî(ÄÅÕ’âÕ—•—’§ÅÄ¥µçΩ±Ω»µÖççïπ—ÄÄ£ÕâŸ•ºÉäPÉ§ÅÑÅπΩŸÑÅçΩ»ÅëîÅµÖ…çÑ§ÏÅ%çîÅ…ïÖ¥Å	±’îÅÕ’âÕ—•—’§(ÄÅïÕ¡ïç•ô•çÖµïπ—îÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô—ÄÄ°ô’πëºÅëΩÃÅç°•¡ÃΩâÖëùïÃÅÖ—•ŸΩÃ§∞ÅªçºÅÄ¥µçΩ±Ω»µŸï…•ô•ïëÄ(ÄÅπï¥Å’¥Å—Ω≠ï∏ÉÄÅ¡Ö…—î∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿Ωù±ΩâÖ±ÃπçÕÕÄ(ÄÄ¥ÅQïµÑÅç±Ö…ºËÅÄ¥µçΩ±Ω»µÖççïπ–ËÄçôò’å»ÕÄÄ°ï…ÑÅÄçò‘‡»≈ôÄ§ÏÅÄ¥µçΩ±Ω»µÖççïπ–µ°ΩŸï»ËÄçî¿—Ñƒ’Ä(ÄÄÄÄ°Ÿï…œçºÅµÖ•ÃÅïÕç’…Ñ∞ÅµïÕµÑÅ…ï±áüçºÅëîÅçΩπ—…ÖÕ—îÅ≈’îÅ´ÑÅï·•Õ—•Ñ§ÏÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô–Ë(çå·òÕôôÄÄ°ï…ÑÅ’¥Å√©ÕÕïùºÅâï¥Åç±Ö…ºÅëï…•ŸÖëºÅëºÅ±Ö…Öπ©ÑÅÖπ—•ùºÉäPÅÖùΩ…ÑÉ§ÅºÅÖÈ’∞Åùï±º§∏(ÄÄ¥ÅQïµÑÅïÕç’…ºËÅÄ¥µçΩ±Ω»µÖççïπ–ËÄçôò’å»ÕÄÏÅÄ¥µçΩ±Ω»µÖççïπ–µ°ΩŸï»ËÄçôò›ê—ôÄÄ°Ÿï…œçºÅµÖ•ÃÅç±Ö…Ñ∞(ÄÄÄÅµïÕµÑÅ…ï±áüçºÅ≈’îÅ´ÑÅï·•Õ—•ÑÅπºÅïÕç’…º§ÏÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô–ËÄåƒ»Ã‘–¡ÄÄ°ÖªÖ±ΩùºÅïÕç’…ºÅëº(ÄÄÄÅÖÈ’∞Åùï±ºÉäPÅ’ÕÖ»ÅºÅµïÕµºÅ—Ω¥Åç±Ö…ºÅëîÅÄçå·òÕôôÄÅçΩµºÅô’πëºÅπºÅïÕç’…ºÅô•çÖ…•ÑÅïÕ—Ω’…ÖëøæÚl(ÄÄÄÅµÖπ”•¥ÅºÅµÖ—•Ë∞ÅÖ©’Õ—ÑÅ±’µ•πΩÕ•ëÖëîÅ¡…ºÅ—ïµÑ§∏(ÄÄ¥ÅÄ¥µçΩ±Ω»µŸï…•ô•ïëÄÄ°Õï±ºÅÖÈ’∞ÅëîÅŸï…•ô•çÖëº§ÅîÅÖÃÅçΩ…ïÃÅÕï∑âπ—•çÖÃ(ÄÄÄÄ°Õ’ççïÕÃΩ›Ö…π•πúΩëÖπùï»§ÅªçºÅµ’ëÖ…Ö¥ÉäPÅçΩπ—•π’Ö¥ÅçΩ¥ÅΩÃÅŸÖ±Ω…ïÃÅÖπ—•ùΩÃ∞ÅçΩµºÅçΩπô•…µÖëº∏(ÄÄ¥ÅÅù…ï¡ÄÅ¡Ω»Å°ï‡ÅÖπ—•ùºÄ°Åò‘‡»≈ôÄ∞ÅÅëêŸòƒ¡Ä∞ÅÅôëïÖêŸÄ∞ÅÅôòÂÑ–¡Ä∞ÅÄÕÑ»‹ƒ…Ä§ÅπºÅ…ï¡ºÅ•π—ï•…ºË(ÄÄÄÅπïπ°’µÑÅΩçΩ…À©πç•ÑÅôΩ…ÑÅëîÅÅù±ΩâÖ±ÃπçÕÕÄÉäPÅÑÅ¡Ö±ï—ÑÅ´ÑÅï…ÑÄƒ¿¿îÅçïπ—…Ö±•ÈÖëÑÅï¥Å—Ω≠ïπÃ∞ÅÕï¥(ÄÄÄÅçΩ»Å°Ö…ëçΩëïêÅï¥ÅçΩµ¡Ωπïπ—îÅπïπ°’¥∞Åïπ”çºÅÑÅ—…ΩçÑÅªçºÅï·•ù•‘Å—ΩçÖ»Åï¥ÅµÖ•ÃÅπïπ°’¥ÅÖ…≈’•Ÿº∏((åååÅAΩπ—ºÅëîÅÖ—ïªüçºÄ°ªçºÅ•µ¡±ïµïπ—ÖëºÉäPÅëïç•œçºÅëîÅëïÕ•ù∏∞ÅªçºÅâ’ú§((¥ÅÄ¥µçΩ±Ω»µÖççïπ–µÕΩô—ÄÄ°Äçå·òÕôôÄ§É§Å’ÕÖëºÅçΩµºÅô’πëºÅëîÅç°•¿ÅçΩ¥Ä®©—ï·—ºÅπÑÅçΩ»(ÄÅÄ¥µçΩ±Ω»µÖççïπ—Ä®®Ä°Åâú¥†¥µçΩ±Ω»µÖççïπ–µÕΩô–§Å—ï·–¥†¥µçΩ±Ω»µÖççïπ–•Ä∞ÅºÅ¡ÖëÀçºÅëîÅâÖëùî(ÄÅÖ—•ŸºΩ¡ΩÕ•—•ŸºÅëºÅ)Ωã®§∏Å9ºÅ—ïµÑÅç±Ö…º∞Å±Ö…Öπ©ÑÅÄçôò’å»ÕÄÅÕΩâ…îÅÖÈ’∞Åùï±ºÅÄçå·òÕôôÄÅ—ï¥(ÄÅçΩπ—…ÖÕ—îÅâÖ•·ºÄ°ÖâÖ•·ºÅëºÅ∑µπ•µºÅ…ïçΩµïπëÖëºÅ¡…ÑÅ—ï·—ºÅ¡ï≈’ïπº§ÉäPÅ±ïüµŸï∞∞ÅµÖÃÅµïπΩÃÅªµ—•ëº(ÄÅ≈’îÅÑÅçΩµâ•πáüçºÅÖπ—ï…•Ω»Ä°±Ö…Öπ©ÑÅÕΩâ…îÅ√©ÕÕïùº∞ÅµïÕµÑÅôÖ∑µ±•ÑÅëîÅçΩ»§∏ÅMîÅÖ±ù’¥ÅâÖëùî(ÄÅïÕ¡ïèµô•çºÅô•çÖ»Åë•õµç•∞ÅëîÅ±ï»ÅπÑÅ¡ÀÖ—•çÑ∞ÅÑÅçΩ……óüçºÉ§ÅÖ©’Õ—Ö»ÅœÃÅºÅ—Ω¥ÅëºÅÖÈ’∞Ä°µÖ•ÃÅïÕç’…º§(ÄÅΩ‘ÅÑÅçΩ»ÅëºÅ—ï·—ºÅπÖ≈’ï±îÅçΩµ¡Ωπïπ—î∞ÅªçºÅ…ïŸï…—ï»ÅÑÅëïç•œçºÅëîÅ¡Ö±ï—Ñ∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄËÅÕï¥Åï……ΩÃÄ°MLÅªçºÅ¡ÖÕÕÑÅ¡Ω»ÅQÂ¡ïMç…•¡–ΩM1•π–∞ÅŸÖ±•ëÖëºÅŸ•Õ’Ö±µïπ—îÅ¡ï±Ñ(ÄÅÖ’œ©πç•ÑÅëîÅ≈’Ö±≈’ï»ÅΩ’—…ÑÅΩçΩ…À©πç•ÑÅ°Ö…ëçΩëïêÅπºÅ…ï¡º§∏(¥ÅQïÕ—îÅŸ•Õ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•º∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅΩ……óüçºËÅçΩµ¡…ÖëΩ»Å¡ï…ë•ÑÅÖçïÕÕºÅÖºÅ¡…Ωë’—ºÅëïÕ¡’â±•çÖëº((åååÅ=â©ï—•Ÿº((¥ÅIï¡Ω…—ÖëºÅ¡ï±ºÅ’Õ◊Ö…•ºËÅºÅ¡…Ωë’—ºÅÕΩµîÅëÑÅâ•â±•Ω—ïçÑÅëºÅçΩµ¡…ÖëΩ»Åëï¡Ω•ÃÅ≈’îÅºÅç…•ÖëΩ»(ÄÅëïÕ¡’â±•çÑÅºÅÖªÈπç•º∏((åååÅÖ’ÕÑ((¥ÅI1LÅëîÅÅ¡…Ωë’ç—ÕÄÅœÃÅ—•π°ÑÅë’ÖÃÅ¡Ω±•ç•ïÃÅëîÅÅM1QÄËÅ√Èâ±•çºÅ€®ÅÅÕ—Ö—’ÃÄÙÄùÖ¡¡…ΩŸïêùÄ∞ÅëΩπºÅ€®(ÄÅÖÃÅ¡ÀÕ¡…•ÖÃÅ±•π°ÖÃ∏Å9ïπ°’µÑÅëï±ÖÃÅçΩâ…îÄâçΩµ¡…ÖëΩ»ÅçΩ¥ÅÅ¡…Ωë’ç—}ïπ—•—±ïµïπ—ÕÄÅÖ—•Ÿº∞ÅµÖÃÅº(ÄÅ¡…Ωë’—ºÅªçºÉ§ÅµÖ•ÃÅÅÖ¡¡…ΩŸïëÄàÉäPÅïπ”çºÅÅ±•Õ—=›πïëA…Ωë’ç—ÕΩ…UÕï…ÄÄ°â•â±•Ω—ïçÑ§ÅÕ•µ¡±ïÕµïπ—î(ÄÅ¡Ö…ÖŸÑÅëîÅïπ·ï…ùÖ»ÅÑÅ±•π°ÑÅÖÕÕ•¥Å≈’îÅºÅç…•ÖëΩ»ÅëïÕ¡’â±•çÖŸÑÄ°ÅÕ—Ö—’ÕÄÅŸ•…ÑÅÅë…Öô—Ä§∏Å<ÅÖçïÕÕº(ÄÅ´ÑÅ—•π°ÑÅÕ•ëºÅ¡ÖùºÅîÅçΩπçïë•ëºÏÅÑÅçΩµ¡…ÑÅªçºÅëïŸï…•ÑÅëï¡ïπëï»ÅëºÅÖªÈπç•ºÅçΩπ—•π’Ö»Å¡’â±•çÖëº∏(¥Å9ºÅµïÕµºÅçÖµ•π°ºËÅÅëï±ï—ï}¡…Ωë’ç—ÄÅªçºÅ—•π°ÑÅπïπ°’µÑÅ¡…Ω—óüçºÅçΩπ—…ÑÅÖ¡ÖùÖ»Å’¥Å¡…Ωë’—ºÅ≈’îÅ´Ñ(ÄÅ—•ŸïÕÕîÅÅ¡…Ωë’ç—}ïπ—•—±ïµïπ—ÕÄÉäPÅÑÅçΩπÕ—…Ö•π–ÅëîÅç°ÖŸîÅïÕ—…Öπùï•…ÑÄ°Õï¥ÅÅ=8Å1QÄ§ÅÖ”§(ÄÅ•µ¡ïë•ÑÅºÅÅ1QÄ∞ÅµÖÃÅçΩ¥Å’¥Åï……ºÅç…‘ÅëîÅAΩÕ—ù…ïÃÅï¥ÅŸïËÅëîÅ’µÑÅµïπÕÖùï¥Å≈’îÅô•ÈïÕÕîÅÕïπ—•ëº∏((åååÅ5’ëÖªùÖÃ((¥ÅM’¡ÖâÖÕîËÅπΩŸÑÅ¡Ω±•ç‰ÅÅ¡…Ωë’ç—Õ}Õï±ïç—}ïπ—•—±ïë}â’Âï…ÄÉäPÅ≈’ï¥Å—ï¥Åïπ—•—±ïµïπ–ÅÖ—•ŸºÅ¡…º(ÄÅ¡…Ωë’—ºÅçΩπ—•π’ÑÅïπ·ï…ùÖπëºÅÑÅ±•π°ÑÅ•πëï¡ïπëïπ—ïµïπ—îÅëºÅÅÕ—Ö—’ÕÄÅÖ—’Ö∞∏(¥ÅÅëï±ï—ï}¡…Ωë’ç—ÄÄ°IA§ÅÖùΩ…ÑÅâÖ……ÑÅï·¡±•ç•—Öµïπ—îÅÑÅï·ç±’œçºÅëîÅ’¥Å¡…Ωë’—ºÅçΩ¥Å¡ï±ºÅµïπΩÃÅ’¥(ÄÅÅ¡…Ωë’ç—}ïπ—•—±ïµïπ—ÕÄ∞ÅçΩ¥ÅµïπÕÖùï¥ÅΩ…•ïπ—ÖπëºÅÑÅëïÕ¡’â±•çÖ»Åï¥ÅŸïËÅëîÅï·ç±’•»∏((åååÅYÖ±•ëáüçº((¥ÅÅùï—}ÖëŸ•ÕΩ…ÕÄÄ°Õïç’…•—‰§Åç°ïçÖëºÅëï¡Ω•ÃÅëÖÃÅë’ÖÃÅµ’ëÖªùÖÃËÅπïπ°’¥ÅÖ±ï…—ÑÅπΩŸº∏(¥ÅIï¡…Ωë◊üçºÅµÖπ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•º∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅΩ……óüçºËÅï……ºÅëîÅÕï…Ÿ•ëΩ»ÅÖºÅÖâ…•»Å¡ï…ô•∞ÅëîÅç…•ÖëΩ»ÅµΩç¨((åååÅ=â©ï—•Ÿº((¥ÅIï¡Ω…—ÖëºÅ¡ï±ºÅ’Õ◊Ö…•ºËÄâQ°•ÃÅ¡ÖùîÅçΩ’±ë∏ù–Å±ΩÖê∏ÅÅÕï…Ÿï»Åï……Ω»ÅΩçç’……ïê∏àÅÖºÅïπ—…Ö»Åπ’µÑ(ÄÅçΩπ—ÑÅîÅç±•çÖ»Å¡Ö…ÑÅ•»ÅÑÅ’¥Å¡ï…ô•∞ÅëîÅç…•ÖëΩ»∏((åååÅÖ’ÕÑ((¥ÅÅ°ΩµîÅÖ•πëÑÅµ•Õ—’…ÑÅç…•ÖëΩ…ïÃÅ…ïÖ•ÃÅçΩ¥Åç…•ÖëΩ…ïÃÅô•ç”µç•ΩÃÅëîÅëïµΩπÕ—…áüçº(ÄÄ°Å’Õï…Iï¡ΩÕ•—Ω…‰πô•πë…ïÖ—Ω…Ã†•ÄÅçΩπçÖ—ïπÑÅÅ¡…Ωô•±ïÕÄÅ…ïÖ•ÃÅçΩ¥ÅºÅÖ……Ö‰ÅµΩç¨Åëî(ÄÅÅ±•àΩëÖ—ÑΩ’Õï…Ãπ—ÕÄ§∏ÅºÅÖâ…•»ÅºÅ¡ï…ô•∞ÅëîÅ’¥Åç…•ÖëΩ»Åô•ç”µç•º∞ÅÅùï—A…Ωô•±ï	ÂUÕï…πÖµïÄÅªçº(ÄÅïπçΩπ—…ÑÅ±•π°ÑÅ…ïÖ∞∞ÅîÅÅÖ¡¿Ωç…•ÖëΩ…ïÃΩm’Õï…πÖµïtΩ¡Öùîπ—Õ·ÄÅçÖ§ÅπºÅôÖ±±âÖç¨(ÄÅÅ’Õï…Iï¡ΩÕ•—Ω…‰πô•πë	ÂUÕï…πÖµïÄÉäPÅ≈’îÅëïŸΩ±ŸîÅ’¥ÅÅç…ïÖ—Ω»π•ëÄÅçΩµºÅÄâ’Õï»µå¿ƒâÄ∞ÅªçºÅ’¥Å’’•ê∏(ÄÅπ—ïÃ∞ÅΩÃÅ¡…Ωë’—ΩÃÅëïÕÕîÅç…•ÖëΩ»ÅŸ•π°Ö¥ÅëîÅ’¥ÅÖ……Ö‰Åï¥Åµï∑Õ…•ÑÄ°Å……Ö‰πô•±—ï…Ä∞Åπ’πçÑÅ±ÖªùÑ(ÄÅï……ºÅ¡Ö…ÑÅ’¥Å•êÅ≈’îÅªçºÅâÖ—îÅçΩ¥ÅπÖëÑ§∏ÅΩ¥ÅÑÅôÖ—•ÑÅÖπ—ï…•Ω»Ä°¡…Ωë’—ΩÃÅ…ïÖ•Ã§∞ÅÑÅµïÕµÑÅâ’ÕçÑ(ÄÅŸ•…Ω‘Å’µÑÅçΩπÕ’±—ÑÅAΩÕ—ù…ïÃÅçΩπ—…ÑÅ’µÑÅçΩ±’πÑÅÅ’’•ëÄÉäPÅîÅ’¥ÅŸÖ±Ω»ÅçΩµºÅÄâ’Õï»µå¿ƒâÄÅôÖËÅº(ÄÅ¡ÀÕ¡…•ºÅâÖπçºÅ…ï©ï•—Ö»ÅÑÅçΩπÕ’±—ÑÄ°ï……ºÅëîÅçÖÕ–§∞ÅªçºÅëïŸΩ±Ÿï»Å’µÑÅ±•Õ—ÑÅŸÖÈ•Ñ∏Å%ÕÕºÅëï……’âÖŸÑ(ÄÅÑÅ√Öù•πÑÅ•π—ï•…ÑÅçΩ¥Åï……ºÄ‘¿¿∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿Ωç…•ÖëΩ…ïÃΩm’Õï…πÖµïtΩ¡Öùîπ—Õ·ÄËÅ¡…Ωë’—ΩÃ∞ÅÖŸÖ±•áü’ïÃ∞Å¡Ω…—õÕ±•ºÅîÅç’…Àµç’±ºÅ…ïÖ•ÃÅœÃÅœçº(ÄÅâ’ÕçÖëΩÃÅ≈’ÖπëºÅï·•Õ—îÅëîÅôÖ—ºÅ’¥Å¡ï…ô•∞Å…ïÖ∞Ä°Å…ïÖ±A…Ωô•±ïÄ§Å¡Ω»Å—ÀÖÃÉäPÅç…•ÖëΩ»ÅµΩç¨ÅçÖ§(ÄÅë•…ï—ºÅπÖÃÅ≈’Ö—…ºÅ±•Õ—ÖÃÅŸÖÈ•ÖÃ∞Å•ù’Ö∞ÅÖºÅçΩµ¡Ω…—Öµïπ—ºÅÖπ—•ùº∏(¥ÅÅ±•àΩÕ’¡ÖâÖÕîΩ¡…Ωë’ç—Ãπ—ÕÄËÅÅ±•Õ—A…Ωë’ç—ÕΩ……ïÖ—Ω…Ä∞ÅÅùï—A’â±•çA…Ωë’ç—	Â%ëÄÅî(ÄÅÅùï—A…Ωë’ç—=…ëï…	Â%ëÄÅùÖπ°Ö…Ö¥Å’µÑÅç°ïçÖùï¥ÅëîÅôΩ…µÖ—ºÅëîÅ’’•êÅÖπ—ïÃÅëîÅçΩπÕ’±—Ö»ÅºÅAΩÕ—ù…ïÃÉäP(ÄÅ≈’Ö±≈’ï»Å•êÅ≈’îÅªçºÅÕï©ÑÅ’¥Å’’•êÅ€Ö±•ëºÄ°ç…•ÖëΩ»ÅµΩç¨∞ÅUI0ÅÖë’±—ï…ÖëÑ∞Åï—å∏§ÅëïŸΩ±Ÿî(ÄÅŸÖÈ•ºΩÅπ’±±ÄÅï¥ÅŸïËÅëîÅ¡…Ω¡ÖùÖ»Å’¥Åï……º∏Å	±•πëÑÅÑÅçÖ’ÕÑÅ…Ö•Ë∞ÅªçºÅœÃÅºÅ¡Ωπ—ºÅ≈’îÅ≈’ïâ…Ω‘ÅëïÕ—Ñ(ÄÅŸïËÉäPÅ¡…Ω—ïùîÅ≈’Ö±≈’ï»Åç°ÖµÖëΩ»Åô’—’…ºÅ≈’îÅÖ•πëÑÅµ•Õ—’…îÅ•ëÃÅµΩç¨ÅçΩ¥ÅëÖëΩÃÅ…ïÖ•Ã∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄÅîÅÅïÕ±•π—ÄÅπΩÃÅÖ…≈’•ŸΩÃÅÖ±—ï…ÖëΩÃËÅÕï¥Åï……ΩÃ∏(¥ÅIï¡…Ωë◊üçºÅµÖπ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•º∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅΩ……óüçºËÅI1LÅâ±Ω≈’ïÖŸÑÅ¡’â±•çÖ»Å¡…Ωë’—º((åååÅ=â©ï—•Ÿº((¥ÅIï¡Ω…—ÖëºÅ¡ï±ºÅ’Õ◊Ö…•ºÅÖºÅ—ïÕ—Ö»ÅÑÅôÖ—•ÑÅÖπ—ï…•Ω»ËÅÅπï‹Å…Ω‹ÅŸ•Ω±Ö—ïÃÅ…Ω‹µ±ïŸï∞ÅÕïç’…•—‰Å¡Ω±•ç‰)ôΩ»Å—Öâ±îÄâ¡…Ωë’ç—ÃâÄÅÖºÅç±•çÖ»Åï¥ÄâA’â±•çÖ»Å¡…Ωë’—ºàÅï¥ÅÄΩëÖÕ°âΩÖ…êΩ¡…Ωë’—ΩÃΩπΩŸΩÄ∏((åååÅÖ’ÕÑ((¥ÅÅµ•ù…áüçºÅÅ¡…Ωë’ç—Õ}Ω…ëï…Õ}ïπ—•—±ïµïπ—Õ}Õç°ïµÖÄÅÖ—•ŸΩ‘ÅI1LÅï¥ÅÅ¡…Ωë’ç—ÕÄÅîÅÅ¡…Ωë’ç—}Ω…ëï…ÕÄ(ÄÅµÖÃÅœÃÅç…•Ω‘Å¡Ω±•ç•ïÃÅëîÅÅM1QÄ∏ÅÅç…ïÖ—ï}¡…Ωë’ç—ÄΩÅ’¡ëÖ—ï}¡…Ωë’ç—ÄΩÅëï±ï—ï}¡…Ωë’ç—ÄÅî(ÄÅÅç…ïÖ—ï}¡…Ωë’ç—}Ω…ëï…ÄÅœçºÅÅÕïç’…•—‰Å•πŸΩ≠ï…ÄÄ°…ΩëÖ¥ÅçΩ¥ÅºÅ¡…•Ÿ•≥•ù•ºÅëîÅ≈’ï¥Åç°ÖµÑ∞Å•ù’Ö∞ÉÅÃ(ÄÅIAÃÅëîÅÅù•ùÕÄ§ÉäPÅÕï¥Å¡Ω±•ç‰ÅëîÅÅ%9MIQÄΩÅUAQÄΩÅ1QÄÅ¡Ö…ÑÅÅÖ’—°ïπ—•çÖ—ïëÄ∞ÅºÅ¡ÀÕ¡…•º(ÄÅ%9MIPÅëïπ—…ºÅëÑÅô’ªüçºÅï…ÑÅπïùÖëºÅ¡Ω»Å¡ÖëÀçº∏ÅÅù•ùÕÄÅ´ÑÅ—•π°ÑÅïÕÕîÅçΩπ©’π—ºÅçΩµ¡±ï—º(ÄÄ°Åç…ïÖ—Ω…}•πÕï…—Õ}ù•ùÕÄΩÅç…ïÖ—Ω…}’¡ëÖ—ïÕ}ù•ùÕÄΩÅç…ïÖ—Ω…}ëï±ï—ïÕ}ù•ùÕÄ§ÏÅÑÅµ•ù…áüçºÅëîÅ¡…Ωë’—ΩÃ(ÄÅïÕ≈’ïçï‘ÅëîÅ…ï¡±•çÖ»ÅºÅµïÕµºÅ¡ÖëÀçº∏((åååÅ5’ëÖªùÖÃ((¥ÅM’¡ÖâÖÕîÄ°µ•ù…áüçºÅÅ¡…Ωë’ç—Õ}Öπë}¡…Ωë’ç—}Ω…ëï…Õ}›…•—ï}¡Ω±•ç•ïÕÄ§ËÅÖë•ç•ΩπÑ(ÄÅÅ¡…Ωë’ç—Õ}•πÕï…—}Ω›πÄΩÅ¡…Ωë’ç—Õ}’¡ëÖ—ï}Ω›πÄΩÅ¡…Ωë’ç—Õ}ëï±ï—ï}Ω›πÄÄ°Åç…ïÖ—Ω…}•êÄÙÅÖ’—†π’•ê†•Ä§(ÄÅîÅÅ¡…Ωë’ç—}Ω…ëï…Õ}•πÕï…—}Ω›πÄÄ°Åâ’Âï…}•êÄÙÅÖ’—†π’•ê†•Ä§ÉäPÅµïÕµºÅµΩëï±ºÅëîÅÅù•ùÕÄ∏(ÄÅÅ¡…Ωë’ç—}ïπ—•—±ïµïπ—ÕÄÅçΩπ—•π’ÑÅëîÅ¡…Ω√ÕÕ•—ºÅÕï¥Åπïπ°’µÑÅ¡Ω±•ç‰ÅëîÅïÕç…•—ÑÅ¡Ö…Ñ(ÄÅÅÖ’—°ïπ—•çÖ—ïëÄËÅœÃÅºÅÕï…Ÿ•çîÅ…Ω±îÄ°›ïâ°ΩΩ¨§ÅçΩπçïëîÅÖçïÕÕº∏(¥Å9ïπ°’µÑÅµ’ëÖªùÑÅëîÅèÕë•ùºÉäPÉ§ÅœÃÅçΩ……óüçºÅëîÅ¡Ω±•ç‰ÅπºÅâÖπçºÄ°ªçºÅ£ÑÅµ•ù…Ö—•ΩπÃÅŸï…Õ•ΩπÖëÖÃÅï¥(ÄÅÖ…≈’•ŸºÅπïÕ—îÅ…ï¡º∞ÅŸï»ÅπΩ—ÑÅï¥Åïπ—…ÖëÖÃÅÖπ—ï…•Ω…ïÃ§∞Åïôï•—ºÅ•µïë•Ö—ºÅÕï¥ÅπΩŸºÅëï¡±Ω‰∏((åååÅYÖ±•ëáüçº((¥ÅÅùï—}ÖëŸ•ÕΩ…ÕÄÄ°Õïç’…•—‰§Åç°ïçÖëºÅëï¡Ω•ÃÅëÑÅçΩ……óüçºËÅπïπ°’¥ÅÖ±ï…—ÑÅπΩŸº∏(¥ÅIï¡…Ωë◊üçºÅµÖπ’Ö∞Å¡ïπëïπ—îÅëîÅçΩπô•…µáüçºÅëºÅ’Õ◊Ö…•ºÄ°¡’â±•çÖ»Å’¥Å¡…Ωë’—ºÅëîÅ—ïÕ—îÅëïŸî(ÄÅô’πç•ΩπÖ»ÅÖùΩ…Ñ§∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅA…Ωë’—ΩÃÅë•ù•—Ö•ÃËÅçÖ”Ö±Ωùº∞ÅçΩµ¡…ÑÅîÅâ•â±•Ω—ïçÑÅ…ïÖ•Ã((åååÅ=â©ï—•Ÿº((¥ÅMïù’πëÑÅôÖ—•ÑÅëÑÅïŸΩ±◊üçºÅëºÅ)Ωã®∏ÅÅ¡…•µï•…ÑÅÖªÖ±•ÕîÄ°Ÿï»Åïπ—…ÖëÑÅÖπ—ï…•Ω»§Å•ëïπ—•ô•çΩ‘Å’µÑ(ÄÅŸ•Ω±áüçºÅœ•…•ÑÅëÑÅ¡ÀÕ¡…•ÑÅ…ïù…ÑÅëîÅ¡ï…Õ•Õ”©πç•ÑÅëºÅ1UπµêËÄ®©¡…Ωë’—ΩÃÅë•ù•—Ö•Ã®®ÉäPÅî∞ÅπÑ(ÄÅ•πŸïÕ—•ùáüçº∞ÅπÑÅŸï…ëÖëîÅ’¥ÅïçΩÕÕ•Õ—ïµÑÅ•π—ï•…ºÅ¡Ö…Ö±ï±ºÄ°ÅA…Ωë’ç—Iï¡ΩÕ•—Ω…ÂÄ∞ÅÅ=…ëï…Iï¡ΩÕ•—Ω…ÂÄ∞(ÄÅÅAÖÂµïπ—Iï¡ΩÕ•—Ω…ÂÄ∞ÅÅπ—•—±ïµïπ—Iï¡ΩÕ•—Ω…ÂÄ∞ÅÅMÖ±ïIï¡ΩÕ•—Ω…ÂÄ∞ÅÅ]Ö±±ï—Mï…Ÿ•çïÄ∞(ÄÅÅπ—•—±ïµïπ—Mï…Ÿ•çïÄ∞ÅÅ=…ëï…Mï…Ÿ•çïÄ∞ÅÅAÖÂµïπ—Mï…Ÿ•çïÄ§ÉäPÅŸ•Ÿ•Ö¥Å•π—ï•…Öµïπ—îÅï¥(ÄÅÅ±ΩçÖ±M—Ω…ÖùïÄÅŸ•ÑÅÅ5Ωç≠MïÕÕ•ΩπA…ΩŸ•ëï…Ä∏Å<Å¡ÖùÖµïπ—ºÅï¥ÅÕ§Å´ÑÅï…ÑÅ…ïÖ∞Ä°5ï…çÖëºÅAÖùºÄ¨(ÄÅÅ¡ÖÂµïπ—}çΩπô•…µÖ—•ΩπÕÄ∞ÅçΩ¥ÅÅ≠•πêËÄâ¡…Ωë’ç–âÄÅ´ÑÅ¡…ïŸ•Õ—ºÅπºÅÕç°ïµÑ§∞ÅµÖÃÅºÅÖçïÕÕºÅçΩπçïë•ëº(ÄÅÖºÅçΩµ¡…ÖëΩ»Ä°â•â±•Ω—ïçÑ§Åπ’πçÑÅï…ÑËÅô•çÖŸÑÅ¡…ïÕºÅÖºÅπÖŸïùÖëΩ»ÅëîÅ≈’ï¥ÅçΩµ¡…Ω‘∞ÅÕï¥(ÄÅÕΩâ…ïŸ•Ÿï»ÅÑÅ…ï±ΩÖêΩë•Õ¡ΩÕ•—•ŸºÉäPÅΩ‘ÅÕï©Ñ∞Åë•π°ï•…ºÅ…ïÖ∞Å¡Ω»Å’¥ÄâÖçïÕÕºàÅ≈’îÅœÃÅï·•Õ—•Ñ(ÄÅ±ΩçÖ±µïπ—î∏(¥ÅUÕ◊Ö…•ºÅçΩπô•…µΩ‘ÅïÕçΩ¡ºÅçΩµ¡±ï—ºËÅçÖ”Ö±ΩùºÄ¨ÅçΩµ¡…ÑÄ¨Åâ•â±•Ω—ïçÑ∞Å¡Ωπ—ÑÅÑÅ¡Ωπ—Ñ∞Å…ïÖ¡…ΩŸï•—Öπëº(ÄÅÖºÅ∑Ö·•µºÅÑÅ•πô…ÖïÕ—…’—’…ÑÅ…ïÖ∞Å´ÑÅï·•Õ—ïπ—îÄ°5ï…çÖëºÅAÖùº∞ÅÅ¡ÖÂµïπ—}çΩπô•…µÖ—•ΩπÕÄ∞ÅÅ›Ö±±ï—Ä§∏((åååÅ5’ëÖªùÖÃ((¥ÅM’¡ÖâÖÕîÄ°¡…Ω©ï—ºÅÅΩπ±ÂÂΩ’Ä§∞Åµ•ù…áüçºÅÅ¡…Ωë’ç—Õ}Ω…ëï…Õ}ïπ—•—±ïµïπ—Õ}Õç°ïµÖÄ(ÄÄ¥ÅÅ¡…Ωë’ç—ÕÄËÅçÖ”Ö±ΩùºÅ…ïÖ∞Ä°”µ—’±º∞ÅëïÕç…ßüçº∞ÅçÖ—ïùΩ…•Ñ∞Å—ÖùÃ∞Å—•¡º∞Å¡…óùºΩ¡…óùºÅ¡…ΩµΩç•ΩπÖ∞(ÄÄÄÅï¥Åçïπ—ÖŸΩÃ∞ÅçÖ¡Ñ∞ÅùÖ±ï…•Ñ∞ÅÅô•±ï}’…±ÄÉäPÅºÅÖ…≈’•ŸºÅ…ïÖ∞Åïπ—…ïù’îÉäP∞ÅÕ—Ö—’Ã∞Å…Ö—•πúΩŸïπëÖÃ§∏(ÄÄÄÅI1LËÅ√Èâ±•çºÅœÃÅ€®ÅÅÖ¡¡…ΩŸïëÄÏÅëΩπºÅ€®Å—’ëº∏ÅIAÃÅÅç…ïÖ—ï}¡…Ωë’ç—ÄΩÅ’¡ëÖ—ï}¡…Ωë’ç—Äº(ÄÄÄÅÅëï±ï—ï}¡…Ωë’ç—ÄÄ°µïÕµÑÅë•Õç•¡±•πÑÅëîÅÅù•ùÕÄËÅÅÕïç’…•—‰Å•πŸΩ≠ï…Ä∞ÅÅÕïÖ…ç°}¡Ö—°ÄÅŸÖÈ•º∞(ÄÄÄÅÕÖπ•—•ÈáüçºÅëîÅÖ……ÖÂÃÅπºÅâÖπçº§∏(ÄÄ¥ÅÅ¡…Ωë’ç—}Ω…ëï…ÕÄËÅ¡ïë•ëºÅëîÅçΩµ¡…ÑÅçΩ¥Å¡…óùºÄ®©—…ÖŸÖëºÅπºÅµΩµïπ—ºÅëÑÅç…•áüçº®®(ÄÄÄÄ°Åç…ïÖ—ï}¡…Ωë’ç—}Ω…ëï…Ä∞ÅIA§ÉäPÅŸ•…ÑÅºÅÅΩ…ëï…}•ëÄÅ±ïŸÖëºÅÖºÅ5ï…çÖëºÅAÖùº∏ÅI1LËÅœÃ(ÄÄÄÅçΩµ¡…ÖëΩ»Ωç…•ÖëΩ»Å±ïï¥ÅÑÅ¡ÀÕ¡…•ÑÅ±•π°ÑÏÅπïπ°’µÑÅ¡Ω±•ç‰ÅëîÅ’¡ëÖ—îÅ¡Ö…ÑÅÅÖ’—°ïπ—•çÖ—ïëÄÄ°œÃ(ÄÄÄÅÕï…Ÿ•çîÅ…Ω±î∞ÅŸ•ÑÅ›ïâ°ΩΩ¨§∏(ÄÄ¥ÅÅ¡…Ωë’ç—}ïπ—•—±ïµïπ—ÕÄËÅÖçïÕÕºÅçΩπçïë•ëºÉäPÅœÃÅù…ÖŸÖëÑÅ¡ï±ºÅÕï…Ÿ•ëΩ»Ä°π’πçÑÅ¡ï±º(ÄÄÄÅçΩµ¡…ÖëΩ»§∏ÅÅ’π•≈’î°¡…Ωë’ç—}•ê∞Åâ’Âï…}•ê•Ä∏(ÄÄ¥ÅÅùï—}ÖëŸ•ÕΩ…ÕÄÄ°Õïç’…•—‰§Åç°ïçÖëºÅëï¡Ω•ÃÅëÑÅµ•ù…áüçºËÅπïπ°’¥ÅÖ±ï…—ÑÅπΩŸº∏(¥ÅÅ±•àΩ¡ÖÂµïπ—ÃΩÖç—•ŸÖ—ïA…Ωë’ç—=…ëï…ô—ï…AÖÂµïπ–π—ÕÄÄ°πΩŸº∞ÅµïÕµÑÅôΩ…µÑÅëî(ÄÅÅÖç—•ŸÖ—ï’Õ—ΩµMï…Ÿ•çï=…ëï»π—ÕÄ§ËÅç°ÖµÖëºÅ¡ï±ºÅ›ïâ°ΩΩ¨Å≈’ÖπëºÅÅ¡ÖÂµïπ—}çΩπô•…µÖ—•ΩπÕÄÅçΩπô•…µÑ(ÄÅÅ¡Ö•ëÄÅçΩ¥ÅÅ≠•πêËÄâ¡…Ωë’ç–âÄÉäPÅµÖ…çÑÅºÅ¡ïë•ëºÅçΩµºÅ¡Öùº∞ÅçΩπçïëîÅºÅïπ—•—±ïµïπ–∞Å•πç…ïµïπ—Ñ(ÄÅÅÕÖ±ïÕ}çΩ’π—Ä∞ÅπΩ—•ô•çÑÅΩÃÅëΩ•ÃÅ±ÖëΩÃ∏Å%ëïµ¡Ω—ïπ—î∏(ÄÄ¥Å1•ùÖëºÅï¥ÅÅÖ¡¿ΩÖ¡§Ωµï…çÖëΩ¡ÖùºΩ›ïâ°ΩΩ¨Ω…Ω’—îπ—ÕÄÄ°çΩπô•…µáüçºÅÖÕœµπç…ΩπÑ§Åî(ÄÄÄÅÅÖ¡¿ΩÖ¡§Ωµï…çÖëΩ¡ÖùºΩÕ—Ö—’ÃΩ…Ω’—îπ—ÕÄÄ°…ïçΩπç•±•áüçºÅÖ—•ŸÑÅëºÅ…ï—Ω…πºÅëºÅ°ïç≠Ω’–ÅA…º§∞(ÄÄÄÅïÕ¡ï±°ÖπëºÅï·Ö—Öµïπ—îÅçΩµºÅÅç’Õ—Ωµ}Õï…Ÿ•çïÄÅ´ÑÅô’πç•ΩπÖŸÑ∏(ÄÄ¥Ä®©ç°ÖëºÅëîÅÕïù’…ÖªùÑÅçΩ……•ù•ëºÅπºÅçÖµ•π°º®®ËÅÅÖ¡¿ΩÖ¡§Ωµï…çÖëΩ¡ÖùºΩç°ïç≠Ω’–Ω…Ω’—îπ—ÕÄ(ÄÄÄÅçΩπô•ÖŸÑÅπ’¥ÅÅΩ…ëï…%ëÄÅ•πŸïπ—ÖëºÅ¡ï±ºÅπÖŸïùÖëΩ»ÅîÅ…ïçÖ±ç’±ÖŸÑÅºÅŸÖ±Ω»ÅÑÅ¡Ö…—•»ÅëºÅ¡…Ωë’—ºÄâÖº(ÄÄÄÅŸ•ŸºàÅÑÅçÖëÑÅç°ÖµÖëÑ∏ÅùΩ…ÑÅï·•ùîÅ’¥ÅÅ¡…Ωë’ç—}Ω…ëï…ÕÄÅ…ïÖ∞Ä°ç…•ÖëºÅÖπ—ïÃÅ¡ï±ÑÅIA∞Å¡…óùºÅ´Ñ(ÄÄÄÅ—…ÖŸÖëº§ÅîÅœÃÅçΩπôï…îÅ≈’îÅï±îÅ¡ï…—ïπçîÅÖºÅçΩµ¡…ÖëΩ»ÅÖ’—ïπ—•çÖëºÉäPÅπ’πçÑÅµÖ•ÃÅçΩπô•ÑÅï¥ÅπÖëÑ(ÄÄÄÅŸ•πëºÅëºÅç±•ïπ—îÅ¡Ö…ÑÅëïç•ë•»ÅŸÖ±Ω»Ωç…•ÖëΩ»∏(ÄÄ¥ÅÅùï—…ïÖ—Ω…	Ö±ÖπçïÄÄ°Å±•àΩÕ’¡ÖâÖÕîΩ›Ö±±ï–π—ÕÄ§Å´ÑÅÕΩµÖŸÑÅÅ¡ÖÂµïπ—}çΩπô•…µÖ—•ΩπÕÄÅ¡Ω»(ÄÄÄÅÅç…ïÖ—Ω…}•ëÄÅÕï¥Åô•±—…Ö»Å¡Ω»ÅÅ≠•πëÄÉäPÅçÖ…—ï•…ÑΩÕÖ≈’îÅëºÅç…•ÖëΩ»Å¡ÖÕÕÖ¥ÅÑÅ…ïô±ï—•»ÅŸïπëÖÃÅëî(ÄÄÄÅ¡…Ωë’—ºÅÖ’—ΩµÖ—•çÖµïπ—î∞Ä®©Õï¥Åπïπ°’µÑÅµ’ëÖªùÑ®®ÅπïÕÕÑÅô’ªüçº∏(¥ÅÅ±•àΩÕ’¡ÖâÖÕîΩ¡…Ωë’ç—Ãπ—ÕÄÄ°πΩŸº∞ÅµïÕµºÅ¡ÖëÀçºÅëîÅÅù•ùÃπ—ÕÄ§ËÅ±ï•—’…ÖÃÅ√Èâ±•çÖÃ(ÄÄ°Å±•Õ—¡¡…ΩŸïëA…Ωë’ç—ÕÄ∞ÅÅ±•Õ—¡¡…ΩŸïëA…Ωë’ç—Õ	ÂÖ—ïùΩ…ÂÄ∞ÅÅÕïÖ…ç°¡¡…ΩŸïëA…Ωë’ç—ÕÄ∞(ÄÅÅùï—A’â±•çA…Ωë’ç—	Â%ëÄ§Åπ’πçÑÅÕï±ïç•ΩπÖ¥ÅÅô•±ï}’…±ÄÉäPÅœÃÅÅ±•Õ—A…Ωë’ç—ÕΩ……ïÖ—Ω…ÄÄ°¡Ö•πï∞Åëº(ÄÅëΩπº§ÅîÅÅ±•Õ—=›πïëA…Ωë’ç—ÕΩ…UÕï…ÄÄ°â•â±•Ω—ïçÑÅëîÅ≈’ï¥ÅçΩµ¡…Ω‘§Å—…ÖÈï¥ÅïÕÕÑÅçΩ±’πÑ∏Å%ÕÕºÅïŸ•—Ñ(ÄÅ≈’îÅºÅ±•π¨ÅëîÅëΩ›π±ΩÖêÅŸÖÈîÅ¡Ö…ÑÅ≈’ï¥ÅªçºÅ¡ÖùΩ‘∞Å´ÑÅ≈’îÅI1LÉ§Å¡Ω»Å±•π°Ñ∞ÅªçºÅ¡Ω»ÅçΩ±’πÑ∏(¥ÅÅÖ¡¿ΩÖ¡§Ω’¡±ΩÖêΩ…Ω’—îπ—ÕÄ∞ÅÅ±•àΩ’¡±ΩÖë•±îπ—ÕÄËÅëΩ•ÃÅÅU¡±ΩÖë-•πëÄÅπΩŸΩÃÉäP(ÄÅÅ¡…Ωë’ç–µ•µÖùïÄÄ°µïÕµÖÃÅ…ïù…ÖÃÅëîÅÅ¡Ω…—ôΩ±•ºµ•µÖùïÄ§ÅîÅÅ¡…Ωë’ç–µô•±ïÄÄ°≈’Ö±≈’ï»ÅÖ…≈’•ŸºÅÖ”§(ÄÄ‘¿¿Å5∞ÅœÃÅ¡Ö…ÑÅç…•ÖëΩ…ïÃ§ÉäPÅ’¡±ΩÖêÅ…ïÖ∞ÅŸ•ÑÅYï…çï∞Å	±Ωà∞ÅµïÕµºÅµïçÖπ•ÕµºÅ´ÑÅ’ÕÖëºÅï¥Åïπ—…ïùÑ(ÄÅëîÅ¡ïë•ëºΩ¡Ω…—õÕ±•º∏(¥ÅÅÖ¡¿ΩëÖÕ°âΩÖ…êΩ¡…Ωë’—ΩÃΩπΩŸºΩ¡Öùîπ—Õ·ÄËÅÖÕÕ•Õ—ïπ—îÅëîÅ¡’â±•çáüçºÅëï•·Ω‘ÅëîÅÕï»Å’µÑÅÕ•µ’±áüçº(ÄÄ°ÅµΩëï…Ö—•ΩπMï…Ÿ•çîπÕ’âµ•—Ω…IïŸ•ï‹†•Ä∞ÄâÕ•µ’±Ö»ÅïπŸ•ºÅëîÅÖ…≈’•Ÿºà§ÉäPÅÖùΩ…ÑÅïπŸ•ÑÅÖ…≈’•ŸºÅëî(ÄÅŸï…ëÖëîÅîÅ¡’â±•çÑÅŸ•ÑÅÅç…ïÖ—ïA…Ωë’ç—ÄÄ°IA§∞Åë•…ï—ºÅçΩµºÅÅÖ¡¡…ΩŸïëÄÄ°Õï¥Åô•±ÑÅëîÅµΩëï…áüçº∞(ÄÅµïÕµÑÅ¡Ω≥µ—•çÑÅÕï±òµÕï…ŸîÅëîÅÅù•ùÕÄ§∏(ÄÅÅÖ¡¿ΩëÖÕ°âΩÖ…êΩ¡…Ωë’—ΩÃΩ¡Öùîπ—Õ·ÄËÅ±•Õ—Öùï¥Å…ïÖ∞∞Å¡’â±•çÖ»ΩëïÕ¡’â±•çÖ»ÅîÅï·ç±’•»ÅŸ•ÑÅIA∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩA…Ωë’ç—A’…ç°ÖÕï…ïÑπ—Õ·Ä∞ÅÅçΩµ¡Ωπïπ—ÃΩ°ïç≠Ω’—±Ω‹π—Õ·Ä∞(ÄÅÅÖ¡¿Ωç°ïç≠Ω’–Ωm¡…Ωë’ç—%ëtΩ¡Öùîπ—Õ·Ä∞ÅÅÖ¡¿Ωç°ïç≠Ω’–Ω…ï—Ω…πºΩ¡Öùîπ—Õ·ÄËÅ…ïïÕç…•—ΩÃÅÕï¥(ÄÅÅ’Õï5Ωç≠MïÕÕ•ΩπÄΩÅ’Õï°ïç≠Ω’—Mï…Ÿ•çïÕÄÉäPÅç…•Ö¥Å¡ïë•ëºÅ…ïÖ∞∞Åç°ÖµÖ¥ÅºÅç°ïç≠Ω’–Å…ïÖ∞∞ÅîÅœÃ(ÄÅ±•âï…Ö¥ÅÑÅ—ï±ÑÅëîÄâ¡ÖùºàÅ≈’ÖπëºÅÄΩÖ¡§Ωµï…çÖëΩ¡ÖùºΩÕ—Ö—’ÕÄÅçΩπô•…µÑÄ°≈’îÉ§Å≈’ï¥ÅçΩπçïëîÅº(ÄÅïπ—•—±ïµïπ–ÅëîÅŸï…ëÖëî§∏ÅÅ5ï…çÖëΩAÖùΩA•·AÖπï±ÄÅ¡ï…ëï‘ÅºÅÖçΩ¡±Öµïπ—ºÅÖºÅ—•¡ºÅçΩπç…ï—º(ÄÅÅAÖÂµïπ—Mï…Ÿ•çïÄÄ°ÖùΩ…ÑÅœÃÅï·•ùîÅ’¥ÅÅÕÂπçM—Ö—’ÕÄ∞ÅÕï¥Å…ï¡ΩÕ•”Õ…•ºÅµΩç¨Åπïπ°’¥Å¡Ω»Å—ÀÖÃ§∏(¥ÅÅÖ¡¿Ωâ•â±•Ω—ïçÑΩ¡Öùîπ—Õ·ÄËÅ≥®ÅÅ¡…Ωë’ç—}ïπ—•—±ïµïπ—ÕÄÅëîÅŸï…ëÖëîÄ°Ÿ•ÑÅÅ’Õï’……ïπ—UÕï…%ëÄÅ…ïÖ∞§∞(ÄÅçΩ¥ÅâΩ”çºÄâ	Ö•·Ö»àÅ¡Ö…ÑÅºÅÅô•±ï}’…±ÄÅëîÅçÖëÑÅ¡…Ωë’—ºÅçΩµ¡…Öëº∏(¥ÅM’âÕ—•—’ßü’ïÃÅë•…ï—ÖÃÅëîÅÅ¡…Ωë’ç—Iï¡ΩÕ•—Ω…ÂÄÄ°µΩç¨§Å¡Ω»ÅÅ±•àΩÕ’¡ÖâÖÕîΩ¡…Ωë’ç—Ãπ—ÕÄÅï¥Ë(ÄÅÅÖ¡¿Ω¡Öùîπ—Õ·Ä∞ÅÅÖ¡¿Ω¡…Ωë’—ºΩm•ëtΩ¡Öùîπ—Õ·ÄÄ°¡ï…ëï‘ÅÅùïπï…Ö—ïM—Ö—•çAÖ…ÖµÕÄÉäPÅ¡…Ωë’—ºÅÖùΩ…ÑÉ§(ÄÅëÖëºÅ…ïÖ∞ÅîÅë•ªâµ•çº∞ÅŸ•…Ω‘Å%MHÅçΩ¥ÅÅ…ïŸÖ±•ëÖ—îÄÙÄÿ¡Ä∞Å•ù’Ö∞ÉÄÅ°Ωµî§∞ÅÅÖ¡¿ΩçÖ—ïùΩ…•ÖÃΩmÕ±’ùtΩ¡Öùîπ—Õ·Ä∞(ÄÅÅÖ¡¿Ωç…•ÖëΩ…ïÃΩm’Õï…πÖµïtΩ¡Öùîπ—Õ·Ä∞ÅÅÖ¡¿ΩëïÕçΩâ…•»Ω¡Öùîπ—Õ·Ä∞ÅÅÖ¡¿ΩôÖŸΩ…•—ΩÃΩ¡Öùîπ—Õ·Ä∞(ÄÅÅÖ¡¿ΩÖëµ•∏Ω¡Öùîπ—Õ·ÄÄ°çΩπ—Öùï¥Å…ïÖ∞ÅŸ•ÑÅÅÕï…Ÿ•çîπ—ÕÄ§∞ÅÅÖ¡¿ΩëÖÕ°âΩÖ…êΩÌïÕ—Ö—•Õ—•çÖÃ±¡Öùî±ŸïπëÖÕÙπ—Õ·Ä∏(¥ÅIïµΩŸ•ëΩÃÅ¡Ω»Åô•çÖ…ï¥ÅÕï¥Åπïπ°’¥ÅçΩπÕ’µ•ëΩ»Å…ïÖ∞ËÅÅ±•àΩ…ï¡ΩÕ•—Ω…•ïÃΩA…Ωë’ç—Iï¡ΩÕ•—Ω…‰π—ÕÄ∞(ÄÅÅ±•àΩ…ï¡ΩÕ•—Ω…•ïÃΩAÖÂµïπ—Iï¡ΩÕ•—Ω…‰π—ÕÄ∞ÅÅ±•àΩ…ï¡ΩÕ•—Ω…•ïÃΩπ—•—±ïµïπ—Iï¡ΩÕ•—Ω…‰π—ÕÄ∞(ÄÅÅ±•àΩÕï…Ÿ•çïÃΩÌ’Õï°ïç≠Ω’—Mï…Ÿ•çïÃ±AÖÂµïπ—Mï…Ÿ•çî±=…ëï…Mï…Ÿ•çî±]Ö±±ï—Mï…Ÿ•çî±π—•—±ïµïπ—Mï…Ÿ•çïÙπ—ÕÄ∞(ÄÅÅ±•àΩç°ïç≠Ω’–Ωô•πÖ±•Èï°ïç≠Ω’–π—ÕÄ∞ÅÅ±•àΩÖççïÕÃΩçΩπ—ïπ–µ…ï±ïÖÕîπ—ÕÄ∞ÅÅ±•àΩëÖ—ÑΩ¡…Ωë’ç—Ãπ—ÕÄ∏((åååÅΩ…ÑÅëºÅïÕçΩ¡ºÅëïÕ—ÑÅôÖ—•ÑÄ°¡ï…µÖπïçîÅµΩç¨∞ÅëΩç’µïπ—ÖëºÅ¡Ö…ÑÅªçºÅçΩπô’πë•»Åëï¡Ω•Ã§((¥ÅÅÖ¡¿ΩëÖÕ°âΩÖ…êΩŸïπëÖÃΩ¡Öùîπ—Õ·ÄÅîÅÅÖ¡¿ΩëÖÕ°âΩÖ…êΩïÕ—Ö—•Õ—•çÖÃΩ¡Öùîπ—Õ·ÄÅÖ•πëÑÅ±ïï¥(ÄÅÅ=…ëï…Iï¡ΩÕ•—Ω…ÂÄΩÅMÖ±ïIï¡ΩÕ•—Ω…ÂÄÅµΩç¨Å¡Ö…ÑÅºÄ®©°•Õ”Õ…•çº®®ÅëîÅŸïπëÖÃÄ°±•Õ—ÑΩùÀÖô•çº§ÉäPÅÑ(ÄÅôΩπ—îÅëîÅŸï…ëÖëîÅô•πÖπçï•…ÑÅ…ïÖ∞Å´ÑÉ§ÅÅ¡ÖÂµïπ—}çΩπô•…µÖ—•ΩπÕÄÄ°’ÕÖëÑÅ¡Ω»ÅÅ›Ö±±ï–π—ÕÄ§ÏÅµ•ù…Ö»(ÄÅïÕÕÖÃÅë’ÖÃÅ—ï±ÖÃÅ¡Ö…ÑÅçΩπÕ’±—Ö»ÅÅ¡ÖÂµïπ—}çΩπô•…µÖ—•ΩπÕÄÅë•…ï—Öµïπ—îÉ§ÅºÅ¡ÀÕ·•µºÅ¡ÖÕÕºÅπÖ—’…Ö∞∞(ÄÅªçºÅôï•—ºÅÖùΩ…ÑÅ¡Ö…ÑÅªçºÅÖµ¡±•Ö»ÅÖ•πëÑÅµÖ•ÃÅïÕ—ÑÅµ’ëÖªùÑ∏(¥ÅÖŸΩ…•—ΩÃÄ°ÅÖŸΩ…•—ïIï¡ΩÕ•—Ω…ÂÄ§∞Åç’¡ΩπÃÄ°ÅΩ’¡ΩπIï¡ΩÕ•—Ω…ÂÄ§∞ÅÖŸÖ±•áüçºÅëîÅ¡…Ωë’—º(ÄÄ°ÅIïŸ•ï›Iï¡ΩÕ•—Ω…ÂÄ∞Åë•ôï…ïπ—îÅëîÅÅç’Õ—Ωµ}Ω…ëï…}…ïŸ•ï›ÕÄ§ÅîÅëïªÈπç•ÖÃÅëîÅ¡…Ωë’—º(ÄÄ°ÅIï¡Ω…—Iï¡ΩÕ•—Ω…ÂÄ§ÅçΩπ—•π’Ö¥ÅµΩç¨ÉäPÅπïπ°’¥ÅëïÕÕïÃÅôΩ§Å¡ïë•ëºÅπïÕ—ÑÅôÖ—•Ñ∏(¥Å9ïπ°’µÑÅô•±ÑÅëîÅµΩëï…áüçºÅ¡Ö…ÑÅ¡…Ωë’—ºÄ°Å¡ïπë•πù}…ïŸ•ï›ÄΩÅ…ï©ïç—ïëÄΩÅÕ’Õ¡ïπëïëÄ§ËÅ¡’â±•çáüçºÉ§(ÄÅÕï±òµÕï…Ÿî∞Å•ù’Ö∞ÅÑÅÅù•ùÕÄ∏ÅÃÅçΩ±’πÖÃΩŸÖ±Ω…ïÃÅçΩπ—•π’Ö¥Åï·•Õ—•πëºÅπºÅâÖπçºÅ¡Ö…ÑÅºÅë•ÑÅï¥Å≈’î(ÄÅ•ÕÕºÅôΩ»ÅçΩπÕ—…◊µëº∏((åååÅYÖ±•ëáüçº((¥ÅÅ—ÕåÄ¥µπΩµ•—ÄÅπºÅ¡…Ω©ï—ºÅ•π—ï•…ºËÅÕï¥Åï……ΩÃ∏(¥ÅÅïÕ±•π–ÄπÄÅπºÅ¡…Ω©ï—ºÅ•π—ï•…ºËÅÕï¥Åï……ΩÃÄ†»ÅÖŸ•ÕΩÃÅëîÅÅÕï–µÕ—Ö—îµ•∏µïôôïç—ÄÅïπçΩπ—…ÖëΩÃÅî(ÄÅçΩ……•ù•ëΩÃÅï¥ÅÅÖ¡¿Ωâ•â±•Ω—ïçÑΩ¡Öùîπ—Õ·ÄÅîÅÅçΩµ¡Ωπïπ—ÃΩA…Ωë’ç—A’…ç°ÖÕï…ïÑπ—Õ·Ä§∏(¥ÅÅπ¡‡Åπï·–Åâ’•±ëÄËÅçΩµ¡•±áüçºÅîÅç°ïçÖùï¥ÅëîÅ—•¡ΩÃÅçΩπç±◊µëÖÃÏÅÑÅùï…áüçºÅïÕ”Ö—•çÑÅç°ïùΩ‘ÅÑ(ÄÄ»‡ºÃ‡Å√Öù•πÖÃÅôÖÈïπëºÅç°ÖµÖëÖÃÅ…ïÖ•ÃÅÖºÅM’¡ÖâÖÕîÅÖπ—ïÃÅëîÅÕï»Åâ±Ω≈’ïÖëÑÅ¡ï±ÑÅ¡Ω≥µ—•çÑÅëîÅ…ïëî(ÄÅëïÕ—îÅÕÖπëâΩ‡Ä°°ΩÕ–ÅªçºÅ±•âï…ÖëºÅπºÅÖ±±Ω›±•Õ–§ÉäPÅçΩπô•…µÑÅ≈’îÅºÅèÕë•ùºÅç°ïùÑÅÑÅôÖÈï»Å…ï≈’ïÕ—Ã(ÄÅ…ïÖ•Ã∞ÅªçºÉ§Å’¥Åï……ºÅëîÅ≥Õù•çÑ∏ÅÖ±—ÑÅŸÖ±•ëÖ»ÅÑÅâ’•±êÅçΩµ¡±ï—ÑÅîÅºÅô±’·ºÅëîÅçΩµ¡…ÑÅ¡Ωπ—ÑÅÑ(ÄÅ¡Ωπ—ÑÄ°A•‡Å…ïÖ∞§Åπ’¥ÅÖµâ•ïπ—îÅçΩ¥Å…ïëîÅ±•âï…ÖëÑÅîÅÄπïπÿπ±ΩçÖ±ÄÅçΩπô•ù’…Öëº∏(¥Å5•ù…áüçºÅîÅIAÃÅÖ¡±•çÖëÖÃÅë•…ï—Öµïπ—îÅπºÅ¡…Ω©ï—ºÅM’¡ÖâÖÕîÅ…ïÖ∞ÅŸ•ÑÅ5@ÏÅÅùï—}ÖëŸ•ÕΩ…ÕÄ(ÄÄ°Õïç’…•—‰§ÅçΩπôï…•ëºËÅπïπ°’¥ÅÖ±ï…—ÑÅπΩŸºÅÖ≥•¥ÅëΩÃÅ´ÑÅëΩç’µïπ—ÖëΩÃ∏(¥Å°ïçÖùï¥ÅëîÅçΩ…ïÃÅô•·ÖÃÅπΩÃÅÖ…≈’•ŸΩÃÅÖ±—ï…ÖëΩÃËÅπïπ°’µÑÅΩçΩ…À©πç•Ñ∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅ=ôï…—ÖÃÅçΩ¥Å…ïŸ•œ’ïÃÅîÄâºÅ≈’îÅïÕ”ÑÅ•πç±’Õºà((åååÅ=â©ï—•Ÿº((¥ÅA…•µï•…ÑÅôÖ—•ÑÅëîÅ’µÑÅïŸΩ±◊üçºÅµÖ•Ω»ÅëºÅ)Ωã®Ä°µÖ…≠ï—¡±ÖçîÅëîÅÕï…ŸßùΩÃÅ¡…Ωπ—ΩÃ∞Å¡ïë•ëΩÃ(ÄÅ¡ï…ÕΩπÖ±•ÈÖëΩÃ∞Å¡…Ω¡ΩÕ—ÖÃ∞ÅçΩµâΩÃ∞Å¡…Ωë’—ΩÃÅë•ù•—Ö•Ã∞Å…ïçΩµ¡…ÑÅîÅ…ï¡’—áüçº§∞Å•πÕ¡•…ÖëÑÅï¥(ÄÅçΩπçï•—ΩÃÅëîÅï—9•π©ÖÃΩ]Ω…≠ÖπÑΩY•π—ïA•±ÑΩAÖç≠È•∏ÅÕï¥ÅçΩ¡•Ö»Å•ëïπ—•ëÖëîÅΩ‘Åô’πç•ΩπÖ±•ëÖëïÃÉäP(ÄÅÖ¡±•çÖëÑÅÕΩâ…îÅÑÅïÕ—…’—’…ÑÅ´ÑÅï·•Õ—ïπ—î∞ÅÕï¥Å…ïç…•Ö»ÅπÖëÑÅëºÅÈï…º∏(¥Åπ—ïÃÅëîÅ—’ëºËÅµÖ¡ïÖµïπ—ºÅçΩµ¡±ï—ºÅëºÅ≈’îÅ´ÑÅï·•Õ—îÄ°ù•ùÃ∞Å¡ïë•ëΩÃÅ¡ï…ÕΩπÖ±•ÈÖëΩÃ∞Åç°Ö–∞(ÄÅçÖ—ïùΩ…•ÖÃ∞ÅÖŸÖ±•áü’ïÃ∞Å¡Ω…—õÕ±•º∞ÅâÖπçº§Å¡Ö…ÑÅ…ïÖ¡…ΩŸï•—Ö»Åï¥ÅŸïËÅëîÅë’¡±•çÖ»∏Å<Åô±’·ºÅëî(ÄÅ¡ïë•ëºÅ¡ï…ÕΩπÖ±•ÈÖëºÅ´ÑÉ§ÅïÕÕïπç•Ö±µïπ—îÄƒËƒÅë•…ïç•ΩπÖëºÅÑÅ’¥Åç…•ÖëΩ»Ä°ªçºÉ§Åâ•ëë•πúÅÖâï…—ºÅÑ(ÄÅ€Ö…•ΩÃÅ¡…Ωô•ÕÕ•ΩπÖ•Ã§ÉäPÅëïç•œçºÅëîÅµÖπ—ï»ÅÖÕÕ•¥Å¡Ω»ÅΩ…Ñ∏(¥Å9ïÕ—ÑÅôÖ—•ÑËÅëÖ»ÅïÕ—…’—’…ÑÅÖºÅ≈’îÅ°Ω©îÅï…ÑÅœÃÅ—ï·—ºÅ±•Ÿ…îÅπÑÅëïÕç…ßüçºÅëºÅù•úÅîÅëÑÅ¡…Ω¡ΩÕ—ÑÉäP(ÄÅ≈’Öπ—ÖÃÅ…ïŸ•œ’ïÃÅïÕ”çºÅ•πç±◊µëÖÃ∞ÅºÅ≈’îÅïÕ”ÑÅ•πç±’ÕºÄ°±•Õ—Ñ§ÅîÅ’µÑÅùÖ±ï…•ÑÅëîÅ•µÖùïπÃÅπºÅù•ú∞(ÄÅÖ≥•¥ÅëÑÅçÖ¡Ñ∏É$ÅÑÅâÖÕîÅ¡…ÖÃÅ¡ÀÕ·•µÖÃÅôÖ—•ÖÃÄ°çΩµâΩÃÅ…ïÖ¡…ΩŸï•—Ö¥ÅΩÃÅµïÕµΩÃÅçÖµ¡ΩÃÏÅâ…•ïô•πúÅ¡Ω»(ÄÅçÖ—ïùΩ…•ÑÅîÅ…ïçΩµ¡…ÑÅô•çÖ¥Å¡Ö…ÑÅëï¡Ω•Ã§∏((åååÅ5’ëÖªùÖÃ((¥ÅM’¡ÖâÖÕîÄ°¡…Ω©ï—ºÅÅΩπ±ÂÂΩ’Ä§(ÄÄ¥Å5•ù…áüçºÅÅù•ù}Öπë}¡…Ω¡ΩÕÖ±}Õ—…’ç—’…ïë}Ωôôï…}ô•ï±ëÕÄËÅÅù•ùÕÄÅùÖπ°ÑÅÅ…ïŸ•Õ•Ωπ}çΩ’π—Ä∞(ÄÄÄÅÅ•πç±’ëïë}•—ïµÕÄÄ°Å—ï·—muÄ§ÅîÅÅùÖ±±ï…Â}’…±ÕÄÄ°Å—ï·—muÄ§ÏÅÅç’Õ—Ωµ}¡…Ω¡ΩÕÖ±ÕÄÅùÖπ°Ñ(ÄÄÄÅÅ…ïŸ•Õ•Ωπ}çΩ’π—ÄÅîÅÅ•πç±’ëïë}•—ïµÕÄ∏Å°ïç≠ÃÅùÖ…Öπ—ï¥ÅÅ…ïŸ•Õ•Ωπ}çΩ’π–Ä¯ÙÄ¡ÄÅ≈’ÖπëºÅ•πôΩ…µÖëº∏(ÄÄ¥ÅÅç…ïÖ—ï}ù•ùÄΩÅ’¡ëÖ—ï}ù•ùÄΩÅç…ïÖ—ï}ç’Õ—Ωµ}¡…Ω¡ΩÕÖ±ÄÅ…ïç…•ÖëÖÃÅçΩ¥ÅΩÃÅπΩŸΩÃÅ¡ÖÀâµï—…ΩÃ(ÄÄÄÄ°Öë•ç•ΩπÖëΩÃÅÖºÅô•πÖ∞∞ÅçΩ¥ÅëïôÖ’±–∞Å¡…ïÕï…ŸÖπëºÅÑÅÖÕÕ•πÖ—’…ÑÅçΩµºÅ…ï¡±ÖçîÉäPÅªçºÅΩŸï…±ΩÖê§∏(ÄÄÄÅMÖπ•—•ÈÖ¥ÅΩÃÅÖ……ÖÂÃÅπºÅâÖπçºËÅ—…•¥∞Å…ïµΩŸîÅ•—ïπÃÅŸÖÈ•ΩÃ∞ÅçΩ…—ÑÅçÖëÑÅ•—ï¥Åï¥Äƒ–¿ÅçÖ…Öç—ï…ïÃÅî(ÄÄÄÅ±•µ•—ÑÅÑÄ‡Å•—ïπÃ∏(ÄÄ¥ÅÅùï—}ÖëŸ•ÕΩ…ÕÄÄ°Õïç’…•—‰§Åï·ïç’—ÖëºÅÖ√ÕÃÅÑÅµ•ù…áüçºËÅπïπ°’¥ÅÖ±ï…—ÑÅπΩŸºÉäPÅœÃÅΩÃÅÖŸ•ÕΩÃ(ÄÄÄÅ¡À§µï·•Õ—ïπ—ïÃÅ´ÑÅëΩç’µïπ—ÖëΩÃÄ°ô’ªü’ïÃÅÅÕïç’…•—‰Åëïô•πï…ÄÅëîÅÅâïçΩµï}ç…ïÖ—Ω…ÄÅî(ÄÄÄÅÅÕ’âµ•—}ç’Õ—Ωµ}Ω…ëï…}…ïŸ•ï›Ä∞Å¡…Ω—óüçºÅëîÅÕïπ°ÑÅŸÖÈÖëÑ§∏(¥ÅÅ±•àΩ—Â¡ïÃΩù•úπ—ÕÄ∞ÅÅ±•àΩÕ’¡ÖâÖÕîΩù•ùÃπ—ÕÄ(ÄÄ¥ÅÅ•ùÄΩÅ•ù%π¡’—ÄÅùÖπ°Ö¥ÅÅ…ïŸ•Õ•ΩπΩ’π–˝Ä∞ÅÅ•πç±’ëïë%—ïµÃËÅÕ—…•πùmuÄ∞ÅÅùÖ±±ï…ÂU…±ÃËÅÕ—…•πùmuÄ∏(ÄÄ¥Å9ΩŸºÅÅùï—•ù	Â%ëÄÉäPÅ’ÕÖëºÅ¡Ö…ÑÅ¡À§µ¡…ïïπç°ï»ÅÑÅ¡…Ω¡ΩÕ—ÑÅÑÅ¡Ö…—•»ÅëºÅù•úÅëîÅΩ…•ùï¥∏(¥ÅÅ±•àΩ—Â¡ïÃΩç’Õ—Ω¥µ¡…Ω¡ΩÕÖ∞π—ÕÄ∞ÅÅ±•àΩ—Â¡ïÃΩç’Õ—Ω¥µ…ï≈’ïÕ–π—ÕÄ∞ÅÅ±•àΩÕ’¡ÖâÖÕîΩç’Õ—ΩµIï≈’ïÕ—Ãπ—ÕÄ(ÄÄ¥ÅÅ’Õ—ΩµA…Ω¡ΩÕÖ±ÄÅùÖπ°ÑÅÅ…ïŸ•Õ•ΩπΩ’π–˝ÄΩÅ•πç±’ëïë%—ïµÕÄÏÅÅç…ïÖ—ï’Õ—ΩµA…Ω¡ΩÕÖ±ÄÅÖçï•—ÑÅî(ÄÄÄÅïπŸ•ÑÅΩÃÅëΩ•ÃÅçÖµ¡ΩÃ∏(ÄÄ¥ÅÅ’Õ—ΩµIï≈’ïÕ—ÄÅ¡ÖÕÕÑÅÑÅï·¡Ω»ÅÅÕΩ’…çï•ù%ëÄÄ°ÑÅçΩ±’πÑÅ´ÑÅï·•Õ—•ÑÅπºÅâÖπçº∞ÅµÖÃÅªçºÅïÕ—ÖŸÑ(ÄÄÄÅµÖ¡ïÖëÑÅπºÅ—•¡ºΩµÖ¡¡ï»§ÉäPÅ¡ï…µ•—îÅ±•ùÖ»ÅÑÅ¡…Ω¡ΩÕ—ÑÅÖºÅÖªÈπç•ºÅ≈’îÅΩ…•ù•πΩ‘ÅºÅ¡ïë•ëº∏(¥ÅÅÖ¡¿ΩëÖÕ°âΩÖ…êΩÕï…Ÿ•çΩÃΩ¡Öùîπ—Õ·Ä(ÄÄ¥ÅΩ…µ’≥Ö…•ºÅëîÅÖªÈπç•ºÅùÖπ°ÑÄâIïŸ•œ’ïÃÅ•πç±◊µëÖÃàÄ°ªÈµï…ºÅΩ¡ç•ΩπÖ∞§∞Äâ<Å≈’îÅïÕ”ÑÅ•πç±’Õºà(ÄÄÄÄ°±•Õ—Ñ∞Å’µÑÅ±•π°ÑÅ¡Ω»Å•—ï¥§ÅîÄâ5Ö•ÃÅ•µÖùïπÃàÄ°ùÖ±ï…•Ñ∞Å…ïÖ¡…ΩŸï•—ÖπëºÅºÅµïÕµºÅ¡ÖëÀçºÅëî(ÄÄÄÅ’¡±ΩÖêΩ±•Õ—ÑÅëîÅUI1ÃÅ´ÑÅ’ÕÖëºÅï¥ÅÅAΩ…—ôΩ±•ΩMïç—•Ω∏π—Õ·Ä§∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩ•ùÖ…êπ—Õ·Ä∞ÅÅçΩµ¡Ωπïπ—ÃΩ•ùïïëÖ…êπ—Õ·Ä(ÄÄ¥Å·•âï¥ÅÑÅ≈’Öπ—•ëÖëîÅëîÅ…ïŸ•œ’ïÃÏÅºÅçÖ…êÅëîÅôïïêÅ—Öµã•¥ÅµΩÕ—…ÑÅΩÃÄÃÅ¡…•µï•…ΩÃÅ•—ïπÃÅ•πç±’ÕΩÃ∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩΩπŸï…ÕÖ—•ΩπY•ï‹π—Õ·Ä(ÄÄ¥ÅΩ…µ’≥Ö…•ºÅëîÅ¡…Ω¡ΩÕ—ÑÅùÖπ°ÑÅΩÃÅµïÕµΩÃÅëΩ•ÃÅçÖµ¡ΩÃÄ°…ïŸ•œ’ïÃ∞ÅºÅ≈’îÅïÕ”ÑÅ•πç±’Õº§∏(ÄÄ¥ÅºÅÖâ…•»Äâ…•Ö»Å¡…Ω¡ΩÕ—ÑàÅπ’¥Å¡ïë•ëºÅ≈’îÅπÖÕçï‘ÅëîÅ’¥Åù•úÄ°ÅÕΩ’…çï•ù%ëÄ§∞ÅºÅôΩ…µ’≥Ö…•ºÉ§(ÄÄÄÅ¡À§µ¡…ïïπç°•ëºÅÑÅ¡Ö…—•»ÅëºÅÖªÈπç•ºÄ°Åùï—•ù	Â%ëÄ§ÉäPÅºÅç…•ÖëΩ»ÅœÃÅçΩπô•…µÑÅΩ‘ÅÖ©’Õ—Ñ∏(ÄÄ¥ÅÖ…êÅëîÅ¡…Ω¡ΩÕ—ÑÅπÑÅçΩπŸï…ÕÑÅ¡ÖÕÕÑÅÑÅï·•â•»Å…ïŸ•œ’ïÃÅîÅ•—ïπÃÅ•πç±’ÕΩÃÅ≈’ÖπëºÅ•πôΩ…µÖëΩÃ∏((åååÅYÖ±•ëáüçº((¥ÅM1•π–ÅîÅÅ—ÕåÄ¥µπΩµ•—ÄÅÕï¥Åï……ΩÃÅπΩÃÅÖ…≈’•ŸΩÃÅÖ±—ï…ÖëΩÃ∏(¥ÅÅπ¡‡Åπï·–Åâ’•±ëÄËÅçΩµ¡•±áüçºÅîÅç°ïçÖùï¥ÅëîÅ—•¡ΩÃÅçΩπç±◊µëÖÃÅçΩ¥ÅÕ’çïÕÕºÏÅÑÅï—Ö¡ÑÅëî(ÄÅ¡À§µ…ïπëï…•ÈáüçºÅôÖ±°ÑÅπïÕ—îÅÕÖπëâΩ‡Å¡Ω»ÅôÖ±—ÑÅëîÅÄπïπÿπ±ΩçÖ±ÄÄ°Õï¥ÅÅ9aQ}AU	1%}MUA	M}UI1Ä§(ÄÉäPÅ±•µ•—áüçºÅ¡À§µï·•Õ—ïπ—îÅëºÅÖµâ•ïπ—î∞ÅªçºÅ…ï±Öç•ΩπÖëÑÅÑÅïÕ—ÑÅµ’ëÖªùÑ∏(¥Å°ïçÖùï¥ÅëîÅçΩ…ïÃÅô•·ÖÃÄ°Åù…ï¡ÄÅ¡Ω»Å°ï‡ÅîÅç±ÖÕÕïÃÅëîÅ¡Ö±ï—ÑÅQÖ•±›•πê§ÅπΩÃÅÖ…≈’•ŸΩÃÅÖ±—ï…ÖëΩÃË(ÄÅπïπ°’µÑÅΩçΩ…À©πç•Ñ∏(¥Å5•ù…áüçºÅîÅIAÃÅÖ¡±•çÖëÖÃÅë•…ï—Öµïπ—îÅπºÅ¡…Ω©ï—ºÅM’¡ÖâÖÕîÅ…ïÖ∞ÅŸ•ÑÅ5@ÏÅÖëŸ•ÕΩ…ÃÅëîÅÕïù’…ÖªùÑ(ÄÅçΩπôï…•ëΩÃÅÖ√ÕÃÅÑÅµ’ëÖªùÑ∏((åååÅAÀÕ·•µΩÃÅ¡ÖÕÕΩÃÅÕ’ùï…•ëΩÃÄ°ªçºÅ•µ¡±ïµïπ—ÖëΩÃÅπïÕ—ÑÅôÖ—•Ñ§((¥ÅA…Ωë’—ΩÃÅë•ù•—Ö•ÃÅ…ïÖ•ÃÄ°°Ω©îÅœÃÅµΩç¨Åï¥ÅÅ±•àΩëÖ—ÑΩ¡…Ωë’ç—Ãπ—ÕÄ∞ÅŸ•Ω±ÑÅÑÅ…ïù…ÑÅëîÅ¡ï…Õ•Õ”©πç•Ñ§∏(¥ÅΩµâΩÃΩ¡ÖçΩ—ïÃÅëîÅÕï…ŸßùΩÃ∏(¥ÅA…Ω¡ΩÕ—ÖÃÅÖâï…—ÖÃÅÑÅ∑È±—•¡±ΩÃÅ¡…Ωô•ÕÕ•ΩπÖ•ÃÅ¡Ö…ÑÅºÅµïÕµºÅ¡ïë•ëº∏(¥Å	…•ïô•πúÅë•ªâµ•çºÅ¡Ω»ÅçÖ—ïùΩ…•ÑÅ√ÕÃµÖçï•—î∏(¥ÅIïçΩµ¡…ÑÄ†âçΩπ—…Ö—Ö»ÅπΩŸÖµïπ—îà§ÅÑÅ¡Ö…—•»ÅëºÅ°•Õ”Õ…•çºÅëîÅ¡ïë•ëΩÃ∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅ±•π°Öµïπ—ºÅëΩÃÅçΩπ—…Ω±ïÃÅëºÅçÖâóùÖ±°º((åååÅ=â©ï—•Ÿº((¥ÅΩ……•ù•»ÅºÅëïÕÖ±•π°Öµïπ—ºÅŸ•Õ’Ö∞Åïπ—…îÅºÅÕ•πºÅëîÅπΩ—•ô•çáü’ïÃÅîÅºÅÖŸÖ—Ö»ÅπºÅµΩâ•±î∏((åååÅ5’ëÖªùÖÃ((¥ÅÅçΩµ¡Ωπïπ—ÃΩ9Ω—•ô•çÖ—•Ωπ	ï±∞π—Õ·Ä(ÄÄ¥Å9ºÅµΩâ•±î∞ÅÕ•πºÅîÅÖŸÖ—Ö»Å’ÕÖ¥Åèµ…ç’±ΩÃÅ•ì©π—•çΩÃÅëîÄ–¿Å¡‡∞ÅçΩ¥ÅΩÃÉµçΩπïÃÅçïπ—…Ö±•ÈÖëΩÃ∏(ÄÄ¥Å<ÅçΩπ—ÖëΩ»Å—ï·—’Ö∞Å≈’îÅëïÕï≈’•±•â…ÖŸÑÅºÅÖ±•π°Öµïπ—ºÉÕ¡—•çºÅôΩ§ÅÕ’âÕ—•—◊µëºÅ¡Ω»Å’¥Å¡Ωπ—º(ÄÄÄÅë•Õç…ï—ºÏÅÑÅ≈’Öπ—•ëÖëîÅçΩπ—•π’ÑÅ•πôΩ…µÖëÑÅπºÅ—ï·—ºÅÖçïÕœµŸï∞ÅëºÅ±•π¨∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩ!ïÖëï»π—Õ·Ä(ÄÄ¥ÅΩπ”©•πï»ÅµΩâ•±îÅëºÅÕ•πºÅ¡ÖÕÕΩ‘ÅÑÅçΩµ¡Ö…—•±°Ö»ÅÑÅµïÕµÑÅÖ±—’…ÑÅîÅï•·ºÅŸï…—•çÖ∞ÅëºÅÖŸÖ—Ö»∏((åååÅYÖ±•ëáüçº((¥ÅM1•π–∞ÅQÂ¡ïMç…•¡–ÅîÅâ’•±êÅëîÅ¡…Ωë◊üçº∏(¥Å°ïçÖùï¥ÅëîÅçΩ…ïÃÅô•·ÖÃÅπΩÃÅÖ…≈’•ŸΩÃÅÖ±—ï…ÖëΩÃ∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅÖâóùÖ±°ºÅîÅπÖŸïùáüçºÅµΩâ•±îÅµÖ•ÃÅ±ïŸïÃ((åååÅ=â©ï—•Ÿº((¥Å%π—ïù…Ö»Åµï±°Ω»ÅºÅçÖâóùÖ±°ºÅÖºÅçΩπ—óÈëºÅîÅ…ïë’È•»ÅºÅ¡ïÕºÅŸ•Õ’Ö∞ÅëÑÅπÖŸïùáüçºÅ•πôï…•Ω»∏(¥ÅŸ•—Ö»Å≈’îÅçΩπ—…Ω±ïÃÅ…ïë’πëÖπ—ïÃÅîÅô’πëΩÃÅù…ÖπëïÃÅëïï¥ÅÕïπÕáüçºÅëîÅ•π—ï…ôÖçîÅùïª•…•çÑÅΩ‘(ÄÅïπç’â…Ö¥ÅºÅçΩπ—óÈëºÅπºÅçï±’±Ö»∏((åååÅ5’ëÖªùÖÃ((¥ÅÅçΩµ¡Ωπïπ—ÃΩ!ïÖëï»π—Õ·Ä(ÄÄ¥ÅÖâóùÖ±°ºÅ¡ÖÕÕΩ‘ÅÑÅ’ÕÖ»ÅÕ’¡ï…õµç•îÅ—…ÖπÕ≥Èç•ëÑÅîÅçΩµ¡Öç—Ñ∞ÅçΩ¥ÅÖÕÕ•πÖ—’…ÑÅ±Ö…Öπ©ÑÅë•Õç…ï—Ñ(ÄÄÄÅÕΩàÅÑÅµÖ…çÑÅîÅÕï¥ÅÑÅ±•π°ÑÅë•Ÿ•œÕ…•ÑÅπºÅµΩâ•±î∏(ÄÄ¥ÅIïµΩŸ•ëºÅºÅÖ—Ö±°ºÅ…ïë’πëÖπ—îÅëîÅ·¡±Ω…Ö»∞Å´ÑÅ¡…ïÕïπ—îÅπÑÅπÖŸïùáüçºÅ•πôï…•Ω»∏(ÄÄ¥Å9Ω—•ô•çáü’ïÃÅôΩ…Ö¥Å±ïŸÖëÖÃÅÖºÅçÖâóùÖ±°ºÅµΩâ•±îÅîÅºÅÖçïÕÕºÉÄÅçΩπ—ÑÅ¡ï…ëï‘ÅâΩ…ëÑÅëïÕπïçïÕœÖ…•Ñ∏(ÄÄ¥Å5ïπ‘ÅµΩâ•±îÅŸ•…Ω‘Å’¥Å¡Ö•πï∞Åô±’—’Öπ—îÅçΩµ¡Öç—º∞ÅçΩ¥Å±•π≠ÃÅï¥Åë’ÖÃÅçΩ±’πÖÃÅîÉÖ…ïÑÅ…Ω≥ÖŸï∞∏(ÄÄ¥Å5ïπ’ÃÅ…ïçïâï…Ö¥ÅÅÖ…•Ñµï·¡ÖπëïëÄÅ¡Ö…ÑÅçΩµ’π•çÖ»ÅçΩ……ï—Öµïπ—îÅºÅïÕ—ÖëºÅÑÅ±ï•—Ω…ïÃÅëîÅ—ï±Ñ∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩ5Ωâ•±ï9Öÿπ—Õ·Ä(ÄÄ¥ÅΩç¨Åô•çΩ‘ÅµÖ•ÃÅâÖ•·ºÅîÅΩç’¡ÑÅ’µÑÅ±Ö…ù’…ÑÅ¡…ïŸ•œµŸï∞∞ÅçΩ¥ÉµçΩπïÃÅµï±°Ω»Åë•Õ—…•â◊µëΩÃ∏(ÄÄ¥ÅÕ—ÖëºÅÖ—•ŸºÅëï•·Ω‘ÅëîÅ’ÕÖ»Å’¥Åèµ…ç’±ºÅ¡…ïïπç°•ëºÅù…ÖπëîÏÅÖùΩ…ÑÅ’ÕÑÅçΩ»ÅîÅ’¥Å—…áùºÅç’…—º∏(ÄÄ¥Åë•ç•ΩπÖëΩÃÅπΩµîÅÖçïÕœµŸï∞ÅëÑÅπÖŸïùáüçºÅîÅÅÖ…•Ñµç’……ïπ—ÄÅπÑÅ…Ω—ÑÅÖ—•ŸÑ∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩAÖùï5Ö•∏π—Õ·Ä(ÄÄ¥ÅIïÕï…ŸÑÅ•πôï…•Ω»ÅÖ©’Õ—ÖëÑÅ¡Ö…ÑÅ•µ¡ïë•»Å≈’îÅÑÅëΩç¨Åç’â…ÑÅºÅô•¥ÅëºÅçΩπ—óÈëº∏((åååÅYÖ±•ëáüçº((¥ÅM1•π–∞ÅQÂ¡ïMç…•¡–ÅîÅâ’•±êÅëîÅ¡…Ωë◊üçº∏(¥ÅIïŸ•œçºÅëîÅÖçïÕÕ•â•±•ëÖëî∞ÅïÕ—ÖëΩÃÅÖ—•ŸΩÃÅîÉÖ…ïÖÃÅëîÅ—Ω≈’îÅπºÅµΩâ•±î∏(¥Å°ïçÖùï¥ÅëîÅçΩ…ïÃÅô•·ÖÃÅπΩÃÅÖ…≈’•ŸΩÃÅÖ±—ï…ÖëΩÃ∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅÖ—ïùΩ…•ÖÃÅ±Ω©ΩàÅîÅ)Ωù’îÅçΩµ•ùº((åååÅ=â©ï—•Ÿº((¥Å…•Ö»Åë’ÖÃÅçÖ—ïùΩ…•ÖÃÅùÖµï»ÅçΩµ¡±ï—ÖÃÅëïπ—…ºÅëºÅô±’·ºÅ…ïÖ∞ÅëîÅÕï…ŸßùΩÃ∏(¥ÅAï…µ•—•»Å≈’îÅ¡…óùº∞Åë’…áüçº∞Å©ΩùºÅîÅ¡…Ωù…ïÕœçºÅëîÅï±ºÅÕï©Ö¥ÅçÖëÖÕ—…ÖëΩÃÅîÅ¡ï…Õ•Õ—•ëΩÃ∏((åååÅ5’ëÖªùÖÃ((¥ÅM’¡ÖâÖÕîÅÅù•ùÕÄ(ÄÄ¥Åë•ç•ΩπÖëÖÃÅÖÃÅçΩ±’πÖÃÅÅçÖ—ïùΩ…ÂÄ∞ÅÅùÖµïÄ∞ÅÅ¡±Ö—ôΩ…µÄ∞ÅÅÕïÕÕ•Ωπ}µ•π’—ïÕÄ∞ÅÅç’……ïπ—}…Öπ≠ÄÅî(ÄÄÄÅÅ—Ö…ùï—}…Öπ≠ÄÅ¡ï±ÑÅµ•ù…Ö—•Ω∏ÅÅÖëë}ùÖµ•πù}Õï…Ÿ•çï}çÖ—ïùΩ…•ïÕÄ∏(ÄÄ¥ÅIAÃÅÅç…ïÖ—ï}ù•ùÄÅîÅÅ’¡ëÖ—ï}ù•ùÄÅ…ïç…•ÖëÖÃÅçΩµºÅÅÕïç’…•—‰Å•πŸΩ≠ï…Ä∞ÅçΩ¥ÅÅÕïÖ…ç°}¡Ö—°ÄÅŸÖÈ•º∞(ÄÄÄÅÖçïÕÕºÅï·ç±’Õ•ŸºÅÑÅÅÖ’—°ïπ—•çÖ—ïëÄÅîÅŸÖ±•ëáü’ïÃÅïÕ¡ïèµô•çÖÃÅ¡Ω»ÅçÖ—ïùΩ…•Ñ∏(ÄÄ¥Å)Ωù’îÅçΩµ•ùºÅï·•ùîÅ©ΩùºÅîÅÕïÕœçºÅ∑µπ•µÑÅëîÄƒ‘Åµ•π’—ΩÃÏÅ±Ω©ΩàÅï·•ùîÅ©Ωùº∞Åï±ºÅÖ—’Ö∞∞Åï±º(ÄÄÄÅëïÕï©ÖëºÅîÅ¡…ÖÈº∏(¥ÅÅÖ¡¿ΩëÖÕ°âΩÖ…êΩÕï…Ÿ•çΩÃΩ¡Öùîπ—Õ·Ä(ÄÄ¥Å<ÅôΩ…µ’≥Ö…•ºÅùÖπ°Ω‘ÅÕï±ï—Ω»ÅëîÅçÖ—ïùΩ…•ÑÅîÅçÖµ¡ΩÃÅçΩπë•ç•ΩπÖ•ÃÅ¡Ö…ÑÅΩÃÅëΩ•ÃÅÕï…ŸßùΩÃÅùÖµï»∏(ÄÄ¥Å)Ωù’îÅçΩµ•ùºÅçÖëÖÕ—…ÑÅ¡…óùºÅ¡Ω»ÅÕïÕœçºÅîÅë’…áüçºÅï¥Åµ•π’—ΩÃ∏(ÄÄ¥Å±Ω©ΩàÅçÖëÖÕ—…ÑÅ¡…óùº∞Å©Ωùº∞Å¡±Ö—ÖôΩ…µÑΩÕï…Ÿ•ëΩ»∞Åï±ºÅÖ—’Ö∞∞Åï±ºÅëïÕï©ÖëºÅîÅ¡…ÖÈº∏(¥ÅÅ±•àΩ—Â¡ïÃΩù•úπ—ÕÄÅîÅÅ±•àΩÕ’¡ÖâÖÕîΩù•ùÃπ—ÕÄ(ÄÄ¥ÅQ•¡ΩÃ∞ÅµÖ¡ïÖµïπ—º∞Å±ï•—’…Ñ∞Å¡ïÕ≈’•ÕÑÅîÅµ’—áü’ïÃÅÖ—’Ö±•ÈÖëΩÃÅ¡Ö…ÑÅΩÃÅπΩŸΩÃÅëÖëΩÃ∏(¥ÅÅ±•àΩëÖ—ÑΩçÖ—ïùΩ…•ïÃπ—ÕÄ∞ÅÅÖ¡¿ΩëïÕçΩâ…•»Ω¡Öùîπ—Õ·ÄÅîÅÅçΩµ¡Ωπïπ—ÃΩ·¡±Ω…ï•±—ï…Ãπ—Õ·Ä(ÄÄ¥Å±Ω©ΩàÅîÅ)Ωù’îÅçΩµ•ùºÅÖë•ç•ΩπÖëΩÃÉÅÃÅçÖ—ïùΩ…•ÖÃÅï¥ÅëïÕ—Ö≈’îÅëÑÅ√Öù•πÑÅ·¡±Ω…Ö»∏(ÄÄ¥Å<Åô•±—…ºÅÖùΩ…ÑÅï·•âîÅÖ¡ïπÖÃÅΩÃÅÕï…ŸßùΩÃÅëÑÅçÖ—ïùΩ…•ÑÅùÖµï»ÅÕï±ïç•ΩπÖëÑ∏(¥ÅÅÖ¡¿ΩçÖ—ïùΩ…•ÖÃΩmÕ±’ùtΩ¡Öùîπ—Õ·Ä(ÄÄ¥ÅÃÅë’ÖÃÅçÖ—ïùΩ…•ÖÃÅùÖπ°Ö…Ö¥Å√Öù•πÖÃÅ¡ÀÕ¡…•ÖÃÅçΩ¥ÅÕï…ŸßùΩÃÅ…ïÖ•ÃÅëºÅM’¡ÖâÖÕî∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩ•ùÖ…êπ—Õ·Ä∞ÅÅçΩµ¡Ωπïπ—ÃΩ•ùïïëÖ…êπ—Õ·ÄÅîÅÅçΩµ¡Ωπïπ—ÃΩIï≈’ïÕ—•ù	’——Ω∏π—Õ·Ä(ÄÄ¥ÅÖ…ëÃÅµΩÕ—…Ö¥Å©Ωùº∞ÅÕïÕœçºÅΩ‘Å¡…Ωù…ïÕœçºÅëîÅï±º∏(ÄÄ¥ÅÅÕΩ±•ç•—áüçºÅïπŸ•ÖëÑÅ¡Ö…ÑÅÑÅçΩπŸï…ÕÑÅ•πç±’§ÅÖ’—ΩµÖ—•çÖµïπ—îÅΩÃÅëï—Ö±°ïÃÅùÖµï»∏((åååÅYÖ±•ëáüçº((¥ÅM1•π–∞ÅQÂ¡ïMç…•¡–ÅîÅâ’•±êÅëîÅ¡…Ωë◊üçº∏(¥Å5•ù…Ö—•Ω∏ÅÖ¡±•çÖëÑÅîÅçΩ±’πÖÃÅçΩπôï…•ëÖÃÅπºÅ¡…Ω©ï—ºÅM’¡ÖâÖÕîÅÅΩπ±ÂÂΩ’Ä∏(¥ÅIAÅ—ïÕ—ÖëÑÅï¥Å—…ÖπÕáüçºÅçΩ¥Å…Ω±±âÖç¨Å¡Ö…ÑÅ)Ωù’îÅçΩµ•ùºÅîÅ±Ω©Ωà∏(¥ÅëŸ•ÕΩ…ÃÅëîÅÕïù’…ÖªùÑÅîÅëïÕïµ¡ïπ°ºÅï·ïç’—ÖëΩÃÏÅπïπ°’¥ÅπΩŸºÅÖ±ï…—ÑÅ±•ùÖëºÉÅÃÅçΩ±’πÖÃÅΩ‘ÅIAÃ∏(¥ÅAï…µÖπïçï¥ÅÖŸ•ÕΩÃÅÖπ—ï…•Ω…ïÃÅëºÅ¡…Ω©ï—ºÅÕΩâ…îÅë’ÖÃÅô’ªü’ïÃÅÅÕïç’…•—‰Åëïô•πï…Ä∞Å¡…Ω—óüçºÅëî(ÄÅÕïπ°ÖÃÅŸÖÈÖëÖÃ∞Éµπë•çïÃÅîÅ¡Ω≥µ—•çÖÃÅI1LÅªçºÅ…ï±Öç•ΩπÖëΩÃÅÑÅïÕ—ÑÅµ’ëÖªùÑ∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅÖ…ëÃÅëîÅ¡…Ωë’—ΩÃÅ…ïΩ…ùÖπ•ÈÖëΩÃ((åååÅ=â©ï—•Ÿº((¥Å5ï±°Ω…Ö»ÅÑÅ±ï•—’…ÑÅîÅºÅï≈’•≥µâ…•ºÅŸ•Õ’Ö∞ÅëΩÃÅçÖ…ëÃÅëîÅ¡…Ωë’—ΩÃ∞Å¡…•πç•¡Ö±µïπ—îÅπÑÅù…ÖëîÅëî(ÄÅë’ÖÃÅçΩ±’πÖÃÅëºÅµΩâ•±î∏((åååÅ5’ëÖªùÖÃ((¥ÅÅçΩµ¡Ωπïπ—ÃΩA…Ωë’ç—Ö…êπ—Õ·Ä(ÄÄ¥Å<Å¡…óùºÅÕÖ•‘ÅëÑÅ∑µë•ÑÅîÅ¡ÖÕÕΩ‘Å¡Ö…ÑÅ’µÑÉÖ…ïÑÅ¡ÀÕ¡…•ÑÅÖâÖ•·ºÅëºÅ”µ—’±º∏(ÄÄ¥ÅA…Ωµøü’ïÃÅÖùΩ…ÑÅµΩÕ—…Ö¥Å’¥ÅâÖëùîÅ¡ï≈’ïπºÅëîÅΩôï…—Ñ∞Å¡…óùºÅÖπ—ï…•Ω»Åë•Õç…ï—ºÅîÅ¡…óùºÅÖ—’Ö∞Åï¥(ÄÄÄÅëïÕ—Ö≈’î∞ÅÕï¥ÅºÅâÖ≥çºÅù…ÖπëîÅ≈’îÅ≈’ïâ…ÖŸÑÅºÅ±ÖÂΩ’–∏(ÄÄ¥ÅÉÖ…ïÑÅëÑÅ•µÖùï¥Åô•çΩ‘ÅµÖ•ÃÅâÖ•·ÑÅîÅ¡ÖÕÕΩ‘ÅÑÅ’ÕÖ»Å’¥Åô’πëºÅ’π•ôΩ…µîÅπÑÅù…Öëî∏(ÄÄ¥Å…•ÖëΩ»∞Å”µ—’±º∞Å¡…óùºÅîÅÖŸÖ±•áüçºÅ…ïçïâï…Ö¥ÅïÕ¡áùÖµïπ—ºÅîÅ°•ï…Ö…≈’•ÑÅçΩπÕ•Õ—ïπ—ïÃ∏(ÄÄ¥Å<ÅâΩ”çºÅç•…ç’±Ö»ÅçΩ¥ÅÕï—ÑÅôΩ§Å…ïµΩŸ•ëºÏÅºÅçÖ…êÅ•π—ï•…ºÅçΩπ—•π’ÑÅÕïπëºÅºÅ±•π¨ÅëºÅ¡…Ωë’—º∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩ5ïë•ÖA±Öçï°Ω±ëï»π—Õ·Ä(ÄÄ¥Åë•ç•ΩπÖëÑÅÑÅΩ√üçºÅÅµ’—ïëÄÅ¡Ö…ÑÅù…ÖëïÃÅ≈’îÅ¡…ïç•ÕÖ¥ÅëîÅ¡±Öçï°Ω±ëï…ÃÅçΩ¥Åô’πëºÅ’π•ôΩ…µî∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩA…•çïQÖúπ—Õ·Ä(ÄÄ¥ÅÅôΩ…µÖ—	I1ÄÅ¡ÖÕÕΩ‘ÅÑÅÕï»Åï·¡Ω…—ÖëºÅ¡Ö…ÑÅµÖπ—ï»ÅÑÅµïÕµÑÅôΩ…µÖ—áüçºÅëîÅ¡…óùºÅπºÅπΩŸºÅçÖ…ê∏((åååÅYÖ±•ëáüçº((¥ÅM1•π–∞ÅQÂ¡ïMç…•¡–ÅîÅâ’•±êÅëîÅ¡…Ωë◊üçº∏(¥ÅΩπôïÀ©πç•ÑÅëΩÃÅïÕ—ÖëΩÃÅçΩ¥Å¡…óùºÅπΩ…µÖ∞∞Å¡…ΩµΩç•ΩπÖ∞∞Å€µëïºÅîÅÕï¥ÅÖŸÖ±•áü’ïÃ∏(¥Å°ïçÖùï¥ÅëîÅçΩ…ïÃÅô•·ÖÃÅπΩÃÅÖ…≈’•ŸΩÃÅÖ±—ï…ÖëΩÃ∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅAïÕ≈’•ÕÑÅï¥Å—ïµ¡ºÅ…ïÖ∞ÅîÅÕ≠ï±ï—Ω∏ÅëîÅçÖ……ïùÖµïπ—º((åååÅ=â©ï—•Ÿº((¥Å—’Ö±•ÈÖ»ÅΩÃÅ…ïÕ’±—ÖëΩÃÅëÑÅ√Öù•πÑÅ·¡±Ω…Ö»Åë’…Öπ—îÅÑÅë•ù•—áüçºÅîÅïëßüçºÅëÑÅ¡ïÕ≈’•ÕÑ∏(¥ÅÖ»ÅôïïëâÖç¨ÅŸ•Õ’Ö∞Å•µïë•Ö—ºÅïπ≈’Öπ—ºÅ’µÑÅπΩŸÑÅçΩπÕ’±—ÑÅïÕ”ÑÅÕïπëºÅ¡…ΩçïÕÕÖëÑ∏((åååÅ5’ëÖªùÖÃ((¥ÅÅçΩµ¡Ωπïπ—ÃΩ1•Ÿï·¡±Ω…ïMïÖ…ç†π—Õ·Ä(ÄÄ¥Å9ΩŸºÅçÖµ¡ºÅçΩπ—…Ω±ÖëºÅçΩ¥ÅÖ—’Ö±•ÈáüçºÅÖ’—Ω∑Ö—•çÑÅÖ√ÕÃÄÃ‘¿ÅµÃÅÕï¥Åë•ù•—áüçº∏(ÄÄ¥ÅÅ—ïç±ÑÅπ—ï»ÅÖπ—ïç•¡ÑÅÑÅâ’ÕçÑÅîÅºÅâΩ”çºÅëîÅ±•µ¡Ö»Å…ïµΩŸîÅºÅ—ï…µºÅ•µïë•Ö—Öµïπ—î∏(ÄÄ¥ÅÅUI0ÅçΩπ—•π’ÑÅ…ïô±ï—•πëºÅºÅ—ï…µºÅ¡ïÕ≈’•ÕÖëºÅÕï¥Å…Ω±Ö»ÅÑÅ√Öù•πÑÅ¡Ö…ÑÅºÅ—Ω¡º∏(ÄÄ¥ÅU¥ÅÕ≠ï±ï—Ω∏Å±ΩçÖ∞ÅÖ¡Ö…ïçîÅïπ≈’Öπ—ºÅÑÅπÖŸïùáüçºÅîÅΩÃÅπΩŸΩÃÅ…ïÕ’±—ÖëΩÃÅïÕ”çºÅ¡ïπëïπ—ïÃ∏(¥ÅÅÖ¡¿ΩëïÕçΩâ…•»Ω¡Öùîπ—Õ·Ä(ÄÄ¥Å<ÅôΩ…µ’≥Ö…•ºÅ—…Öë•ç•ΩπÖ∞ÅçΩ¥ÅâΩ”çºÅ	’ÕçÖ»ÅôΩ§ÅÕ’âÕ—•—◊µëºÅ¡ï±ÑÅ¡ïÕ≈’•ÕÑÅÖºÅŸ•Ÿº∏(¥ÅÅÖ¡¿ΩëïÕçΩâ…•»Ω±ΩÖë•πúπ—Õ·Ä(ÄÄ¥Å<Å•πë•çÖëΩ»Åùïª•…•çºÅôΩ§ÅÕ’âÕ—•—◊µëºÅ¡Ω»Å’¥ÅÕ≠ï±ï—Ω∏Å…ïÕ¡ΩπÕ•ŸºÅ≈’îÅÖçΩµ¡Öπ°ÑÅºÅëïÕïπ°ºÅëÑ(ÄÄÄÅ√Öù•πÑÅ·¡±Ω…Ö»∏((åååÅYÖ±•ëáüçº((¥ÅM1•π–∞ÅQÂ¡ïMç…•¡–ÅîÅâ’•±êÅëîÅ¡…Ωë◊üçº∏(¥ÅYï…•ô•çáüçºÅëºÅëïâΩ’πçî∞Å±•µ¡ïÈÑ∞Åπ—ï»ÅîÅÕ•πç…Ωπ•ÈáüçºÅëºÅ—ï…µºÅπÑÅUI0∏(¥Å°ïçÖùï¥ÅëîÅçΩ…ïÃÅô•·ÖÃÅπΩÃÅÖ…≈’•ŸΩÃÅÖ±—ï…ÖëΩÃ∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅ·¡±Ω…Ö»ÅçΩ¥ÅŸ•Õ’Ö∞ÅµÖ•ÃÅÖâï…—ºÅîÅïë•—Ω…•Ö∞((åååÅ=â©ï—•Ÿº((¥ÅIïµΩŸï»ÅÑÅÖ¡ÖÀ©πç•ÑÅï·çïÕÕ•ŸÖµïπ—îÅâÖÕïÖëÑÅï¥ÅçÖ•·ÖÃÅîÅçÖ…”’ïÃÅπÑÅ√Öù•πÑÅ·¡±Ω…Ö»∏(¥ÅÖ»ÅÖºÅçÖâóùÖ±°ºÅîÅÖΩÃÅ”µ—’±ΩÃÅëîÅÕóüçºÅ’µÑÅçΩµ¡ΩÕßüçºÅµÖ•ÃÅπÖ—’…Ö∞∞Å±•µ¡ÑÅîÅµïπΩÃÅùïª•…•çÑ∏((åååÅ5’ëÖªùÖÃ((¥ÅÅÖ¡¿ΩëïÕçΩâ…•»Ω¡Öùîπ—Õ·Ä(ÄÄ¥Å<ÅçÖâóùÖ±°ºÅëï•·Ω‘ÅëîÅÕï»Å’¥ÅçÖ…êÅôïç°ÖëºÅçΩ¥ÅôΩ…µÖÃÅëïçΩ…Ö—•ŸÖÃÅîÅŸ•…Ω‘Å’µÑÅÖâï…—’…ÑÅ±•Ÿ…î∞(ÄÄÄÅçΩ¥ÅëïÕ—Ö≈’îÅ—•¡ΩùÀÖô•çºÅîÅâ’ÕçÑÅ•π—ïù…ÖëÑ∏(ÄÄ¥ÅÃÅâ’ÕçÖÃÅ¡Ω¡’±Ö…ïÃÅÖùΩ…ÑÅœçºÅ±•π≠ÃÅëîÅ—ï·—º∞ÅÕï¥Å’µÑÅçΩ±óüçºÅëîÅ¡•±±ÃÅçΩ¥ÅâΩ…ëÑ∏(ÄÄ¥ÅSµ—’±ΩÃÅëîÅ¡…Ωô•ÕÕ•ΩπÖ•ÃÅîÅÕï…ŸßùΩÃÅ¡ï…ëï…Ö¥ÉµçΩπïÃÅï¥ÅçÖ•·ÖÃÅîÅ¡ÖÕÕÖ…Ö¥ÅÑÅ’ÕÖ»Å°•ï…Ö…≈’•Ñ(ÄÄÄÅ—•¡ΩùÀÖô•çÑ∞ÅïÕ¡áùºÅîÅ’µÑÅ±•π°ÑÅë•Ÿ•œÕ…•ÑÅë•Õç…ï—Ñ∏(ÄÄ¥Å<ÅïÕ—ÖëºÅŸÖÈ•ºÅëï•·Ω‘ÅëîÅô•çÖ»Åëïπ—…ºÅëîÅΩ’—…ºÅçÖ…ê∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩ·¡±Ω…ï•±—ï…Ãπ—Õ·Ä(ÄÄ¥ÅÖ—ïùΩ…•ÖÃÅîÅΩ…ëïπáüçºÅ¡ÖÕÕÖ…Ö¥ÅëîÅç°•¡ÃÅçΩπ—Ω…πÖëΩÃÅ¡Ö…ÑÅÖâÖÃÅëîÅ—ï·—ºÅçΩµ¡Öç—ÖÃ∏(ÄÄ¥Å<Åâ±ΩçºÅëîÅΩ…ëïπáüçºÅ¡ï…ëï‘ÅºÅçÖ…êÅï·—ï…πºÅîÅºÉµçΩπîÅëïçΩ…Ö—•Ÿº∏(ÄÄ¥Å<Å…ïÕ’µºÅëîÅâ’ÕçÑÅŸ•…Ω‘Å’µÑÅ•πë•çáüçºÅ±Ö—ï…Ö∞Åë•Õç…ï—Ñ∏(ÄÄ¥Å<Å”µ—’±ºÅëîÅ¡…Ωë’—ΩÃÅëï•·Ω‘ÅëîÅ’ÕÖ»ÉµçΩπîÅëïπ—…ºÅëîÅçÖ•·Ñ∏((åååÅYÖ±•ëáüçº((¥ÅM1•π–∞ÅQÂ¡ïMç…•¡–ÅîÅâ’•±êÅëîÅ¡…Ωë◊üçº∏(¥ÅΩπôïÀ©πç•ÑÅ…ïÕ¡ΩπÕ•ŸÑÅëºÅô±’·ºÅ°Ω…•ÈΩπ—Ö∞ÅëîÅçÖ—ïùΩ…•ÖÃÅîÅΩ…ëïπáüçº∏(¥Å°ïçÖùï¥ÅëîÅçΩ…ïÃÅô•·ÖÃÅπΩÃÅÖ…≈’•ŸΩÃÅÖ±—ï…ÖëΩÃ∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅÖ—ïùΩ…•ÖÃÅçΩµ¡Öç—ÖÃÅîÅ¡ïÕ≈’•ÕÑÅ…ïŸ•ÕÖëÑ((åååÅ=â©ï—•Ÿº((¥ÅIïë’È•»ÅºÅïÕ¡áùºÅΩç’¡ÖëºÅ¡ï±ÖÃÅçÖ—ïùΩ…•ÖÃÅπÑÅ√Öù•πÑÅ·¡±Ω…Ö»∏(¥ÅIïµΩŸï»ÅΩÃÉµçΩπïÃÅëïçΩ…Ö—•ŸΩÃÅëÖÃÅçÖ—ïùΩ…•ÖÃ∏(¥ÅYï…•ô•çÖ»ÅîÅµï±°Ω…Ö»ÅºÅçΩµ¡Ω…—Öµïπ—ºÅëÑÅ¡ïÕ≈’•ÕÑÅëÑÅ√Öù•πÑ∏((åååÅ5’ëÖªùÖÃ((¥ÅÅçΩµ¡Ωπïπ—ÃΩ·¡±Ω…ï•±—ï…Ãπ—Õ·Ä(ÄÄ¥Å=ÃÅΩ•—ºÅçÖ…”’ïÃÅù…ÖπëïÃÅëîÅçÖ—ïùΩ…•ÖÃÅîÅÑÅÕïù’πëÑÅôÖ•·ÑÅëîÅç°•¡ÃÅôΩ…Ö¥ÅÕ’âÕ—•—◊µëΩÃÅ¡Ω»Å’µÑ(ÄÄÄÉÈπ•çÑÅôÖ•·ÑÅ°Ω…•ÈΩπ—Ö∞ÅçΩµ¡Öç—Ñ∏(ÄÄ¥ÅQΩëÖÃÅÖÃÅçÖ—ïùΩ…•ÖÃÅçΩπ—•π’Ö¥ÅÖçïÕœµŸï•ÃÅ¡Ω»Å…Ω±Öùï¥Å°Ω…•ÈΩπ—Ö∞∞ÅçΩ¥ÅÖÃÅ¡Ω¡’±Ö…ïÃÅ¡…•µï•…º∏(ÄÄ¥Å<Åô•±—…ºÅçΩπ—•π’ÑÅ•πÕ—Öπ”âπïº∞ÅÖçïÕœµŸï∞Å¡Ω»Å—ïç±ÖëºÅîÅÕ•πç…Ωπ•ÈÖëºÅçΩ¥ÅÑÅUI0∏(¥ÅÅ±•àΩ…ï¡ΩÕ•—Ω…•ïÃΩA…Ωë’ç—Iï¡ΩÕ•—Ω…‰π—ÕÄ(ÄÄ¥ÅÅ¡ïÕ≈’•ÕÑÅ±ΩçÖ∞ÅëîÅ¡…Ωë’—ΩÃÅ¡ÖÕÕΩ‘ÅÑÅ•ùπΩ…Ö»Åë•ôï…ïªùÖÃÅëîÅÖçïπ—’áüçºÅîÅçÖ•·ÑÅï¥Å”µ—’±º∞(ÄÄÄÅëïÕç…ßüçºÅîÅ—ÖùÃ∏(¥ÅÅÖ¡¿ΩëïÕçΩâ…•»Ω¡Öùîπ—Õ·Ä(ÄÄ¥ÅÅâ’ÕçÑÅëîÅ¡…Ωô•ÕÕ•ΩπÖ•ÃÅ—Öµã•¥Å¡ÖÕÕΩ‘ÅÑÅ•ùπΩ…Ö»Åë•ôï…ïªùÖÃÅëîÅÖçïπ—’áüçºÅîÅçÖ•·ÑÅπºÅπΩµîÅî(ÄÄÄÅπºÅπΩµîÅëîÅ’Õ◊Ö…•º∏(ÄÄ¥Å<Åô±’·ºÅôΩ§ÅçΩπôï…•ëºËÅ¡…Ωë’—ΩÃÅ’ÕÖ¥Å”µ—’±ºΩëïÕç…ßüçºΩ—ÖùÃÏÅ¡…Ωô•ÕÕ•ΩπÖ•ÃÅ’ÕÖ¥ÅπΩµîΩ’Õ◊Ö…•ºÏ(ÄÄÄÅÕï…ŸßùΩÃÅÖ—•ŸΩÃÅ’ÕÖ¥Å”µ—’±ºΩëïÕç…ßüçºÅπºÅM’¡ÖâÖÕî∏(¥ÅÅ1UπµëÄ(ÄÄ¥Åë•ç•ΩπÖëÑÅÑÅΩâ…•ùáüçºÅëîÅÖ—’Ö±•ÈÖ»ÅïÕ—îÅ°•Õ”Õ…•çºÅï¥Å—ΩëÑÅµ’ëÖªùÑÅô’—’…ÑÅëºÅÕ•—î∏((åååÅYÖ±•ëáüçº((¥ÅM1•π–∏(¥Å	’•±êÅëîÅ¡…Ωë◊üçºÅîÅŸï…•ô•çáüçºÅëºÅQÂ¡ïMç…•¡–∏(¥Å	’ÕçÑÅ—ïÕ—ÖëÑÅçΩ¥Å—ï…µΩÃÅÖçïπ—’ÖëΩÃÅîÅÕï¥ÅÖçïπ—º∏(¥Å°ïçÖùï¥ÅëîÅçΩ…ïÃÅô•·ÖÃÅπΩÃÅÖ…≈’•ŸΩÃÅÖ±—ï…ÖëΩÃ∏((ååÄ»¿»ÿ¥¿‰¥»¿ÉäPÅÖ…ëÃÅîÅô•±—…ΩÃÅëÑÅ√Öù•πÑÅ·¡±Ω…Ö»((åååÅ5’ëÖªùÖÃ((¥ÅÅçΩµ¡Ωπïπ—ÃΩA…Ωë’ç—Ö…êπ—Õ·ÄËÅçÖ…êÅ…ïëïÕïπ°ÖëºÅçΩ¥Å∑µë•ÑÅµÖ•ÃÅŸÖ±Ω…•ÈÖëÑ∞Å¡…óùºÅÕΩâ…ï¡ΩÕ—º∞(ÄÅ•ëïπ—•ô•çáüçºÅëîÅ€µëïº∞Åµï±°Ω»Å°•ï…Ö…≈’•ÑÅîÅáüçºÅŸ•Õ’Ö∞∏(¥ÅÅçΩµ¡Ωπïπ—ÃΩ·¡±Ω…ï•±—ï…Ãπ—Õ·ÄËÅçÖ—ïùΩ…•ÖÃ∞ÅΩ…ëïπáüçºÅîÅΩôï…—ÖÃÅµ•ù…ÖëÖÃÅ¡Ö…ÑÅïÕ—ÖëºÅ±ΩçÖ∞∞(ÄÅ…ïµΩŸïπëºÅºÅ…ïçÖ……ïùÖµïπ—ºÅ¡ï…çï¡”µŸï∞ÅÑÅçÖëÑÅÕï±óüçºÅîÅµÖπ—ïπëºÅÑÅUI0ÅÕ•πç…Ωπ•ÈÖëÑ∏(¥ÅÅÖ¡¿ΩëïÕçΩâ…•»Ω¡Öùîπ—Õ·ÄËÅ•π—ïù…áüçºÅëºÅπΩŸºÅô±’·ºÅëîÅô•±—…ΩÃÅÕï¥ÅÖ±—ï…Ö»ÅÑÅâ’ÕçÑÅ¡…•πç•¡Ö∞∏((åååÅYÖ±•ëáüçº((¥ÅM1•π–∞ÅQÂ¡ïMç…•¡–ÅîÅâ’•±êÅëîÅ¡…Ωë◊üçºÅçΩπç±◊µëΩÃ∏((åÄ»¿»ÿ¥¿‰¥»ÃÉäPÅπë’…ïç•µïπ—ºÅùï…Ö∞ÅëºÅ±Ωù•∏((¥ÅÖëÖÕ—…ºÅÖùΩ…ÑÅï·•ùîÅÕïπ°ÑÅëîÄƒ»ÅÑÄƒ»‡ÅçÖ…Öç—ï…ïÃ∞ÅçΩπô•…µáüçºÅëÑÅÕïπ°ÑÅîÅâ±Ω≈’ï•ÑÅÕïπ°ÖÃÅçΩµ’πÃÅΩ‘Å≈’îÅçΩπ—ïπ°Ö¥ÅÑÅ•ëïπ—•ëÖëîÅëºÅ’Õ◊Ö…•º∏(¥ÅµµÖ•∞ÅîÅπΩµîÅëîÅ’Õ◊Ö…•ºÅœçºÅπΩ…µÖ±•ÈÖëΩÃÏÅµïπÕÖùïπÃÅëîÅÖ’—ïπ—•çáüçºÅªçºÅï·√’ï¥Åëï—Ö±°ïÃÅ•π—ï…πΩÃÅπï¥ÅçΩπô•…µÖ¥Åï·•Õ”©πç•ÑÅëîÅçΩπ—ÖÃ∏(¥ÅÖµ¡ΩÃÅëîÅÖ’—ïπ—•çáüçºÅ…ïçïâï…Ö¥Åµï—ÖëÖëΩÃÅçΩ……ï—ΩÃÅëîÅ¡…ïïπç°•µïπ—ºÅÖ’—Ω∑Ö—•çºÅîÅ±•µ•—ïÃÅëîÅïπ—…ÖëÑ∏(¥Å1ΩùΩ’–Å¡ÖÕÕΩ‘ÅÑÅ…ïŸΩùÖ»Å—ΩëÖÃÅÖÃÅÕïÕœ’ïÃÅÖ—•ŸÖÃÅëÑÅçΩπ—Ñ∏(¥ÅΩ…Ö¥ÅÖë•ç•ΩπÖëΩÃÅçÖâóùÖ±°ΩÃÅçΩπ—…ÑÅç±•ç≠©Öç≠•πú∞ÅÕπ•ôô•πú∞ÅŸÖÈÖµïπ—ºÅëîÅ…ïôïÀ©πç•ÑÅîÅÖçïÕÕºÅ•πëïŸ•ëºÅÑÅ…ïç’…ÕΩÃÅëºÅπÖŸïùÖëΩ»∏(¥ÅçïÕÕºÅÖª—π•µºÅ¡ï…ëï‘Å¡…•Ÿ•≥•ù•ΩÃÅëîÅïÕç…•—ÑÅîÅï·ïç◊üçºÅëîÅ…Ω—•πÖÃÅëîÅπïüÕç•ºÏÅI1LÅçΩπ—•π’ÑÅçΩµºÅçÖµÖëÑÅ¡…•πç•¡Ö∞∏(¥Å<ÅùÖ—•±°ºÅëîÅç…•áüçºÅëîÅ¡ï…ô•∞Å¡ÖÕÕΩ‘ÅÑÅ’ÕÖ»ÅÅÕïÖ…ç°}¡Ö—°ÄÅŸÖÈ•ºÅîÅªçºÅ¡ΩëîÅÕï»Åç°ÖµÖëºÅ¡ï±ÑÅA$∏

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { normalizeEmail, PASSWORD_MAX_LENGTH } from "@/lib/auth-security";
 
 export default function EntrarPage() {
   const router = useRouter();
@@ -18,17 +19,25 @@ export default function EntrarPage() {
     setSubmitting(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    setSubmitting(false);
+    try {
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: normalizeEmail(email),
+        password,
+      });
 
-    if (signInError) {
-      setError("E-mail ou senha incorretos.");
-      return;
+      if (signInError) {
+        setError("E-mail ou senha incorretos.");
+        return;
+      }
+
+      router.replace("/");
+      router.refresh();
+    } catch {
+      setError("Não foi possível entrar agora. Tente novamente em instantes.");
+    } finally {
+      setSubmitting(false);
     }
-
-    router.push("/");
-    router.refresh();
   }
 
   return (
@@ -40,6 +49,10 @@ export default function EntrarPage() {
           <input
             type="email"
             required
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            spellCheck={false}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
@@ -50,12 +63,14 @@ export default function EntrarPage() {
           <input
             type="password"
             required
+            autoComplete="current-password"
+            maxLength={PASSWORD_MAX_LENGTH}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </label>
-        {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
+        {error ? <p role="alert" className="text-sm text-(--color-danger)">{error}</p> : null}
         <button
           type="submit"
           disabled={submitting}

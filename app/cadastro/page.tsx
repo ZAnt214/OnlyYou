@@ -4,6 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import {
+  normalizeEmail,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  validatePassword,
+} from "@/lib/auth-security";
 
 const USERNAME_PATTERN = /^[a-z0-9._]{3,30}$/;
 
@@ -13,54 +19,59 @@ export default function CadastroPage() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [confirmEmailSent, setConfirmEmailSent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (submitting) return;
     setError(null);
 
-    if (!USERNAME_PATTERN.test(username)) {
+    const normalizedUsername = username.trim().toLowerCase();
+    const normalizedEmail = normalizeEmail(email);
+    const safeDisplayName = displayName.trim() || normalizedUsername;
+
+    if (!USERNAME_PATTERN.test(normalizedUsername)) {
       setError("Nome de usuário: só letras minúsculas, números, ponto e underline (3–30 caracteres).");
       return;
     }
 
-    setSubmitting(true);
-    const supabase = createClient();
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { username, display_name: displayName || username } },
-    });
-    setSubmitting(false);
-
-    if (signUpError) {
-      setError(signUpError.message);
+    const passwordError = validatePassword(password, [
+      normalizedUsername,
+      normalizedEmail.split("@")[0] ?? "",
+    ]);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
-    if (data.session) {
-      router.push("/");
-      router.refresh();
-    } else {
-      // Confirmação de e-mail ativada no projeto — sessão só começa depois
-      // que o link recebido por e-mail for confirmado.
-      setConfirmEmailSent(true);
+    if (password !== passwordConfirmation) {
+      setError("As senhas não são iguais.");
+      return;
     }
-  }
 
-  if (confirmEmailSent) {
-    return (
-      <div className="mx-auto flex max-w-sm flex-col gap-3 px-4 py-16">
-        <h1 className="text-xl font-semibold text-(--color-text)">Confirme seu e-mail</h1>
-        <p className="text-sm text-(--color-text-muted)">
-          Enviamos um link de confirmação para {email}. Sua conta fica ativa depois que você
-          confirmar.
-        </p>
-      </div>
-    );
+    setSubmitting(true);
+    try {
+      const supabase = createClient();
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password,
+        options: { data: { username: normalizedUsername, display_name: safeDisplayName } },
+      });
+
+      if (signUpError || !data.session) {
+        setError("Não foi possível criar a conta com esses dados. Revise e tente novamente.");
+        return;
+      }
+
+      router.replace("/");
+      router.refresh();
+    } catch {
+      setError("Não foi possível criar a conta agora. Tente novamente em instantes.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -73,6 +84,11 @@ export default function CadastroPage() {
           <input
             type="text"
             required
+            minLength={3}
+            maxLength={30}
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
             value={username}
             onChange={(e) => setUsername(e.target.value.toLowerCase())}
             className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
@@ -82,6 +98,8 @@ export default function CadastroPage() {
           Nome de exibição
           <input
             type="text"
+            maxLength={80}
+            autoComplete="name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
@@ -92,6 +110,10 @@ export default function CadastroPage() {
           <input
             type="email"
             required
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            spellCheck={false}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
@@ -102,13 +124,31 @@ export default function CadastroPage() {
           <input
             type="password"
             required
-            minLength={6}
+            minLength={PASSWORD_MIN_LENGTH}
+            maxLength={PASSWORD_MAX_LENGTH}
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
           />
         </label>
-        {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
+        <p className="text-xs leading-5 text-(--color-text-muted)">
+          Use {PASSWORD_MIN_LENGTH} ou mais caracteres, misturando letras com números ou símbolos.
+        </p>
+        <label className="flex flex-col gap-1 text-sm text-(--color-text)">
+          Confirmar senha
+          <input
+            type="password"
+            required
+            minLength={PASSWORD_MIN_LENGTH}
+            maxLength={PASSWORD_MAX_LENGTH}
+            autoComplete="new-password"
+            value={passwordConfirmation}
+            onChange={(e) => setPasswordConfirmation(e.target.value)}
+            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+          />
+        </label>
+        {error ? <p role="alert" className="text-sm text-(--color-danger)">{error}</p> : null}
         <button
           type="submit"
           disabled={submitting}

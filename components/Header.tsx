@@ -96,7 +96,10 @@ export function Header() {
 
   async function handleSignOut() {
     const supabase = createClient();
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut({ scope: "global" });
+    if (error) {
+      await supabase.auth.signOut({ scope: "local" });
+    }
     setMenuOpen(false);
     router.push("/");
     router.refresh();
