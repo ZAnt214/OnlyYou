@@ -1,9 +1,7 @@
 /**
- * Etiqueta de contexto curta acima do título de uma seção — mesmo padrão
- * visual do chip ativo (bg-(--color-accent-soft) + text-(--color-accent-text))
- * já usado em filtros e badges, pra ter um único componente de "section
- * label" reaproveitado em toda a home em vez de texto solto em caixa alta
- * que passava despercebido.
+ * Rótulo de contexto curto acima do título de uma seção.
+ * Mantém o texto leve e usa somente o ponto laranja da marca como marcador,
+ * sem fundo, borda ou aparência de botão/chip.
  */
 export function SectionLabel({
   children,
@@ -14,8 +12,12 @@ export function SectionLabel({
 }) {
   return (
     <span
-      className={`inline-block w-fit rounded-full bg-(--color-accent-soft) px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-accent-text) ${className}`}
+      className={`inline-flex w-fit items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-(--color-text-muted) ${className}`}
     >
+      <span
+        aria-hidden="true"
+        className="h-2 w-2 shrink-0 rounded-full bg-(--color-accent)"
+      />
       {children}
     </span>
   );
