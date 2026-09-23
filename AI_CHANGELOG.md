@@ -1,5 +1,35 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Corrige (de vez) CSP bloqueando o upload pro Vercel Blob: faltava vercel.com
+
+- Objetivo: a entrada anterior deste changelog (mesmo dia) liberou
+  `https://*.public.blob.vercel-storage.com` no CSP por suposição — o usuário confirmou que
+  **continuou** travando. Em vez de tentar mais um palpite, pedi print do DevTools (Console +
+  Network) do usuário: o Console mostrava repetidamente "Refused to connect to
+  'https://vercel.com/api/blob/?pathname=...' because it violates ... connect-src" e a aba
+  Network, sem filtro, mostrava só a chamada pro nosso `/api/upload` (200, retorna o token) e
+  nenhuma chamada depois disso — a "requisição fantasma" nem aparece no Network porque o Chrome
+  bloqueia via CSP antes de despachar.
+- Causa raiz real (confirmada lendo `node_modules/@vercel/blob/dist/chunk-YYMLUMXS.js`): o
+  endpoint que o `upload()`/`put()` do cliente usa pra fazer o PUT de verdade é
+  `defaultVercelBlobApiUrl = "https://vercel.com/api/blob"` — um host fixo da própria lib, sem
+  nenhuma relação com `*.blob.vercel-storage.com` (esse domínio só é usado depois, pra montar a
+  URL pública de leitura do arquivo já enviado). O CSP nunca liberou `https://vercel.com`, então
+  o PUT sempre foi bloqueado, e a promise de `upload()` ficava presa num retry interno da lib
+  (`isNetworkError` classifica o "Failed to fetch" do bloqueio de CSP como erro de rede e tenta
+  de novo, até 10x com backoff) — daí o carregamento "infinito" mesmo com o timeout de 60s da
+  entrada anterior deste changelog (o abort só cancela a tentativa em andamento, não impede a
+  lib de já ter perdido minutos tentando de novo antes disso, dependendo de quando o usuário
+  desistiu de esperar).
+- Correção: adiciona `https://vercel.com` ao `connect-src` em `next.config.ts` — esse é o host
+  que realmente precisava estar liberado; os dois hosts `*.blob.vercel-storage.com` da entrada
+  anterior continuam lá (usados pra exibir a imagem depois via `<img>`/`next/image`, cobertos
+  também por `img-src https:`, mas sem custo mantê-los explícitos no connect-src também).
+- Arquivos: `next.config.ts`.
+- Validações: `npx tsc --noEmit` e `npx eslint next.config.ts` sem erros. Peço ao usuário para
+  testar de novo e confirmar antes de considerar resolvido — as duas tentativas anteriores
+  pareciam certas e não foram.
+
 ## 2026-09-23 — Corrige CSP bloqueando o upload direto pro Vercel Blob
 
 - Objetivo: o usuário reportou que, mesmo após o timeout de 60s adicionado em `lib/uploadFile.ts`
