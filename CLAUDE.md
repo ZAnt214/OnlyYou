@@ -1,5 +1,15 @@
 # Design system do Jobê
 
+## Direção visual aprovada em 2026-09-23 (prevalece sobre referências antigas abaixo)
+
+- Identidade laranja vivo, marfim neutro e texto carvão, definida nos tokens de `app/globals.css`.
+- CTA laranja usa `--color-on-accent` escuro para contraste; texto e ícones sobre fundo claro usam `--color-accent-text`.
+- `--color-contrast` e `--color-on-contrast` definem o botão escuro sobre a faixa laranja.
+- Home: busca, chips de categorias, faixa compacta de publicação, vitrine real, pedidos publicados, conteúdo de apoio.
+- Navegação mobile integrada ao rodapé, com ícones e rótulos visíveis; preservar o acesso à Biblioteca.
+- Sem gradientes, anúncios fictícios ou ilustrações geradas substituindo imagens reais dos serviços.
+
+
 O Jobê usa layout de rede social de criadores (feed de coluna única, cards de post, nav
 inferior em pill flutuante) com a paleta **Marfim + Framboesa Jobê**: fundo marfim suave, cards
 brancos, texto grafite esverdeado e framboesa viva como cor de marca. **Toda UI nova ou

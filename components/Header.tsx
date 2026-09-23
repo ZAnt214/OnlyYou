@@ -109,11 +109,11 @@ export function Header() {
   if (isConversationScreenPath(pathname)) return null;
 
   return (
-    <header className="sticky top-0 z-30 border-b border-(--color-border) bg-(--color-bg)/95 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-(--color-border) bg-(--color-bg)">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:gap-5">
-        <Link href="/" className="group relative shrink-0 py-2 text-xl font-bold tracking-tight text-(--color-text)">
+        <Link href="/" className="group relative shrink-0 py-2 text-3xl font-bold tracking-tight text-(--color-text)">
           Jobê<span className="text-(--color-accent-text)">.</span>
-          <span className="absolute bottom-0 left-0 h-0.5 w-5 rounded-full bg-(--color-accent) transition-[width] group-hover:w-8" />
+
         </Link>
 
         <nav aria-label="Navegação do cabeçalho" className="hidden items-center gap-1 md:flex">

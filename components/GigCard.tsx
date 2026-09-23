@@ -12,10 +12,12 @@ export function GigCard({
   gig,
   creatorName,
   compactOnMobile = false,
+  marketplace = false,
 }: {
   gig: Gig;
   creatorName?: string;
   compactOnMobile?: boolean;
+  marketplace?: boolean;
 }) {
   return (
     <article
@@ -51,7 +53,7 @@ export function GigCard({
         )}
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">
-        <div className="flex min-h-5 items-start justify-between gap-2">
+        {!marketplace ? <div className="flex min-h-5 items-start justify-between gap-2">
           {gig.category !== "general" ? (
             <span className="truncate text-[10px] font-semibold uppercase tracking-wide text-(--color-accent-text)">
               {GIG_CATEGORY_LABELS[gig.category]}
@@ -65,6 +67,7 @@ export function GigCard({
             <PriceTag price={gig.priceCents / 100} size="sm" />
           </span>
         </div>
+        : null}
         {creatorName ? (
           <div className="flex items-center gap-1.5">
             <MediaPlaceholder
@@ -81,6 +84,7 @@ export function GigCard({
         <h3 className="line-clamp-2 text-sm font-semibold text-(--color-text)">
           {gig.title}
         </h3>
+        {marketplace ? <div className="mt-auto pt-2"><p className="text-xs text-(--color-text-muted)">A partir de</p><PriceTag price={gig.priceCents / 100} size="md" /></div> : null}
         {gig.game ? (
           <p className="truncate text-xs text-(--color-text-muted)">
             {gig.game}

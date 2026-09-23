@@ -1,5 +1,16 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Home laranja aprovada
+
+- `app/globals.css`: identidade laranja, marfim neutro e carvão com tokens claros/escuros e contraste de CTAs.
+- `app/page.tsx`: busca, categorias, faixa de publicação, vitrine real em duas colunas mobile e pedidos publicados sem repetir a introdução.
+- `components/GigCard.tsx`: variante marketplace com preço abaixo do título, preservando os demais consumidores.
+- `components/Header.tsx` e `components/MobileNav.tsx`: marca legível, barra inferior integrada com rótulos e Biblioteca preservada.
+- `CLAUDE.md`: documentação da direção aprovada; nenhuma imagem ou oferta fictícia da prévia foi incluída.
+- TypeScript e ESLint dos componentes alterados passaram sem erros.
+- Build compilou e validou tipos, mas a pré-renderização parou por ausência de `NEXT_PUBLIC_SUPABASE_URL` no ambiente. Inspeção visual não executada: `agent-browser` não está instalado.
+- Contrastes medidos: texto/CTA 5,39:1, hover 4,60:1 e links sobre marfim 6,32:1. Alterações ainda não publicadas.
+
 Este documento mantém a continuidade técnica do Jobê entre diferentes IAs. Toda alteração no
 site deve gerar uma entrada nova no topo deste arquivo, conforme a regra do `CLAUDE.md`.
 

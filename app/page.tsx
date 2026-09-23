@@ -59,200 +59,34 @@ const questions = [
 export default function HomePage() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <section
-        aria-labelledby="home-title"
-        className="grid gap-10 rounded-3xl bg-(--color-accent-soft) px-5 py-10 sm:px-10 sm:py-16 lg:grid-cols-[1.25fr_0.75fr] lg:items-center lg:gap-16 lg:px-14"
-      >
-        <div>
-          <h1
-            id="home-title"
-            className="max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-(--color-text) sm:text-5xl lg:text-6xl"
-          >
-            Sua ideia merece
-            <br />
-            alguém que faça.
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-(--color-text-muted) sm:text-lg">
-            Encontre serviços e produtos digitais para o seu próximo projeto.
-            Compare opções, conheça quem faz e converse antes de decidir.
-          </p>
-          <form
-            action="/descobrir"
-            role="search"
-            aria-label="Buscar no Jobê"
-            className="mt-7 flex items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) p-1.5 pl-4 shadow-md shadow-black/5 focus-within:outline-2 focus-within:outline-(--color-accent-text)"
-          >
-            <Search
-              size={20}
-              aria-hidden="true"
-              className="shrink-0 text-(--color-text-muted)"
-            />
-            <label htmlFor="home-search" className="sr-only">
-              O que você está procurando?
-            </label>
-            <input
-              id="home-search"
-              name="q"
-              type="search"
-              maxLength={160}
-              placeholder="O que você precisa?"
-              className="min-w-0 flex-1 bg-transparent py-3 text-base text-(--color-text) outline-none placeholder:text-(--color-text-muted)"
-            />
-            <button className="min-h-12 shrink-0 rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">
-              Buscar
-            </button>
-          </form>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <Link
-              href="/oportunidades/nova"
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-(--color-border) px-5 text-sm font-semibold text-(--color-text) hover:border-(--color-accent-text)"
-            >
-              Prefiro publicar um pedido
-            </Link>
-            <Link
-              href="/dashboard"
-              className="inline-flex min-h-11 items-center justify-center px-2 text-sm font-semibold text-(--color-text) underline decoration-(--color-border) underline-offset-4"
-            >
-              Quero vender no Jobê
-            </Link>
-          </div>
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-(--color-text-muted)">
-            <span>Experimente:</span>
-            {["Logotipo", "Edição de vídeo", "Site"].map((term) => (
-              <Link
-                key={term}
-                href={"/descobrir?q=" + encodeURIComponent(term)}
-                className="py-1 underline decoration-(--color-border) underline-offset-4 hover:text-(--color-text)"
-              >
-                {term}
-              </Link>
-            ))}
-          </div>
-        </div>
-        <aside
-          aria-label="Formas de comprar no Jobê"
-          className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm sm:p-6"
-        >
-          <p className="text-sm font-medium text-(--color-text-muted)">
-            Escolha como começar
-          </p>
-          <h2 className="mt-1 text-xl font-semibold text-(--color-text)">
-            Do seu jeito, no seu tempo
-          </h2>
-          <div className="mt-2">
-          {[
-            [
-              "/descobrir",
-              "Serviços profissionais",
-              "Compare preços, prazos e o que está incluído.",
-            ],
-            [
-              "/descobrir",
-              "Produtos digitais",
-              "Escolha algo pronto e receba após o pagamento.",
-            ],
-            [
-              "/categorias/jogue-comigo",
-              "Jogue comigo",
-              "Encontre sessões com duração e preço definidos.",
-            ],
-            [
-              "/oportunidades/nova",
-              "Publique o que precisa",
-              "Descreva o projeto e receba respostas de profissionais.",
-            ],
-          ].map(([href, title, description]) => (
-            <Link
-              key={title}
-              href={href}
-              className="group -mx-3 flex min-h-20 items-center justify-between gap-4 rounded-xl px-3 py-4 transition-colors hover:bg-(--color-surface-2)"
-            >
-              <span>
-                <span className="block text-base font-semibold text-(--color-text)">
-                  {title}
-                </span>
-                <span className="mt-1 block text-sm leading-relaxed text-(--color-text-muted)">
-                  {description}
-                </span>
-              </span>
-              <ArrowUpRight
-                size={20}
-                aria-hidden="true"
-                className="shrink-0 text-(--color-text-muted) group-hover:text-(--color-accent-text)"
-              />
-            </Link>
+      <section aria-labelledby="home-title" className="pb-6 pt-8 sm:pb-8 sm:pt-12">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-(--color-text-muted)">Serviços e produtos digitais</p>
+        <h1 id="home-title" className="mt-3 max-w-3xl text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+          Sua ideia merece<br />quem sabe fazer.
+        </h1>
+        <p className="mt-4 text-base leading-relaxed text-(--color-text-muted) sm:text-lg">Encontre profissionais ou publique o que precisa.</p>
+        <form action="/descobrir" role="search" aria-label="Buscar no Jobê" className="mt-6 flex items-center gap-2 rounded-xl border border-(--color-border) bg-(--color-surface) p-1.5 pl-4 focus-within:outline-2 focus-within:outline-(--color-accent-text)">
+          <Search size={20} aria-hidden="true" className="hidden shrink-0 text-(--color-text-muted) sm:block" />
+          <label htmlFor="home-search" className="sr-only">O que você está procurando?</label>
+          <input id="home-search" name="q" type="search" maxLength={160} placeholder="O que você está procurando?" className="min-w-0 flex-1 bg-transparent py-3 text-base outline-none placeholder:text-(--color-text-muted)" />
+          <button type="submit" aria-label="Buscar" className="flex min-h-12 min-w-12 shrink-0 items-center justify-center rounded-lg bg-(--color-accent) text-(--color-on-accent) hover:bg-(--color-accent-hover)">
+            <Search size={22} aria-hidden="true" />
+          </button>
+        </form>
+        <nav aria-label="Categorias de serviços" className="mt-4 flex flex-wrap gap-2">
+          {categories.map(([slug, name]) => (
+            <Link key={slug} href={"/categorias/" + slug} className="inline-flex min-h-11 items-center rounded-full bg-(--color-surface-2) px-4 text-sm font-medium text-(--color-text) transition-colors hover:bg-(--color-accent) hover:text-(--color-on-accent)">{name}</Link>
           ))}
-          </div>
-        </aside>
+        </nav>
       </section>
-      <div className="mt-6 grid grid-cols-3 divide-x divide-(--color-border) rounded-2xl border border-(--color-border) bg-(--color-surface) py-4 shadow-sm sm:mt-8">
-        {[
-          ["Preço", "visível"],
-          ["Conversa", "antes de fechar"],
-          ["Compra", "em um só lugar"],
-        ].map(([title, description]) => (
-          <p
-            key={title}
-            className="px-2 text-center text-xs text-(--color-text-muted) sm:text-sm"
-          >
-            <strong className="block font-semibold text-(--color-accent-text)">
-              {title}
-            </strong>
-            {description}
-          </p>
-        ))}
-      </div>
-      <nav
-        aria-label="Caminho principal da página inicial"
-        className="no-scrollbar -mx-4 mt-6 flex overflow-x-auto border-b border-(--color-border) px-4 sm:mx-0 sm:mt-8 sm:px-0"
-      >
-        {[
-          ["01", "categorias", "Escolha uma categoria"],
-          ["02", "vitrine", "Veja as opções"],
-          ["03", "oportunidades", "Publique um pedido"],
-          ["04", "como-funciona", "Entenda a contratação"],
-        ].map(([step, id, label]) => (
-          <a
-            key={id}
-            href={"#" + id}
-            className="flex min-w-40 items-center gap-3 border-r border-(--color-border) px-4 py-4 first:pl-0 last:border-r-0 hover:text-(--color-text)"
-          >
-            <span className="text-xs text-(--color-text-subtle)">{step}</span>
-            <span className="text-sm font-medium text-(--color-text-muted)">{label}</span>
-          </a>
-        ))}
-      </nav>
-      <section
-        id="categorias"
-        className="scroll-mt-24 py-12 sm:py-16"
-      >
-        <SectionHeading
-          title="Comece pelo que você procura"
-          description="Escolha uma área para encontrar serviços, produtos e profissionais relacionados."
-          href="/descobrir"
-          label="Todas as categorias"
-        />
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          {categories.map(([slug, name, description]) => (
-            <Link
-              key={slug}
-              href={"/categorias/" + slug}
-              className="group rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-(--color-accent-text) hover:shadow-md"
-            >
-              <span className="flex items-center justify-between gap-2 text-base font-semibold text-(--color-text)">
-                {name}
-                <ArrowUpRight
-                  size={16}
-                  aria-hidden="true"
-                  className="shrink-0 text-(--color-text-muted) group-hover:text-(--color-accent-text)"
-                />
-              </span>
-              <span className="mt-2 block text-sm leading-relaxed text-(--color-text-muted)">
-                {description}
-              </span>
-            </Link>
-          ))}
+      <section aria-labelledby="publish-title" className="flex flex-col items-start justify-between gap-4 rounded-xl bg-(--color-accent) p-5 text-(--color-on-accent) sm:flex-row sm:items-center sm:p-6">
+        <div>
+          <h2 id="publish-title" className="text-xl font-bold tracking-tight sm:text-2xl">Prefere receber propostas?</h2>
+          <p className="mt-1 text-sm leading-relaxed sm:text-base">Publique seu pedido e converse com profissionais.</p>
         </div>
+        <Link href="/oportunidades/nova" className="inline-flex min-h-12 shrink-0 items-center justify-center gap-3 rounded-xl bg-(--color-contrast) px-5 text-sm font-semibold text-(--color-on-contrast) hover:opacity-90">
+          Publicar pedido <ArrowUpRight size={18} aria-hidden="true" />
+        </Link>
       </section>
       <Suspense fallback={<CatalogSkeleton />}>
         <Vitrine />
@@ -388,41 +222,18 @@ async function OpportunitySpotlight() {
   const requests = (await getLatestOpportunities()).slice(0, 3);
 
   return (
-    <section id="oportunidades" className="scroll-mt-24 py-12 sm:py-16">
-      <div className="border-y border-(--color-border) bg-(--color-surface) shadow-sm sm:rounded-2xl sm:border">
-        <div className="grid gap-8 px-1 py-7 sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:p-10">
-          <div className="flex flex-col items-start">
-            <p className="text-sm font-medium text-(--color-text-muted)">Pedidos abertos</p>
-            <h2 className="mt-3 max-w-lg text-2xl font-semibold leading-tight tracking-tight text-(--color-text) sm:text-3xl">
-              Publique o que precisa e encontre quem pode fazer.
-            </h2>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
-              Descreva o serviço ou produto que procura. Profissionais interessados podem responder e enviar uma proposta pelo Jobê.
-            </p>
-            <div className="mt-6 flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
-              <Link href="/oportunidades/nova" className="inline-flex min-h-11 items-center justify-center rounded-full bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">
-                Publicar o que preciso
-              </Link>
-              <Link href="/oportunidades" className="inline-flex min-h-11 items-center gap-2 px-1 text-sm font-semibold text-(--color-text) underline decoration-(--color-border) underline-offset-4 hover:decoration-(--color-text)">
-                Ver todos os pedidos <ArrowUpRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
+    <section id="oportunidades" className="scroll-mt-24 border-t border-(--color-border) py-8 sm:py-10">
+      <SectionHeading title="Pedidos publicados" href="/oportunidades" label="Ver todos" />
+      <div className="mt-4 divide-y divide-(--color-border)">
+        {requests.length ? requests.map((request) => (
+          <OpportunityPreview key={request.id} request={request} />
+        )) : (
+          <div className="py-6">
+            <p className="font-semibold">O primeiro pedido pode ser o seu.</p>
+            <p className="mt-2 text-sm text-(--color-text-muted)">Conte o que procura e receba respostas de profissionais.</p>
+            <Link href="/oportunidades/nova" className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4">Publicar pedido</Link>
           </div>
-
-          <div>
-            <h3 className="border-b border-(--color-border) pb-3 text-sm font-semibold text-(--color-text)">Pedidos recentes</h3>
-            <div className="divide-y divide-(--color-border)">
-            {requests.length ? requests.map((request) => (
-              <OpportunityPreview key={request.id} request={request} />
-            )) : (
-              <div className="flex min-h-32 flex-col justify-center py-6">
-                <p className="text-sm font-semibold text-(--color-text)">O próximo pedido pode começar por você.</p>
-                <p className="mt-1 text-sm text-(--color-text-muted)">Conte o que procura e abra espaço para profissionais apresentarem boas soluções.</p>
-              </div>
-            )}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </section>
   );
@@ -452,12 +263,11 @@ async function Vitrine() {
     await getHomeData();
 
   return (
-    <section id="vitrine" className="scroll-mt-24 border-t border-(--color-border) py-12 sm:py-16">
+    <section id="vitrine" className="scroll-mt-24 py-8 sm:py-10">
       <SectionHeading
-        title="Explore o que já está disponível"
-        description="Serviços para contratar. Produtos digitais para levar sua ideia adiante."
+        title="Encontre quem faz"
         href="/descobrir"
-        label="Explorar tudo"
+        label="Ver todos"
       />
       {unavailable ? (
         <p role="status" className="mt-5 text-sm text-(--color-text-muted)">
@@ -473,13 +283,13 @@ async function Vitrine() {
           <h3 className="mb-4 text-lg font-semibold">
             Serviços para o seu projeto
           </h3>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {gigs.slice(0, 4).map((gig) => (
               <GigCard
                 key={gig.id}
                 gig={gig}
                 creatorName={creatorById.get(gig.creatorId)?.displayName}
-                compactOnMobile
+                marketplace
               />
             ))}
           </div>
