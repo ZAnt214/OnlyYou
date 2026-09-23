@@ -171,6 +171,7 @@ export function ConversationView({
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [attachmentCaption, setAttachmentCaption] = useState("");
   const [showAttachmentForm, setShowAttachmentForm] = useState(false);
+  const [showWorkActions, setShowWorkActions] = useState(false);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [deliveryFile, setDeliveryFile] = useState<File | null>(null);
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
@@ -755,21 +756,6 @@ export function ConversationView({
               role="menu"
               className="absolute right-0 z-10 mt-2 w-64 rounded-xl border border-(--color-border) bg-(--color-surface) py-1 shadow-lg"
             >
-              {customServiceOrder?.status === "in_progress" && isCreator ? (
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    setShowAttachmentForm(false);
-                    setShowDeliveryForm(true);
-                  }}
-                  className="flex w-full items-center gap-2 border-b border-(--color-border) px-3 py-2 text-left text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
-                >
-                  <CheckCircle2 size={14} strokeWidth={1.5} />
-                  Finalizar entrega
-                </button>
-              ) : null}
               {reportSent ? (
                 <p className="px-3 py-2 text-sm text-(--color-text-muted)">
                   Denúncia enviada. Nossa equipe vai analisar.
@@ -1211,18 +1197,72 @@ export function ConversationView({
       {showProposalForm || showAttachmentForm || showDeliveryForm ? null : isClosed ? (
         <p className="text-center text-xs text-(--color-text-subtle)">Esta conversa está encerrada.</p>
       ) : (
-        <form onSubmit={handleSend} className="w-full min-w-0">
+        <form onSubmit={handleSend} className="relative w-full min-w-0">
           <div className="flex w-full min-w-0 items-center gap-2">
             {customServiceOrder?.status === "in_progress" && isCreator ? (
-              <button
-                type="button"
-                onClick={() => setShowAttachmentForm(true)}
-                aria-label="Enviar arquivo para revisão"
-                title="Enviar arquivo para revisão"
-                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-(--color-contrast) text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight)"
-              >
-                <Paperclip size={18} strokeWidth={1.5} />
-              </button>
+              <div className="relative flex-shrink-0">
+                {showWorkActions ? (
+                  <div
+                    role="menu"
+                    className="absolute bottom-full left-0 z-30 mb-2 w-72 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) p-1.5 shadow-lg"
+                  >
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setShowWorkActions(false);
+                        setShowDeliveryForm(false);
+                        setShowAttachmentForm(true);
+                      }}
+                      className="flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-(--color-surface-2)"
+                    >
+                      <Paperclip size={18} className="mt-0.5 flex-shrink-0 text-(--color-accent-text)" strokeWidth={1.5} />
+                      <span className="flex flex-col gap-0.5">
+                        <span className="text-sm font-semibold text-(--color-text)">Enviar arquivo</span>
+                        <span className="text-xs leading-relaxed text-(--color-text-muted)">
+                          Compartilhar uma versão para revisão e ajustes.
+                        </span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setShowWorkActions(false);
+                        setShowAttachmentForm(false);
+                        setShowDeliveryForm(true);
+                      }}
+                      className="flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-(--color-surface-2)"
+                    >
+                      <CheckCircle2 size={18} className="mt-0.5 flex-shrink-0 text-(--color-accent-text)" strokeWidth={1.5} />
+                      <span className="flex flex-col gap-0.5">
+                        <span className="text-sm font-semibold text-(--color-text)">Finalizar entrega</span>
+                        <span className="text-xs leading-relaxed text-(--color-text-muted)">
+                          Marcar o trabalho como pronto e enviar a versão final.
+                        </span>
+                      </span>
+                    </button>
+                  </div>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setShowWorkActions((v) => !v);
+                  }}
+                  aria-haspopup="menu"
+                  aria-expanded={showWorkActions}
+                  aria-label={showWorkActions ? "Fechar ações do trabalho" : "Abrir ações do trabalho"}
+                  title={showWorkActions ? "Fechar ações" : "Ações do trabalho"}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--color-contrast) text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight)"
+                >
+                  {showWorkActions ? (
+                    <XCircle size={18} strokeWidth={1.5} />
+                  ) : (
+                    <PlusCircle size={18} strokeWidth={1.5} />
+                  )}
+                </button>
+              </div>
             ) : canCreateProposal && !showProposalForm ? (
               <button
                 type="button"
@@ -1237,6 +1277,7 @@ export function ConversationView({
             <input
               value={text}
               onChange={(e) => handleTextChange(e.target.value)}
+              onFocus={() => setShowWorkActions(false)}
               disabled={sending}
               placeholder="Escreva uma mensagem"
               className="min-w-0 flex-1 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-base text-(--color-text) shadow-sm focus:border-(--color-accent-text) sm:text-sm focus:outline-none disabled:opacity-60"
