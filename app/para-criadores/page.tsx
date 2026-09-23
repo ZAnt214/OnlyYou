@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight, UserRound, Megaphone, MessageSquare, HandCoins } from "lucide-react";
+import { SectionLabel } from "@/components/SectionLabel";
 
 export const metadata: Metadata = {
   title: "Jobê para criadores",
@@ -60,7 +61,7 @@ export default function ParaCriadoresPage() {
 
       <section className="border-t border-(--color-border) bg-(--color-surface-2) py-10 sm:py-14">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Como funciona</p>
+          <SectionLabel>Como funciona</SectionLabel>
           <h2 className="mt-3 max-w-lg text-2xl font-bold tracking-tight sm:text-3xl">Do perfil ao pagamento, em quatro passos.</h2>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map(({ icon: Icon, title, description }, i) => (
@@ -79,7 +80,7 @@ export default function ParaCriadoresPage() {
 
       <section className="border-t border-(--color-border) py-10 sm:py-14">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">O que você pode publicar</p>
+          <SectionLabel>O que publicar</SectionLabel>
           <h2 className="mt-3 max-w-lg text-2xl font-bold tracking-tight sm:text-3xl">Duas formas de vender, no mesmo perfil.</h2>
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
             <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6">
@@ -104,7 +105,7 @@ export default function ParaCriadoresPage() {
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="grid items-start gap-10 md:grid-cols-2 md:gap-16">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Como as pessoas te encontram</p>
+              <SectionLabel>Como te encontram</SectionLabel>
               <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">Busca, categorias e o seu perfil público.</h2>
               <p className="mt-4 text-sm leading-relaxed text-(--color-text-muted)">
                 Seus serviços e produtos aparecem na busca, nas categorias e na vitrine da home. Quem
@@ -113,7 +114,7 @@ export default function ParaCriadoresPage() {
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Pedidos e conversas</p>
+              <SectionLabel>Pedidos e conversas</SectionLabel>
               <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">Tudo combinado antes de fechar.</h2>
               <p className="mt-4 text-sm leading-relaxed text-(--color-text-muted)">
                 Uma pessoa se interessa e conversa com você — direto ou a partir de um pedido
@@ -127,7 +128,7 @@ export default function ParaCriadoresPage() {
 
       <section className="border-t border-(--color-border) py-10 sm:py-14">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Como montar um bom perfil</p>
+          <SectionLabel>Seu perfil</SectionLabel>
           <h2 className="mt-3 max-w-lg text-2xl font-bold tracking-tight sm:text-3xl">Pequenos detalhes que fazem diferença.</h2>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {PROFILE_TIPS.map((tip) => (

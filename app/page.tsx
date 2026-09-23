@@ -13,6 +13,7 @@ import { FeedPostCard } from "@/components/FeedPostCard";
 import { GigFeedCard } from "@/components/GigFeedCard";
 import { HomeCatalogTabs } from "@/components/HomeCatalogTabs";
 import { EmptyState } from "@/components/EmptyState";
+import { SectionLabel } from "@/components/SectionLabel";
 
 export const revalidate = 60;
 export const metadata: Metadata = {
@@ -59,7 +60,7 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <section aria-labelledby="home-title" className="pb-6 pt-8 sm:pb-8 sm:pt-12">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-(--color-text-muted)">Veio contratar ou mostrar o que sabe fazer?</p>
+        <SectionLabel>Para quem contrata e para quem cria</SectionLabel>
         <h1 id="home-title" className="mt-3 max-w-3xl text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
           Tem algo em mente?<br />Vamos encontrar quem pode ajudar.
         </h1>
@@ -93,12 +94,12 @@ export default function HomePage() {
       <section id="como-funciona" aria-labelledby="conversation-title" className="-mx-4 scroll-mt-24 bg-(--color-surface-2) px-4 py-8 sm:-mx-6 sm:px-6 sm:py-12 lg:-mx-8 lg:px-8">
         <div className="grid items-center gap-6 md:grid-cols-2 md:gap-12">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Um bom começo é se entender</p>
+            <SectionLabel>Antes de contratar</SectionLabel>
             <h2 id="conversation-title" className="mt-3 max-w-lg text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Conversem antes de decidir.</h2>
             <p className="mt-5 max-w-sm text-base leading-relaxed text-(--color-text-muted)">Explique sua ideia, entenda como o profissional trabalha e combinem juntos o que será feito, o valor e o prazo.</p>
           </div>
           <div className="max-w-md">
-            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-(--color-accent-text)">Antes de fechar</p>
+            <SectionLabel className="mb-3">Antes de fechar</SectionLabel>
             <div className="space-y-3">
               <div className="ml-auto max-w-[85%] text-right">
                 <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-(--color-text-subtle)">Você</p>
@@ -127,7 +128,7 @@ export default function HomePage() {
         id="duvidas"
         className="grid scroll-mt-24 gap-6 border-t border-(--color-border) py-10 sm:py-14 md:grid-cols-[0.85fr_1.4fr] md:gap-16"
       >
-        <div><p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Antes de começar</p><h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Vamos tirar<br />suas dúvidas.</h2></div>
+        <div><SectionLabel>Dúvidas frequentes</SectionLabel><h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Vamos tirar<br />suas dúvidas.</h2></div>
         <div>
         {questions.map(([question, answer]) => (
           <details
@@ -191,6 +192,7 @@ async function Vitrine() {
   return (
     <section id="vitrine" className="scroll-mt-24 py-9 sm:py-12">
       <SectionHeading
+        eyebrow="Encontre profissionais"
         title="Boas ideias. Gente que faz."
         href="/descobrir"
         label="Ver todos"
@@ -226,6 +228,7 @@ async function Vitrine() {
       {offers.length ? (
         <div className="mt-9 border-t border-(--color-border) pt-8">
           <SectionHeading
+            eyebrow="Promoções"
             title="Ofertas"
             href="/descobrir?ofertas=1"
             label="Ver ofertas"
@@ -259,8 +262,8 @@ async function Community() {
       className="scroll-mt-24 border-t border-(--color-border) py-9 sm:py-12"
     >
       <div className="max-w-lg">
-        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Tem algo que você faz bem?</p>
-        <h2 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Tem gente procurando por isso.</h2>
+        <SectionLabel>Para criadores</SectionLabel>
+        <h2 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Tem algo que você faz bem? Tem gente procurando por isso.</h2>
         <p className="mt-5 text-base leading-relaxed text-(--color-text-muted)">Transforme suas habilidades em serviços ou produtos digitais e coloque seu trabalho à venda no Jobê.</p>
         <Link href="/para-criadores" className="mt-6 inline-flex min-h-12 items-center gap-3 rounded-(--radius-pill) bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">Conhecer o Jobê para criadores <ArrowUpRight size={18} aria-hidden="true" /></Link>
       </div>
@@ -306,11 +309,13 @@ function FeedItemCard({ item, creator }: { item: FeedItem; creator?: User }) {
 }
 
 function SectionHeading({
+  eyebrow,
   title,
   description,
   href,
   label,
 }: {
+  eyebrow?: string;
   title: string;
   description?: string;
   href?: string;
@@ -319,6 +324,7 @@ function SectionHeading({
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2">
       <div>
+        {eyebrow ? <SectionLabel className="mb-2">{eyebrow}</SectionLabel> : null}
         <h2 className="text-2xl font-bold tracking-tight text-(--color-text) sm:text-3xl">
           {title}
         </h2>
