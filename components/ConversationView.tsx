@@ -695,7 +695,9 @@ export function ConversationView({
             <div className="flex min-w-0 items-center gap-2">
               <span className="min-w-0 truncate text-xs text-(--color-on-contrast) opacity-70">{serviceLabel}</span>
               <StatusBadge status={request.status} variant="inline" />
-              <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
+              {counterpartRatingCount > 0 ? (
+                <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
+              ) : null}
             </div>
           </div>
         </div>
@@ -889,10 +891,30 @@ export function ConversationView({
         </div>
       ) : null}
 
-      {customServiceOrder?.status === "in_progress" && isCreator ? (
-        <div className="flex flex-shrink-0 flex-col gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-4 text-sm">
-          {showDeliveryForm ? (
-            <form onSubmit={handleSendDelivery} className="flex flex-col gap-2">
+      {customServiceOrder?.status === "in_progress" && isCreator && showDeliveryForm ? (
+        <div className="absolute inset-0 z-20 flex min-h-0 flex-col gap-3 overflow-y-auto rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-lg">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-(--color-text)">Enviar entrega</p>
+              <p className="mt-0.5 text-xs text-(--color-text-muted)">
+                Selecione o arquivo final que será entregue ao comprador.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowDeliveryForm(false);
+                setDeliveryFile(null);
+              }}
+              aria-label="Fechar envio de entrega"
+              title="Fechar"
+              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-(--color-text-muted) transition-colors hover:bg-(--color-surface-2) hover:text-(--color-text)"
+            >
+              <XCircle size={18} strokeWidth={1.5} />
+            </button>
+          </div>
+          <form onSubmit={handleSendDelivery} className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
               <label htmlFor="delivery-file" className="text-sm font-medium text-(--color-text)">
                 Arquivo da entrega
               </label>
@@ -901,31 +923,34 @@ export function ConversationView({
                 type="file"
                 onChange={(e) => setDeliveryFile(e.target.files?.[0] ?? null)}
                 required
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-(--color-accent) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-(--color-on-accent)"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base file:mr-3 file:rounded-full file:border-0 file:bg-(--color-accent) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-(--color-on-accent) sm:text-sm"
               />
+            </div>
+            <div className="flex items-center gap-2">
               <button
                 type="submit"
                 disabled={busy || !deliveryFile}
-                className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
+                className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
               >
                 {uploadingDelivery ? (
                   <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
                 ) : (
                   <Paperclip size={14} strokeWidth={1.5} />
                 )}
-                {uploadingDelivery ? "Enviando arquivo…" : "Confirmar envio da entrega"}
+                {uploadingDelivery ? "Enviando arquivo…" : "Confirmar entrega"}
               </button>
-            </form>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowDeliveryForm(true)}
-              className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
-            >
-              <Paperclip size={14} strokeWidth={1.5} />
-              Enviar entrega
-            </button>
-          )}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeliveryForm(false);
+                  setDeliveryFile(null);
+                }}
+                className="rounded-md px-3 py-2 text-sm text-(--color-text-muted) hover:text-(--color-text)"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
         </div>
       ) : null}
 
@@ -1052,12 +1077,22 @@ export function ConversationView({
       ) : null}
       </div>
 
-      {showProposalForm ? null : isClosed ? (
+      {showProposalForm || showDeliveryForm ? null : isClosed ? (
         <p className="text-center text-xs text-(--color-text-subtle)">Esta conversa está encerrada.</p>
       ) : (
         <form onSubmit={handleSend} className="w-full min-w-0">
           <div className="flex w-full min-w-0 items-center gap-2">
-            {canCreateProposal && !showProposalForm ? (
+            {customServiceOrder?.status === "in_progress" && isCreator ? (
+              <button
+                type="button"
+                onClick={() => setShowDeliveryForm(true)}
+                aria-label="Enviar entrega"
+                title="Enviar entrega"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-(--color-contrast) text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight)"
+              >
+                <Paperclip size={18} strokeWidth={1.5} />
+              </button>
+            ) : canCreateProposal && !showProposalForm ? (
               <button
                 type="button"
                 onClick={handleOpenProposalForm}
