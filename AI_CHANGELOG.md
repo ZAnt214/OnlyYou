@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Remove ícone do aviso de proteção no chat
+
+- Objetivo: usuário pediu um aviso ainda mais discreto, sem o ícone de escudo.
+- `components/ConversationView.tsx`: removido `ShieldCheck` do aviso de proteção e também do
+  import de `lucide-react`. O texto e o fundo neutro permanecem iguais.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: alteração visual simples, sem novas dependências ou cores literais.
+
+
 ## 2026-09-23 — Ancora a última mensagem acima do teclado no mobile
 
 - Objetivo: reproduzir o comportamento esperado de mensageiros como o WhatsApp: quando o teclado

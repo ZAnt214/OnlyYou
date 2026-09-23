@@ -18,7 +18,6 @@ import {
   Loader2,
   Star,
   ArrowLeft,
-  ShieldCheck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { uploadFile } from "@/lib/uploadFile";
@@ -770,8 +769,7 @@ export function ConversationView({
         ref={messagesScrollRef}
         className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-2xl bg-(--color-surface) p-4 shadow-sm"
       >
-        <div className="flex max-w-[82%] items-center justify-center gap-1.5 self-center rounded-xl bg-(--color-surface-2) px-3 py-2 text-center text-[11px] leading-relaxed text-(--color-text-muted)">
-          <ShieldCheck size={12} className="shrink-0" strokeWidth={1.5} />
+        <div className="flex max-w-[82%] items-center justify-center self-center rounded-xl bg-(--color-surface-2) px-3 py-2 text-center text-[11px] leading-relaxed text-(--color-text-muted)">
           <span>Mantenha conversa e pagamento no Jobê para sua proteção.</span>
         </div>
         {messages.length === 0 ? (
