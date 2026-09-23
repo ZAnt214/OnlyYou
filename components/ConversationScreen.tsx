@@ -66,6 +66,7 @@ export function ConversationScreen({
         actingUserId={actingUserId}
         authLoading={authLoading}
         backHref={backHref}
+        viewportHeight={viewportHeight}
       />
     </div>
   );

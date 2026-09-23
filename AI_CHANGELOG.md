@@ -1,5 +1,24 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Ancora a última mensagem acima do teclado no mobile
+
+- Objetivo: reproduzir o comportamento esperado de mensageiros como o WhatsApp: quando o teclado
+  abre, a conversa não deve apenas perder altura; o histórico precisa subir junto para manter a
+  mensagem mais recente visível imediatamente acima do compositor.
+- `components/ConversationScreen.tsx`: a altura atual de `visualViewport`, que já controla a
+  altura da tela, agora também é repassada para `ConversationView`.
+- `components/ConversationView.tsx`: a área rolável das mensagens ganhou uma ref própria. Sempre
+  que chegam mensagens ou a altura do `visualViewport` muda (abertura/fechamento do teclado),
+  a rolagem é ancorada no final da conversa via `requestAnimationFrame`.
+- Resultado esperado no mobile: ao abrir o teclado, o compositor permanece acima dele e a última
+  mensagem acompanha a redução de viewport, ficando logo acima do campo de digitação, sem alterar
+  a escala visual da tela.
+- Arquivos: `components/ConversationScreen.tsx`, `components/ConversationView.tsx`,
+  `AI_CHANGELOG.md`.
+- Validação: alteração restrita a layout/scroll e sem introdução de cores literais ou classes de
+  paleta fixa.
+
+
 ## 2026-09-23 — Simplifica status, menu e aviso do chat
 
 - Objetivo: usuário apontou três elementos que ainda estavam chamando atenção demais no chat:

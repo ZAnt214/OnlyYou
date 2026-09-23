@@ -92,9 +92,11 @@ export function ConversationView({
   actingUserId,
   authLoading = false,
   backHref,
+  viewportHeight = null,
 }: {
   customRequestId: string;
   actingUserId: string | null;
+  viewportHeight?: number | null;
   /**
    * true enquanto a sessão ainda está sendo resolvida no cliente (ver
    * useCurrentUserId) — sem isso, `actingUserId` começa `null` mesmo pra
@@ -178,6 +180,7 @@ export function ConversationView({
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTypingSentAtRef = useRef(0);
+  const messagesScrollRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const load = useCallback(async () => {
@@ -279,12 +282,21 @@ export function ConversationView({
     void load();
   }, [load]);
 
-  // A região central da conversa rola dentro de si mesma (ver o
-  // overflow-y-auto logo abaixo do cabeçalho) — sem isso, mensagem nova
-  // nasceria fora da área visível sem nenhum indício de que chegou.
+  // Mantém a conversa ancorada no fim tanto quando chega mensagem quanto
+  // quando o visualViewport muda de altura (principalmente ao abrir/fechar
+  // o teclado no celular). Assim o teclado "empurra" a conversa pra cima e
+  // a última mensagem continua imediatamente acima do compositor, em vez
+  // de o chat apenas encolher mantendo uma posição antiga de rolagem.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ block: "end" });
-  }, [messages]);
+    const scrollArea = messagesScrollRef.current;
+    if (!scrollArea) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      scrollArea.scrollTop = scrollArea.scrollHeight;
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [messages, viewportHeight]);
 
   useEffect(() => {
     if (autoReviewPromptShownRef.current) return;
@@ -754,7 +766,10 @@ export function ConversationView({
         </div>
       ) : null}
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-2xl bg-(--color-surface) p-4 shadow-sm">
+      <div
+        ref={messagesScrollRef}
+        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-2xl bg-(--color-surface) p-4 shadow-sm"
+      >
         <div className="flex max-w-[82%] items-center justify-center gap-1.5 self-center rounded-xl bg-(--color-surface-2) px-3 py-2 text-center text-[11px] leading-relaxed text-(--color-text-muted)">
           <ShieldCheck size={12} className="shrink-0" strokeWidth={1.5} />
           <span>Mantenha conversa e pagamento no Jobê para sua proteção.</span>
