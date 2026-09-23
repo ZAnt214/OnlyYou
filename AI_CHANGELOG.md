@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Corrige lado dos balões trocado na seção de conversa da home
+
+- Objetivo: correção apontada pelo usuário — no exemplo de conversa da seção "como funciona"
+  (entrada anterior deste changelog, mesmo dia), "Você" aparecia à esquerda num balão claro e
+  "Profissional" à direita num balão escuro, o oposto da convenção usada no chat de verdade do
+  app (`components/ConversationView.tsx`, `MessageItem`): mensagem própria (`isOwn`) sempre à
+  direita (`self-end`) em `bg-(--color-accent)`, mensagem da outra pessoa à esquerda em balão
+  claro com borda.
+- `app/page.tsx`: troca os lados — "Você" agora à direita em `bg-(--color-accent)` (mesmo token
+  usado pra mensagem própria no chat real, no lugar do `--color-contrast` genérico anterior);
+  "Profissional" à esquerda no balão claro com borda. O texto de cada fala continua o mesmo,
+  só a lateral/label mudou de lugar.
+- Arquivos: `app/page.tsx`.
+- Validações: `npx tsc --noEmit`, `npx eslint app/page.tsx` e busca por cor fixa no arquivo
+  alterado — todos sem problemas.
+
 ## 2026-09-23 — Compacta e redesenha a seção de conversa "como funciona" da home
 
 - Objetivo: feedback do usuário sobre a seção "Espaço para combinar" / "Um bom trabalho começa

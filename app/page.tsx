@@ -101,13 +101,13 @@ export default function HomePage() {
           <div className="max-w-md">
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-(--color-accent-text)">Antes de fechar</p>
             <div className="space-y-3">
-              <div className="max-w-[85%]">
-                <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-(--color-text-subtle)">Você</p>
-                <p className="rounded-2xl rounded-bl-sm border border-(--color-border) bg-(--color-bg) px-4 py-3 text-sm leading-relaxed">Tenho uma ideia para a identidade da minha marca. Posso te contar?</p>
-              </div>
               <div className="ml-auto max-w-[85%] text-right">
+                <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-(--color-text-subtle)">Você</p>
+                <p className="rounded-2xl rounded-br-sm bg-(--color-accent) px-4 py-3 text-left text-sm leading-relaxed text-(--color-on-accent)">Tenho uma ideia para a identidade da minha marca. Posso te contar?</p>
+              </div>
+              <div className="max-w-[85%]">
                 <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-(--color-text-subtle)">Profissional</p>
-                <p className="rounded-2xl rounded-br-sm bg-(--color-contrast) px-4 py-3 text-left text-sm leading-relaxed text-(--color-on-contrast)">Claro. Me conta o que você imaginou e a gente vê juntos como fazer.</p>
+                <p className="rounded-2xl rounded-bl-sm border border-(--color-border) bg-(--color-bg) px-4 py-3 text-sm leading-relaxed">Claro. Me conta o que você imaginou e a gente vê juntos como fazer.</p>
               </div>
             </div>
             <div className="mt-5 flex items-center gap-2 border-t border-(--color-border) pt-4 text-xs font-semibold text-(--color-text)">
