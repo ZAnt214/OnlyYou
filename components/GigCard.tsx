@@ -82,7 +82,7 @@ export function GigCard({
             </span>
           </div>
         ) : null}
-        <h3 className="line-clamp-2 text-sm font-semibold text-(--color-text)">
+        <h3 className="line-clamp-2 min-h-10 text-sm font-semibold text-(--color-text)">
           {gig.title}
         </h3>
         {marketplace ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-(--color-border) pt-3"><p className="text-xs text-(--color-text-muted)">{gig.deliveryDays ? `Entrega em ${gig.deliveryDays} ${gig.deliveryDays === 1 ? "dia" : "dias"}` : "Prazo a combinar"}</p><PriceTag price={gig.priceCents / 100} size="md" /></div> : null}
