@@ -61,7 +61,7 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <section
         aria-labelledby="home-title"
-        className="grid gap-10 pb-10 pt-10 sm:py-16 lg:grid-cols-[1.25fr_0.75fr] lg:items-center lg:gap-16"
+        className="grid gap-10 rounded-3xl bg-gradient-to-br from-(--color-accent-soft) via-(--color-surface) to-(--color-surface) px-5 py-10 sm:px-10 sm:py-16 lg:grid-cols-[1.25fr_0.75fr] lg:items-center lg:gap-16 lg:px-14"
       >
         <div>
           <h1
@@ -80,7 +80,7 @@ export default function HomePage() {
             action="/descobrir"
             role="search"
             aria-label="Buscar no Jobê"
-            className="mt-7 flex items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) p-1.5 pl-4 shadow-sm focus-within:outline-2 focus-within:outline-(--color-accent-text)"
+            className="mt-7 flex items-center gap-2 rounded-full border border-(--color-border) bg-(--color-surface) p-1.5 pl-4 shadow-md shadow-black/5 focus-within:outline-2 focus-within:outline-(--color-accent-text)"
           >
             <Search
               size={20}
@@ -131,7 +131,7 @@ export default function HomePage() {
         </div>
         <aside
           aria-label="Formas de comprar no Jobê"
-          className="border-t border-(--color-border) pt-6 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"
+          className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm sm:p-6"
         >
           <p className="text-sm font-medium text-(--color-text-muted)">
             Escolha como começar
@@ -139,6 +139,7 @@ export default function HomePage() {
           <h2 className="mt-1 text-xl font-semibold text-(--color-text)">
             Do seu jeito, no seu tempo
           </h2>
+          <div className="mt-2">
           {[
             [
               "/descobrir",
@@ -164,7 +165,7 @@ export default function HomePage() {
             <Link
               key={title}
               href={href}
-              className="group flex min-h-20 items-center justify-between gap-4 border-b border-(--color-border) py-4 last:border-b-0"
+              className="group -mx-3 flex min-h-20 items-center justify-between gap-4 rounded-xl px-3 py-4 transition-colors hover:bg-(--color-surface-2)"
             >
               <span>
                 <span className="block text-base font-semibold text-(--color-text)">
@@ -181,9 +182,10 @@ export default function HomePage() {
               />
             </Link>
           ))}
+          </div>
         </aside>
       </section>
-      <div className="grid grid-cols-3 divide-x divide-(--color-border) border-y border-(--color-border) py-4">
+      <div className="mt-6 grid grid-cols-3 divide-x divide-(--color-border) rounded-2xl border border-(--color-border) bg-(--color-surface) py-4 shadow-sm sm:mt-8">
         {[
           ["Preço", "visível"],
           ["Conversa", "antes de fechar"],
@@ -202,7 +204,7 @@ export default function HomePage() {
       </div>
       <nav
         aria-label="Caminho principal da página inicial"
-        className="no-scrollbar -mx-4 flex overflow-x-auto border-b border-(--color-border) px-4 sm:mx-0 sm:px-0"
+        className="no-scrollbar -mx-4 mt-6 flex overflow-x-auto border-b border-(--color-border) px-4 sm:mx-0 sm:mt-8 sm:px-0"
       >
         {[
           ["01", "categorias", "Escolha uma categoria"],
@@ -230,12 +232,12 @@ export default function HomePage() {
           href="/descobrir"
           label="Todas as categorias"
         />
-        <div className="mt-6 grid grid-cols-2 gap-x-6 sm:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {categories.map(([slug, name, description]) => (
             <Link
               key={slug}
               href={"/categorias/" + slug}
-              className="group border-b border-(--color-border) py-4 transition-colors hover:border-(--color-text-muted)"
+              className="group rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-(--color-accent-text) hover:shadow-md"
             >
               <span className="flex items-center justify-between gap-2 text-base font-semibold text-(--color-text)">
                 {name}
@@ -282,7 +284,7 @@ export default function HomePage() {
             ],
           ].map(([title, text], i) => (
             <li key={title}>
-              <span className="inline-flex h-9 items-center text-sm font-medium tabular-nums text-(--color-text-subtle)">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-(--color-accent-soft) text-sm font-semibold tabular-nums text-(--color-accent-text)">
                 0{i + 1}
               </span>
               <h3 className="mb-2 mt-3 text-lg font-semibold">{title}</h3>
@@ -300,15 +302,15 @@ export default function HomePage() {
           <ArrowUpRight size={16} aria-hidden="true" />
         </Link>
       </section>
-      <section className="border-y border-(--color-border) py-8 sm:py-12">
-        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+      <section className="rounded-3xl bg-(--color-accent-soft) px-6 py-10 sm:px-10 sm:py-12">
+        <h2 className="text-2xl font-bold tracking-tight text-(--color-text) sm:text-3xl">
           Tem um trabalho para mostrar?
         </h2>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
           Crie seu perfil, publique serviços ou produtos digitais e converse com
           quem procura o que você oferece.
         </p>
-        <div className="mt-6 border-t border-(--color-border) pt-6">
+        <div className="mt-6">
           <Link
             href="/dashboard"
             className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
@@ -387,7 +389,7 @@ async function OpportunitySpotlight() {
 
   return (
     <section id="oportunidades" className="scroll-mt-24 py-12 sm:py-16">
-      <div className="border-y border-(--color-border) bg-(--color-bg) sm:rounded-2xl sm:border">
+      <div className="border-y border-(--color-border) bg-(--color-surface) shadow-sm sm:rounded-2xl sm:border">
         <div className="grid gap-8 px-1 py-7 sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:p-10">
           <div className="flex flex-col items-start">
             <p className="text-sm font-medium text-(--color-text-muted)">Pedidos abertos</p>
