@@ -2,9 +2,11 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Search } from "lucide-react";
-import type { Category, Gig, Product } from "@/lib/types";
+import { GIG_CATEGORY_LABELS, type Category, type Gig, type GigCategory, type Product } from "@/lib/types";
 import { ProductCard } from "@/components/ProductCard";
 import { GigCard } from "@/components/GigCard";
+
+const GIG_CATEGORY_SLUGS = new Set(Object.keys(GIG_CATEGORY_LABELS));
 
 const SORTS = [
   { value: "", label: "Relevância" },
@@ -189,8 +191,12 @@ export function ExploreGigs({
   searching: boolean;
 }) {
   const { category } = useExploreFilters();
-  const selectedGigCategory =
-    category === "elojob" ? "elojob" : category === "jogue-comigo" ? "play_together" : null;
+  const selectedGigCategory: GigCategory | null =
+    category === "jogue-comigo"
+      ? "play_together"
+      : GIG_CATEGORY_SLUGS.has(category)
+        ? (category as GigCategory)
+        : null;
   const visibleGigs = selectedGigCategory
     ? gigs.filter((gig) => gig.category === selectedGigCategory)
     : category
@@ -206,9 +212,11 @@ export function ExploreGigs({
             ? "Serviços de Elojob"
             : selectedGigCategory === "play_together"
               ? "Jogue com profissionais"
-              : searching
-                ? "Serviços encontrados"
-                : "Serviços para tirar ideias do papel"}
+              : selectedGigCategory
+                ? `Serviços de ${GIG_CATEGORY_LABELS[selectedGigCategory]}`
+                : searching
+                  ? "Serviços encontrados"
+                  : "Serviços para tirar ideias do papel"}
         </h2>
         <p className="mt-1 text-sm leading-relaxed text-(--color-text-muted)">
           {selectedGigCategory === "play_together"
