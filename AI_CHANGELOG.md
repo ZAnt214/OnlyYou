@@ -1,5 +1,18 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Remove borda externa da área de conversa
+
+- Objetivo: após aplicar o visual de alto contraste ao chat, o usuário percebeu um contorno claro
+  envolvendo toda a área das mensagens. Esse contorno vinha da borda do container principal da
+  conversa e deixava a tela com aparência de “card dentro de card”.
+- `components/ConversationView.tsx`: removidos `border` e `border-(--color-border)` somente
+  do container rolável que envolve os balões de mensagem. Fundo branco, raio e sombra leve foram
+  mantidos para separar a conversa do fundo externo sem criar uma moldura visível.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: alteração restrita a classes visuais existentes, sem introduzir cor literal ou nova
+  dependência.
+
+
 ## 2026-09-23 — Aplica visual de alto contraste ao chat
 
 - Objetivo: usuário escolheu a opção 3 (“Alto contraste”) entre as prévias do chat. A conversa
