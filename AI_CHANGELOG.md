@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Integra “Criar proposta” ao campo de mensagem
+
+- Objetivo: o botão “Criar proposta” ocupava uma linha inteira abaixo do histórico e reduzia a
+  área útil do chat, principalmente no celular.
+- `components/ConversationView.tsx`: removido o CTA grande em uma linha própria quando o
+  formulário está fechado. A ação agora aparece como um botão compacto com ícone de “+” na mesma
+  linha do campo “Escreva uma mensagem”, antes do input.
+- O formulário completo de proposta continua igual e só ocupa espaço depois que o criador toca
+  no botão, ou seja, durante a conversa normal toda a altura que antes pertencia ao CTA volta para
+  o histórico de mensagens.
+- O botão compacto mantém `aria-label` e `title` “Criar proposta” para acessibilidade e usa
+  apenas tokens existentes do design system.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: busca por cores literais/classes fixas de paleta no arquivo alterado, sem ocorrências.
+
+
 ## 2026-09-23 — Move aviso de proteção para dentro da conversa
 
 - Objetivo: usuário pediu que o aviso de proteção se comporte como uma mensagem do próprio chat,

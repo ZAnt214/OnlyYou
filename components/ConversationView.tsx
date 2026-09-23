@@ -913,10 +913,9 @@ export function ConversationView({
         </div>
       ) : null}
 
-      {canCreateProposal && !composerFocused ? (
-        <div className={showProposalForm ? "flex flex-shrink-0 flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm" : "flex flex-shrink-0 flex-col gap-2 py-1"}>
-          {showProposalForm ? (
-            <form onSubmit={handleCreateProposal} className="flex flex-col gap-3">
+      {canCreateProposal && showProposalForm ? (
+        <div className="flex flex-shrink-0 flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+          <form onSubmit={handleCreateProposal} className="flex flex-col gap-3">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-(--color-text)">Tipo de serviço</label>
@@ -1009,17 +1008,7 @@ export function ConversationView({
                   Cancelar
                 </button>
               </div>
-            </form>
-          ) : (
-            <button
-              type="button"
-              onClick={handleOpenProposalForm}
-              className="flex w-fit items-center gap-1.5 rounded-xl bg-(--color-contrast) px-4 py-2 text-sm font-semibold text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight)"
-            >
-              <PlusCircle size={14} strokeWidth={1.5} />
-              Criar proposta
-            </button>
-          )}
+          </form>
         </div>
       ) : null}
 
@@ -1040,6 +1029,17 @@ export function ConversationView({
       ) : (
         <form onSubmit={handleSend}>
           <div className="flex items-center gap-2">
+            {canCreateProposal && !showProposalForm ? (
+              <button
+                type="button"
+                onClick={handleOpenProposalForm}
+                aria-label="Criar proposta"
+                title="Criar proposta"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-(--color-contrast) text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight)"
+              >
+                <PlusCircle size={18} strokeWidth={1.5} />
+              </button>
+            ) : null}
             <input
               value={text}
               onChange={(e) => handleTextChange(e.target.value)}
