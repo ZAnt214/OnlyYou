@@ -13,6 +13,7 @@ import { GigCard } from "@/components/GigCard";
 import { CreatorCard } from "@/components/CreatorCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { GigFeedCard } from "@/components/GigFeedCard";
+import { HomeCatalogTabs } from "@/components/HomeCatalogTabs";
 import { EmptyState } from "@/components/EmptyState";
 
 export const revalidate = 60;
@@ -94,76 +95,30 @@ export default function HomePage() {
       <Suspense fallback={<OpportunitySpotlightSkeleton />}>
         <OpportunitySpotlight />
       </Suspense>
+      <section id="como-funciona" aria-labelledby="conversation-title" className="-mx-4 scroll-mt-24 bg-(--color-surface-2) px-4 py-10 sm:-mx-6 sm:px-6 sm:py-14 lg:-mx-8 lg:px-8">
+        <div className="grid items-center gap-8 md:grid-cols-2 md:gap-16">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Espaço para combinar</p>
+            <h2 id="conversation-title" className="mt-3 max-w-lg text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Um bom trabalho<br />começa na conversa.</h2>
+            <p className="mt-5 max-w-sm text-base leading-relaxed text-(--color-text-muted)">Fale sobre sua ideia, tire dúvidas e combine os detalhes com quem vai fazer.</p>
+          </div>
+          <div className="max-w-lg">
+            <p className="mb-5 text-[10px] font-medium uppercase tracking-[0.15em] text-(--color-text-muted)">Uma conversa pode começar assim</p>
+            <p className="max-w-[88%] rounded-2xl rounded-bl-sm border border-(--color-border) bg-(--color-bg) px-5 py-4 text-sm leading-relaxed">Quero uma identidade para minha marca. Podemos conversar sobre o estilo?</p>
+            <p className="ml-auto mt-4 max-w-[88%] rounded-2xl rounded-br-sm bg-(--color-contrast) px-5 py-4 text-sm leading-relaxed text-(--color-on-contrast)">Claro! Me conta sobre a marca e o que você tem em mente.</p>
+            <div className="mt-6 flex items-center justify-between gap-4 border-t border-(--color-border) pt-5 text-xs text-(--color-text-muted)"><p><strong className="font-semibold text-(--color-text)">Escopo, valor e prazo.</strong><br />Combinados antes de fechar.</p><ArrowUpRight size={22} aria-hidden="true" /></div>
+          </div>
+        </div>
+      </section>
       <Suspense fallback={<CommunitySkeleton />}>
         <Community />
       </Suspense>
       <section
-        id="como-funciona"
-        className="scroll-mt-24 border-t border-(--color-border) py-10 sm:py-14"
-      >
-        <SectionHeading
-          title="Como funciona"
-          description="Encontre, converse e combine os detalhes do seu projeto."
-        />
-        <ol className="mt-6 grid gap-0 border-t border-(--color-border) md:grid-cols-3 md:divide-x md:divide-(--color-border)">
-          {[
-            [
-              "Encontre quem faz",
-              "Explore serviços, veja os perfis e compare o que cada profissional oferece.",
-            ],
-            [
-              "Converse antes de fechar",
-              "Conte o que precisa e combine escopo, valor e prazo na conversa.",
-            ],
-            [
-              "Acompanhe seu pedido",
-              "Veja as mensagens e a entrega no Jobê e avalie o resultado.",
-            ],
-          ].map(([title, text], i) => (
-            <li key={title} className="border-b border-(--color-border) py-5 md:border-b-0 md:px-6 md:py-6 md:first:pl-0 md:last:pr-0">
-              <span className="text-sm font-bold tabular-nums text-(--color-accent-text)">
-                0{i + 1}
-              </span>
-              <h3 className="mb-2 mt-3 text-lg font-semibold tracking-tight">{title}</h3>
-              <p className="max-w-sm text-sm leading-relaxed text-(--color-text-muted)">
-                {text}
-              </p>
-            </li>
-          ))}
-        </ol>
-        <Link
-          href="/seguranca"
-          className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-(--color-accent-text) underline underline-offset-4"
-        >
-          Conheça os cuidados e as regras do Jobê{" "}
-          <ArrowUpRight size={16} aria-hidden="true" />
-        </Link>
-      </section>
-      <section className="flex flex-col items-start justify-between gap-6 border-y border-(--color-border) py-9 sm:flex-row sm:items-center sm:py-12">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-accent-text)">Para profissionais</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-(--color-text) sm:text-3xl">
-            Mostre o que você faz.
-          </h2>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
-            Crie seu perfil, publique serviços ou produtos digitais e converse com quem procura seu trabalho.
-          </p>
-        </div>
-        <div className="shrink-0">
-          <Link
-            href="/dashboard"
-            className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-xl bg-(--color-accent) px-5 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
-          >
-            Quero oferecer meu trabalho{" "}
-            <ArrowUpRight size={18} aria-hidden="true" />
-          </Link>
-        </div>
-      </section>
-      <section
         id="duvidas"
-        className="mx-auto max-w-3xl scroll-mt-24 py-10 sm:py-14"
+        className="grid scroll-mt-24 gap-6 border-t border-(--color-border) py-10 sm:py-14 md:grid-cols-[0.85fr_1.4fr] md:gap-16"
       >
-        <h2 className="mb-4 text-2xl font-bold tracking-tight sm:text-3xl">Dúvidas frequentes</h2>
+        <div><p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Antes de começar</p><h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Vamos tirar<br />suas dúvidas.</h2></div>
+        <div>
         {questions.map(([question, answer]) => (
           <details
             key={question}
@@ -177,6 +132,11 @@ export default function HomePage() {
             </p>
           </details>
         ))}
+        </div>
+      </section>
+      <section className="-mx-4 flex flex-col items-start justify-between gap-6 bg-(--color-accent) px-4 py-9 text-(--color-on-accent) sm:-mx-6 sm:flex-row sm:items-center sm:px-6 lg:-mx-8 lg:px-8">
+        <h2 className="text-3xl font-bold leading-tight tracking-tight">O próximo projeto<br />pode começar aqui.</h2>
+        <Link href="/descobrir" className="inline-flex min-h-12 items-center gap-4 rounded-lg bg-(--color-contrast) px-5 py-3 text-sm font-semibold text-(--color-on-contrast) hover:opacity-90">Encontrar um profissional <ArrowUpRight size={18} aria-hidden="true" /></Link>
       </section>
     </div>
   );
@@ -222,19 +182,11 @@ async function OpportunitySpotlight() {
   const requests = (await getLatestOpportunities()).slice(0, 3);
 
   return (
-    <section id="oportunidades" className="scroll-mt-24 border-t border-(--color-border) py-9 sm:py-12">
-      <SectionHeading title="Pedidos publicados" href="/oportunidades" label="Ver todos" />
-      <p className="mt-2 text-sm leading-relaxed text-(--color-text-muted)">Pessoas que procuram um serviço ou produto. Veja o que elas precisam.</p>
-      <div className="mt-5 divide-y divide-(--color-border) border-t border-(--color-border)">
-        {requests.length ? requests.map((request) => (
-          <OpportunityPreview key={request.id} request={request} />
-        )) : (
-          <div className="py-6">
-            <p className="font-semibold">O primeiro pedido pode ser o seu.</p>
-            <p className="mt-2 text-sm text-(--color-text-muted)">Conte o que procura e receba respostas de profissionais.</p>
-            <Link href="/oportunidades/nova" className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4">Publicar pedido</Link>
-          </div>
-        )}
+    <section id="oportunidades" className="grid scroll-mt-24 gap-8 border-t border-(--color-border) py-10 sm:py-14 md:grid-cols-[1fr_1.15fr] md:gap-16">
+      <div><p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Outro jeito de encontrar</p><h2 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Conte o que precisa.<br />Abra a conversa.</h2><p className="mb-6 mt-5 max-w-sm text-sm leading-relaxed text-(--color-text-muted)">Publique seu pedido para que profissionais interessados possam responder e enviar propostas.</p><Link href="/oportunidades/nova" className="inline-flex min-h-12 items-center gap-6 rounded-lg bg-(--color-accent) px-5 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">Publicar meu pedido <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
+      <div className="border-t-2 border-(--color-text)">
+        <div className="divide-y divide-(--color-border)">{requests.length ? requests.map((request) => <OpportunityPreview key={request.id} request={request} />) : <div className="py-6"><h3 className="font-semibold">O primeiro pedido pode ser o seu.</h3><p className="mt-2 text-sm text-(--color-text-muted)">Conte o que procura e receba respostas de profissionais.</p></div>}</div>
+        <Link href="/oportunidades" className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold underline underline-offset-4">Ver todos os pedidos <ArrowUpRight size={16} aria-hidden="true" /></Link>
       </div>
     </section>
   );
@@ -266,7 +218,7 @@ async function Vitrine() {
   return (
     <section id="vitrine" className="scroll-mt-24 py-9 sm:py-12">
       <SectionHeading
-        title="Encontre quem faz"
+        title="Boas ideias. Gente que faz."
         href="/descobrir"
         label="Ver todos"
       />
@@ -279,39 +231,13 @@ async function Vitrine() {
           .
         </p>
       ) : null}
-      {gigs.length ? (
-        <div className="mt-7">
-          <h3 className="mb-4 text-lg font-semibold tracking-tight">
-            Serviços em destaque
-          </h3>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            {gigs.slice(0, 4).map((gig) => (
-              <GigCard
-                key={gig.id}
-                gig={gig}
-                creatorName={creatorById.get(gig.creatorId)?.displayName}
-                marketplace
-              />
-            ))}
-          </div>
-        </div>
-      ) : null}
-      {approved.length ? (
-        <div className="mt-9">
-          <h3 className="mb-4 text-lg font-semibold tracking-tight">
-            Produtos digitais
-          </h3>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            {approved.slice(0, 4).map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                creatorName={creatorById.get(product.creatorId)?.displayName}
-              />
-            ))}
-          </div>
-        </div>
-      ) : null}
+      <HomeCatalogTabs
+        services={<div className="grid grid-cols-2 gap-x-4 gap-y-7 lg:grid-cols-3">{gigs.filter(gig => gig.category !== "play_together").slice(0, 6).map(gig => <GigCard key={gig.id} gig={gig} creatorName={creatorById.get(gig.creatorId)?.displayName} marketplace />)}</div>}
+        products={<div className="grid grid-cols-2 gap-x-4 gap-y-7 lg:grid-cols-3">{approved.slice(0, 6).map(product => <ProductCard key={product.id} product={product} creatorName={creatorById.get(product.creatorId)?.displayName} marketplace />)}</div>}
+        gaming={<div className="grid grid-cols-2 gap-x-4 gap-y-7 lg:grid-cols-3">{gigs.filter(gig => gig.category === "play_together").slice(0, 6).map(gig => <GigCard key={gig.id} gig={gig} creatorName={creatorById.get(gig.creatorId)?.displayName} marketplace />)}</div>}
+        counts={[gigs.filter(gig => gig.category !== "play_together").length, approved.length, gigs.filter(gig => gig.category === "play_together").length]}
+        unavailable={unavailable}
+      />
       {!feed.length && !unavailable ? (
         <EmptyState
           icon={Search}
@@ -360,24 +286,12 @@ async function Community() {
       id="comunidade"
       className="scroll-mt-24 border-t border-(--color-border) py-9 sm:py-12"
     >
-      <SectionHeading
-        title="Conheça os profissionais"
-        description="Veja o perfil de quem publica serviços e produtos no Jobê."
-        href="/criadores"
-        label="Ver todos"
-      />
-      {featuredCreators.length ? (
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-          {featuredCreators.map((creator) => (
-            <CreatorCard key={creator.id} creator={creator} compactHome />
-          ))}
-        </div>
-      ) : null}
+      <div className="grid items-center gap-8 md:grid-cols-[1.25fr_1fr] md:gap-16">
+        <div><p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Para quem cria</p><h2 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Seu talento merece<br />um lugar na vitrine.</h2><p className="mt-5 max-w-md text-sm leading-relaxed text-(--color-text-muted)">Monte seu perfil, publique seus serviços e encontre pedidos que combinam com o que você faz.</p><Link href="/dashboard" className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold underline underline-offset-4">Quero ser criador <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
+        <div className="rounded-xl bg-(--color-contrast) p-6 text-(--color-on-contrast)"><h3 className="mb-5 text-lg font-semibold">Conheça quem já está por aqui</h3>{featuredCreators.length ? <div className="space-y-3">{featuredCreators.map(creator => <CreatorCard key={creator.id} creator={creator} compactHome />)}</div> : <p className="text-sm">Seu próximo projeto pode colocar seu trabalho em destaque.</p>}<Link href="/criadores" className="mt-5 flex min-h-11 items-center justify-between gap-4 border-t border-current pt-4 text-sm font-semibold">Conhecer profissionais <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
+      </div>
       {feed.length ? (
-        <div className="mt-9 border-t border-(--color-border) pt-7">
-          <h3 className="mb-4 text-lg font-semibold tracking-tight">
-            Publicações recentes
-          </h3>
+        <details className="mt-9 border-t border-(--color-border) pt-5"><summary className="cursor-pointer py-3 text-sm font-semibold">Publicações recentes da comunidade</summary>
           <div className="max-w-2xl">
             <FeedItemCard item={feed[0]} creator={creatorById.get(feed[0].data.creatorId)} />
           </div>
@@ -397,7 +311,7 @@ async function Community() {
               </div>
             </details>
           ) : null}
-        </div>
+        </details>
       ) : !featuredCreators.length ? (
         <p className="mt-6 text-sm text-(--color-text-muted)">
           {unavailable

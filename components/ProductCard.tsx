@@ -9,16 +9,18 @@ import { Play } from "lucide-react";
 export function ProductCard({
   product,
   creatorName,
+  marketplace = false,
 }: {
   product: Product;
   creatorName?: string;
+  marketplace?: boolean;
 }) {
   return (
     <Link
       href={`/produto/${product.id}`}
-      className="group flex min-w-0 w-full flex-shrink-0 flex-col overflow-hidden rounded-xl border border-(--color-border) bg-(--color-surface) transition-colors hover:border-(--color-accent-text) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent-text)"
+      className={`group flex min-w-0 w-full flex-shrink-0 flex-col overflow-hidden ${marketplace ? "bg-transparent" : "rounded-xl border border-(--color-border) bg-(--color-surface)"} transition-colors hover:border-(--color-accent-text) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent-text)`}
     >
-      <div className="relative aspect-[4/3] overflow-hidden border-b border-(--color-border) bg-(--color-surface-2)">
+      <div className={`relative overflow-hidden bg-(--color-surface-2) ${marketplace ? "aspect-[16/10] rounded-xl" : "aspect-[4/3] border-b border-(--color-border)"}`}>
         {product.coverImage ? (
           <Image
             src={product.coverImage}
@@ -52,7 +54,7 @@ export function ProductCard({
           </span>
         ) : null}
       </div>
-      <div className="flex flex-1 flex-col p-3 sm:p-3.5">
+      <div className={`flex flex-1 flex-col ${marketplace ? "pt-4" : "p-3 sm:p-3.5"}`}>
         {creatorName ? (
           <div className="mb-2 flex items-center gap-1.5">
             <MediaPlaceholder

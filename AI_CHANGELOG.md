@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Continuação da home aprovada em HTML
+
+- Objetivo: aplicar a proposta aprovada da vitrine ao rodapé, substituindo o tutorial numerado por uma conversa explicitamente ilustrativa.
+- Arquivos: app/page.tsx; components/HomeCatalogTabs.tsx; components/GigCard.tsx; components/ProductCard.tsx; components/Footer.tsx; CLAUDE.md.
+- Vitrine com filtros locais Serviços/Produtos digitais/Jogue comigo e cards abertos compactos. Pedidos em duas colunas no desktop, perfis reais junto ao convite para criadores, comunidade expandível, FAQ lateral e faixa final laranja.
+- Mantidos dados reais, capas reais quando disponíveis, links e solicitação de serviços existentes. Sem anúncios fictícios; ausência de capa usa título/categoria reais. Tokens existentes preservam os temas claro e escuro. Nenhuma mudança em autenticação, pagamentos ou banco.
+- Validações: TypeScript, ESLint dos componentes alterados, git diff --check e busca por cores fixas passaram. Build webpack validado com configuração pública de exemplo (não é teste de integração com Supabase).
+
+
 ## 2026-09-23 — Direção laranja aplicada ao restante da home
 
 - `app/page.tsx`: vitrine e pedidos com divisores e textos mais diretos; profissionais e publicações reunidos antes de explicar a contratação. A primeira publicação fica à vista, com as demais acessíveis por expansão. O final agora segue uma sequência clara: como funciona, convite para publicar o próprio trabalho e dúvidas frequentes.

@@ -6,7 +6,7 @@
 - CTA laranja usa `--color-on-accent` escuro para contraste; texto e ícones sobre fundo claro usam `--color-accent-text`.
 - `--color-contrast` e `--color-on-contrast` definem o botão escuro sobre a faixa laranja.
 - Home: busca, chips de categorias, faixa compacta de publicação, vitrine real, pedidos publicados, conteúdo de apoio.
-- Continuação da home: cartões com capas reais quando existirem, lista de pedidos sem painel branco, profissionais em linhas compactas, uma publicação recente seguida de expansão opcional, etapas em divisores e dúvidas em acordeão.
+- Continuação da home: cartões com capas reais quando existirem, lista de pedidos sem painel branco, vitrine com filtros locais, seção de conversa ilustrativa sem etapas numeradas, convite para criadores com perfis reais, comunidade recolhida e dúvidas em duas colunas. Fechamento em faixa laranja.
 - Navegação mobile integrada ao rodapé, com ícones e rótulos visíveis; preservar o acesso à Biblioteca.
 - Sem gradientes, anúncios fictícios ou ilustrações geradas substituindo imagens reais dos serviços.
 

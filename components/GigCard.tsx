@@ -22,13 +22,13 @@ export function GigCard({
 }) {
   return (
     <article
-      className={`w-full overflow-hidden ${marketplace ? "rounded-xl" : "rounded-2xl"} border border-(--color-border) bg-(--color-surface) transition-colors hover:border-(--color-text-muted) ${
+      className={`w-full overflow-hidden ${marketplace ? "bg-transparent" : "rounded-2xl border border-(--color-border) bg-(--color-surface)"} transition-colors hover:border-(--color-text-muted) ${
         compactOnMobile
           ? "grid min-h-40 grid-cols-[7.25rem_minmax(0,1fr)] sm:flex sm:min-h-0 sm:flex-col"
           : "flex flex-col"
       }`}
     >
-      <div className={`relative ${compactOnMobile ? "min-h-40 sm:aspect-[4/3] sm:min-h-0" : "aspect-[4/3]"}`}>
+      <div className={`relative overflow-hidden ${marketplace ? "rounded-xl aspect-[16/10]" : compactOnMobile ? "min-h-40 sm:aspect-[4/3] sm:min-h-0" : "aspect-[4/3]"}`}>
         {gig.coverImageUrl ? (
           <Image
             src={gig.coverImageUrl}
@@ -38,6 +38,12 @@ export function GigCard({
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover"
           />
+        ) : marketplace ? (
+          <div className="flex h-full flex-col justify-between bg-(--color-surface-2) p-4 sm:p-5">
+            <span className="text-xs font-semibold uppercase tracking-widest text-(--color-text-muted)">{GIG_CATEGORY_LABELS[gig.category]}</span>
+            <span className="line-clamp-2 text-lg font-bold leading-tight tracking-tight text-(--color-text) sm:text-2xl">{gig.title}</span>
+            <span className="mt-2 text-xs text-(--color-text-muted)">{creatorName || "Serviço profissional"}</span>
+          </div>
         ) : (
           <MediaPlaceholder
             seed={gig.id}
@@ -49,7 +55,7 @@ export function GigCard({
           />
         )}
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">
+      <div className={`flex min-w-0 flex-1 flex-col gap-1.5 ${marketplace ? "pt-4" : "p-3"}`}>
         {!marketplace ? <div className="flex min-h-5 items-start justify-between gap-2">
           {gig.category !== "general" ? (
             <span className="truncate text-[10px] font-semibold uppercase tracking-wide text-(--color-accent-text)">
@@ -81,7 +87,7 @@ export function GigCard({
         <h3 className="line-clamp-2 text-sm font-semibold text-(--color-text)">
           {gig.title}
         </h3>
-        {marketplace ? <div className="mt-auto pt-2"><p className="text-xs text-(--color-text-muted)">A partir de</p><PriceTag price={gig.priceCents / 100} size="md" /></div> : null}
+        {marketplace ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-(--color-border) pt-3"><p className="text-xs text-(--color-text-muted)">{gig.deliveryDays ? `Entrega em ${gig.deliveryDays} ${gig.deliveryDays === 1 ? "dia" : "dias"}` : "Prazo a combinar"}</p><PriceTag price={gig.priceCents / 100} size="md" /></div> : null}
         {gig.game ? (
           <p className="truncate text-xs text-(--color-text-muted)">
             {gig.game}
@@ -93,7 +99,7 @@ export function GigCard({
               : ""}
           </p>
         ) : null}
-        {gig.revisionCount !== undefined ? (
+        {!marketplace && gig.revisionCount !== undefined ? (
           <span className="w-fit text-[10px] text-(--color-text-subtle)">
             {gig.revisionCount === 0
               ? "Sem revisões"
