@@ -1,5 +1,25 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Compacta a tela do comprador após o pagamento
+
+- Objetivo: na conversa do comprador com pedido em produção, o aviso grande de prazo e mensagens
+  antigas de pagamento ocupavam espaço demais e repetiam informações que já aparecem no status do
+  cabeçalho.
+- `components/ConversationView.tsx`: removido o card fixo grande de prazo (com texto explicativo).
+  Enquanto o pedido está `in_progress`, o prazo agora aparece como uma mensagem compacta dentro
+  da própria conversa: “Prazo de entrega · DD/MM, HH:MM”.
+- Mensagens de marco do pedido, como pagamento confirmado, agora usam o mesmo padrão compacto de
+  mensagem de sistema, sem borda e sem ícone. Para o comprador, o texto passa a ser
+  “Pagamento confirmado. O serviço já está em produção.”.
+- Depois que o pedido sai de `awaiting_payment`, mensagens antigas começando por “Proposta aceita.”
+  deixam de ser renderizadas, evitando instrução obsoleta para concluir um pagamento que já ocorreu.
+- No card da proposta aceita, “Pagamento até ...” também só aparece antes de existir uma contratação;
+  depois do pagamento/ordem criada, a proposta continua como registro de escopo, valor e prazo sem
+  informação vencida.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: busca por cores literais/classes fixas de paleta no arquivo alterado, sem ocorrências.
+
+
 ## 2026-09-23 — Remove ícone do aviso de proteção no chat
 
 - Objetivo: usuário pediu um aviso ainda mais discreto, sem o ícone de escudo.
