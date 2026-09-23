@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Remove seção "Outro jeito de encontrar" (pedidos publicados) da home
+
+- Objetivo: pedido do usuário para remover a seção "OUTRO JEITO DE ENCONTRAR" / "Conte o que
+  precisa. Abra a conversa." — o bloco com "Publicar meu pedido" e a lista de pedidos abertos
+  ("Pedido aberto — Teste teste — Orçamento de até R$ 5,00" / "Ver todos os pedidos") logo
+  abaixo da vitrine.
+- `app/page.tsx`: removidos o `<Suspense>` que renderizava `<OpportunitySpotlight />` na home e
+  as funções `OpportunitySpotlight`, `OpportunityPreview`, `OpportunitySpotlightSkeleton` e
+  `getLatestOpportunities` (só existiam para essa seção). Removidos também os imports que
+  ficaram sem uso (`ServiceRequest`, `listOpenServiceRequests`).
+- A faixa laranja "Conta pra gente o que você precisa" (topo da home) e a página `/oportunidades`
+  continuam existindo normalmente — só a seção de destaque de pedidos no meio da home saiu.
+- Arquivos: `app/page.tsx`.
+- Validações: `npx tsc --noEmit`, `npx eslint app/page.tsx` e busca por cor fixa no arquivo
+  alterado — todos sem problemas.
+
 ## 2026-09-23 — Reescreve texto da faixa de publicar pedido na home
 
 - Objetivo: pedido do usuário para trocar o texto da faixa laranja "Prefere receber propostas?"
