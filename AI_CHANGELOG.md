@@ -1,5 +1,38 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Cria componente SectionLabel e padroniza as etiquetas de seção
+
+- Objetivo: feedback do usuário — os textos pequenos em caixa alta no topo de cada seção da
+  home (e da página `/para-criadores`) funcionavam mais como detalhe visual do que como parte
+  real da leitura. Pediu um único componente de "section label" reutilizado em toda a página:
+  etiqueta curta, caixa alta, contraste forte (fundo suave da marca ou borda, padding, cantos
+  arredondados, semibold) — não um botão, só um marcador visual — com o título logo abaixo.
+- `components/SectionLabel.tsx` (novo): reaproveita o padrão já existente de chip ativo do
+  design system (`bg-(--color-accent-soft)` + `text-(--color-accent-text)`, ver regra de chips
+  de filtro no `CLAUDE.md`) em vez de inventar um estilo novo — pill com padding horizontal,
+  `rounded-full`, `text-[11px] font-semibold uppercase tracking-[0.12em]`.
+- `app/page.tsx`: todas as etiquetas de seção trocadas de texto solto (`<p>` cinza) para
+  `<SectionLabel>`, com texto encurtado onde fazia sentido (exemplo dado pelo usuário — "Para
+  quem cria" + "Tem algo que você faz bem?" viraram etiqueta "Para criadores" + título único
+  "Tem algo que você faz bem? Tem gente procurando por isso."): hero ("Para quem contrata e
+  para quem cria"), seção de conversa ("Antes de contratar" e "Antes de fechar", esse último já
+  era um destaque em `--color-accent-text` — agora é a mesma etiqueta padrão), dúvidas
+  frequentes ("Dúvidas frequentes") e comunidade ("Para criadores"). `SectionHeading` (usado na
+  vitrine e nos cartões de "Ofertas") ganhou uma prop `eyebrow` opcional, com "Encontre
+  profissionais" e "Promoções" respectivamente — essas duas seções não tinham etiqueta nenhuma
+  antes.
+- `app/para-criadores/page.tsx`: as 5 etiquetas de seção (Como funciona, O que publicar, Como
+  te encontram, Pedidos e conversas, Seu perfil) trocadas pelo mesmo `<SectionLabel>`; o eyebrow
+  do cabeçalho principal ("Jobê para criadores") foi mantido no padrão de `/oportunidades`
+  (texto colorido, sem badge) por já ser suficientemente visível e por ser a convenção de
+  cabeçalho de página já usada no resto do site — a reclamação do usuário era sobre as
+  etiquetas pequenas cinza, não sobre esse estilo.
+- Rótulos "Você"/"Profissional" acima dos balões de exemplo e "Passo N" nos cartões de
+  "Como funciona" não viraram badge — são marcadores por item, não etiquetas de seção.
+- Arquivos: `components/SectionLabel.tsx` (novo), `app/page.tsx`, `app/para-criadores/page.tsx`.
+- Validações: `npx tsc --noEmit`, `npx eslint` nos arquivos alterados e busca por cor fixa —
+  todos sem problemas.
+
 ## 2026-09-23 — Compacta bloco "para quem cria" da home e cria página /para-criadores
 
 - Objetivo: pedido do usuário para simplificar o bloco "Para quem cria" na home (título +
