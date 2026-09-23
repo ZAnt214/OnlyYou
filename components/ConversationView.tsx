@@ -633,14 +633,14 @@ export function ConversationView({
   const isClosed = conversation.status === "closed";
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4">
-      <div className="flex items-center justify-between gap-2 rounded-md border border-(--color-border) p-3">
+    <div className="flex h-full min-h-0 flex-col gap-3 rounded-2xl bg-(--color-surface-2) p-3 sm:gap-4 sm:p-4">
+      <div className="flex items-center justify-between gap-2 rounded-2xl bg-(--color-contrast) p-3 text-(--color-on-contrast) shadow-sm">
         <div className="flex min-w-0 items-center gap-2">
           <button
             type="button"
             onClick={handleBack}
             aria-label="Voltar"
-            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-(--color-text-muted) hover:bg-(--color-surface-2)"
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-(--color-on-contrast) opacity-80 transition-opacity hover:opacity-100"
           >
             <ArrowLeft size={18} strokeWidth={1.5} />
           </button>
@@ -658,11 +658,11 @@ export function ConversationView({
           )}
           <div className="flex min-w-0 flex-col gap-0.5">
             <div className="flex min-w-0 items-center gap-2 text-sm">
-              <span className="truncate font-medium text-(--color-text)">{counterpartName}</span>
+              <span className="truncate font-semibold text-(--color-on-contrast)">{counterpartName}</span>
               <StatusBadge status={request.status} />
             </div>
             <div className="flex items-center gap-2">
-              <span className="truncate text-xs text-(--color-text-muted)">{serviceLabel}</span>
+              <span className="truncate text-xs text-(--color-on-contrast) opacity-70">{serviceLabel}</span>
               <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
             </div>
           </div>
@@ -674,14 +674,14 @@ export function ConversationView({
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             aria-label="Mais opções"
-            className="flex h-8 w-8 items-center justify-center rounded-md border border-(--color-border) text-(--color-text-muted) hover:bg-(--color-surface)"
+            className="flex h-8 w-8 items-center justify-center rounded-xl bg-(--color-surface-2) text-(--color-text) transition-colors hover:bg-(--color-surface)"
           >
             <MoreHorizontal size={16} strokeWidth={1.5} />
           </button>
           {menuOpen ? (
             <div
               role="menu"
-              className="absolute right-0 z-10 mt-1 w-64 rounded-md border border-(--color-border) bg-(--color-bg) py-1 shadow-sm"
+              className="absolute right-0 z-10 mt-2 w-64 rounded-xl border border-(--color-border) bg-(--color-surface) py-1 shadow-lg"
             >
               {reportSent ? (
                 <p className="px-3 py-2 text-sm text-(--color-text-muted)">
@@ -729,7 +729,7 @@ export function ConversationView({
           crescia sem parar conforme chegavam mensagens, empurrando aviso,
           proposta e o campo de digitar pra baixo da tela. */}
       <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <div className="flex-shrink-0 rounded-md border border-(--color-border) bg-(--color-surface) p-3 text-xs text-(--color-text-muted)">
+      <div className="flex-shrink-0 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-sm leading-relaxed text-(--color-text-muted) shadow-sm">
         Mantenha toda a conversa, os combinados e o pagamento dentro do Jobê. É isso que garante
         a proteção da plataforma em caso de problema com a entrega ou o pagamento.
       </div>
@@ -756,7 +756,7 @@ export function ConversationView({
         </div>
       ) : null}
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-md border border-(--color-border) p-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
         {messages.length === 0 ? (
           <p className="text-sm text-(--color-text-muted)">Nenhuma mensagem ainda.</p>
         ) : (
@@ -907,7 +907,7 @@ export function ConversationView({
       ) : null}
 
       {canCreateProposal ? (
-        <div className="flex flex-shrink-0 flex-col gap-2 rounded-md border border-(--color-border) p-4">
+        <div className={showProposalForm ? "flex flex-shrink-0 flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm" : "flex flex-shrink-0 flex-col gap-2 py-1"}>
           {showProposalForm ? (
             <form onSubmit={handleCreateProposal} className="flex flex-col gap-3">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -1007,7 +1007,7 @@ export function ConversationView({
             <button
               type="button"
               onClick={handleOpenProposalForm}
-              className="flex w-fit items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
+              className="flex w-fit items-center gap-1.5 rounded-xl bg-(--color-contrast) px-4 py-2 text-sm font-semibold text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight)"
             >
               <PlusCircle size={14} strokeWidth={1.5} />
               Criar proposta
@@ -1038,12 +1038,12 @@ export function ConversationView({
               onChange={(e) => handleTextChange(e.target.value)}
               disabled={sending}
               placeholder="Escreva uma mensagem"
-              className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none disabled:opacity-60"
+              className="flex-1 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text) shadow-sm focus:border-(--color-accent-text) focus:outline-none disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={!text.trim() || sending}
-              className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
+              className="flex items-center gap-1.5 rounded-xl bg-(--color-contrast) px-4 py-3 text-sm font-semibold text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight) disabled:opacity-60"
             >
               {sending ? (
                 <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
@@ -1129,7 +1129,7 @@ function ConversationSkeleton() {
 
 function TypingBubble() {
   return (
-    <div className="flex items-center gap-1 self-start rounded-md bg-(--color-surface) px-3 py-2.5">
+    <div className="flex items-center gap-1 self-start rounded-xl bg-(--color-surface-2) px-3 py-2.5">
       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-(--color-text-subtle) [animation-delay:-0.3s]" />
       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-(--color-text-subtle) [animation-delay:-0.15s]" />
       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-(--color-text-subtle)" />
@@ -1347,15 +1347,15 @@ function MessageItem({
 
   return (
     <div
-      className={`group flex max-w-[85%] flex-col gap-0.5 rounded-md px-3 py-2 text-sm sm:max-w-sm ${
+      className={`group flex max-w-[85%] flex-col gap-0.5 rounded-xl px-3.5 py-2.5 text-sm shadow-sm sm:max-w-sm ${
         isOwn
           ? "self-end bg-(--color-accent) text-(--color-on-accent)"
-          : "self-start bg-(--color-surface) text-(--color-text)"
+          : "self-start bg-(--color-surface-2) text-(--color-text)"
       }`}
     >
       <span>{message.content}</span>
       <div className="flex items-center gap-2">
-        <span className={`text-[10px] ${isOwn ? "text-white/70" : "text-(--color-text-subtle)"}`}>
+        <span className={`text-[10px] ${isOwn ? "text-(--color-on-accent) opacity-70" : "text-(--color-text-subtle)"}`}>
           {formatDateTime(message.createdAt)}
         </span>
         {isOwn ? (
@@ -1363,7 +1363,7 @@ function MessageItem({
             type="button"
             disabled={busy}
             onClick={() => onDelete(message.id)}
-            className="text-[10px] text-white/70 opacity-0 hover:underline group-hover:opacity-100 disabled:opacity-60"
+            className="text-[10px] text-(--color-on-accent) opacity-0 hover:underline group-hover:opacity-70 disabled:opacity-60"
           >
             Ocultar
           </button>

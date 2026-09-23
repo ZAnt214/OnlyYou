@@ -1,5 +1,27 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Aplica visual de alto contraste ao chat
+
+- Objetivo: usuário escolheu a opção 3 (“Alto contraste”) entre as prévias do chat. A conversa
+  passa a separar melhor cabeçalho, área de mensagens e controles, reduzindo o aspecto lavado da
+  tela e preservando o laranja do Jobê como cor de marca.
+- `components/ConversationView.tsx`: cabeçalho passa a usar `--color-contrast` com texto claro;
+  aviso de proteção e painel de mensagens viram superfícies brancas bem delimitadas sobre o fundo
+  secundário; mensagens recebidas usam `--color-surface-2` e mensagens próprias continuam no
+  laranja da marca; balões ganharam raio e sombra leves.
+- “Criar proposta” deixa de ficar dentro de um card grande quando o formulário está fechado e
+  vira um CTA escuro compacto. Ao abrir o formulário, o card branco reaparece para manter os
+  campos organizados.
+- Campo de mensagem usa superfície branca e o botão “Enviar” passa a ser escuro, aumentando a
+  hierarquia entre conversa e ação. O indicador de digitação usa fundo secundário para continuar
+  visível dentro do painel branco.
+- Nenhuma cor literal foi adicionada: a implementação usa apenas tokens existentes de
+  `app/globals.css`, em conformidade com `CLAUDE.md`.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validações: revisão estrutural do TSX e busca automática por hex/classes fixas de paleta no
+  arquivo alterado, sem ocorrências. O conector GitHub não executa `tsc`/`eslint` localmente.
+
+
 ## 2026-09-23 — Expande categorias de serviço e mostra a taxa da plataforma pro criador
 
 - Objetivo: usuário pediu comparação com o concorrente VintePila (benchmark de preço/formato +
