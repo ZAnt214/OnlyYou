@@ -1,5 +1,23 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Estabiliza escala do chat ao focar campos no mobile
+
+- Objetivo: usuário percebeu que o chat parecia mudar de zoom conforme abria o teclado ou focava
+  campos. Havia duas causas visuais possíveis no próprio componente: o layout mudava padding/gap
+  quando o compositor recebia foco, e os inputs usavam `text-sm` (14px), tamanho que pode fazer
+  navegadores mobile ampliarem a página ao focar o campo.
+- `components/ConversationView.tsx`: removido o estado `composerFocused` e a troca de
+  espaçamento do quadro principal. O chat agora mantém exatamente o mesmo padding e gap antes,
+  durante e depois da digitação.
+- Inputs e textareas da conversa/proposta passam a usar `text-base` no mobile (16px) e
+  `sm:text-sm` em telas maiores. O campo “Escreva uma mensagem” segue o mesmo padrão. Isso
+  evita o zoom automático de foco sem bloquear o zoom de acessibilidade do navegador.
+- A altura ainda acompanha `visualViewport` via `ConversationScreen`, então o teclado pode
+  reduzir a área visível normalmente, mas sem alterar a escala aparente dos elementos.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: busca por cores literais/classes fixas de paleta no arquivo alterado, sem ocorrências.
+
+
 ## 2026-09-23 — Faz a criação de proposta ocupar a área do chat sem sobreposição
 
 - Objetivo: ao abrir “Criar proposta” no mobile, o formulário crescia abaixo do histórico e o

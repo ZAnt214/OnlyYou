@@ -139,7 +139,6 @@ export function ConversationView({
   const [attachmentsByMessage, setAttachmentsByMessage] = useState<Record<string, MessageAttachment[]>>({});
 
   const [text, setText] = useState("");
-  const [composerFocused, setComposerFocused] = useState(false);
   const [sending, setSending] = useState(false);
   const [confirmingReceipt, setConfirmingReceipt] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -636,9 +635,7 @@ export function ConversationView({
 
   return (
     <div
-      className={`flex h-full min-h-0 flex-col rounded-2xl bg-(--color-surface-2) ${
-        composerFocused ? "gap-2 p-2 sm:gap-3 sm:p-3" : "gap-3 p-3 sm:gap-4 sm:p-4"
-      }`}
+      className="flex h-full min-h-0 flex-col gap-3 rounded-2xl bg-(--color-surface-2) p-3 sm:gap-4 sm:p-4"
     >
       <div className="flex items-center justify-between gap-2 rounded-2xl bg-(--color-contrast) p-3 text-(--color-on-contrast) shadow-sm">
         <div className="flex min-w-0 items-center gap-2">
@@ -858,7 +855,7 @@ export function ConversationView({
                 required
                 rows={2}
                 placeholder="Descreva o problema com a entrega."
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base focus:border-(--color-accent-text) sm:text-sm focus:outline-none"
               />
               <button
                 type="submit"
@@ -936,7 +933,7 @@ export function ConversationView({
                     value={proposalDraft.serviceType}
                     onChange={(e) => setProposalDraft((d) => ({ ...d, serviceType: e.target.value }))}
                     placeholder="Ex.: Identidade visual personalizada"
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base focus:border-(--color-accent-text) sm:text-sm focus:outline-none"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -947,7 +944,7 @@ export function ConversationView({
                     min={1}
                     value={proposalDraft.deliveryDays}
                     onChange={(e) => setProposalDraft((d) => ({ ...d, deliveryDays: e.target.value }))}
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base focus:border-(--color-accent-text) sm:text-sm focus:outline-none"
                   />
                 </div>
               </div>
@@ -958,7 +955,7 @@ export function ConversationView({
                   rows={2}
                   value={proposalDraft.description}
                   onChange={(e) => setProposalDraft((d) => ({ ...d, description: e.target.value }))}
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base focus:border-(--color-accent-text) sm:text-sm focus:outline-none"
                 />
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -971,7 +968,7 @@ export function ConversationView({
                     step="0.01"
                     value={proposalDraft.price}
                     onChange={(e) => setProposalDraft((d) => ({ ...d, price: e.target.value }))}
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base focus:border-(--color-accent-text) sm:text-sm focus:outline-none"
                   />
                   {Number(proposalDraft.price) > 0 ? (
                     <span className="text-xs text-(--color-text-subtle)">
@@ -989,7 +986,7 @@ export function ConversationView({
                     placeholder="Opcional"
                     value={proposalDraft.revisionCount}
                     onChange={(e) => setProposalDraft((d) => ({ ...d, revisionCount: e.target.value }))}
-                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+                    className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base focus:border-(--color-accent-text) sm:text-sm focus:outline-none"
                   />
                 </div>
               </div>
@@ -1000,7 +997,7 @@ export function ConversationView({
                   rows={2}
                   value={proposalDraft.includedItemsText}
                   onChange={(e) => setProposalDraft((d) => ({ ...d, includedItemsText: e.target.value }))}
-                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+                  className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base focus:border-(--color-accent-text) sm:text-sm focus:outline-none"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -1055,11 +1052,9 @@ export function ConversationView({
             <input
               value={text}
               onChange={(e) => handleTextChange(e.target.value)}
-              onFocus={() => setComposerFocused(true)}
-              onBlur={() => setComposerFocused(false)}
               disabled={sending}
               placeholder="Escreva uma mensagem"
-              className="min-w-0 flex-1 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text) shadow-sm focus:border-(--color-accent-text) focus:outline-none disabled:opacity-60"
+              className="min-w-0 flex-1 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-base text-(--color-text) shadow-sm focus:border-(--color-accent-text) sm:text-sm focus:outline-none disabled:opacity-60"
             />
             <button
               type="submit"
