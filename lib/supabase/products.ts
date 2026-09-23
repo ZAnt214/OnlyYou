@@ -17,7 +17,10 @@ import type { Product, ProductStatus, ProductType, ProductOrder, ProductOrderSta
 
 const PUBLIC_COLUMNS =
   "id, creator_id, title, description, category, tags, type, price_cents, promo_price_cents, cover_image_url, preview_images, status, rating, rating_count, sales_count, created_at";
-const FULL_COLUMNS = `${PUBLIC_COLUMNS}, file_url`;
+interface ProductFileRow {
+  product_id: string;
+  file_url: string;
+}
 
 interface ProductRow {
   id: string;
@@ -141,11 +144,27 @@ export async function listProductsForCreator(supabase: SupabaseClient, creatorId
   if (!isUuid(creatorId)) return [];
   const { data, error } = await supabase
     .from("products")
-    .select(FULL_COLUMNS)
+    .select(PUBLIC_COLUMNS)
     .eq("creator_id", creatorId)
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return (data ?? []).map(mapProduct);
+
+  const rows = data ?? [];
+  const productIds = rows.map((product) => product.id);
+  if (productIds.length === 0) return [];
+
+  const { data: files, error: filesError } = await supabase
+    .from("product_files")
+    .select("product_id, file_url")
+    .in("product_id", productIds);
+  if (filesError) throw new Error(filesError.message);
+
+  const filesByProduct = new Map(
+    ((files ?? []) as ProductFileRow[]).map((file) => [file.product_id, file.file_url]),
+  );
+  return rows.map((product) =>
+    mapProduct({ ...product, file_url: filesByProduct.get(product.id) }),
+  );
 }
 
 export interface ProductInput {
@@ -272,7 +291,17 @@ export async function listOwnedProductsForUser(supabase: SupabaseClient, userId:
   const productIds = (entitlements ?? []).map((e) => e.product_id);
   if (productIds.length === 0) return [];
 
-  const { data, error } = await supabase.from("products").select(FULL_COLUMNS).in("id", productIds);
+  const [{ data, error }, { data: files, error: filesError }] = await Promise.all([
+    supabase.from("products").select(PUBLIC_COLUMNS).in("id", productIds),
+    supabase.from("product_files").select("product_id, file_url").in("product_id", productIds),
+  ]);
   if (error) throw new Error(error.message);
-  return (data ?? []).map(mapProduct);
+  if (filesError) throw new Error(filesError.message);
+
+  const filesByProduct = new Map(
+    ((files ?? []) as ProductFileRow[]).map((file) => [file.product_id, file.file_url]),
+  );
+  return (data ?? []).map((product) =>
+    mapProduct({ ...product, file_url: filesByProduct.get(product.id) }),
+  );
 }

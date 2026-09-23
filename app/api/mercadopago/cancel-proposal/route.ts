@@ -86,7 +86,8 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabase.rpc("cancel_custom_proposal", { p_proposal_id: proposalId });
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    console.error("[mercadopago/cancel-proposal] falha ao cancelar proposta", error.code);
+    return NextResponse.json({ error: "Não foi possível cancelar a proposta." }, { status: 400 });
   }
   return NextResponse.json({ proposal: data });
 }

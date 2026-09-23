@@ -130,8 +130,9 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     return NextResponse.json(jsonResponse);
   } catch (error) {
+    console.error("[upload] falha ao autorizar upload", error instanceof Error ? error.name : "erro");
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Não foi possível gerar o upload." },
+      { error: "Não foi possível autorizar o envio deste arquivo." },
       { status: 400 },
     );
   }

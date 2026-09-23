@@ -119,7 +119,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("[mercadopago/process-payment]", error);
-    const message = error instanceof Error ? error.message : "Não foi possível gerar o Pix.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json({ error: "Não foi possível gerar o Pix." }, { status: 400 });
   }
 }
