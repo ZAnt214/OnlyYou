@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Agrupa ações do trabalho no botão “+” do chat
+
+- Objetivo: “Finalizar entrega” estava escondido no menu de três pontos, enquanto “Enviar arquivo”
+  ficava sozinho no compositor. As duas ações pertencem ao mesmo contexto de trabalho em andamento.
+- `components/ConversationView.tsx`: para o criador com pedido `in_progress`, o botão à esquerda
+  do campo de mensagem volta a ser um “+” e abre um submenu compacto acima do compositor.
+- O submenu reúne “Enviar arquivo” (compartilhar versão para revisão/ajustes sem finalizar) e
+  “Finalizar entrega” (marcar o trabalho como pronto e enviar a versão final).
+- “Finalizar entrega” foi removido do menu de três pontos, que volta a concentrar apenas ações
+  secundárias/administrativas como denunciar ou bloquear.
+- Ao focar o campo de mensagem, o submenu fecha automaticamente. Enquanto aberto, o “+” vira um X
+  para deixar claro como fechar as ações.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: sem novas cores literais/classes fixas de paleta no TSX alterado.
+
+
 ## 2026-09-23 — Separa arquivos de revisão da entrega final
 
 - Objetivo: o criador precisa poder enviar versões do trabalho ao cliente durante a produção para
