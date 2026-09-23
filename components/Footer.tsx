@@ -6,6 +6,7 @@ import { isConversationScreenPath } from "@/lib/isConversationScreenPath";
 
 const LINKS = [
   { href: "/sobre", label: "Sobre" },
+  { href: "/para-criadores", label: "Para criadores" },
   { href: "/termos", label: "Termos de uso" },
   { href: "/privacidade", label: "Privacidade" },
   { href: "/conteudo", label: "Política de conteúdo" },
