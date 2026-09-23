@@ -1,5 +1,28 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Corrige CSP bloqueando o upload direto pro Vercel Blob
+
+- Objetivo: o usuário reportou que, mesmo após o timeout de 60s adicionado em `lib/uploadFile.ts`
+  (entrada anterior deste changelog), o upload de capa continuava girando indefinidamente. Antes
+  de aplicar outra correção especulativa, investiguei mais a fundo em vez de assumir que o
+  timeout resolveria: `select cover_image_url from gigs/products/portfolio_items where ... is not
+  null` no Supabase (`mcp__Supabase__execute_sql`) mostrou **zero uploads de imagem concluídos
+  com sucesso** em qualquer uma dessas tabelas desde sempre — não é uma falha de rede pontual de
+  um usuário, é sistêmico.
+- Causa: `next.config.ts` define um `Content-Security-Policy` cujo `connect-src` libera apenas
+  `https://*.blob.vercel-storage.com`. A URL real de upload do Vercel Blob tem **dois** níveis de
+  subdomínio — `https://<storeId>.public.blob.vercel-storage.com` —, e um wildcard de CSP (`*.`)
+  só casa um único nível de subdomínio. Isso bloqueia silenciosamente o PUT que o navegador faz
+  direto pro Blob (fora da nossa rota `/api/upload`, que só emite o token — por isso ela sempre
+  responde 200 e não aparecia nenhum erro nos logs do Vercel), fazendo o `upload()` do
+  `@vercel/blob/client` nunca resolver nem rejeitar.
+- Correção: adicionado `https://*.public.blob.vercel-storage.com` ao `connect-src`, junto com a
+  entrada existente (mantida por segurança, caso algum ambiente use um domínio sem o subdomínio
+  `public`).
+- Arquivos: `next.config.ts`.
+- Validações: `npx tsc --noEmit` e `npx eslint next.config.ts` sem erros. Reprodução real em
+  produção depende de repetir o upload após o deploy — pedir ao usuário para confirmar.
+
 ## 2026-09-23 — Corrige upload de imagem travando com carregamento infinito
 
 - Objetivo: corrigir bug reportado pelo usuário — no modal "Editar anúncio" (e nos demais

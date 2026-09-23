@@ -14,7 +14,7 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  `connect-src 'self' ${supabaseOrigin} wss://*.supabase.co https://*.blob.vercel-storage.com`,
+  `connect-src 'self' ${supabaseOrigin} wss://*.supabase.co https://*.blob.vercel-storage.com https://*.public.blob.vercel-storage.com`,
   "media-src 'self' blob: https:",
   "object-src 'none'",
   "base-uri 'self'",
