@@ -734,7 +734,7 @@ export function ConversationView({
           nela, não aqui) — sem isso a caixa não tinha altura própria e só
           crescia sem parar conforme chegavam mensagens, empurrando aviso,
           proposta e o campo de digitar pra baixo da tela. */}
-      <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="relative flex min-h-0 flex-1 flex-col gap-4">
       {customServiceOrder && ["in_progress", "delivered"].includes(customServiceOrder.status) ? (
         <div className="flex flex-shrink-0 items-start gap-2 rounded-md border border-(--color-warning) bg-(--color-surface) p-3 text-sm">
           <Clock size={16} className="mt-0.5 flex-shrink-0 text-(--color-warning)" strokeWidth={1.5} />
@@ -914,7 +914,7 @@ export function ConversationView({
       ) : null}
 
       {canCreateProposal && showProposalForm ? (
-        <div className="flex flex-shrink-0 flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+        <div className="absolute inset-0 z-20 flex min-h-0 flex-col gap-2 overflow-y-auto rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-lg">
           <div className="flex items-center justify-between gap-3">
             <span className="text-sm font-semibold text-(--color-text)">Criar proposta</span>
             <button
@@ -1036,7 +1036,7 @@ export function ConversationView({
       ) : null}
       </div>
 
-      {isClosed ? (
+      {showProposalForm ? null : isClosed ? (
         <p className="text-center text-xs text-(--color-text-subtle)">Esta conversa está encerrada.</p>
       ) : (
         <form onSubmit={handleSend} className="w-full min-w-0">

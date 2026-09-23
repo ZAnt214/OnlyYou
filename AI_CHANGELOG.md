@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Faz a criação de proposta ocupar a área do chat sem sobreposição
+
+- Objetivo: ao abrir “Criar proposta” no mobile, o formulário crescia abaixo do histórico e o
+  compositor de mensagem continuava visível por cima, cobrindo os últimos campos e botões.
+- `components/ConversationView.tsx`: a região central da conversa agora é `relative` e o painel
+  de proposta abre como um overlay interno `absolute inset-0`, limitado exatamente à área do chat.
+  O painel tem rolagem própria (`overflow-y-auto`), então todos os campos e ações continuam
+  acessíveis mesmo com teclado aberto.
+- Enquanto a proposta está aberta, o compositor “Escreva uma mensagem” fica oculto. Ao fechar pelo
+  X ou por “Cancelar”, o chat e o compositor reaparecem no mesmo estado de antes.
+- O cabeçalho da conversa continua visível, então o usuário mantém contexto de com quem está
+  negociando sem perder espaço útil para o formulário.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: busca por cores literais/classes fixas de paleta no arquivo alterado, sem ocorrências.
+
+
 ## 2026-09-23 — Corrige overflow do botão Enviar e adiciona fechar na proposta
 
 - Objetivo: no mobile, com o botão “+” ao lado do compositor, o botão “Enviar” ultrapassava a
