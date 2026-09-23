@@ -637,7 +637,7 @@ export function ConversationView({
     <div
       className="flex h-full min-h-0 flex-col gap-3 rounded-2xl bg-(--color-surface-2) p-3 sm:gap-4 sm:p-4"
     >
-      <div className="flex items-center justify-between gap-2 rounded-2xl bg-(--color-contrast) p-3 text-(--color-on-contrast) shadow-sm">
+      <div className="flex items-center justify-between gap-2 rounded-2xl bg-(--color-contrast) px-3 py-2.5 text-(--color-on-contrast) shadow-sm">
         <div className="flex min-w-0 items-center gap-2">
           <button
             type="button"
@@ -660,12 +660,12 @@ export function ConversationView({
             />
           )}
           <div className="flex min-w-0 flex-col gap-0.5">
-            <div className="flex min-w-0 items-center gap-2 text-sm">
-              <span className="truncate font-semibold text-(--color-on-contrast)">{counterpartName}</span>
-              <StatusBadge status={request.status} />
+            <div className="min-w-0 text-sm">
+              <span className="block truncate font-semibold text-(--color-on-contrast)">{counterpartName}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="truncate text-xs text-(--color-on-contrast) opacity-70">{serviceLabel}</span>
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="min-w-0 truncate text-xs text-(--color-on-contrast) opacity-70">{serviceLabel}</span>
+              <StatusBadge status={request.status} variant="inline" />
               <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
             </div>
           </div>
@@ -677,7 +677,7 @@ export function ConversationView({
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             aria-label="Mais opções"
-            className="flex h-8 w-8 items-center justify-center rounded-xl bg-(--color-surface-2) text-(--color-text) transition-colors hover:bg-(--color-surface)"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-(--color-on-contrast) opacity-80 transition-all hover:bg-(--color-surface-2) hover:text-(--color-text) hover:opacity-100"
           >
             <MoreHorizontal size={16} strokeWidth={1.5} />
           </button>
@@ -755,11 +755,9 @@ export function ConversationView({
       ) : null}
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-2xl bg-(--color-surface) p-4 shadow-sm">
-        <div className="flex w-full max-w-sm items-start gap-2 self-center rounded-xl bg-(--color-accent-soft) px-3 py-2 text-xs leading-relaxed text-(--color-accent-text)">
-          <ShieldCheck size={14} className="mt-0.5 shrink-0" strokeWidth={1.5} />
-          <span>
-            Para sua proteção, mantenha a conversa, os combinados e o pagamento dentro do Jobê.
-          </span>
+        <div className="flex max-w-[82%] items-center justify-center gap-1.5 self-center rounded-xl bg-(--color-surface-2) px-3 py-2 text-center text-[11px] leading-relaxed text-(--color-text-muted)">
+          <ShieldCheck size={12} className="shrink-0" strokeWidth={1.5} />
+          <span>Mantenha conversa e pagamento no Jobê para sua proteção.</span>
         </div>
         {messages.length === 0 ? (
           <p className="text-sm text-(--color-text-muted)">Nenhuma mensagem ainda.</p>

@@ -1,5 +1,25 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Simplifica status, menu e aviso do chat
+
+- Objetivo: usuário apontou três elementos que ainda estavam chamando atenção demais no chat:
+  badge “Em negociação”, botão de três pontos e aviso de proteção.
+- `components/StatusBadge.tsx`: adicionado `variant="inline"`, sem fundo de badge. O status
+  passa a ser representado por um ponto semântico pequeno + texto, preservando o mapa de status
+  existente e sem duplicar rótulos no componente de conversa.
+- `components/ConversationView.tsx`: o status saiu da linha do nome e foi para a linha de apoio,
+  ao lado de “Aguardando sua proposta”, reduzindo a competição visual no cabeçalho. O padding
+  vertical do cabeçalho também foi levemente reduzido.
+- O botão de três pontos agora é transparente no estado normal, sem círculo claro permanente;
+  o fundo aparece apenas em hover/interação.
+- O aviso de proteção dentro da conversa ficou menor, centralizado, limitado a 82% da largura,
+  com fundo secundário neutro em vez do laranja suave. Texto encurtado para “Mantenha conversa e
+  pagamento no Jobê para sua proteção.”.
+- Arquivos: `components/ConversationView.tsx`, `components/StatusBadge.tsx`,
+  `AI_CHANGELOG.md`.
+- Validação: busca por cores literais/classes fixas de paleta nos arquivos alterados, sem ocorrências.
+
+
 ## 2026-09-23 — Estabiliza escala do chat ao focar campos no mobile
 
 - Objetivo: usuário percebeu que o chat parecia mudar de zoom conforme abria o teclado ou focava

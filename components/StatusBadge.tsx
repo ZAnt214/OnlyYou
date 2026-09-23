@@ -10,6 +10,20 @@ const TONE_CLASSES: Record<Tone, string> = {
   negative: "bg-(--color-surface-2) text-(--color-danger)",
 };
 
+const INLINE_TONE_CLASSES: Record<Tone, string> = {
+  neutral: "text-(--color-on-contrast) opacity-65",
+  positive: "text-(--color-accent)",
+  warning: "text-(--color-warning)",
+  negative: "text-(--color-danger)",
+};
+
+const INLINE_DOT_CLASSES: Record<Tone, string> = {
+  neutral: "bg-(--color-on-contrast)",
+  positive: "bg-(--color-accent)",
+  warning: "bg-(--color-warning)",
+  negative: "bg-(--color-danger)",
+};
+
 const STATUS_MAP: Record<string, { label: string; tone: Tone }> = {
   // Produto (moderação)
   draft: { label: "Rascunho", tone: "neutral" },
@@ -57,8 +71,29 @@ const STATUS_MAP: Record<string, { label: string; tone: Tone }> = {
   closed: { label: "Encerrada", tone: "neutral" },
 };
 
-export function StatusBadge({ status }: { status: string }) {
+export function StatusBadge({
+  status,
+  variant = "badge",
+}: {
+  status: string;
+  variant?: "badge" | "inline";
+}) {
   const entry = STATUS_MAP[status] ?? { label: status, tone: "neutral" as Tone };
+
+  if (variant === "inline") {
+    return (
+      <span
+        className={`inline-flex flex-shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-medium ${INLINE_TONE_CLASSES[entry.tone]}`}
+      >
+        <span
+          aria-hidden="true"
+          className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${INLINE_DOT_CLASSES[entry.tone]}`}
+        />
+        {entry.label}
+      </span>
+    );
+  }
+
   return (
     <span
       className={`inline-flex flex-shrink-0 items-center whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium ${TONE_CLASSES[entry.tone]}`}
