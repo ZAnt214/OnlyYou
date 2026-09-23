@@ -2,12 +2,11 @@ import Link from "next/link";
 import { cache, Suspense } from "react";
 import type { Metadata } from "next";
 import { ArrowUpRight, Search } from "lucide-react";
-import type { Gig, Product, ServiceRequest, User } from "@/lib/types";
+import type { Gig, Product, User } from "@/lib/types";
 import { createPublicClient } from "@/lib/supabase/public";
 import { listActiveGigs } from "@/lib/supabase/gigs";
 import { listApprovedProducts } from "@/lib/supabase/products";
 import { listUsersByIds } from "@/lib/supabase/profile";
-import { listOpenServiceRequests } from "@/lib/supabase/serviceRequests";
 import { ProductCard } from "@/components/ProductCard";
 import { GigCard } from "@/components/GigCard";
 import { CreatorCard } from "@/components/CreatorCard";
@@ -92,9 +91,6 @@ export default function HomePage() {
       <Suspense fallback={<CatalogSkeleton />}>
         <Vitrine />
       </Suspense>
-      <Suspense fallback={<OpportunitySpotlightSkeleton />}>
-        <OpportunitySpotlight />
-      </Suspense>
       <section id="como-funciona" aria-labelledby="conversation-title" className="-mx-4 scroll-mt-24 bg-(--color-surface-2) px-4 py-10 sm:-mx-6 sm:px-6 sm:py-14 lg:-mx-8 lg:px-8">
         <div className="grid items-center gap-8 md:grid-cols-2 md:gap-16">
           <div>
@@ -173,43 +169,6 @@ const getHomeData = cache(async function getHomeData() {
 
   return { approved, gigs, unavailable, creators, creatorById, offers, feed };
 });
-
-const getLatestOpportunities = cache(async function getLatestOpportunities() {
-  return listOpenServiceRequests(createPublicClient()).catch(() => [] as ServiceRequest[]);
-});
-
-async function OpportunitySpotlight() {
-  const requests = (await getLatestOpportunities()).slice(0, 3);
-
-  return (
-    <section id="oportunidades" className="grid scroll-mt-24 gap-8 border-t border-(--color-border) py-10 sm:py-14 md:grid-cols-[1fr_1.15fr] md:gap-16">
-      <div><p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Outro jeito de encontrar</p><h2 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Conte o que precisa.<br />Abra a conversa.</h2><p className="mb-6 mt-5 max-w-sm text-sm leading-relaxed text-(--color-text-muted)">Publique seu pedido para que profissionais interessados possam responder e enviar propostas.</p><Link href="/oportunidades/nova" className="inline-flex min-h-12 items-center gap-6 rounded-lg bg-(--color-accent) px-5 py-3 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">Publicar meu pedido <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
-      <div className="border-t-2 border-(--color-text)">
-        <div className="divide-y divide-(--color-border)">{requests.length ? requests.map((request) => <OpportunityPreview key={request.id} request={request} />) : <div className="py-6"><h3 className="font-semibold">O primeiro pedido pode ser o seu.</h3><p className="mt-2 text-sm text-(--color-text-muted)">Conte o que procura e receba respostas de profissionais.</p></div>}</div>
-        <Link href="/oportunidades" className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold underline underline-offset-4">Ver todos os pedidos <ArrowUpRight size={16} aria-hidden="true" /></Link>
-      </div>
-    </section>
-  );
-}
-
-function OpportunityPreview({ request }: { request: ServiceRequest }) {
-  return (
-    <Link href="/oportunidades" className="group flex min-h-24 items-center justify-between gap-4 py-4">
-      <span className="min-w-0">
-        <span className="block text-xs text-(--color-text-muted)">Pedido aberto</span>
-        <span className="mt-1 block line-clamp-2 text-base font-semibold text-(--color-text) group-hover:text-(--color-accent-text)">{request.title}</span>
-        <span className="mt-1 block text-sm text-(--color-text-muted)">
-          {request.budgetCents ? `Orçamento de até ${(request.budgetCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}` : "Orçamento a combinar"}
-        </span>
-      </span>
-      <ArrowUpRight size={20} aria-hidden="true" className="shrink-0 text-(--color-text-muted) group-hover:text-(--color-accent-text)" />
-    </Link>
-  );
-}
-
-function OpportunitySpotlightSkeleton() {
-  return <div role="status" className="my-9 space-y-4 border-t border-(--color-border) py-6" aria-label="Carregando pedidos publicados"><div className="h-6 w-1/2 animate-pulse rounded bg-(--color-surface-2)" /><div className="h-20 animate-pulse rounded bg-(--color-surface-2)" /></div>;
-}
 
 async function Vitrine() {
   const { approved, gigs, unavailable, creatorById, offers, feed } =
