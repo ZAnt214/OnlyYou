@@ -86,6 +86,15 @@ function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
 }
 
+function formatShortDateTime(iso: string): string {
+  return new Date(iso).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function ConversationView({
   customRequestId,
   actingUserId,
@@ -388,6 +397,15 @@ export function ConversationView({
   // cabeçalho com uma cara completamente diferente de quando já existe
   // proposta (que mostra só o serviceType, curto e limpo).
   const serviceLabel = activeProposal?.serviceType || (isCreator ? "Aguardando sua proposta" : "Aguardando proposta");
+  const visibleMessages = messages.filter((message) => {
+    const staleAcceptedPaymentPrompt =
+      customServiceOrder &&
+      customServiceOrder.status !== "awaiting_payment" &&
+      message.type === "system" &&
+      message.content.startsWith("Proposta aceita.");
+
+    return !staleAcceptedPaymentPrompt;
+  });
 
   function findProposal(id?: string): CustomProposal | undefined {
     return proposals.find((p) => p.id === id);
@@ -743,21 +761,6 @@ export function ConversationView({
           crescia sem parar conforme chegavam mensagens, empurrando aviso,
           proposta e o campo de digitar pra baixo da tela. */}
       <div className="relative flex min-h-0 flex-1 flex-col gap-4">
-      {customServiceOrder && ["in_progress", "delivered"].includes(customServiceOrder.status) ? (
-        <div className="flex flex-shrink-0 items-start gap-2 rounded-md border border-(--color-warning) bg-(--color-surface) p-3 text-sm">
-          <Clock size={16} className="mt-0.5 flex-shrink-0 text-(--color-warning)" strokeWidth={1.5} />
-          <div>
-            <p className="text-(--color-text)">
-              Prazo de entrega: <strong>{formatDateTime(customServiceOrder.deliveryDeadlineAt)}</strong>
-            </p>
-            <p className="mt-1 text-(--color-text-muted)">
-              Se o conteúdo não for entregue dentro do prazo definido, o pedido poderá ser encerrado
-              e o valor reembolsado conforme as regras da plataforma.
-            </p>
-          </div>
-        </div>
-      ) : null}
-
       {customServiceOrder?.status === "disputed" ? (
         <div className="flex flex-shrink-0 items-center gap-2 rounded-md border border-(--color-danger) bg-(--color-surface) p-3 text-sm text-(--color-danger)">
           <AlertTriangle size={16} strokeWidth={1.5} />
@@ -772,10 +775,15 @@ export function ConversationView({
         <div className="flex max-w-[82%] items-center justify-center self-center rounded-xl bg-(--color-surface-2) px-3 py-2 text-center text-[11px] leading-relaxed text-(--color-text-muted)">
           <span>Mantenha conversa e pagamento no Jobê para sua proteção.</span>
         </div>
-        {messages.length === 0 ? (
+        {customServiceOrder?.status === "in_progress" ? (
+          <div className="self-center rounded-xl bg-(--color-surface-2) px-3 py-2 text-center text-xs text-(--color-text-muted)">
+            Prazo de entrega · {formatShortDateTime(customServiceOrder.deliveryDeadlineAt)}
+          </div>
+        ) : null}
+        {visibleMessages.length === 0 ? (
           <p className="text-sm text-(--color-text-muted)">Nenhuma mensagem ainda.</p>
         ) : (
-          messages.map((message) => (
+          visibleMessages.map((message) => (
             <MessageItem
               key={message.id}
               message={message}
@@ -1113,7 +1121,9 @@ const DELIVERY_CONFIRMED_CONTENT = "Entrega confirmada pelo comprador. Pedido co
  */
 function orderMilestoneText(content: string, isRequester: boolean): string {
   if (content === PAYMENT_CONFIRMED_CONTENT) {
-    return isRequester ? content : "Pagamento recebido. Você já pode iniciar a produção deste pedido.";
+    return isRequester
+      ? "Pagamento confirmado. O serviço já está em produção."
+      : "Pagamento recebido. Você já pode iniciar a produção deste pedido.";
   }
   if (content === DELIVERY_CONFIRMED_CONTENT) {
     return isRequester ? content : "O comprador confirmou o recebimento. Pedido concluído.";
@@ -1206,8 +1216,7 @@ function MessageItem({
     // não um selo verde saturado, que fugiria da paleta discreta do app.
     if (message.metadata?.customServiceOrderId) {
       return (
-        <div className="flex items-center gap-2 self-center rounded-2xl border border-(--color-accent-text) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text)">
-          <CheckCircle2 size={16} className="shrink-0 text-(--color-accent-text)" strokeWidth={1.5} />
+        <div className="max-w-[82%] self-center rounded-xl bg-(--color-surface-2) px-3 py-2 text-center text-xs leading-relaxed text-(--color-text-muted)">
           {orderMilestoneText(message.content, isRequester)}
         </div>
       );
@@ -1283,7 +1292,7 @@ function MessageItem({
             </button>
           </div>
         ) : null}
-        {proposal.status === "accepted" && proposal.paymentDueAt ? (
+        {proposal.status === "accepted" && proposal.paymentDueAt && !hasServiceOrder ? (
           <p className="text-xs text-(--color-text-subtle)">
             Pagamento até {formatDateTime(proposal.paymentDueAt)}
           </p>
