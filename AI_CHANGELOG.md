@@ -1,5 +1,23 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Compacta o chat quando o teclado está aberto
+
+- Objetivo: no Android, ao focar o campo “Escreva uma mensagem”, o teclado reduz bastante a
+  altura útil da conversa. O aviso de proteção e o CTA “Criar proposta” continuavam ocupando
+  espaço fixo, espremendo a área das mensagens e fazendo o botão de proposta aparecer parcialmente
+  atrás do compositor.
+- `components/ConversationView.tsx`: adicionado estado local de foco do compositor. Enquanto o
+  campo de mensagem está focado, o aviso longo de proteção e o CTA fechado “Criar proposta” ficam
+  temporariamente ocultos e o espaçamento/padding do quadro principal é reduzido. Assim, a área
+  rolável de mensagens recebe a maior parte do viewport restante e o compositor continua inteiro
+  acima do teclado.
+- Ao sair do campo de mensagem, aviso e ação de proposta reaparecem normalmente; nenhuma função
+  do fluxo foi removida e não há persistência nova.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: revisão estrutural do TSX e busca por cores literais/classes fixas de paleta no
+  arquivo alterado, sem ocorrências.
+
+
 ## 2026-09-23 — Remove borda externa da área de conversa
 
 - Objetivo: após aplicar o visual de alto contraste ao chat, o usuário percebeu um contorno claro

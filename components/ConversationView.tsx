@@ -138,6 +138,7 @@ export function ConversationView({
   const [attachmentsByMessage, setAttachmentsByMessage] = useState<Record<string, MessageAttachment[]>>({});
 
   const [text, setText] = useState("");
+  const [composerFocused, setComposerFocused] = useState(false);
   const [sending, setSending] = useState(false);
   const [confirmingReceipt, setConfirmingReceipt] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -633,7 +634,11 @@ export function ConversationView({
   const isClosed = conversation.status === "closed";
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 rounded-2xl bg-(--color-surface-2) p-3 sm:gap-4 sm:p-4">
+    <div
+      className={`flex h-full min-h-0 flex-col rounded-2xl bg-(--color-surface-2) ${
+        composerFocused ? "gap-2 p-2 sm:gap-3 sm:p-3" : "gap-3 p-3 sm:gap-4 sm:p-4"
+      }`}
+    >
       <div className="flex items-center justify-between gap-2 rounded-2xl bg-(--color-contrast) p-3 text-(--color-on-contrast) shadow-sm">
         <div className="flex min-w-0 items-center gap-2">
           <button
@@ -729,10 +734,12 @@ export function ConversationView({
           crescia sem parar conforme chegavam mensagens, empurrando aviso,
           proposta e o campo de digitar pra baixo da tela. */}
       <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <div className="flex-shrink-0 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-sm leading-relaxed text-(--color-text-muted) shadow-sm">
-        Mantenha toda a conversa, os combinados e o pagamento dentro do Jobê. É isso que garante
-        a proteção da plataforma em caso de problema com a entrega ou o pagamento.
-      </div>
+      {!composerFocused ? (
+        <div className="flex-shrink-0 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-sm leading-relaxed text-(--color-text-muted) shadow-sm">
+          Mantenha toda a conversa, os combinados e o pagamento dentro do Jobê. É isso que garante
+          a proteção da plataforma em caso de problema com a entrega ou o pagamento.
+        </div>
+      ) : null}
 
       {customServiceOrder && ["in_progress", "delivered"].includes(customServiceOrder.status) ? (
         <div className="flex flex-shrink-0 items-start gap-2 rounded-md border border-(--color-warning) bg-(--color-surface) p-3 text-sm">
@@ -906,7 +913,7 @@ export function ConversationView({
         </div>
       ) : null}
 
-      {canCreateProposal ? (
+      {canCreateProposal && !composerFocused ? (
         <div className={showProposalForm ? "flex flex-shrink-0 flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm" : "flex flex-shrink-0 flex-col gap-2 py-1"}>
           {showProposalForm ? (
             <form onSubmit={handleCreateProposal} className="flex flex-col gap-3">
@@ -1036,6 +1043,8 @@ export function ConversationView({
             <input
               value={text}
               onChange={(e) => handleTextChange(e.target.value)}
+              onFocus={() => setComposerFocused(true)}
+              onBlur={() => setComposerFocused(false)}
               disabled={sending}
               placeholder="Escreva uma mensagem"
               className="flex-1 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text) shadow-sm focus:border-(--color-accent-text) focus:outline-none disabled:opacity-60"
