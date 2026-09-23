@@ -53,6 +53,17 @@ function sanitizeFileName(name: string): string {
 export type UploadKind = "delivery" | "portfolio-image" | "product-image" | "product-file";
 
 /**
+ * Timeout de segurança pro upload direto ao Vercel Blob. Sem isso, uma
+ * conexão que trava no meio do envio (rede instável, extensão bloqueando o
+ * request) deixa a promise de `upload()` pendurada pra sempre — o `await`
+ * nunca resolve nem rejeita, então o botão de upload fica girando
+ * indefinidamente (o try/catch/finally de quem chama nunca roda). Abortando
+ * depois de um tempo generoso garante que o usuário sempre veja um erro em
+ * vez de um spinner infinito.
+ */
+const UPLOAD_TIMEOUT_MS = 60_000;
+
+/**
  * Upload real de arquivo (Vercel Blob) direto do navegador — a rota
  * /api/upload só autoriza e limita tipo/tamanho (por `kind`, ver lá), o
  * arquivo em si nunca passa pelo nosso servidor. Devolve a URL pública
@@ -61,10 +72,22 @@ export type UploadKind = "delivery" | "portfolio-image" | "product-image" | "pro
 export async function uploadFile(file: File, kind: UploadKind): Promise<string> {
   const toUpload =
     kind === "portfolio-image" || kind === "product-image" ? await compressImageIfPossible(file) : file;
-  const blob = await upload(sanitizeFileName(toUpload.name), toUpload, {
-    access: "public",
-    handleUploadUrl: "/api/upload",
-    clientPayload: JSON.stringify({ kind }),
-  });
-  return blob.url;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+  try {
+    const blob = await upload(sanitizeFileName(toUpload.name), toUpload, {
+      access: "public",
+      handleUploadUrl: "/api/upload",
+      clientPayload: JSON.stringify({ kind }),
+      abortSignal: controller.signal,
+    });
+    return blob.url;
+  } catch (err) {
+    if (controller.signal.aborted) {
+      throw new Error("O envio demorou demais e foi cancelado. Verifique sua conexão e tente novamente.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 }

@@ -1,5 +1,29 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Corrige upload de imagem travando com carregamento infinito
+
+- Objetivo: corrigir bug reportado pelo usuário — no modal "Editar anúncio" (e nos demais
+  formulários que fazem upload de imagem: produtos e portfólio), o botão de enviar/trocar a
+  capa fica girando indefinidamente sem nunca terminar nem mostrar erro.
+- Investigação: `mcp__Vercel__get_runtime_errors` não mostrou nenhum erro em `/api/upload` nos
+  últimos 7 dias, e `mcp__Vercel__get_runtime_logs` mostrou que as duas tentativas do usuário
+  bateram em `/api/upload` (o passo de gerar o token de upload) e retornaram 200 — ou seja, a
+  rota da nossa aplicação funciona. `BLOB_READ_WRITE_TOKEN` está configurado no projeto. O que
+  falta depois disso é o PUT direto do navegador pro Vercel Blob (fora do nosso servidor, não
+  aparece nesses logs); quando esse PUT trava numa rede instável/bloqueio de rede, a promise
+  de `upload()` (`@vercel/blob/client`) nunca resolve nem rejeita, então o `try/catch/finally`
+  de quem chama (`handleCoverUpload` etc.) nunca roda e o spinner (`uploadingCover`/
+  `uploadingGallery`/equivalentes) fica preso pra sempre — sem essa promise nunca settar, não
+  há como o estado de loading se recuperar sozinho.
+- Correção: `lib/uploadFile.ts` agora passa um `abortSignal` com timeout de 60s pro `upload()`
+  do Vercel Blob. Se o envio não terminar nesse prazo, o upload é cancelado e o `uploadFile()`
+  rejeita com uma mensagem clara ("O envio demorou demais e foi cancelado..."), que já é
+  capturada e exibida pelos formulários existentes (produtos, serviços, portfólio, entregas) —
+  nenhuma mudança necessária nesses arquivos, pois o `finally` deles volta a rodar assim que a
+  promise settar.
+- Arquivos: `lib/uploadFile.ts`.
+- Validações: `npx tsc --noEmit` e `npx eslint lib/uploadFile.ts` sem erros.
+
 ## 2026-09-23 — Corrige duplicação de título/criador nos cards de serviço sem capa
 
 - Objetivo: corrigir bug reportado pelo usuário (print da home) — serviços sem capa cadastrada
