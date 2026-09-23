@@ -1,5 +1,22 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Aplica a opção 6 ao card de proposta
+
+- Objetivo: usuário escolheu a opção 6 das prévias HTML para o card de proposta no chat.
+- `components/ConversationView.tsx`: o card de proposta passa a usar fundo escuro
+  `--color-contrast`, texto claro e o laranja da marca para o valor. O status usa a variante
+  inline já existente, sem badge claro sobre o card.
+- Título e descrição ficaram integrados ao bloco escuro; valor, prazo e revisões aparecem numa
+  faixa inferior separada apenas por um divisor discreto, evitando o “card dentro do card” do
+  layout anterior.
+- Itens incluídos, prazo de pagamento e ações secundárias foram adaptados para contraste sobre
+  fundo escuro. Ações principais continuam usando o laranja do Jobê.
+- Nenhuma regra de negócio da proposta foi alterada; aceite, recusa, pagamento e cancelamento
+  continuam com o mesmo comportamento.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: busca por cores literais/classes fixas de paleta no arquivo alterado, sem ocorrências.
+
+
 ## 2026-09-23 — Compacta a tela do comprador após o pagamento
 
 - Objetivo: na conversa do comprador com pedido em produção, o aviso grande de prazo e mensagens
