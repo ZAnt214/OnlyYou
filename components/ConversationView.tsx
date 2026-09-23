@@ -18,6 +18,7 @@ import {
   Loader2,
   Star,
   ArrowLeft,
+  ShieldCheck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { uploadFile } from "@/lib/uploadFile";
@@ -734,13 +735,6 @@ export function ConversationView({
           crescia sem parar conforme chegavam mensagens, empurrando aviso,
           proposta e o campo de digitar pra baixo da tela. */}
       <div className="flex min-h-0 flex-1 flex-col gap-4">
-      {!composerFocused ? (
-        <div className="flex-shrink-0 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-sm leading-relaxed text-(--color-text-muted) shadow-sm">
-          Mantenha toda a conversa, os combinados e o pagamento dentro do Jobê. É isso que garante
-          a proteção da plataforma em caso de problema com a entrega ou o pagamento.
-        </div>
-      ) : null}
-
       {customServiceOrder && ["in_progress", "delivered"].includes(customServiceOrder.status) ? (
         <div className="flex flex-shrink-0 items-start gap-2 rounded-md border border-(--color-warning) bg-(--color-surface) p-3 text-sm">
           <Clock size={16} className="mt-0.5 flex-shrink-0 text-(--color-warning)" strokeWidth={1.5} />
@@ -764,6 +758,12 @@ export function ConversationView({
       ) : null}
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-2xl bg-(--color-surface) p-4 shadow-sm">
+        <div className="flex w-full max-w-sm items-start gap-2 self-center rounded-xl bg-(--color-accent-soft) px-3 py-2 text-xs leading-relaxed text-(--color-accent-text)">
+          <ShieldCheck size={14} className="mt-0.5 shrink-0" strokeWidth={1.5} />
+          <span>
+            Para sua proteção, mantenha a conversa, os combinados e o pagamento dentro do Jobê.
+          </span>
+        </div>
         {messages.length === 0 ? (
           <p className="text-sm text-(--color-text-muted)">Nenhuma mensagem ainda.</p>
         ) : (

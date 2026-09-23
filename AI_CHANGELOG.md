@@ -1,5 +1,23 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Move aviso de proteção para dentro da conversa
+
+- Objetivo: usuário pediu que o aviso de proteção se comporte como uma mensagem do próprio chat,
+  no estilo do aviso de criptografia do WhatsApp, em vez de ocupar um card fixo separado acima
+  das mensagens.
+- `components/ConversationView.tsx`: removido o card externo de proteção; o aviso agora é o
+  primeiro item dentro da área rolável da conversa, centralizado, compacto e com
+  `ShieldCheck`. Usa `--color-accent-soft` e `--color-accent-text`, mantendo a identidade
+  visual do Jobê sem parecer uma mensagem de usuário.
+- Texto encurtado para “Para sua proteção, mantenha a conversa, os combinados e o pagamento
+  dentro do Jobê.”, preservando a orientação original com menos altura.
+- Como o aviso agora faz parte do histórico visual, ele rola junto com as mensagens e deixa de
+  consumir espaço fixo quando o teclado abre. O comportamento já existente de compactar a tela e
+  ocultar temporariamente “Criar proposta” durante a digitação continua igual.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: busca por cores literais/classes fixas de paleta no arquivo alterado, sem ocorrências.
+
+
 ## 2026-09-23 — Compacta o chat quando o teclado está aberto
 
 - Objetivo: no Android, ao focar o campo “Escreva uma mensagem”, o teclado reduz bastante a
