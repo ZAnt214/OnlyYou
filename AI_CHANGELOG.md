@@ -1,5 +1,31 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Compacta e redesenha a seção de conversa "como funciona" da home
+
+- Objetivo: feedback do usuário sobre a seção "Espaço para combinar" / "Um bom trabalho começa
+  na conversa." — muito comprida pra quantidade de informação, exemplo de conversa ocupando
+  espaço demais, e o bloco "Escopo, valor e prazo" com seta parecia um botão clicável sem ser.
+- `app/page.tsx`, seção `#como-funciona`:
+  - Texto: eyebrow "Espaço para combinar" → "Um bom começo é se entender"; título "Um bom
+    trabalho começa na conversa." → "Conversem antes de decidir."; descrição → "Explique sua
+    ideia, entenda como o profissional trabalha e combinem juntos o que será feito, o valor e
+    o prazo." (versão mais acolhedora sugerida).
+  - Exemplo de conversa: rótulo "Uma conversa pode começar assim" trocado pelo destaque pequeno
+    em `--color-accent-text` "Antes de fechar"; balões menores (`px-4 py-3` em vez de
+    `px-5 py-4`), com identificação discreta "Você"/"Profissional" acima de cada um.
+  - Bloco final: removido o cartão com seta que parecia clicável (`ArrowUpRight` + "Escopo,
+    valor e prazo. Combinados antes de fechar.") — substituído por uma linha simples "O que
+    será feito · Valor · Prazo" com legenda "Tudo alinhado antes de seguir.", sem nenhum
+    elemento com aparência de link/botão.
+  - Seção mais compacta: `py-10 sm:py-14` → `py-8 sm:py-12`, `gap-8 md:gap-16` →
+    `gap-6 md:gap-12`, aproximando o exemplo de conversa do texto principal.
+  - Framboesa/laranja aparece só no detalhe pequeno "Antes de fechar", como pedido — sem criar
+    outro bloco grande na cor de marca.
+- Arquivos: `app/page.tsx`.
+- Validações: `npx tsc --noEmit`, `npx eslint app/page.tsx` e busca por cor fixa no arquivo
+  alterado — todos sem problemas. `ArrowUpRight` continua importado e usado em outros pontos do
+  arquivo, então o import foi mantido.
+
 ## 2026-09-23 — Remove seção "Outro jeito de encontrar" (pedidos publicados) da home
 
 - Objetivo: pedido do usuário para remover a seção "OUTRO JEITO DE ENCONTRAR" / "Conte o que

@@ -91,18 +91,33 @@ export default function HomePage() {
       <Suspense fallback={<CatalogSkeleton />}>
         <Vitrine />
       </Suspense>
-      <section id="como-funciona" aria-labelledby="conversation-title" className="-mx-4 scroll-mt-24 bg-(--color-surface-2) px-4 py-10 sm:-mx-6 sm:px-6 sm:py-14 lg:-mx-8 lg:px-8">
-        <div className="grid items-center gap-8 md:grid-cols-2 md:gap-16">
+      <section id="como-funciona" aria-labelledby="conversation-title" className="-mx-4 scroll-mt-24 bg-(--color-surface-2) px-4 py-8 sm:-mx-6 sm:px-6 sm:py-12 lg:-mx-8 lg:px-8">
+        <div className="grid items-center gap-6 md:grid-cols-2 md:gap-12">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Espaço para combinar</p>
-            <h2 id="conversation-title" className="mt-3 max-w-lg text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Um bom trabalho<br />começa na conversa.</h2>
-            <p className="mt-5 max-w-sm text-base leading-relaxed text-(--color-text-muted)">Fale sobre sua ideia, tire dúvidas e combine os detalhes com quem vai fazer.</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Um bom começo é se entender</p>
+            <h2 id="conversation-title" className="mt-3 max-w-lg text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Conversem antes de decidir.</h2>
+            <p className="mt-5 max-w-sm text-base leading-relaxed text-(--color-text-muted)">Explique sua ideia, entenda como o profissional trabalha e combinem juntos o que será feito, o valor e o prazo.</p>
           </div>
-          <div className="max-w-lg">
-            <p className="mb-5 text-[10px] font-medium uppercase tracking-[0.15em] text-(--color-text-muted)">Uma conversa pode começar assim</p>
-            <p className="max-w-[88%] rounded-2xl rounded-bl-sm border border-(--color-border) bg-(--color-bg) px-5 py-4 text-sm leading-relaxed">Quero uma identidade para minha marca. Podemos conversar sobre o estilo?</p>
-            <p className="ml-auto mt-4 max-w-[88%] rounded-2xl rounded-br-sm bg-(--color-contrast) px-5 py-4 text-sm leading-relaxed text-(--color-on-contrast)">Claro! Me conta sobre a marca e o que você tem em mente.</p>
-            <div className="mt-6 flex items-center justify-between gap-4 border-t border-(--color-border) pt-5 text-xs text-(--color-text-muted)"><p><strong className="font-semibold text-(--color-text)">Escopo, valor e prazo.</strong><br />Combinados antes de fechar.</p><ArrowUpRight size={22} aria-hidden="true" /></div>
+          <div className="max-w-md">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-(--color-accent-text)">Antes de fechar</p>
+            <div className="space-y-3">
+              <div className="max-w-[85%]">
+                <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-(--color-text-subtle)">Você</p>
+                <p className="rounded-2xl rounded-bl-sm border border-(--color-border) bg-(--color-bg) px-4 py-3 text-sm leading-relaxed">Tenho uma ideia para a identidade da minha marca. Posso te contar?</p>
+              </div>
+              <div className="ml-auto max-w-[85%] text-right">
+                <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-(--color-text-subtle)">Profissional</p>
+                <p className="rounded-2xl rounded-br-sm bg-(--color-contrast) px-4 py-3 text-left text-sm leading-relaxed text-(--color-on-contrast)">Claro. Me conta o que você imaginou e a gente vê juntos como fazer.</p>
+              </div>
+            </div>
+            <div className="mt-5 flex items-center gap-2 border-t border-(--color-border) pt-4 text-xs font-semibold text-(--color-text)">
+              <span>O que será feito</span>
+              <span className="text-(--color-text-subtle)" aria-hidden="true">·</span>
+              <span>Valor</span>
+              <span className="text-(--color-text-subtle)" aria-hidden="true">·</span>
+              <span>Prazo</span>
+            </div>
+            <p className="mt-1.5 text-xs text-(--color-text-muted)">Tudo alinhado antes de seguir.</p>
           </div>
         </div>
       </section>
