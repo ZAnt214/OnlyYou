@@ -82,8 +82,8 @@ export default function HomePage() {
       </section>
       <section aria-labelledby="publish-title" className="flex flex-col items-start justify-between gap-4 rounded-xl bg-(--color-accent) p-5 text-(--color-on-accent) sm:flex-row sm:items-center sm:p-6">
         <div>
-          <h2 id="publish-title" className="text-xl font-bold tracking-tight sm:text-2xl">Prefere receber propostas?</h2>
-          <p className="mt-1 text-sm leading-relaxed sm:text-base">Publique seu pedido e converse com profissionais.</p>
+          <h2 id="publish-title" className="text-xl font-bold tracking-tight sm:text-2xl">Conta pra gente o que você precisa</h2>
+          <p className="mt-1 text-sm leading-relaxed sm:text-base">Publique seu pedido e encontre profissionais interessados em ajudar.</p>
         </div>
         <Link href="/oportunidades/nova" className="inline-flex min-h-12 shrink-0 items-center justify-center gap-3 rounded-xl bg-(--color-contrast) px-5 text-sm font-semibold text-(--color-on-contrast) hover:opacity-90">
           Publicar pedido <ArrowUpRight size={18} aria-hidden="true" />
