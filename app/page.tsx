@@ -9,7 +9,6 @@ import { listApprovedProducts } from "@/lib/supabase/products";
 import { listUsersByIds } from "@/lib/supabase/profile";
 import { ProductCard } from "@/components/ProductCard";
 import { GigCard } from "@/components/GigCard";
-import { CreatorCard } from "@/components/CreatorCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { GigFeedCard } from "@/components/GigFeedCard";
 import { HomeCatalogTabs } from "@/components/HomeCatalogTabs";
@@ -252,17 +251,18 @@ async function Vitrine() {
 }
 
 async function Community() {
-  const { unavailable, creators, creatorById, feed } = await getHomeData();
-  const featuredCreators = creators.filter((creator) => creator.creatorProfile).slice(0, 4);
+  const { unavailable, creatorById, feed } = await getHomeData();
 
   return (
     <section
       id="comunidade"
       className="scroll-mt-24 border-t border-(--color-border) py-9 sm:py-12"
     >
-      <div className="grid items-center gap-8 md:grid-cols-[1.25fr_1fr] md:gap-16">
-        <div><p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Para quem cria</p><h2 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Seu talento merece<br />um lugar na vitrine.</h2><p className="mt-5 max-w-md text-sm leading-relaxed text-(--color-text-muted)">Monte seu perfil, publique seus serviços e encontre pedidos que combinam com o que você faz.</p><Link href="/dashboard" className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold underline underline-offset-4">Quero ser criador <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
-        <div className="rounded-xl bg-(--color-contrast) p-6 text-(--color-on-contrast)"><h3 className="mb-5 text-lg font-semibold">Conheça quem já está por aqui</h3>{featuredCreators.length ? <div className="space-y-3">{featuredCreators.map(creator => <CreatorCard key={creator.id} creator={creator} compactHome />)}</div> : <p className="text-sm">Seu próximo projeto pode colocar seu trabalho em destaque.</p>}<Link href="/criadores" className="mt-5 flex min-h-11 items-center justify-between gap-4 border-t border-current pt-4 text-sm font-semibold">Conhecer profissionais <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
+      <div className="max-w-lg">
+        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--color-text-muted)">Tem algo que você faz bem?</p>
+        <h2 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">Tem gente procurando por isso.</h2>
+        <p className="mt-5 text-base leading-relaxed text-(--color-text-muted)">Transforme suas habilidades em serviços ou produtos digitais e coloque seu trabalho à venda no Jobê.</p>
+        <Link href="/para-criadores" className="mt-6 inline-flex min-h-12 items-center gap-3 rounded-(--radius-pill) bg-(--color-accent) px-5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)">Conhecer o Jobê para criadores <ArrowUpRight size={18} aria-hidden="true" /></Link>
       </div>
       {feed.length ? (
         <details className="mt-9 border-t border-(--color-border) pt-5"><summary className="cursor-pointer py-3 text-sm font-semibold">Publicações recentes da comunidade</summary>
@@ -286,13 +286,13 @@ async function Community() {
             </details>
           ) : null}
         </details>
-      ) : !featuredCreators.length ? (
+      ) : (
         <p className="mt-6 text-sm text-(--color-text-muted)">
           {unavailable
-            ? "Os perfis e as publicações voltarão a aparecer quando a conexão for restabelecida."
-            : "Os próximos perfis e publicações aparecerão aqui."}
+            ? "As publicações voltarão a aparecer quando a conexão for restabelecida."
+            : "As próximas publicações da comunidade aparecerão aqui."}
         </p>
-      ) : null}
+      )}
     </section>
   );
 }

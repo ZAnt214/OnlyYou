@@ -1,5 +1,32 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Compacta bloco "para quem cria" da home e cria página /para-criadores
+
+- Objetivo: pedido do usuário para simplificar o bloco "Para quem cria" na home (título +
+  descrição + link de texto + cartão escuro com criadores em destaque) num único bloco
+  compacto com um CTA que leva para uma página própria explicando tudo antes da pessoa entrar.
+- `app/page.tsx`, seção `#comunidade` (`Community()`): substituído o grid de duas colunas
+  (texto + cartão `bg-(--color-contrast)` com `CreatorCard`s) por um bloco único: eyebrow "Tem
+  algo que você faz bem?", título "Tem gente procurando por isso.", descrição e um botão pill
+  preenchido "Conhecer o Jobê para criadores" (padrão de CTA primário do design system) levando
+  a `/para-criadores`. Removida a lista de criadores em destaque e o import de `CreatorCard`
+  (não usado mais neste arquivo); `creators`/`featuredCreators` não são mais desestruturados
+  aqui (a publicação recente da comunidade, `feed`, continua exatamente como estava).
+- `app/para-criadores/page.tsx` (novo): página pública explicando como funciona vender no
+  Jobê, com as seções pedidas — "Como funciona" (4 passos: montar perfil, publicar, conversar,
+  combinar e receber), "O que você pode publicar" (serviços vs. produtos digitais), "Como as
+  pessoas te encontram", "Pedidos e conversas", "Como montar um bom perfil" (dicas) e uma faixa
+  final `bg-(--color-accent)` com CTA forte "Quero ser criador no Jobê" — ambos os CTAs da
+  página levam pra `/dashboard` (mesmo destino que o link "Quero ser criador" já usava antes).
+  Reaproveita o mesmo padrão visual de cabeçalho de `/oportunidades` (eyebrow em
+  `--color-accent-text`, h1 bold, descrição, CTA pill) e os tokens/raios já definidos —
+  nenhuma cor nova.
+- `components/Footer.tsx`: adicionado link "Para criadores" → `/para-criadores` na lista de
+  links institucionais, pra a página ficar descobrível sem depender só do CTA da home.
+- Arquivos: `app/page.tsx`, `app/para-criadores/page.tsx` (novo), `components/Footer.tsx`.
+- Validações: `npx tsc --noEmit`, `npx eslint` nos arquivos alterados e busca por cor fixa —
+  todos sem problemas.
+
 ## 2026-09-23 — Corrige lado dos balões trocado na seção de conversa da home
 
 - Objetivo: correção apontada pelo usuário — no exemplo de conversa da seção "como funciona"
