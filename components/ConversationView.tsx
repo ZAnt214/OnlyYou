@@ -915,6 +915,18 @@ export function ConversationView({
 
       {canCreateProposal && showProposalForm ? (
         <div className="flex flex-shrink-0 flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm font-semibold text-(--color-text)">Criar proposta</span>
+            <button
+              type="button"
+              onClick={() => setShowProposalForm(false)}
+              aria-label="Fechar criação de proposta"
+              title="Fechar"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-(--color-text-muted) transition-colors hover:bg-(--color-surface-2) hover:text-(--color-text)"
+            >
+              <XCircle size={18} strokeWidth={1.5} />
+            </button>
+          </div>
           <form onSubmit={handleCreateProposal} className="flex flex-col gap-3">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1">
@@ -1027,8 +1039,8 @@ export function ConversationView({
       {isClosed ? (
         <p className="text-center text-xs text-(--color-text-subtle)">Esta conversa está encerrada.</p>
       ) : (
-        <form onSubmit={handleSend}>
-          <div className="flex items-center gap-2">
+        <form onSubmit={handleSend} className="w-full min-w-0">
+          <div className="flex w-full min-w-0 items-center gap-2">
             {canCreateProposal && !showProposalForm ? (
               <button
                 type="button"
@@ -1047,19 +1059,19 @@ export function ConversationView({
               onBlur={() => setComposerFocused(false)}
               disabled={sending}
               placeholder="Escreva uma mensagem"
-              className="flex-1 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text) shadow-sm focus:border-(--color-accent-text) focus:outline-none disabled:opacity-60"
+              className="min-w-0 flex-1 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text) shadow-sm focus:border-(--color-accent-text) focus:outline-none disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={!text.trim() || sending}
-              className="flex items-center gap-1.5 rounded-xl bg-(--color-contrast) px-4 py-3 text-sm font-semibold text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight) disabled:opacity-60"
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center gap-1.5 rounded-xl bg-(--color-contrast) p-0 text-sm font-semibold text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight) disabled:opacity-60 sm:w-auto sm:px-4"
             >
               {sending ? (
-                <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
+                <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
               ) : (
-                <Send size={14} strokeWidth={1.5} />
+                <Send size={16} strokeWidth={1.5} />
               )}
-              Enviar
+              <span className="hidden sm:inline">Enviar</span>
             </button>
           </div>
         </form>

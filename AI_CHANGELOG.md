@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Corrige overflow do botão Enviar e adiciona fechar na proposta
+
+- Objetivo: no mobile, com o botão “+” ao lado do compositor, o botão “Enviar” ultrapassava a
+  margem direita do chat. Também faltava um controle explícito de fechar no painel aberto pelo “+”.
+- `components/ConversationView.tsx`: formulário e linha do compositor agora usam
+  `w-full min-w-0`, e o input recebeu `min-w-0` para poder encolher corretamente dentro do
+  flex sem empurrar os controles para fora do viewport.
+- No mobile, “Enviar” virou botão quadrado somente com o ícone de envio; o texto “Enviar” volta a
+  aparecer a partir de `sm`. Isso deixa o compositor simétrico com o botão “+” e recupera espaço
+  horizontal.
+- O painel “Criar proposta” ganhou cabeçalho próprio com botão de fechar no canto superior direito,
+  além do “Cancelar” que já existia no rodapé do formulário.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: busca por cores literais/classes fixas de paleta no arquivo alterado, sem ocorrências.
+
+
 ## 2026-09-23 — Integra “Criar proposta” ao campo de mensagem
 
 - Objetivo: o botão “Criar proposta” ocupava uma linha inteira abaixo do histórico e reduzia a
