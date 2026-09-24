@@ -111,6 +111,21 @@ export async function listApprovedProductsByCategory(
   return (data ?? []).map(mapProduct);
 }
 
+export async function listApprovedProductsByCreator(
+  supabase: SupabaseClient,
+  creatorId: string,
+): Promise<Product[]> {
+  if (!isUuid(creatorId)) return [];
+  const { data, error } = await supabase
+    .from("products")
+    .select(PUBLIC_COLUMNS)
+    .eq("status", "approved")
+    .eq("creator_id", creatorId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapProduct);
+}
+
 export async function searchApprovedProducts(supabase: SupabaseClient, query: string): Promise<Product[]> {
   const q = query.trim();
   if (!q) return listApprovedProducts(supabase);
