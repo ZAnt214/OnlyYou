@@ -1,9 +1,11 @@
-import { BarChart3, Package, Star, TrendingUp } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { BarChart3, BriefcaseBusiness, Package, Star, TrendingUp } from "lucide-react";
 import { DashboardPageHeader } from "@/components/DashboardPageHeader";
 import { StatCard } from "@/components/StatCard";
 import { getCurrentUser } from "@/lib/supabase/session";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { listProductsForCreator } from "@/lib/supabase/products";
+import { listGigsForCreator } from "@/lib/supabase/gigs";
 import { listCreatorSales } from "@/lib/supabase/dashboard";
 
 function formatBRL(cents: number): string {
@@ -15,14 +17,22 @@ export default async function DashboardEstatisticasPage() {
   if (!creator?.creatorProfile) return null;
 
   const supabase = await createServerClient();
-  const [products, sales] = await Promise.all([
+  const [products, gigs, sales] = await Promise.all([
     listProductsForCreator(supabase, creator.id),
+    listGigsForCreator(supabase, creator.id),
     listCreatorSales(supabase, creator.id),
   ]);
 
   const netTotal = sales.reduce((sum, sale) => sum + sale.creatorAmountCents, 0);
   const average = sales.length ? Math.round(netTotal / sales.length) : 0;
   const published = products.filter((product) => product.status === "approved");
+  const activeGigs = gigs.filter((gig) => gig.status === "active");
+
+  const productSales = sales.filter((sale) => sale.kind === "product");
+  const serviceSales = sales.filter((sale) => sale.kind === "custom_service");
+  const productRevenue = productSales.reduce((sum, sale) => sum + sale.creatorAmountCents, 0);
+  const serviceRevenue = serviceSales.reduce((sum, sale) => sum + sale.creatorAmountCents, 0);
+  const maxKindRevenue = Math.max(1, productRevenue, serviceRevenue);
 
   const monthlyMap = new Map<string, { label: string; total: number }>();
   for (const sale of sales) {
@@ -44,7 +54,7 @@ export default async function DashboardEstatisticasPage() {
       <DashboardPageHeader
         eyebrow="Desempenho"
         title="Estatísticas"
-        description="Números reais de vendas confirmadas e do que você já publicou no Jobê."
+        description="Números reais de pagamentos confirmados e do que você já publicou no Jobê."
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -54,10 +64,45 @@ export default async function DashboardEstatisticasPage() {
           label="Sua avaliação"
           value={creator.creatorProfile.ratingCount > 0 ? creator.creatorProfile.rating.toFixed(1) : "—"}
           icon={Star}
-          hint={creator.creatorProfile.ratingCount > 0 ? `${creator.creatorProfile.ratingCount} avaliação(ões)` : "Ainda sem avaliações"}
+          hint={
+            creator.creatorProfile.ratingCount > 0
+              ? `${creator.creatorProfile.ratingCount} avaliação(ões)`
+              : "Ainda sem avaliações"
+          }
         />
-        <StatCard label="Produtos publicados" value={String(published.length)} icon={Package} />
+        <StatCard
+          label="Publicados"
+          value={String(published.length + activeGigs.length)}
+          icon={Package}
+          hint={`${published.length} produto(s) · ${activeGigs.length} serviço(s)`}
+        />
       </div>
+
+      <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+        <div>
+          <h2 className="text-base font-semibold text-(--color-text)">De onde veio o dinheiro</h2>
+          <p className="mt-0.5 text-xs text-(--color-text-muted)">
+            Valor líquido dos pagamentos confirmados.
+          </p>
+        </div>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <RevenueKind
+            icon={Package}
+            label="Produtos"
+            value={productRevenue}
+            count={productSales.length}
+            max={maxKindRevenue}
+          />
+          <RevenueKind
+            icon={BriefcaseBusiness}
+            label="Serviços"
+            value={serviceRevenue}
+            count={serviceSales.length}
+            max={maxKindRevenue}
+          />
+        </div>
+      </section>
 
       <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
         <div>
@@ -71,7 +116,9 @@ export default async function DashboardEstatisticasPage() {
           <div className="no-scrollbar mt-5 flex min-h-44 items-end gap-3 overflow-x-auto pb-1">
             {months.map(([key, item]) => (
               <div key={key} className="flex min-w-14 flex-1 flex-col items-center gap-2">
-                <span className="text-[10px] font-medium text-(--color-text-subtle)">{formatBRL(item.total)}</span>
+                <span className="text-[10px] font-medium text-(--color-text-subtle)">
+                  {formatBRL(item.total)}
+                </span>
                 <div className="flex h-28 w-full items-end justify-center rounded-xl bg-(--color-surface-2) px-2 pt-2">
                   <div
                     className="w-full max-w-10 rounded-t-lg bg-(--color-accent)"
@@ -100,7 +147,9 @@ export default async function DashboardEstatisticasPage() {
                 <div key={product.id}>
                   <div className="mb-1.5 flex items-center justify-between gap-3">
                     <span className="truncate text-sm text-(--color-text)">{product.title}</span>
-                    <span className="shrink-0 text-xs text-(--color-text-subtle)">{product.salesCount} venda(s)</span>
+                    <span className="shrink-0 text-xs text-(--color-text-subtle)">
+                      {product.salesCount} venda(s)
+                    </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-(--color-surface-2)">
                     <div
@@ -113,6 +162,37 @@ export default async function DashboardEstatisticasPage() {
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+function RevenueKind({
+  icon: Icon,
+  label,
+  value,
+  count,
+  max,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: number;
+  count: number;
+  max: number;
+}) {
+  return (
+    <div className="rounded-2xl bg-(--color-surface-2) p-4">
+      <div className="flex items-center gap-2">
+        <Icon size={16} className="text-(--color-accent-text)" strokeWidth={1.7} />
+        <span className="text-sm font-medium text-(--color-text)">{label}</span>
+      </div>
+      <p className="mt-3 text-xl font-bold text-(--color-text)">{formatBRL(value)}</p>
+      <p className="mt-0.5 text-xs text-(--color-text-subtle)">{count} pagamento(s)</p>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-(--color-surface)">
+        <div
+          className="h-full rounded-full bg-(--color-accent)"
+          style={{ width: `${Math.max(value > 0 ? 8 : 0, (value / max) * 100)}%` }}
+        />
+      </div>
     </div>
   );
 }
