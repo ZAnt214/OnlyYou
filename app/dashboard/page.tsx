@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
   BriefcaseBusiness,
@@ -212,7 +213,7 @@ function QuickLink({
   detail,
 }: {
   href: string;
-  icon: typeof MessageSquare;
+  icon: LucideIcon;
   title: string;
   detail: string;
 }) {

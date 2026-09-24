@@ -1,5 +1,16 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Corrige tipagem do dashboard e tokens inexistentes
+
+- `DashboardNav` agora usa tipos explícitos para itens e ícones, evitando inferência problemática
+  do TypeScript no `flatMap`/JSX da navegação.
+- Atalhos da Visão geral usam `LucideIcon` em vez de amarrar o tipo ao ícone de mensagens.
+- `lib/supabase/dashboard.ts` removeu unions de Promises de query/objeto vazio e passou a buscar
+  os dados auxiliares em blocos tipados, deixando o build mais previsível.
+- Produtos deixou de referenciar `--color-danger-soft` e `--color-on-danger`, que não existem
+  no design system atual.
+
+
 ## 2026-09-23 — Padroniza páginas operacionais do dashboard
 
 - Produtos ganhou carregamento/erro reais, cards responsivos e confirmação própria antes de excluir.

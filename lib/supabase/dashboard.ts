@@ -65,11 +65,6 @@ export interface CreatorWorkSummary {
     | null;
 }
 
-/**
- * Vendas reais do criador. A fonte é payment_confirmations com status paid,
- * não o antigo SaleRepository mock. RLS limita a leitura ao comprador/criador
- * da cobrança, então o creatorId aqui funciona também como filtro defensivo.
- */
 export async function listCreatorSales(
   supabase: SupabaseClient,
   creatorId: string,
@@ -93,29 +88,25 @@ export async function listCreatorSales(
   const productOrderIds = payments.filter((row) => row.kind === "product").map((row) => row.order_id);
   const customOrderIds = payments.filter((row) => row.kind === "custom_service").map((row) => row.order_id);
 
-  const productOrdersPromise =
-    productOrderIds.length > 0
-      ? supabase.from("product_orders").select("id, product_id, buyer_id").in("id", productOrderIds)
-      : Promise.resolve({ data: [], error: null });
+  let productOrders: ProductOrderRow[] = [];
+  if (productOrderIds.length > 0) {
+    const { data, error } = await supabase
+      .from("product_orders")
+      .select("id, product_id, buyer_id")
+      .in("id", productOrderIds);
+    if (error) throw new Error(error.message);
+    productOrders = (data ?? []) as ProductOrderRow[];
+  }
 
-  const customOrdersPromise =
-    customOrderIds.length > 0
-      ? supabase
-          .from("custom_service_orders")
-          .select("order_id, custom_request_id, requester_id, service_type")
-          .in("order_id", customOrderIds)
-      : Promise.resolve({ data: [], error: null });
-
-  const [productOrdersResult, customOrdersResult] = await Promise.all([
-    productOrdersPromise,
-    customOrdersPromise,
-  ]);
-
-  if (productOrdersResult.error) throw new Error(productOrdersResult.error.message);
-  if (customOrdersResult.error) throw new Error(customOrdersResult.error.message);
-
-  const productOrders = (productOrdersResult.data ?? []) as ProductOrderRow[];
-  const customOrders = (customOrdersResult.data ?? []) as CustomServiceOrderRow[];
+  let customOrders: CustomServiceOrderRow[] = [];
+  if (customOrderIds.length > 0) {
+    const { data, error } = await supabase
+      .from("custom_service_orders")
+      .select("order_id, custom_request_id, requester_id, service_type")
+      .in("order_id", customOrderIds);
+    if (error) throw new Error(error.message);
+    customOrders = (data ?? []) as CustomServiceOrderRow[];
+  }
 
   const productIds = [...new Set(productOrders.map((row) => row.product_id))];
   const buyerIds = [
@@ -124,34 +115,32 @@ export async function listCreatorSales(
         ...payments.map((row) => row.buyer_id),
         ...productOrders.map((row) => row.buyer_id),
         ...customOrders.map((row) => row.requester_id),
-      ].filter((value): value is string => Boolean(value)),
+      ].filter((value): value is string => typeof value === "string" && value.length > 0),
     ),
   ];
 
-  const productsPromise =
-    productIds.length > 0
-      ? supabase.from("products").select("id, title").in("id", productIds)
-      : Promise.resolve({ data: [], error: null });
+  let products: ProductTitleRow[] = [];
+  if (productIds.length > 0) {
+    const { data, error } = await supabase.from("products").select("id, title").in("id", productIds);
+    if (error) throw new Error(error.message);
+    products = (data ?? []) as ProductTitleRow[];
+  }
 
-  const profilesPromise =
-    buyerIds.length > 0
-      ? supabase.from("profiles").select("id, display_name, username").in("id", buyerIds)
-      : Promise.resolve({ data: [], error: null });
-
-  const [productsResult, profilesResult] = await Promise.all([productsPromise, profilesPromise]);
-  if (productsResult.error) throw new Error(productsResult.error.message);
-  if (profilesResult.error) throw new Error(profilesResult.error.message);
+  let profiles: ProfileNameRow[] = [];
+  if (buyerIds.length > 0) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, display_name, username")
+      .in("id", buyerIds);
+    if (error) throw new Error(error.message);
+    profiles = (data ?? []) as ProfileNameRow[];
+  }
 
   const productByOrder = new Map(productOrders.map((row) => [row.id, row]));
   const customByOrder = new Map(customOrders.map((row) => [row.order_id, row]));
-  const productTitleById = new Map(
-    ((productsResult.data ?? []) as ProductTitleRow[]).map((row) => [row.id, row.title]),
-  );
+  const productTitleById = new Map(products.map((row) => [row.id, row.title]));
   const profileById = new Map(
-    ((profilesResult.data ?? []) as ProfileNameRow[]).map((row) => [
-      row.id,
-      row.display_name ?? row.username ?? "Cliente",
-    ]),
+    profiles.map((row) => [row.id, row.display_name ?? row.username ?? "Cliente"]),
   );
 
   return payments.map((payment) => {

@@ -99,7 +99,7 @@ export default function DashboardProdutosPage() {
       />
 
       {error ? (
-        <div className="rounded-xl bg-(--color-danger-soft) px-4 py-3 text-sm text-(--color-danger)">
+        <div className="rounded-xl border border-(--color-danger) bg-(--color-surface) px-4 py-3 text-sm text-(--color-danger)">
           {error}
         </div>
       ) : null}
@@ -195,7 +195,7 @@ export default function DashboardProdutosPage() {
                 type="button"
                 disabled={busyId === deleteCandidate.id}
                 onClick={() => void handleDelete(deleteCandidate)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-(--color-danger) px-4 py-2 text-sm font-semibold text-(--color-on-danger) disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 rounded-full border border-(--color-danger) bg-(--color-surface) px-4 py-2 text-sm font-semibold text-(--color-danger) disabled:opacity-60"
               >
                 {busyId === deleteCandidate.id ? <Loader2 size={14} className="animate-spin" /> : null}
                 Excluir

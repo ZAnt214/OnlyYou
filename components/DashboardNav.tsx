@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   BriefcaseBusiness,
@@ -14,7 +15,19 @@ import {
   Wallet,
 } from "lucide-react";
 
-export const DASHBOARD_NAV_GROUPS = [
+interface DashboardNavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  exact?: boolean;
+}
+
+interface DashboardNavGroup {
+  label: string;
+  items: DashboardNavItem[];
+}
+
+export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
   {
     label: "Trabalho",
     items: [
@@ -37,9 +50,9 @@ export const DASHBOARD_NAV_GROUPS = [
     label: "Conta",
     items: [{ href: "/dashboard/configuracoes", label: "Configurações", icon: Settings }],
   },
-] as const;
+];
 
-function isActive(pathname: string, href: string, exact?: boolean) {
+function isActive(pathname: string, href: string, exact = false) {
   if (exact) return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -48,14 +61,15 @@ export function DashboardNav({ variant }: { variant: "desktop" | "mobile" }) {
   const pathname = usePathname();
 
   if (variant === "mobile") {
-    const items = DASHBOARD_NAV_GROUPS.flatMap((group) => group.items);
+    const items: DashboardNavItem[] = DASHBOARD_NAV_GROUPS.flatMap((group) => group.items);
     return (
       <nav
         aria-label="Seções do painel"
         className="no-scrollbar sticky top-16 z-20 -mx-4 flex gap-2 overflow-x-auto border-b border-(--color-border) bg-(--color-bg) px-4 py-3 md:hidden"
       >
         {items.map((item) => {
-          const active = isActive(pathname, item.href, "exact" in item ? item.exact : false);
+          const Icon = item.icon;
+          const active = isActive(pathname, item.href, item.exact);
           return (
             <Link
               key={item.href}
@@ -67,7 +81,7 @@ export function DashboardNav({ variant }: { variant: "desktop" | "mobile" }) {
                   : "border-(--color-border) bg-(--color-surface) text-(--color-text-muted)"
               }`}
             >
-              <item.icon size={14} strokeWidth={1.7} />
+              <Icon size={14} strokeWidth={1.7} />
               {item.label}
             </Link>
           );
@@ -84,7 +98,8 @@ export function DashboardNav({ variant }: { variant: "desktop" | "mobile" }) {
             {group.label}
           </p>
           {group.items.map((item) => {
-            const active = isActive(pathname, item.href, "exact" in item ? item.exact : false);
+            const Icon = item.icon;
+            const active = isActive(pathname, item.href, item.exact);
             return (
               <Link
                 key={item.href}
@@ -96,7 +111,7 @@ export function DashboardNav({ variant }: { variant: "desktop" | "mobile" }) {
                     : "text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text)"
                 }`}
               >
-                <item.icon
+                <Icon
                   size={17}
                   strokeWidth={active ? 2 : 1.6}
                   className={active ? "text-(--color-accent)" : "text-(--color-text-subtle)"}
