@@ -17,12 +17,14 @@ export function ProfileAvatarEditor({
   initialUrl,
   editable = false,
   sizeClassName = "h-16 w-16",
+  compactControls = false,
 }: {
   userId: string;
   displayName: string;
   initialUrl?: string | null;
   editable?: boolean;
   sizeClassName?: string;
+  compactControls?: boolean;
 }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,7 +86,7 @@ export function ProfileAvatarEditor({
   }
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className={`flex flex-col items-start gap-2 ${compactControls ? "w-fit max-w-20" : ""}`}>
       <div className={`relative overflow-hidden rounded-full border-2 border-(--color-border) bg-(--color-surface-2) ${sizeClassName}`}>
         {url ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -106,7 +108,7 @@ export function ProfileAvatarEditor({
       </div>
 
       {editable ? (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className={compactControls ? "flex w-full flex-col items-start gap-1" : "flex flex-wrap items-center gap-2"}>
           <button
             type="button"
             disabled={busy}
