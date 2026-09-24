@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Library } from "lucide-react";
+import { Download, Library } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
@@ -53,16 +53,13 @@ export default function BibliotecaPage() {
           {products.map((p) => (
             <div key={p.id} className="flex flex-col gap-1.5">
               <ProductCard product={p} />
-              {p.fileUrl ? (
-                <a
-                  href={p.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="self-start rounded-(--radius-pill) bg-(--color-accent-soft) px-3 py-1 text-xs font-medium text-(--color-accent-text) hover:bg-(--color-accent) hover:text-(--color-on-accent)"
-                >
-                  Baixar
-                </a>
-              ) : null}
+              <a
+                href={`/api/produtos/${p.id}/download`}
+                className="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-3 py-2 text-xs font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
+              >
+                <Download size={14} strokeWidth={1.8} />
+                Baixar arquivo
+              </a>
             </div>
           ))}
         </div>
