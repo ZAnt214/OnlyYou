@@ -54,6 +54,8 @@ export function CustomRequestsList({
   const [rows, setRows] = useState<RequestRow[] | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "production" | "negotiation" | "completed">("all");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!userId) return;
@@ -91,25 +93,33 @@ export function CustomRequestsList({
     }
 
     async function load() {
-      const requests =
-        role === "creator"
-          ? await listCustomRequestsForCreator(supabase, userId!)
-          : role === "requester"
-            ? await listCustomRequestsForRequester(supabase, userId!)
-            : [
-                ...(await listCustomRequestsForCreator(supabase, userId!)),
-                ...(await listCustomRequestsForRequester(supabase, userId!)),
-              ].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+      setLoadError(null);
+      try {
+        const requests =
+          role === "creator"
+            ? await listCustomRequestsForCreator(supabase, userId!)
+            : role === "requester"
+              ? await listCustomRequestsForRequester(supabase, userId!)
+              : [
+                  ...(await listCustomRequestsForCreator(supabase, userId!)),
+                  ...(await listCustomRequestsForRequester(supabase, userId!)),
+                ].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
 
-      const built = await buildRows(requests);
-      if (!cancelled) setRows(built);
+        const built = await buildRows(requests);
+        if (!cancelled) setRows(built);
+      } catch (err) {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : "Não foi possível carregar seus pedidos.");
+          setRows([]);
+        }
+      }
     }
 
     void load();
     return () => {
       cancelled = true;
     };
-  }, [userId, role]);
+  }, [userId, role, reloadKey]);
 
   if (!userId) {
     return (
@@ -134,6 +144,25 @@ export function CustomRequestsList({
       <div className="flex items-center justify-center gap-2 py-16 text-sm text-(--color-text-muted)">
         <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
         Carregando…
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-start gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
+        <p className="font-semibold text-(--color-text)">Não foi possível carregar os pedidos</p>
+        <p className="text-sm text-(--color-text-muted)">{loadError}</p>
+        <button
+          type="button"
+          onClick={() => {
+            setRows(null);
+            setReloadKey((value) => value + 1);
+          }}
+          className="text-sm font-medium text-(--color-accent-text) hover:underline"
+        >
+          Tentar de novo
+        </button>
       </div>
     );
   }
@@ -356,44 +385,177 @@ export function CustomRequestsList({
     );
   }
 
+  const query = search.trim().toLocaleLowerCase("pt-BR");
+  const statusFor = (row: RequestRow) => row.customServiceOrder?.status ?? row.request.status;
+  const isProduction = (row: RequestRow) => statusFor(row) === "in_progress";
+  const isNegotiation = (row: RequestRow) =>
+    ["pending", "negotiating", "proposal_sent", "accepted", "awaiting_payment", "paid"].includes(
+      statusFor(row),
+    );
+  const isCompleted = (row: RequestRow) =>
+    ["delivered", "completed"].includes(statusFor(row));
+
+  const filteredRows = rows.filter((row) => {
+    const service = row.proposal?.serviceType || row.request.description;
+    const matchesSearch =
+      !query ||
+      row.counterpartName.toLocaleLowerCase("pt-BR").includes(query) ||
+      service.toLocaleLowerCase("pt-BR").includes(query);
+    const matchesFilter =
+      filter === "all" ||
+      (filter === "production" && isProduction(row)) ||
+      (filter === "negotiation" && isNegotiation(row)) ||
+      (filter === "completed" && isCompleted(row));
+    return matchesSearch && matchesFilter;
+  });
+
+  const priorityRow = filteredRows.find(isProduction) ?? null;
+  const remainingRows = priorityRow
+    ? filteredRows.filter((row) => row.request.id !== priorityRow.request.id)
+    : filteredRows;
+
+  const hrefFor = (row: RequestRow) =>
+    `${row.myRole === "creator" ? "/dashboard/pedidos-personalizados" : "/pedidos"}/${row.request.id}`;
+
+  const serviceFor = (row: RequestRow) => row.proposal?.serviceType || row.request.description;
+
+  const priceFor = (row: RequestRow) => {
+    if (row.customServiceOrder) return formatBRLFromCents(row.customServiceOrder.agreedAmountCents);
+    if (row.proposal) return formatBRLFromCents(row.proposal.priceCents);
+    return null;
+  };
+
   return (
-    <div className="flex flex-col gap-3">
-      {rows.map(
-        ({
-          request,
-          proposal,
-          customServiceOrder,
-          counterpartName,
-          counterpartRating,
-          counterpartRatingCount,
-          myRole,
-        }) => (
-          <Link
-            key={request.id}
-            href={`${myRole === "creator" ? "/dashboard/pedidos-personalizados" : "/pedidos"}/${request.id}`}
-            className="flex flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-colors hover:border-(--color-accent-text) sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-          >
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-(--color-text)">{counterpartName}</span>
-                <StatusBadge status={request.status} />
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={role === "creator" ? "Buscar cliente ou serviço" : "Buscar conversa ou serviço"}
+          aria-label="Buscar pedidos"
+          className="w-full rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-base text-(--color-text) shadow-sm outline-none placeholder:text-(--color-text-subtle) focus:border-(--color-accent-text) sm:text-sm"
+        />
+        <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+          {[
+            ["all", "Todos"],
+            ["production", "Produção"],
+            ["negotiation", "Negociação"],
+            ["completed", "Concluídos"],
+          ].map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setFilter(value as typeof filter)}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                filter === value
+                  ? "border-(--color-contrast) bg-(--color-contrast) text-(--color-on-contrast)"
+                  : "border-(--color-border) bg-(--color-surface) text-(--color-text-muted) hover:border-(--color-accent-text)"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filteredRows.length === 0 ? (
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-9 text-center">
+          <p className="font-semibold text-(--color-text)">Nenhum pedido encontrado</p>
+          <p className="mt-1 text-sm text-(--color-text-muted)">Tente outro termo ou mude o filtro.</p>
+        </div>
+      ) : (
+        <>
+          {priorityRow ? (
+            <section className="flex flex-col gap-2">
+              <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-text-subtle)">
+                Em produção agora
+              </p>
+              <Link
+                href={hrefFor(priorityRow)}
+                className="rounded-2xl bg-(--color-contrast) p-4 text-(--color-on-contrast) shadow-sm transition-opacity hover:opacity-95"
+              >
+                <div className="flex items-start gap-3">
+                  <MediaPlaceholder
+                    seed={priorityRow.counterpartId}
+                    kind="avatar"
+                    label={priorityRow.counterpartName}
+                    className="h-10 w-10 shrink-0 border-(--color-on-contrast)"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="truncate font-semibold">{priorityRow.counterpartName}</span>
+                      <StatusBadge status={statusFor(priorityRow)} variant="inline" />
+                    </div>
+                    <p className="mt-1 truncate text-sm opacity-75">{serviceFor(priorityRow)}</p>
+                    <div className="mt-3 flex items-center justify-between gap-3 border-t border-(--color-on-contrast) pt-3">
+                      <span className="text-sm font-bold text-(--color-accent)">
+                        {priceFor(priorityRow) ?? "Em andamento"}
+                      </span>
+                      <span className="text-xs opacity-65">
+                        {priorityRow.customServiceOrder
+                          ? `Prazo ${new Date(priorityRow.customServiceOrder.deliveryDeadlineAt).toLocaleDateString("pt-BR")}`
+                          : new Date(priorityRow.request.updatedAt).toLocaleDateString("pt-BR")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </section>
+          ) : null}
+
+          {remainingRows.length > 0 ? (
+            <section className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-3 px-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-text-subtle)">
+                  {priorityRow ? "Outros pedidos" : "Pedidos"}
+                </p>
+                <span className="text-xs text-(--color-text-subtle)">{filteredRows.length}</span>
               </div>
-              {counterpartRatingCount > 0 ? (
-                <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
-              ) : null}
-              <p className="truncate text-sm text-(--color-text-muted)">
-                {proposal?.serviceType || request.description}
-              </p>
-              <p className="text-xs text-(--color-text-subtle)">
-                {new Date(request.createdAt).toLocaleDateString("pt-BR")}
-                {proposal ? ` · ${formatBRLFromCents(proposal.priceCents)}` : ""}
-                {customServiceOrder
-                  ? ` · prazo ${new Date(customServiceOrder.deliveryDeadlineAt).toLocaleDateString("pt-BR")}`
-                  : ""}
-              </p>
-            </div>
-          </Link>
-        ),
+              <div className="overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface)">
+                {remainingRows.map((row, index) => (
+                  <Link
+                    key={row.request.id}
+                    href={hrefFor(row)}
+                    className={`flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-(--color-surface-2) ${
+                      index > 0 ? "border-t border-(--color-border)" : ""
+                    }`}
+                  >
+                    <MediaPlaceholder
+                      seed={row.counterpartId}
+                      kind="avatar"
+                      label={row.counterpartName}
+                      className="h-10 w-10 shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="truncate font-semibold text-(--color-text)">{row.counterpartName}</span>
+                        <StatusBadge status={statusFor(row)} />
+                      </div>
+                      <p className="mt-1 truncate text-sm text-(--color-text-muted)">{serviceFor(row)}</p>
+                      <div className="mt-1.5 flex min-w-0 items-center gap-2 text-xs text-(--color-text-subtle)">
+                        {row.counterpartRatingCount > 0 ? (
+                          <RatingStars
+                            rating={row.counterpartRating}
+                            ratingCount={row.counterpartRatingCount}
+                            size={12}
+                          />
+                        ) : null}
+                        <span className="truncate">
+                          {new Date(row.request.updatedAt).toLocaleDateString("pt-BR")}
+                          {priceFor(row) ? ` · ${priceFor(row)}` : ""}
+                          {row.customServiceOrder
+                            ? ` · prazo ${new Date(row.customServiceOrder.deliveryDeadlineAt).toLocaleDateString("pt-BR")}`
+                            : ""}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
+        </>
       )}
     </div>
   );

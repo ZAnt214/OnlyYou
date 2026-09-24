@@ -1,5 +1,17 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Pedidos do dashboard ganham busca, filtros e recuperação de erro
+
+- `CustomRequestsList` agora trata falhas de Supabase: em vez de spinner infinito, mostra o erro
+  e uma ação “Tentar de novo”.
+- A versão usada no dashboard ganhou busca por cliente/serviço e filtros Todos, Produção,
+  Negociação e Concluídos.
+- Pedido em produção é destacado como “Em produção agora”; demais pedidos ficam numa lista única
+  compacta, com status, valor, prazo e avaliação apenas quando ela existe.
+- A página geral `/pedidos` mantém seu cabeçalho próprio; o dashboard não duplica título nem
+  descrição.
+
+
 ## 2026-09-24 — Protege estados moderados e corrige semântica dos formulários
 
 - Produtos com status administrativo fora de `draft/approved` deixam de mostrar ações de
