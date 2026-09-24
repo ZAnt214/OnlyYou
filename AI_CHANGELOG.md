@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Adiciona índices às foreign keys sem cobertura
+
+- Auditor de performance do Supabase apontou 21 foreign keys sem índice de apoio.
+- Adicionados índices para relações de pedidos personalizados, propostas, mensagens/anexos,
+  disputas, entitlements, arquivos/produtos e saques.
+- Isso reduz custo de joins, filtros por criador/comprador e verificações de integridade conforme
+  o volume cresce, sem alterar regras de negócio ou RLS.
+
+
 ## 2026-09-24 — Corrige aba inferior do dashboard no mobile
 
 - Dentro de `/dashboard`, a última aba da navegação inferior agora se chama “Painel” e leva para
