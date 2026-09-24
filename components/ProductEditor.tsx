@@ -70,6 +70,17 @@ function toLines(text: string): string[] {
     .filter(Boolean);
 }
 
+
+function isHttpsUrl(value: string): boolean {
+  if (!value.trim()) return true;
+  if (value.length > 2048) return false;
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function toTags(text: string): string[] {
   return text
     .split(",")
@@ -83,8 +94,15 @@ function validate(form: FormState, status: "draft" | "approved"): string | null 
   if (form.title.trim().length > 140) return "Deixe o nome com até 140 caracteres.";
   if (!form.category.trim()) return "Escolha uma categoria.";
 
+  if (!isHttpsUrl(form.coverImageUrl)) {
+    return "A capa precisa usar um link https:// válido.";
+  }
+
   const previews = toLines(form.previewImagesText);
   if (previews.length > 8) return "Use no máximo 8 imagens de prévia.";
+  if (previews.some((url) => !isHttpsUrl(url))) {
+    return "As imagens de prévia precisam usar links https:// válidos.";
+  }
 
   const tags = toTags(form.tagsText);
   if (tags.some((tag) => tag.length > 40)) return "Cada palavra-chave pode ter no máximo 40 caracteres.";

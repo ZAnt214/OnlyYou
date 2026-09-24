@@ -85,6 +85,17 @@ function inputToCents(value: string): number {
   return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
 }
 
+
+function isHttpsUrl(value: string): boolean {
+  if (!value.trim()) return true;
+  if (value.length > 2048) return false;
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function toLines(text: string): string[] {
   return text
     .split("\n")
@@ -106,8 +117,15 @@ function validateForm(form: FormState): string | null {
   const included = toLines(form.includedItemsText);
   if (included.length > 8) return "Use no máximo 8 itens em “O que está incluso”.";
 
+  if (!isHttpsUrl(form.coverImageUrl)) {
+    return "A capa precisa usar um link https:// válido.";
+  }
+
   const gallery = toLines(form.galleryText);
   if (gallery.length > 8) return "Use no máximo 8 imagens extras.";
+  if (gallery.some((url) => !isHttpsUrl(url))) {
+    return "As imagens extras precisam usar links https:// válidos.";
+  }
 
   if (form.category === "elojob") {
     if (!form.game.trim() || !form.currentRank.trim() || !form.targetRank.trim()) {

@@ -1,5 +1,15 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — URLs públicas de imagens passam a exigir HTTPS
+
+- Capas, galerias e prévias de Produtos/Serviços agora são validadas no formulário antes de salvar.
+- Constraints no banco exigem `https://`, ausência de espaços e até 2048 caracteres para novas
+  gravações de mídia pública.
+- Constraints foram adicionadas como `NOT VALID`: conteúdo antigo não é derrubado, mas qualquer
+  nova gravação/edição já passa pela regra.
+- Uploads feitos pelo próprio Jobê continuam compatíveis porque Vercel Blob usa HTTPS.
+
+
 ## 2026-09-24 — Dashboard ganha loading e recuperação de erro no nível da rota
 
 - Adicionados `app/dashboard/loading.tsx` e `app/dashboard/error.tsx`.
