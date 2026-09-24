@@ -1,18 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontal, Flag } from "lucide-react";
+import { Loader2, MoreHorizontal, Flag } from "lucide-react";
 import { REPORT_REASON_LABELS, type ReportReason } from "@/lib/types";
 
 export function ReportMenu({
   onReport,
   bare = false,
 }: {
-  onReport?: (reason: ReportReason) => void;
+  onReport?: (reason: ReportReason) => void | Promise<void>;
   bare?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState<ReportReason | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <div className="relative inline-block">
@@ -46,18 +48,37 @@ export function ReportMenu({
                 <Flag size={12} strokeWidth={1.5} />
                 Denunciar
               </div>
+              {error ? (
+                <p className="px-3 py-2 text-xs text-(--color-danger)">{error}</p>
+              ) : null}
               {(Object.keys(REPORT_REASON_LABELS) as ReportReason[]).map((reason) => (
                 <button
                   key={reason}
                   role="menuitem"
                   type="button"
-                  onClick={() => {
-                    onReport?.(reason);
-                    setSent(true);
+                  disabled={sending !== null}
+                  onClick={async () => {
+                    setError(null);
+                    setSending(reason);
+                    try {
+                      await onReport?.(reason);
+                      setSent(true);
+                    } catch (err) {
+                      setError(
+                        err instanceof Error
+                          ? err.message
+                          : "Não foi possível enviar a denúncia.",
+                      );
+                    } finally {
+                      setSending(null);
+                    }
                   }}
-                  className="block w-full px-3 py-2 text-left text-sm text-(--color-text) hover:bg-(--color-surface)"
+                  className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-(--color-text) hover:bg-(--color-surface) disabled:opacity-60"
                 >
-                  {REPORT_REASON_LABELS[reason]}
+                  <span>{REPORT_REASON_LABELS[reason]}</span>
+                  {sending === reason ? (
+                    <Loader2 size={13} className="animate-spin" strokeWidth={1.6} />
+                  ) : null}
                 </button>
               ))}
             </>
