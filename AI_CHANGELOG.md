@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Editor de produto protege alterações não salvas
+
+- O editor agora mantém uma referência do último estado salvo do produto.
+- Fechar/recarregar a página com mudanças pendentes usa a proteção nativa do navegador.
+- Links internos pedem confirmação antes de abandonar título, descrição, preço, arquivos ou imagens ainda não salvos.
+- Depois de salvar rascunho, a referência é atualizada e o aviso desaparece.
+- A tela mostra “Você tem alterações não salvas” enquanto houver diferença real em relação ao último salvamento.
+
+
 ## 2026-09-24 — Configurações avisam antes de perder alterações
 
 - Enquanto nome, bio, serviços ou descrição estiverem diferentes do último salvamento, a tela
