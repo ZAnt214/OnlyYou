@@ -5,12 +5,15 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 
 function getSafeBlobDownloadUrl(fileUrl: string): URL | null {
+  // product_files é a fonte autorizada pelo banco e só é legível pelo
+  // criador ou por comprador com entitlement ativo. Alguns produtos
+  // antigos foram enviados antes do namespace /creator-files/, então
+  // aceitamos URLs legadas desde que continuem no domínio oficial do Blob.
   try {
     const url = new URL(fileUrl);
     if (
       url.protocol !== "https:" ||
-      !url.hostname.endsWith(".blob.vercel-storage.com") ||
-      !url.pathname.startsWith("/creator-files/")
+      !url.hostname.endsWith(".blob.vercel-storage.com")
     ) {
       return null;
     }
