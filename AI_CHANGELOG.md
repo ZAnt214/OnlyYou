@@ -1,5 +1,15 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Otimiza RLS das tabelas mais usadas pelo dashboard
+
+- Policies de `payment_confirmations`, `withdrawals`, `products`, `product_orders` e
+  `product_entitlements` passaram de `auth.uid()` direto para `(select auth.uid())`.
+- A regra de acesso não mudou; o objetivo é evitar reavaliar o usuário autenticado para cada linha
+  em consultas de vendas, carteira e catálogo.
+- A otimização foi limitada às tabelas críticas do dashboard para não misturar performance com uma
+  reescrita ampla das policies de conversas.
+
+
 ## 2026-09-24 — Aumenta alvos de toque em Serviços e Produtos
 
 - Ações de editar/excluir nos cards mobile passaram de 36 px para aproximadamente 44 px.
