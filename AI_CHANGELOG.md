@@ -1,5 +1,18 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Bloqueia escrita direta em produtos e serviços
+
+- `authenticated` não pode mais fazer INSERT/UPDATE/DELETE direto em `products` ou `gigs`;
+  o dashboard precisa passar pelas RPCs já usadas pela aplicação.
+- RPCs de criar/editar/excluir produto e serviço passaram a `SECURITY DEFINER` mantendo
+  `search_path` protegido.
+- Triggers de guarda confirmam que o usuário autenticado é criador e dono do registro.
+- Em produtos, criador não consegue forjar `rating`, `rating_count` ou `sales_count`; esses
+  campos continuam liberados para operações internas sem `auth.uid()`, como confirmação real
+  de pagamento.
+- Em serviços, `creator_id`, posição e data de criação não podem ser adulterados pelo criador.
+
+
 ## 2026-09-23 — Endurece solicitação de saque
 
 - Criadores não podem mais inserir saques diretamente em `withdrawals`; toda solicitação passa
