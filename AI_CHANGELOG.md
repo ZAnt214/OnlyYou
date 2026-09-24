@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Documenta padrões visuais aprovados no redesenho do chat
+
+- Objetivo: preservar as decisões de design/UX aprovadas no chat para reaproveitamento consistente
+  em futuras páginas do Jobê.
+- Novo `JOBE_CHAT_DESIGN_GUIDE.md`: registra direção visual, hierarquia, uso de carvão/laranja,
+  compactação, avisos de sistema, card de proposta, compositor, menu “+”, separação entre arquivo
+  de revisão e conclusão, tela de finalizar trabalho, comportamento mobile/teclado, linguagem,
+  anti-padrões e checklist de revisão.
+- `CLAUDE.md`: adicionada referência obrigatória ao novo guia para futuros redesenhos.
+- Também foram corrigidas referências antigas a “framboesa” no texto do design system para
+  “laranja”, alinhando a documentação com a identidade atual definida em `app/globals.css`.
+- Nenhum comportamento ou layout do site foi alterado nesta mudança; apenas documentação de
+  continuidade do projeto.
+- Arquivos: `JOBE_CHAT_DESIGN_GUIDE.md`, `CLAUDE.md`, `AI_CHANGELOG.md`.
+
+
 ## 2026-09-23 — Aplica opção 2 à tela de finalizar trabalho
 
 - Objetivo: usuário escolheu a opção 2 das prévias HTML, mas sem o fundo laranja-claro do bloco de confirmação.
