@@ -227,14 +227,14 @@ export default function DashboardProdutosPage() {
                     type="button"
                     disabled={busyId === product.id}
                     onClick={() => void handleTogglePause(product)}
-                    className="rounded-full border border-(--color-border) px-3 py-2 text-xs font-medium text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-60"
+                    className="min-h-11 rounded-full border border-(--color-border) px-3 py-2 text-xs font-medium text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-60"
                   >
                     {busyId === product.id ? "Salvando…" : "Despublicar"}
                   </button>
                 ) : product.status === "draft" ? (
                   <Link
                     href={`/dashboard/produtos/${product.id}/editar`}
-                    className="rounded-full border border-(--color-border) px-3 py-2 text-xs font-medium text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text)"
+                    className="min-h-11 rounded-full border border-(--color-border) px-3 py-2 text-xs font-medium text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text)"
                   >
                     Continuar
                   </Link>
@@ -245,7 +245,7 @@ export default function DashboardProdutosPage() {
                   <Link
                     href={`/dashboard/produtos/${product.id}/editar`}
                     aria-label={`Editar ${product.title}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-text)"
+                    className="flex h-11 w-11 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-text)"
                   >
                     <Pencil size={15} strokeWidth={1.6} />
                   </Link>
@@ -255,7 +255,7 @@ export default function DashboardProdutosPage() {
                   disabled={busyId === product.id}
                   onClick={() => setDeleteCandidate(product)}
                   aria-label={`Excluir ${product.title}`}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-danger) disabled:opacity-60"
+                  className="flex h-11 w-11 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-danger) disabled:opacity-60"
                 >
                   <Trash2 size={15} strokeWidth={1.6} />
                 </button>
