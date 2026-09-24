@@ -21,7 +21,9 @@ export function ProductReportMenu({
     <ReportMenu
       bare={bare}
       onReport={async (reason: ReportReason) => {
-        if (loading) return;
+        if (loading) {
+          throw new Error("Aguarde sua sessão carregar e tente novamente.");
+        }
         if (!userId) {
           router.push("/entrar");
           return;
