@@ -1,5 +1,20 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Imagem grande do perfil agora é editável e topo mais compacto
+
+- A imagem grande abaixo do topo agora pode ser adicionada, trocada e removida direto no perfil.
+- O upload usa o mesmo nível de segurança do avatar: valida bytes reais, reprocessa com `sharp`,
+  converte para WebP, remove metadados e limpa o Blob antigo na troca.
+- Adicionada `profiles.cover_url` e a RPC segura `update_creator_cover`, restrita ao próprio criador.
+- O espaço entre a foto de perfil e o nome foi reduzido; os controles “Trocar foto” e “Remover”
+  agora ficam compactos e não empurram o nome para a direita.
+- A imagem de destaque também pode ser alterada em Configurações.
+- Arquivos principais: `components/ProfileCoverEditor.tsx`, `app/api/profile/cover/route.ts`,
+  `components/CreatorProfileView.tsx`, `components/ProfileAvatarEditor.tsx`,
+  `lib/types/user.ts`, `lib/supabase/profile.ts`,
+  `supabase/migrations/20260924004500_editable_creator_cover.sql`.
+
+
 ## 2026-09-24 — Corrige migration de segurança do avatar
 
 - Corrigidos comentários inválidos `//` para comentários SQL `--` em
