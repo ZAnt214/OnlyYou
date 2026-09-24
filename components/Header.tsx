@@ -10,6 +10,7 @@ import {
   Library,
   Heart,
   ShieldCheck,
+  Shield,
   User,
   ChevronDown,
   MessageSquare,
@@ -38,8 +39,16 @@ const CREATOR_FEED_LINK = {
 
 export function Header() {
   const creatorUsername = useCreatorUsername();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [authEmail, setAuthEmail] = useState<string | null>(null);
+  const [isCreator, setIsCreator] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const ACCOUNT_LINKS = [
+    ...(isAdmin
+      ? [{ href: "/admin", label: "Administração", icon: Shield }]
+      : []),
     { href: "/biblioteca", label: "Biblioteca", icon: Library },
     { href: "/pedidos", label: "Mensagens", icon: MessageSquare },
     { href: "/oportunidades/minhas", label: "Minhas publicações", icon: ClipboardList },
@@ -52,10 +61,6 @@ export function Header() {
     { href: "/seguranca", label: "Central de segurança", icon: ShieldCheck },
   ];
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
-  const [authEmail, setAuthEmail] = useState<string | null>(null);
-  const [isCreator, setIsCreator] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const navigationLinks = isCreator
@@ -71,6 +76,7 @@ export function Header() {
       setAuthEmail(user?.email ?? null);
       if (!user) {
         setIsCreator(false);
+        setIsAdmin(false);
         return;
       }
 
@@ -81,7 +87,9 @@ export function Header() {
         .maybeSingle();
 
       if (active) {
-        setIsCreator(Array.isArray(data?.roles) && data.roles.includes("creator"));
+        const roles = Array.isArray(data?.roles) ? data.roles : [];
+        setIsCreator(roles.includes("creator"));
+        setIsAdmin(roles.includes("admin"));
       }
     }
 
