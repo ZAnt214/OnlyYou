@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Remove trigger de moderação da API RPC
+
+- Auditor de segurança do Supabase apontou `protect_creator_product_moderation_state()` como
+  `SECURITY DEFINER` executável externamente.
+- Revogado `EXECUTE` para `PUBLIC`, `anon` e `authenticated`. A função continua disponível
+  ao trigger do PostgreSQL, mas deixa de aparecer como ação chamável pelo cliente.
+- Auditoria das demais funções `RETURNS trigger` confirmou que já estavam sem execução externa.
+
+
 ## 2026-09-24 — Simplifica a home e melhora busca de Produtos
 
 - A Visão geral ganhou a seção “Agora”, que coloca prazo, pedidos esperando resposta, pagamentos
