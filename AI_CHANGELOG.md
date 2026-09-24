@@ -1,5 +1,16 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Simplifica navegação mobile do dashboard
+
+- Dentro de `/dashboard`, a barra inferior deixa de mostrar navegação pública e vira navegação de
+  trabalho do criador: Painel, Pedidos, Serviços, Produtos e Carteira.
+- A barra horizontal do topo deixa de repetir essas mesmas áreas e mostra apenas ações secundárias:
+  Oportunidades, Vendas, Estatísticas e Configurações.
+- Fora do dashboard, a navegação inferior pública continua igual.
+- Resultado: menos abas concorrendo por atenção e menos necessidade de rolar uma lista com nove
+  atalhos só para trocar de área.
+
+
 ## 2026-09-24 — Configurações evitam perda silenciosa e ganham retry
 
 - A tela agora mostra quantos serviços foram digitados em “O que você faz” e bloqueia salvar acima
