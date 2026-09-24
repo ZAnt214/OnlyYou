@@ -1,5 +1,22 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Totais financeiros passam a ser agregados no banco
+
+- Corrigido um problema de escala: Visão geral, Vendas, Estatísticas e Carteira não somam mais
+  apenas as linhas carregadas pelo cliente. Receita, quantidade de vendas, saldo e meses agora são
+  calculados no Postgres sobre todo o histórico do criador.
+- Novas RPCs autenticadas e sem parâmetro de usuário: `get_my_creator_balance`,
+  `get_my_creator_sales_summary`, `get_my_creator_monthly_sales` e
+  `list_my_creator_sales`. Todas usam `auth.uid()`, exigem papel de criador e são
+  `SECURITY DEFINER` com `search_path` vazio.
+- `/dashboard/vendas` agora filtra/pesquisa no banco e pagina 25 resultados por vez, mantendo os
+  cards de total sempre baseados no histórico completo.
+- Visão geral usa resumo exato, últimas cinco vendas e seis meses agregados no banco.
+- Estatísticas usa resumo exato para separar receita de Produtos/Serviços e até 12 meses agregados.
+- Carteira usa saldo agregado no banco; a RPC de saque continua recalculando novamente dentro da
+  transação antes de aceitar qualquer solicitação.
+
+
 ## 2026-09-24 — Vendas ganham busca/filtro e Estatísticas mostram origem da receita
 
 - `/dashboard/vendas`: adicionada busca por cliente ou venda, filtros Todas/Produtos/Serviços,

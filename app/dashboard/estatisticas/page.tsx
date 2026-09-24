@@ -6,7 +6,10 @@ import { getCurrentUser } from "@/lib/supabase/session";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { listProductsForCreator } from "@/lib/supabase/products";
 import { listGigsForCreator } from "@/lib/supabase/gigs";
-import { listCreatorSales } from "@/lib/supabase/dashboard";
+import {
+  getCreatorMonthlySales,
+  getCreatorSalesSummary,
+} from "@/lib/supabase/dashboard";
 
 function formatBRL(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -17,36 +20,24 @@ export default async function DashboardEstatisticasPage() {
   if (!creator?.creatorProfile) return null;
 
   const supabase = await createServerClient();
-  const [products, gigs, sales] = await Promise.all([
+  const [products, gigs, summary, months] = await Promise.all([
     listProductsForCreator(supabase, creator.id),
     listGigsForCreator(supabase, creator.id),
-    listCreatorSales(supabase, creator.id),
+    getCreatorSalesSummary(supabase),
+    getCreatorMonthlySales(supabase, 12),
   ]);
 
-  const netTotal = sales.reduce((sum, sale) => sum + sale.creatorAmountCents, 0);
-  const average = sales.length ? Math.round(netTotal / sales.length) : 0;
+  const average = summary.totalSales
+    ? Math.round(summary.creatorAmountCents / summary.totalSales)
+    : 0;
   const published = products.filter((product) => product.status === "approved");
   const activeGigs = gigs.filter((gig) => gig.status === "active");
-
-  const productSales = sales.filter((sale) => sale.kind === "product");
-  const serviceSales = sales.filter((sale) => sale.kind === "custom_service");
-  const productRevenue = productSales.reduce((sum, sale) => sum + sale.creatorAmountCents, 0);
-  const serviceRevenue = serviceSales.reduce((sum, sale) => sum + sale.creatorAmountCents, 0);
-  const maxKindRevenue = Math.max(1, productRevenue, serviceRevenue);
-
-  const monthlyMap = new Map<string, { label: string; total: number }>();
-  for (const sale of sales) {
-    const date = new Date(sale.confirmedAt);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-    const current = monthlyMap.get(key) ?? {
-      label: date.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }).replace(".", ""),
-      total: 0,
-    };
-    current.total += sale.creatorAmountCents;
-    monthlyMap.set(key, current);
-  }
-  const months = [...monthlyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-12);
-  const maxMonthly = Math.max(1, ...months.map(([, value]) => value.total));
+  const maxKindRevenue = Math.max(
+    1,
+    summary.productCreatorAmountCents,
+    summary.serviceCreatorAmountCents,
+  );
+  const maxMonthly = Math.max(1, ...months.map((month) => month.creatorAmountCents));
   const maxProductSales = Math.max(1, ...published.map((product) => product.salesCount));
 
   return (
@@ -58,7 +49,7 @@ export default async function DashboardEstatisticasPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Receita líquida" value={formatBRL(netTotal)} icon={TrendingUp} />
+        <StatCard label="Receita líquida" value={formatBRL(summary.creatorAmountCents)} icon={TrendingUp} />
         <StatCard label="Média por venda" value={formatBRL(average)} icon={BarChart3} />
         <StatCard
           label="Sua avaliação"
@@ -82,7 +73,7 @@ export default async function DashboardEstatisticasPage() {
         <div>
           <h2 className="text-base font-semibold text-(--color-text)">De onde veio o dinheiro</h2>
           <p className="mt-0.5 text-xs text-(--color-text-muted)">
-            Valor líquido dos pagamentos confirmados.
+            Valor líquido de todos os pagamentos confirmados.
           </p>
         </div>
 
@@ -90,15 +81,15 @@ export default async function DashboardEstatisticasPage() {
           <RevenueKind
             icon={Package}
             label="Produtos"
-            value={productRevenue}
-            count={productSales.length}
+            value={summary.productCreatorAmountCents}
+            count={summary.productSales}
             max={maxKindRevenue}
           />
           <RevenueKind
             icon={BriefcaseBusiness}
             label="Serviços"
-            value={serviceRevenue}
-            count={serviceSales.length}
+            value={summary.serviceCreatorAmountCents}
+            count={summary.serviceSales}
             max={maxKindRevenue}
           />
         </div>
@@ -107,25 +98,29 @@ export default async function DashboardEstatisticasPage() {
       <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
         <div>
           <h2 className="text-base font-semibold text-(--color-text)">Recebido ao longo do tempo</h2>
-          <p className="mt-0.5 text-xs text-(--color-text-muted)">Últimos meses com venda confirmada.</p>
+          <p className="mt-0.5 text-xs text-(--color-text-muted)">Até 12 meses com venda confirmada.</p>
         </div>
 
         {months.length === 0 ? (
           <p className="mt-6 text-sm text-(--color-text-muted)">Ainda não há vendas para montar o gráfico.</p>
         ) : (
           <div className="no-scrollbar mt-5 flex min-h-44 items-end gap-3 overflow-x-auto pb-1">
-            {months.map(([key, item]) => (
-              <div key={key} className="flex min-w-14 flex-1 flex-col items-center gap-2">
+            {months.map((item) => (
+              <div key={item.monthStart} className="flex min-w-16 flex-1 flex-col items-center gap-2">
                 <span className="text-[10px] font-medium text-(--color-text-subtle)">
-                  {formatBRL(item.total)}
+                  {formatBRL(item.creatorAmountCents)}
                 </span>
                 <div className="flex h-28 w-full items-end justify-center rounded-xl bg-(--color-surface-2) px-2 pt-2">
                   <div
                     className="w-full max-w-10 rounded-t-lg bg-(--color-accent)"
-                    style={{ height: `${Math.max(8, (item.total / maxMonthly) * 100)}%` }}
+                    style={{ height: `${Math.max(8, (item.creatorAmountCents / maxMonthly) * 100)}%` }}
                   />
                 </div>
-                <span className="text-[11px] capitalize text-(--color-text-subtle)">{item.label}</span>
+                <span className="whitespace-nowrap text-[11px] capitalize text-(--color-text-subtle)">
+                  {new Date(`${item.monthStart}T12:00:00`)
+                    .toLocaleDateString("pt-BR", { month: "short", year: "2-digit" })
+                    .replace(".", "")}
+                </span>
               </div>
             ))}
           </div>

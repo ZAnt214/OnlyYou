@@ -4,18 +4,22 @@ import { DashboardPageHeader } from "@/components/DashboardPageHeader";
 import { StatCard } from "@/components/StatCard";
 import { getCurrentUser } from "@/lib/supabase/session";
 import { createClient as createServerClient } from "@/lib/supabase/server";
-import { listCreatorSales } from "@/lib/supabase/dashboard";
+import {
+  getCreatorSalesSummary,
+  listCreatorSalesPage,
+} from "@/lib/supabase/dashboard";
 
 function formatBRL(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 type SaleFilter = "all" | "product" | "custom_service";
+const PAGE_SIZE = 25;
 
 export default async function DashboardVendasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tipo?: string; q?: string }>;
+  searchParams: Promise<{ tipo?: string; q?: string; pagina?: string }>;
 }) {
   const creator = await getCurrentUser();
   if (!creator?.creatorProfile) return null;
@@ -24,27 +28,32 @@ export default async function DashboardVendasPage({
   const filter: SaleFilter =
     params.tipo === "product" || params.tipo === "custom_service" ? params.tipo : "all";
   const query = (params.q ?? "").trim();
-  const normalizedQuery = query.toLocaleLowerCase("pt-BR");
+  const requestedPage = Number.parseInt(params.pagina ?? "1", 10);
+  const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
   const supabase = await createServerClient();
-  const sales = await listCreatorSales(supabase, creator.id);
-  const netTotal = sales.reduce((sum, sale) => sum + sale.creatorAmountCents, 0);
-  const grossTotal = sales.reduce((sum, sale) => sum + sale.grossAmountCents, 0);
-  const average = sales.length ? Math.round(netTotal / sales.length) : 0;
+  const [summary, salesPage] = await Promise.all([
+    getCreatorSalesSummary(supabase),
+    listCreatorSalesPage(supabase, {
+      kind: filter === "all" ? undefined : filter,
+      query,
+      limit: PAGE_SIZE,
+      offset: (page - 1) * PAGE_SIZE,
+    }),
+  ]);
 
-  const visibleSales = sales.filter((sale) => {
-    const matchesType = filter === "all" || sale.kind === filter;
-    const matchesSearch =
-      !normalizedQuery ||
-      sale.title.toLocaleLowerCase("pt-BR").includes(normalizedQuery) ||
-      sale.buyerName.toLocaleLowerCase("pt-BR").includes(normalizedQuery);
-    return matchesType && matchesSearch;
-  });
+  const average = summary.totalSales
+    ? Math.round(summary.creatorAmountCents / summary.totalSales)
+    : 0;
+  const totalPages = Math.max(1, Math.ceil(salesPage.totalCount / PAGE_SIZE));
 
-  function filterHref(next: SaleFilter) {
+  function hrefFor(next: { filter?: SaleFilter; page?: number }) {
     const search = new URLSearchParams();
-    if (next !== "all") search.set("tipo", next);
+    const nextFilter = next.filter ?? filter;
+    const nextPage = next.page ?? 1;
+    if (nextFilter !== "all") search.set("tipo", nextFilter);
     if (query) search.set("q", query);
+    if (nextPage > 1) search.set("pagina", String(nextPage));
     const suffix = search.toString();
     return `/dashboard/vendas${suffix ? `?${suffix}` : ""}`;
   }
@@ -58,9 +67,9 @@ export default async function DashboardVendasPage({
       />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard label="Você recebeu" value={formatBRL(netTotal)} icon={Receipt} />
-        <StatCard label="Total pago pelos clientes" value={formatBRL(grossTotal)} />
-        <StatCard label="Média por venda" value={formatBRL(average)} hint={`${sales.length} confirmada(s)`} />
+        <StatCard label="Você recebeu" value={formatBRL(summary.creatorAmountCents)} icon={Receipt} />
+        <StatCard label="Total pago pelos clientes" value={formatBRL(summary.grossAmountCents)} />
+        <StatCard label="Média por venda" value={formatBRL(average)} hint={`${summary.totalSales} confirmada(s)`} />
       </div>
 
       <section className="flex flex-col gap-3">
@@ -90,7 +99,7 @@ export default async function DashboardVendasPage({
           ] as const).map(([value, label]) => (
             <Link
               key={value}
-              href={filterHref(value)}
+              href={hrefFor({ filter: value, page: 1 })}
               className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                 filter === value
                   ? "border-(--color-contrast) bg-(--color-contrast) text-(--color-on-contrast)"
@@ -103,21 +112,21 @@ export default async function DashboardVendasPage({
         </div>
       </section>
 
-      {sales.length === 0 ? (
+      {summary.totalSales === 0 ? (
         <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-5 py-10 text-center">
           <p className="font-semibold text-(--color-text)">Nenhuma venda confirmada ainda</p>
           <p className="mt-1 text-sm text-(--color-text-muted)">Quando um pagamento for aprovado, ele aparece aqui.</p>
         </div>
-      ) : visibleSales.length === 0 ? (
+      ) : salesPage.items.length === 0 ? (
         <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-5 py-9 text-center">
           <p className="font-semibold text-(--color-text)">Nenhuma venda encontrada</p>
-          <p className="mt-1 text-sm text-(--color-text-muted)">Tente outro nome ou mude o filtro.</p>
+          <p className="mt-1 text-sm text-(--color-text-muted)">Tente outro nome, filtro ou página.</p>
         </div>
       ) : (
         <>
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs text-(--color-text-subtle)">
-              {visibleSales.length} {visibleSales.length === 1 ? "resultado" : "resultados"}
+              {salesPage.totalCount} {salesPage.totalCount === 1 ? "resultado" : "resultados"}
             </p>
             {query || filter !== "all" ? (
               <Link href="/dashboard/vendas" className="text-xs font-medium text-(--color-accent-text) hover:underline">
@@ -127,7 +136,7 @@ export default async function DashboardVendasPage({
           </div>
 
           <div className="flex flex-col gap-2 md:hidden">
-            {visibleSales.map((sale) => (
+            {salesPage.items.map((sale) => (
               <article key={sale.id} className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -156,7 +165,7 @@ export default async function DashboardVendasPage({
                 </tr>
               </thead>
               <tbody>
-                {visibleSales.map((sale) => (
+                {salesPage.items.map((sale) => (
                   <tr key={sale.id} className="border-b border-(--color-border) last:border-0">
                     <td className="max-w-64 px-4 py-3 font-medium text-(--color-text)">{sale.title}</td>
                     <td className="px-4 py-3 text-(--color-text-muted)">{sale.buyerName}</td>
@@ -168,6 +177,32 @@ export default async function DashboardVendasPage({
               </tbody>
             </table>
           </div>
+
+          {totalPages > 1 ? (
+            <nav className="flex items-center justify-between gap-3" aria-label="Paginação das vendas">
+              <Link
+                href={hrefFor({ page: Math.max(1, page - 1) })}
+                aria-disabled={page <= 1}
+                className={`rounded-full border border-(--color-border) px-4 py-2 text-sm ${
+                  page <= 1 ? "pointer-events-none opacity-40" : "text-(--color-text) hover:bg-(--color-surface-2)"
+                }`}
+              >
+                Anterior
+              </Link>
+              <span className="text-xs text-(--color-text-subtle)">
+                Página {Math.min(page, totalPages)} de {totalPages}
+              </span>
+              <Link
+                href={hrefFor({ page: Math.min(totalPages, page + 1) })}
+                aria-disabled={page >= totalPages}
+                className={`rounded-full border border-(--color-border) px-4 py-2 text-sm ${
+                  page >= totalPages ? "pointer-events-none opacity-40" : "text-(--color-text) hover:bg-(--color-surface-2)"
+                }`}
+              >
+                Próxima
+              </Link>
+            </nav>
+          ) : null}
         </>
       )}
     </div>

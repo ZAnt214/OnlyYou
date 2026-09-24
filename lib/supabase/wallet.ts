@@ -46,32 +46,21 @@ export async function getCreatorBalance(
   supabase: SupabaseClient,
   creatorId: string,
 ): Promise<CreatorBalance> {
-  const [{ data: paidPayments, error: paymentsError }, { data: withdrawals, error: withdrawalsError }] =
-    await Promise.all([
-      supabase
-        .from("payment_confirmations")
-        .select("creator_amount_cents")
-        .eq("creator_id", creatorId)
-        .eq("status", "paid"),
-      supabase.from("withdrawals").select("amount_cents, status").eq("creator_id", creatorId),
-    ]);
+  const { data, error } = await supabase.rpc("get_my_creator_balance").single();
+  if (error) throw new Error(error.message);
 
-  if (paymentsError) throw new Error(paymentsError.message);
-  if (withdrawalsError) throw new Error(withdrawalsError.message);
-
-  const earnedCents = (paidPayments ?? []).reduce((sum, p) => sum + p.creator_amount_cents, 0);
-  const reservedCents = (withdrawals ?? [])
-    .filter((w) => w.status === "requested" || w.status === "paid")
-    .reduce((sum, w) => sum + w.amount_cents, 0);
-  const withdrawnCents = (withdrawals ?? [])
-    .filter((w) => w.status === "paid")
-    .reduce((sum, w) => sum + w.amount_cents, 0);
+  const row = data as {
+    earned_cents: number | string;
+    reserved_cents: number | string;
+    withdrawn_cents: number | string;
+    available_cents: number | string;
+  };
 
   return {
     creatorId,
-    earnedCents,
-    availableCents: Math.max(0, earnedCents - reservedCents),
-    withdrawnCents,
+    earnedCents: Number(row.earned_cents),
+    availableCents: Math.max(0, Number(row.available_cents)),
+    withdrawnCents: Number(row.withdrawn_cents),
     currency: "BRL",
   };
 }

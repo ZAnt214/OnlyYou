@@ -15,7 +15,12 @@ import { getCurrentUser } from "@/lib/supabase/session";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { listProductsForCreator } from "@/lib/supabase/products";
 import { getCreatorBalance } from "@/lib/supabase/wallet";
-import { getCreatorWorkSummary, listCreatorSales } from "@/lib/supabase/dashboard";
+import {
+  getCreatorMonthlySales,
+  getCreatorSalesSummary,
+  getCreatorWorkSummary,
+  listCreatorSalesPage,
+} from "@/lib/supabase/dashboard";
 
 function formatBRL(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -35,32 +40,17 @@ export default async function DashboardOverviewPage() {
   if (!creator?.creatorProfile) return null;
 
   const supabase = await createServerClient();
-  const [products, balance, sales, work] = await Promise.all([
+  const [products, balance, salesSummary, recentSales, monthly, work] = await Promise.all([
     listProductsForCreator(supabase, creator.id),
     getCreatorBalance(supabase, creator.id),
-    listCreatorSales(supabase, creator.id),
+    getCreatorSalesSummary(supabase),
+    listCreatorSalesPage(supabase, { limit: 5 }),
+    getCreatorMonthlySales(supabase, 6),
     getCreatorWorkSummary(supabase, creator.id),
   ]);
 
-  const totalReceived = sales.reduce((sum, sale) => sum + sale.creatorAmountCents, 0);
   const publishedProducts = products.filter((product) => product.status === "approved").length;
-
-  const salesByMonth = new Map<string, { label: string; total: number }>();
-  for (const sale of sales) {
-    const date = new Date(sale.confirmedAt);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-    const current = salesByMonth.get(key) ?? {
-      label: date.toLocaleDateString("pt-BR", { month: "short" }).replace(".", ""),
-      total: 0,
-    };
-    current.total += sale.creatorAmountCents;
-    salesByMonth.set(key, current);
-  }
-  const monthly = [...salesByMonth.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-6)
-    .map(([, value]) => value);
-  const maxMonth = Math.max(1, ...monthly.map((item) => item.total));
+  const maxMonth = Math.max(1, ...monthly.map((item) => item.creatorAmountCents));
 
   return (
     <div className="flex flex-col gap-7">
@@ -79,9 +69,9 @@ export default async function DashboardOverviewPage() {
         />
         <StatCard
           label="Recebido em vendas"
-          value={formatBRL(totalReceived)}
+          value={formatBRL(salesSummary.creatorAmountCents)}
           icon={Receipt}
-          hint={`${sales.length} ${sales.length === 1 ? "venda confirmada" : "vendas confirmadas"}`}
+          hint={`${salesSummary.totalSales} ${salesSummary.totalSales === 1 ? "venda confirmada" : "vendas confirmadas"}`}
         />
         <StatCard
           label="Trabalhos em produção"
@@ -154,16 +144,18 @@ export default async function DashboardOverviewPage() {
             <p className="mt-8 text-sm text-(--color-text-muted)">As vendas confirmadas vão aparecer aqui.</p>
           ) : (
             <div className="mt-5 flex h-36 items-end gap-3">
-              {monthly.map((item, index) => (
-                <div key={`${item.label}-${index}`} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+              {monthly.map((item) => (
+                <div key={item.monthStart} className="flex min-w-0 flex-1 flex-col items-center gap-2">
                   <div className="flex h-28 w-full items-end justify-center rounded-xl bg-(--color-surface-2) px-2 pt-2">
                     <div
                       className="w-full max-w-10 rounded-t-lg bg-(--color-accent)"
-                      style={{ height: `${Math.max(8, (item.total / maxMonth) * 100)}%` }}
-                      title={formatBRL(item.total)}
+                      style={{ height: `${Math.max(8, (item.creatorAmountCents / maxMonth) * 100)}%` }}
+                      title={formatBRL(item.creatorAmountCents)}
                     />
                   </div>
-                  <span className="text-[11px] capitalize text-(--color-text-subtle)">{item.label}</span>
+                  <span className="text-[11px] capitalize text-(--color-text-subtle)">
+                    {new Date(`${item.monthStart}T12:00:00`).toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")}
+                  </span>
                 </div>
               ))}
             </div>
@@ -181,11 +173,11 @@ export default async function DashboardOverviewPage() {
             </Link>
           </div>
 
-          {sales.length === 0 ? (
+          {recentSales.items.length === 0 ? (
             <p className="px-4 py-8 text-sm text-(--color-text-muted)">Nenhuma venda confirmada ainda.</p>
           ) : (
             <div className="divide-y divide-(--color-border)">
-              {sales.slice(0, 5).map((sale) => (
+              {recentSales.items.map((sale) => (
                 <div key={sale.id} className="flex items-center justify-between gap-3 px-4 py-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-(--color-text)">{sale.title}</p>

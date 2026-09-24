@@ -1,42 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-interface PaymentRow {
-  id: string;
-  order_id: string;
-  buyer_id: string | null;
-  gross_amount_cents: number;
-  platform_fee_cents: number;
-  creator_amount_cents: number;
-  currency: string;
-  kind: "product" | "custom_service";
-  confirmed_at: string | null;
-  created_at: string;
-}
-
-interface ProductOrderRow {
-  id: string;
-  product_id: string;
-  buyer_id: string;
-}
-
-interface ProductTitleRow {
-  id: string;
-  title: string;
-}
-
-interface CustomServiceOrderRow {
-  order_id: string;
-  custom_request_id: string;
-  requester_id: string;
-  service_type: string;
-}
-
-interface ProfileNameRow {
-  id: string;
-  display_name: string | null;
-  username: string | null;
-}
-
 export interface CreatorSaleRecord {
   id: string;
   orderId: string;
@@ -49,6 +12,28 @@ export interface CreatorSaleRecord {
   creatorAmountCents: number;
   currency: string;
   confirmedAt: string;
+}
+
+export interface CreatorSalesPage {
+  items: CreatorSaleRecord[];
+  totalCount: number;
+}
+
+export interface CreatorSalesSummary {
+  totalSales: number;
+  grossAmountCents: number;
+  creatorAmountCents: number;
+  productSales: number;
+  productCreatorAmountCents: number;
+  serviceSales: number;
+  serviceCreatorAmountCents: number;
+}
+
+export interface CreatorMonthlySales {
+  monthStart: string;
+  creatorAmountCents: number;
+  grossAmountCents: number;
+  salesCount: number;
 }
 
 export interface CreatorWorkSummary {
@@ -65,107 +50,125 @@ export interface CreatorWorkSummary {
     | null;
 }
 
+interface CreatorSaleRpcRow {
+  id: string;
+  order_id: string;
+  buyer_id: string | null;
+  gross_amount_cents: number | string;
+  platform_fee_cents: number | string;
+  creator_amount_cents: number | string;
+  currency: string;
+  kind: "product" | "custom_service";
+  confirmed_at: string;
+  title: string;
+  buyer_name: string;
+  total_count: number | string;
+}
+
+interface CreatorSummaryRpcRow {
+  total_sales: number | string;
+  gross_amount_cents: number | string;
+  creator_amount_cents: number | string;
+  product_sales: number | string;
+  product_creator_amount_cents: number | string;
+  service_sales: number | string;
+  service_creator_amount_cents: number | string;
+}
+
+interface MonthlyRpcRow {
+  month_start: string;
+  creator_amount_cents: number | string;
+  gross_amount_cents: number | string;
+  sales_count: number | string;
+}
+
+function mapSale(row: CreatorSaleRpcRow): CreatorSaleRecord {
+  return {
+    id: row.id,
+    orderId: row.order_id,
+    kind: row.kind,
+    title: row.title,
+    buyerId: row.buyer_id,
+    buyerName: row.buyer_name,
+    grossAmountCents: Number(row.gross_amount_cents),
+    platformFeeCents: Number(row.platform_fee_cents),
+    creatorAmountCents: Number(row.creator_amount_cents),
+    currency: row.currency,
+    confirmedAt: row.confirmed_at,
+  };
+}
+
+export async function listCreatorSalesPage(
+  supabase: SupabaseClient,
+  {
+    kind,
+    query,
+    limit = 50,
+    offset = 0,
+  }: {
+    kind?: "product" | "custom_service";
+    query?: string;
+    limit?: number;
+    offset?: number;
+  } = {},
+): Promise<CreatorSalesPage> {
+  const { data, error } = await supabase.rpc("list_my_creator_sales", {
+    p_kind: kind ?? null,
+    p_query: query?.trim() || null,
+    p_limit: limit,
+    p_offset: offset,
+  });
+  if (error) throw new Error(error.message);
+
+  const rows = (data ?? []) as CreatorSaleRpcRow[];
+  return {
+    items: rows.map(mapSale),
+    totalCount: rows.length > 0 ? Number(rows[0].total_count) : 0,
+  };
+}
+
 export async function listCreatorSales(
   supabase: SupabaseClient,
-  creatorId: string,
+  _creatorId?: string,
   { limit = 200 }: { limit?: number } = {},
 ): Promise<CreatorSaleRecord[]> {
-  const { data: paymentData, error: paymentError } = await supabase
-    .from("payment_confirmations")
-    .select(
-      "id, order_id, buyer_id, gross_amount_cents, platform_fee_cents, creator_amount_cents, currency, kind, confirmed_at, created_at",
-    )
-    .eq("creator_id", creatorId)
-    .eq("status", "paid")
-    .order("created_at", { ascending: false })
-    .limit(limit);
+  const page = await listCreatorSalesPage(supabase, { limit });
+  return page.items;
+}
 
-  if (paymentError) throw new Error(paymentError.message);
+export async function getCreatorSalesSummary(
+  supabase: SupabaseClient,
+): Promise<CreatorSalesSummary> {
+  const { data, error } = await supabase.rpc("get_my_creator_sales_summary").single();
+  if (error) throw new Error(error.message);
 
-  const payments = (paymentData ?? []) as PaymentRow[];
-  if (payments.length === 0) return [];
+  const row = data as CreatorSummaryRpcRow;
+  return {
+    totalSales: Number(row.total_sales),
+    grossAmountCents: Number(row.gross_amount_cents),
+    creatorAmountCents: Number(row.creator_amount_cents),
+    productSales: Number(row.product_sales),
+    productCreatorAmountCents: Number(row.product_creator_amount_cents),
+    serviceSales: Number(row.service_sales),
+    serviceCreatorAmountCents: Number(row.service_creator_amount_cents),
+  };
+}
 
-  const productOrderIds = payments.filter((row) => row.kind === "product").map((row) => row.order_id);
-  const customOrderIds = payments.filter((row) => row.kind === "custom_service").map((row) => row.order_id);
-
-  let productOrders: ProductOrderRow[] = [];
-  if (productOrderIds.length > 0) {
-    const { data, error } = await supabase
-      .from("product_orders")
-      .select("id, product_id, buyer_id")
-      .in("id", productOrderIds);
-    if (error) throw new Error(error.message);
-    productOrders = (data ?? []) as ProductOrderRow[];
-  }
-
-  let customOrders: CustomServiceOrderRow[] = [];
-  if (customOrderIds.length > 0) {
-    const { data, error } = await supabase
-      .from("custom_service_orders")
-      .select("order_id, custom_request_id, requester_id, service_type")
-      .in("order_id", customOrderIds);
-    if (error) throw new Error(error.message);
-    customOrders = (data ?? []) as CustomServiceOrderRow[];
-  }
-
-  const productIds = [...new Set(productOrders.map((row) => row.product_id))];
-  const buyerIds = [
-    ...new Set(
-      [
-        ...payments.map((row) => row.buyer_id),
-        ...productOrders.map((row) => row.buyer_id),
-        ...customOrders.map((row) => row.requester_id),
-      ].filter((value): value is string => typeof value === "string" && value.length > 0),
-    ),
-  ];
-
-  let products: ProductTitleRow[] = [];
-  if (productIds.length > 0) {
-    const { data, error } = await supabase.from("products").select("id, title").in("id", productIds);
-    if (error) throw new Error(error.message);
-    products = (data ?? []) as ProductTitleRow[];
-  }
-
-  let profiles: ProfileNameRow[] = [];
-  if (buyerIds.length > 0) {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, display_name, username")
-      .in("id", buyerIds);
-    if (error) throw new Error(error.message);
-    profiles = (data ?? []) as ProfileNameRow[];
-  }
-
-  const productByOrder = new Map(productOrders.map((row) => [row.id, row]));
-  const customByOrder = new Map(customOrders.map((row) => [row.order_id, row]));
-  const productTitleById = new Map(products.map((row) => [row.id, row.title]));
-  const profileById = new Map(
-    profiles.map((row) => [row.id, row.display_name ?? row.username ?? "Cliente"]),
-  );
-
-  return payments.map((payment) => {
-    const productOrder = payment.kind === "product" ? productByOrder.get(payment.order_id) : undefined;
-    const customOrder =
-      payment.kind === "custom_service" ? customByOrder.get(payment.order_id) : undefined;
-    const buyerId = payment.buyer_id ?? productOrder?.buyer_id ?? customOrder?.requester_id ?? null;
-
-    return {
-      id: payment.id,
-      orderId: payment.order_id,
-      kind: payment.kind,
-      title:
-        payment.kind === "product"
-          ? productTitleById.get(productOrder?.product_id ?? "") ?? "Produto digital"
-          : customOrder?.service_type ?? "Serviço personalizado",
-      buyerId,
-      buyerName: buyerId ? profileById.get(buyerId) ?? "Cliente" : "Cliente",
-      grossAmountCents: payment.gross_amount_cents,
-      platformFeeCents: payment.platform_fee_cents,
-      creatorAmountCents: payment.creator_amount_cents,
-      currency: payment.currency,
-      confirmedAt: payment.confirmed_at ?? payment.created_at,
-    };
+export async function getCreatorMonthlySales(
+  supabase: SupabaseClient,
+  months = 12,
+): Promise<CreatorMonthlySales[]> {
+  const { data, error } = await supabase.rpc("get_my_creator_monthly_sales", {
+    p_months: months,
   });
+  if (error) throw new Error(error.message);
+
+  return ((data ?? []) as MonthlyRpcRow[]).map((row) => ({
+    monthStart: row.month_start,
+    creatorAmountCents: Number(row.creator_amount_cents),
+    grossAmountCents: Number(row.gross_amount_cents),
+    salesCount: Number(row.sales_count),
+  }));
 }
 
 export async function getCreatorWorkSummary(
