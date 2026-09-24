@@ -1,5 +1,11 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Corrige declaração duplicada no helper de upload
+
+- Removida a declaração antiga de `UploadKind`/`UPLOAD_TIMEOUT_MS` que ficou duplicada durante
+  a migração das imagens para o fluxo seguro. O comportamento novo de upload permanece igual.
+
+
 ## 2026-09-23 — Endurece uploads de imagens do dashboard
 
 - Imagens de serviços, produtos e portfólio não usam mais o token genérico de upload direto.

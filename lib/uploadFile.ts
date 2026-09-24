@@ -8,25 +8,6 @@ function sanitizeFileName(name: string): string {
 
 export type UploadKind = "delivery" | "portfolio-image" | "product-image" | "product-file";
 
-/**
- * Timeout de segurança pro upload direto ao Vercel Blob. Sem isso, uma
- * conexão que trava no meio do envio (rede instável, extensão bloqueando o
- * request) deixa a promise de `upload()` pendurada pra sempre — o `await`
- * nunca resolve nem rejeita, então o botão de upload fica girando
- * indefinidamente (o try/catch/finally de quem chama nunca roda). Abortando
- * depois de um tempo generoso garante que o usuário sempre veja um erro em
- * vez de um spinner infinito.
- */
-const UPLOAD_TIMEOUT_MS = 60_000;
-
-/**
- * Upload real de arquivo (Vercel Blob) direto do navegador — a rota
- * /api/upload só autoriza e limita tipo/tamanho (por `kind`, ver lá), o
- * arquivo em si nunca passa pelo nosso servidor. Devolve a URL pública
- * definitiva do arquivo.
- */
-export type UploadKind = "delivery" | "portfolio-image" | "product-image" | "product-file";
-
 const UPLOAD_TIMEOUT_MS = 60_000;
 const CREATOR_IMAGE_TIMEOUT_MS = 45_000;
 
