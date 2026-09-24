@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ArrowDownToLine, Loader2, TrendingUp, Wallet } from "lucide-react";
+import { ArrowDownToLine, Clock3, Loader2, TrendingUp, Wallet } from "lucide-react";
 import type { CreatorBalance, PixKeyType, User, Withdrawal } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { getCreatorBalance, listWithdrawalsForCreator, requestWithdrawal } from "@/lib/supabase/wallet";
@@ -142,6 +142,10 @@ export default function DashboardCarteiraPage() {
     }
   }
 
+  const hasPendingWithdrawal = withdrawals.some(
+    (withdrawal) => withdrawal.status === "requested",
+  );
+
   if (loading) return <DashboardLoading />;
 
   if (loadError || !creator || !balance) {
@@ -161,19 +165,50 @@ export default function DashboardCarteiraPage() {
       <DashboardPageHeader
         eyebrow="Dinheiro"
         title="Carteira"
-        description="Aqui fica o valor que já foi confirmado para você. Saques são enviados para a chave Pix informada."
+        description="Pagamentos ficam visíveis aqui, mas serviços só entram no saldo sacável depois que a contratação é concluída."
       />
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard label="Disponível para saque" value={formatBRLFromCents(balance.availableCents)} icon={Wallet} />
-        <StatCard label="Total recebido" value={formatBRLFromCents(balance.earnedCents)} icon={TrendingUp} />
-        <StatCard label="Já sacado" value={formatBRLFromCents(balance.withdrawnCents)} icon={ArrowDownToLine} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard
+          label="Disponível para saque"
+          value={formatBRLFromCents(balance.availableCents)}
+          icon={Wallet}
+        />
+        <StatCard
+          label="A liberar"
+          value={formatBRLFromCents(balance.pendingReleaseCents)}
+          icon={Clock3}
+          hint="Serviços pagos que ainda não foram concluídos"
+        />
+        <StatCard
+          label="Total recebido"
+          value={formatBRLFromCents(balance.earnedCents)}
+          icon={TrendingUp}
+        />
+        <StatCard
+          label="Já sacado"
+          value={formatBRLFromCents(balance.withdrawnCents)}
+          icon={ArrowDownToLine}
+        />
       </div>
+
+      {balance.pendingReleaseCents > 0 ? (
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface-2) px-4 py-3 text-sm text-(--color-text-muted)">
+          <strong className="text-(--color-text)">
+            {formatBRLFromCents(balance.pendingReleaseCents)} ainda não está liberado.
+          </strong>{" "}
+          Valores de serviços personalizados entram no saque somente depois que o trabalho é concluído.
+        </div>
+      ) : null}
 
       <form onSubmit={handleRequest} className="flex flex-col gap-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
         <div>
           <h2 className="font-semibold text-(--color-text)">Solicitar saque</h2>
-          <p className="mt-1 text-xs text-(--color-text-muted)">Confira a chave com atenção antes de enviar.</p>
+          <p className="mt-1 text-xs text-(--color-text-muted)">
+            {hasPendingWithdrawal
+              ? "Você já tem um saque em análise. Aguarde a revisão antes de solicitar outro."
+              : "Confira a chave com atenção antes de enviar."}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
@@ -219,11 +254,11 @@ export default function DashboardCarteiraPage() {
 
         <button
           type="submit"
-          disabled={submitting || balance.availableCents <= 0}
+          disabled={submitting || balance.availableCents <= 0 || hasPendingWithdrawal}
           className="inline-flex w-fit items-center gap-2 rounded-full bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? <Loader2 size={14} className="animate-spin" strokeWidth={1.6} /> : null}
-          Pedir saque
+          {hasPendingWithdrawal ? "Saque em análise" : "Pedir saque"}
         </button>
       </form>
 
