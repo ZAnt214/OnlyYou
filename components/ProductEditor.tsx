@@ -110,7 +110,7 @@ export function ProductEditor({ productId }: { productId?: string }) {
   const [creator, setCreator] = useState<User | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [loading, setLoading] = useState(Boolean(productId));
+  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState<"draft" | "approved" | null>(null);
   const [saved, setSaved] = useState(false);
@@ -287,7 +287,10 @@ export function ProductEditor({ productId }: { productId?: string }) {
 
   const priceCents = toCents(form.price) ?? 0;
   const creatorReceives = Math.round(priceCents * platformConfig.creatorRevenueShare);
-  const busy = saving !== null || uploadingCover || uploadingPreview || uploadingFile;
+  const lockedByStatus = Boolean(
+    product && product.status !== "draft" && product.status !== "approved",
+  );
+  const busy = saving !== null || uploadingCover || uploadingPreview || uploadingFile || lockedByStatus;
 
   return (
     <div className="flex flex-col gap-6">
@@ -500,6 +503,11 @@ export function ProductEditor({ productId }: { productId?: string }) {
           <div className="flex flex-col gap-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
             <div>
               <p className="text-xs font-medium text-(--color-text-subtle)">Antes de publicar</p>
+              {lockedByStatus ? (
+                <p className="mt-2 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-3 py-2 text-xs leading-relaxed text-(--color-text-muted)">
+                  Este produto está com um status administrativo e não pode ser alterado ou republicado por aqui.
+                </p>
+              ) : null}
               <ul className="mt-2 space-y-2 text-sm text-(--color-text-muted)">
                 <Checklist done={form.title.trim().length >= 4}>Nome do produto</Checklist>
                 <Checklist done={form.description.trim().length >= 20}>Descrição clara</Checklist>
@@ -567,11 +575,11 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex flex-col gap-1.5 text-sm text-(--color-text)">
+    <div className="flex flex-col gap-1.5 text-sm text-(--color-text)">
       <span className="font-medium">{label}</span>
       {hint ? <span className="text-xs font-normal text-(--color-text-subtle)">{hint}</span> : null}
       {children}
-    </label>
+    </div>
   );
 }
 

@@ -925,10 +925,10 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex flex-col gap-1.5 text-sm text-(--color-text)">
+    <div className="flex flex-col gap-1.5 text-sm text-(--color-text)">
       <span className="font-medium">{label}</span>
       {hint ? <span className="text-xs font-normal text-(--color-text-subtle)">{hint}</span> : null}
       {children}
-    </label>
+    </div>
   );
 }

@@ -161,21 +161,25 @@ export default function DashboardProdutosPage() {
                   >
                     {busyId === product.id ? "Salvando…" : "Despublicar"}
                   </button>
-                ) : (
+                ) : product.status === "draft" ? (
                   <Link
                     href={`/dashboard/produtos/${product.id}/editar`}
                     className="rounded-full border border-(--color-border) px-3 py-2 text-xs font-medium text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text)"
                   >
                     Continuar
                   </Link>
+                ) : (
+                  <span className="px-2 text-xs text-(--color-text-subtle)">Bloqueado</span>
                 )}
-                <Link
-                  href={`/dashboard/produtos/${product.id}/editar`}
-                  aria-label={`Editar ${product.title}`}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-text)"
-                >
-                  <Pencil size={15} strokeWidth={1.6} />
-                </Link>
+                {product.status === "approved" || product.status === "draft" ? (
+                  <Link
+                    href={`/dashboard/produtos/${product.id}/editar`}
+                    aria-label={`Editar ${product.title}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-text)"
+                  >
+                    <Pencil size={15} strokeWidth={1.6} />
+                  </Link>
+                ) : null}
                 <button
                   type="button"
                   disabled={busyId === product.id}

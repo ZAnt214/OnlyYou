@@ -1,5 +1,18 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Protege estados moderados e corrige semântica dos formulários
+
+- Produtos com status administrativo fora de `draft/approved` deixam de mostrar ações de
+  republicação/edição no painel.
+- Trigger no banco impede que o próprio criador altere campos ou status de produto suspenso,
+  removido, rejeitado ou em outro estado administrativo usando as RPCs normais.
+- Removidas duas assinaturas antigas de `create_gig/update_gig` que não são mais usadas pelo app
+  e tinham validações de categorias anteriores.
+- `ProductEditor` e formulário de Serviços deixaram de aninhar elementos `<label>`, corrigindo
+  clique/foco inválido em controles de upload no mobile.
+- Editor de produto agora espera a identidade do criador carregar antes de liberar a tela.
+
+
 ## 2026-09-24 — Produtos ganham rascunho real, edição e arquivo com escopo do criador
 
 - Criado `ProductEditor`: criação e edição usam a mesma tela, sem wizard obrigatório. O criador
