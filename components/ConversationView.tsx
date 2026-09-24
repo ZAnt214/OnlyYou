@@ -1231,7 +1231,7 @@ export function ConversationView({
                       className="flex w-full flex-col items-start rounded-xl px-3 py-2.5 text-left opacity-90 transition-opacity hover:opacity-100"
                     >
                       <span className="text-sm font-semibold text-(--color-accent)">Finalizar entrega</span>
-                      <span className="mt-0.5 text-xs opacity-65">Enviar versão final</span>
+                      <span className="mt-0.5 text-xs opacity-65">Marcar trabalho como concluído</span>
                     </button>
                   </div>
                 ) : null}
