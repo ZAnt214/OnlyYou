@@ -50,7 +50,7 @@ function sanitizeFileName(name: string): string {
   return (safe || "arquivo").slice(-120);
 }
 
-export type UploadKind = "delivery" | "portfolio-image" | "product-image" | "product-file";
+export type UploadKind = "delivery" | "avatar-image" | "portfolio-image" | "product-image" | "product-file";
 
 /**
  * Timeout de segurança pro upload direto ao Vercel Blob. Sem isso, uma
@@ -71,7 +71,9 @@ const UPLOAD_TIMEOUT_MS = 60_000;
  */
 export async function uploadFile(file: File, kind: UploadKind): Promise<string> {
   const toUpload =
-    kind === "portfolio-image" || kind === "product-image" ? await compressImageIfPossible(file) : file;
+    kind === "avatar-image" || kind === "portfolio-image" || kind === "product-image"
+      ? await compressImageIfPossible(file)
+      : file;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
   try {

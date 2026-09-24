@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { User } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { mapProfileRowToUser, type ProfileRow } from "@/lib/supabase/profile";
+import { ProfileAvatarEditor } from "@/components/ProfileAvatarEditor";
 
 export default function DashboardConfiguracoesPage() {
   const [creator, setCreator] = useState<User | null>(null);
@@ -81,6 +82,20 @@ export default function DashboardConfiguracoesPage() {
           <Link href={`/criadores/${creator.username}`} className="underline hover:text-(--color-text)">
             Ver perfil
           </Link>
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium text-(--color-text)">Foto de perfil</span>
+        <ProfileAvatarEditor
+          userId={creator.id}
+          displayName={creator.displayName}
+          initialUrl={creator.avatar}
+          editable
+          sizeClassName="h-24 w-24"
+        />
+        <p className="text-xs text-(--color-text-subtle)">
+          Use uma imagem quadrada. PNG, JPG ou WebP.
         </p>
       </div>
 

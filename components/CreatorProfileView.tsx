@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 import type { CustomOrderReviewWithReviewer, PortfolioItem, Product, ResumeEntry, User } from "@/lib/types";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
+import { ProfileAvatarEditor } from "@/components/ProfileAvatarEditor";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { RatingStars } from "@/components/RatingStars";
 import { ProductCard } from "@/components/ProductCard";
@@ -38,17 +39,26 @@ export function CreatorProfileView({
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
       <section className="flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-(--color-text-subtle)">
-              Edição #01
-            </p>
-            <div className="mt-1 flex items-center gap-2">
-              <h1 className="font-serif text-4xl font-bold leading-none tracking-tight text-(--color-text) sm:text-5xl">
-                {creator.displayName}
-              </h1>
-              {profile.verificationStatus === "verified" ? <VerifiedBadge size={18} /> : null}
+          <div className="flex min-w-0 items-start gap-3">
+            <ProfileAvatarEditor
+              userId={creator.id}
+              displayName={creator.displayName}
+              initialUrl={creator.avatar}
+              editable={isOwnProfile}
+              sizeClassName="h-16 w-16 sm:h-20 sm:w-20"
+            />
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-(--color-text-subtle)">
+                Edição #01
+              </p>
+              <div className="mt-1 flex min-w-0 items-center gap-2">
+                <h1 className="truncate font-serif text-4xl font-bold leading-none tracking-tight text-(--color-text) sm:text-5xl">
+                  {creator.displayName}
+                </h1>
+                {profile.verificationStatus === "verified" ? <VerifiedBadge size={18} /> : null}
+              </div>
+              <p className="mt-2 text-sm text-(--color-text-subtle)">@{creator.username}</p>
             </div>
-            <p className="mt-2 text-sm text-(--color-text-subtle)">@{creator.username}</p>
           </div>
 
           {isOwnProfile ? null : <ReportMenu bare />}

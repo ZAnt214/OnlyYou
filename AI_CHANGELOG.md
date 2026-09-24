@@ -1,5 +1,22 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Foto de perfil do criador agora é editável
+
+- Objetivo: permitir que o criador troque a própria foto de perfil de verdade, em vez de ficar
+  preso a um placeholder.
+- Novo `ProfileAvatarEditor`: mostra a foto real quando existe, permite adicionar/trocar imagem
+  e também remover. O upload aceita PNG/JPG/WebP e mostra estado de envio/erro.
+- `CreatorProfileView.tsx`: a foto aparece ao lado do nome; no próprio perfil ficam disponíveis
+  as ações “Adicionar/Trocar foto” e “Remover”.
+- `/dashboard/configuracoes`: adicionada uma seção “Foto de perfil” usando o mesmo editor.
+- Upload: novo tipo `avatar-image`, limitado a imagens e 8 MB, com compactação no navegador e
+  autorização apenas para criadores autenticados.
+- Banco: nova RPC `update_creator_avatar` atualiza somente `avatar_url` do próprio criador.
+- Arquivos: `components/ProfileAvatarEditor.tsx`, `components/CreatorProfileView.tsx`,
+  `app/dashboard/configuracoes/page.tsx`, `app/api/upload/route.ts`, `lib/uploadFile.ts`,
+  `supabase/migrations/20260923234000_editable_creator_avatar.sql`, `AI_CHANGELOG.md`.
+
+
 ## 2026-09-23 — Remove faixa editorial laranja do perfil
 
 - `components/CreatorProfileView.tsx`: removida a faixa laranja larga que mostrava serviços em
