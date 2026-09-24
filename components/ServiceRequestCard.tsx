@@ -36,12 +36,18 @@ export function ServiceRequestCard({ request, feed = false }: { request: Service
 
   async function handleInterest(event: React.FormEvent) {
     event.preventDefault();
+    const cleanMessage = message.trim();
+    if (cleanMessage.length < 10) {
+      setError("Escreva pelo menos 10 caracteres.");
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
       const result = await expressServiceRequestInterest(createClient(), {
         requestId: request.id,
-        message,
+        message: cleanMessage,
       });
       router.push(`/dashboard/pedidos-personalizados/${result.id}`);
     } catch (err) {
@@ -132,7 +138,10 @@ export function ServiceRequestCard({ request, feed = false }: { request: Service
           userId ? (
             <button
               type="button"
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                setError(null);
+                setOpen(true);
+              }}
               className="inline-flex min-h-10 items-center gap-2 rounded-full bg-(--color-accent) px-4 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
             >
               <MessageSquarePlus size={16} aria-hidden="true" />
@@ -152,7 +161,7 @@ export function ServiceRequestCard({ request, feed = false }: { request: Service
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-(--color-text)/40 p-4 sm:items-center">
-          <div className="w-full max-w-md rounded-2xl bg-(--color-surface) p-5 shadow-lg shadow-black/10">
+          <div className="w-full max-w-md rounded-2xl bg-(--color-surface) p-5 shadow-lg">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-(--color-text)">Apresente seu trabalho</h2>
@@ -162,7 +171,10 @@ export function ServiceRequestCard({ request, feed = false }: { request: Service
               </div>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  setError(null);
+                }}
                 aria-label="Fechar"
                 className="rounded-full p-1 text-(--color-text-muted) hover:bg-(--color-surface-2)"
               >
@@ -182,7 +194,7 @@ export function ServiceRequestCard({ request, feed = false }: { request: Service
                 rows={4}
                 required
                 placeholder="Conte rapidamente sua experiência e como pode ajudar. Não envie telefone ou contato externo."
-                className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm text-(--color-text) outline-none focus:border-(--color-accent-text)"
+                className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base text-(--color-text) outline-none focus:border-(--color-accent-text) sm:text-sm"
               />
               <p className="text-xs text-(--color-text-subtle)">{message.length}/500 caracteres</p>
               {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
