@@ -1,5 +1,24 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Finalização do trabalho não exige novo arquivo
+
+- Objetivo: “Finalizar entrega” ainda obrigava o criador a anexar um arquivo final. O novo fluxo
+  separa definitivamente compartilhar arquivos durante a produção de declarar o trabalho concluído.
+- Banco: nova RPC `finalize_custom_delivery` permite apenas ao criador do pedido em produção
+  marcar o trabalho como concluído sem anexar arquivo. A RPC muda o pedido para `delivered`,
+  registra uma mensagem de sistema e notifica o comprador.
+- `lib/supabase/customRequests.ts`: adicionada `finalizeCustomDelivery`.
+- `components/ConversationView.tsx`: o painel “Finalizar trabalho” agora explica o que a ação faz,
+  mostra regras antes da confirmação e não possui campo de arquivo.
+- Regras exibidas: finalizar somente quando o combinado estiver concluído; usar “Enviar arquivo”
+  enquanto ainda houver revisão/ajustes; o comprador poderá confirmar ou relatar problema; não é
+  necessário reenviar arquivo se os finais já estiverem na conversa.
+- A tela do comprador passa a usar o título “Trabalho finalizado” nessa etapa.
+- Arquivos: `components/ConversationView.tsx`, `lib/supabase/customRequests.ts`,
+  `supabase/migrations/20260923222500_finalize_custom_delivery_without_file.sql`, `AI_CHANGELOG.md`.
+- Validação: alteração sem cores literais/classes fixas de paleta no TSX.
+
+
 ## 2026-09-23 — Ajusta descrição de “Finalizar entrega”
 
 - `components/ConversationView.tsx`: a descrição de “Finalizar entrega” mudou de

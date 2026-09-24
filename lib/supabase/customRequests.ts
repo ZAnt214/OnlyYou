@@ -625,6 +625,16 @@ export async function sendCustomAttachment(
   return mapMessage(unwrap(data, error) as MessageRow);
 }
 
+export async function finalizeCustomDelivery(
+  supabase: SupabaseClient,
+  customServiceOrderId: string,
+): Promise<CustomServiceOrder> {
+  const { data, error } = await supabase.rpc("finalize_custom_delivery", {
+    p_custom_service_order_id: customServiceOrderId,
+  });
+  return mapCustomServiceOrder(unwrap(data, error) as CustomServiceOrderRow);
+}
+
 export async function sendCustomDelivery(
   supabase: SupabaseClient,
   customServiceOrderId: string,

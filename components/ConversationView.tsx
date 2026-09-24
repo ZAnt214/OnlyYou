@@ -38,7 +38,7 @@ import {
   expireUnpaidCustomProposal,
   createCustomServiceOrder,
   sendCustomAttachment,
-  sendCustomDelivery,
+  finalizeCustomDelivery,
   confirmCustomReceipt,
   reportCustomOrderProblem,
   listCustomOrderReviews,
@@ -173,9 +173,8 @@ export function ConversationView({
   const [showAttachmentForm, setShowAttachmentForm] = useState(false);
   const [showWorkActions, setShowWorkActions] = useState(false);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
-  const [deliveryFile, setDeliveryFile] = useState<File | null>(null);
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
-  const [uploadingDelivery, setUploadingDelivery] = useState(false);
+  const [finalizingDelivery, setFinalizingDelivery] = useState(false);
   // O painel de Pix só aparece depois de um clique explícito — senão ele
   // reabriria sozinho a cada visita à conversa enquanto o pedido estiver
   // aguardando pagamento.
@@ -585,31 +584,20 @@ export function ConversationView({
     }
   }
 
-  async function handleSendDelivery(e: React.FormEvent) {
-    e.preventDefault();
-    if (!customServiceOrder || !deliveryFile) return;
+  async function handleFinalizeDelivery() {
+    if (!customServiceOrder) return;
     setError(null);
     setBusy(true);
-    setUploadingDelivery(true);
+    setFinalizingDelivery(true);
     try {
-      const fileUrl = await uploadFile(deliveryFile, "delivery");
-      setUploadingDelivery(false);
-      await sendCustomDelivery(supabase, customServiceOrder.id, [
-        {
-          fileName: deliveryFile.name,
-          mimeType: deliveryFile.type || "application/octet-stream",
-          sizeBytes: deliveryFile.size,
-          storageKey: fileUrl,
-        },
-      ]);
+      await finalizeCustomDelivery(supabase, customServiceOrder.id);
       setShowDeliveryForm(false);
-      setDeliveryFile(null);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível enviar a entrega.");
+      setError(err instanceof Error ? err.message : "Não foi possível finalizar o trabalho.");
     } finally {
       setBusy(false);
-      setUploadingDelivery(false);
+      setFinalizingDelivery(false);
     }
   }
 
@@ -882,7 +870,7 @@ export function ConversationView({
 
       {customServiceOrder?.status === "delivered" && isRequester ? (
         <div className="flex flex-shrink-0 flex-col gap-2 rounded-md border border-(--color-border) bg-(--color-surface) p-4 text-sm">
-          <p className="font-medium text-(--color-text)">Conteúdo entregue</p>
+          <p className="font-medium text-(--color-text)">Trabalho finalizado</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -1009,65 +997,54 @@ export function ConversationView({
       ) : null}
 
       {customServiceOrder?.status === "in_progress" && isCreator && showDeliveryForm ? (
-        <div className="absolute inset-0 z-20 flex min-h-0 flex-col gap-3 overflow-y-auto rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-lg">
-          <div className="flex items-center justify-between gap-3">
+        <div className="absolute inset-0 z-20 flex min-h-0 flex-col gap-4 overflow-y-auto rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-lg">
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-(--color-text)">Finalizar entrega</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-(--color-text-muted)">
-                Use esta opção somente quando o trabalho estiver concluído. O comprador poderá confirmar o recebimento ou relatar um problema.
+              <p className="text-sm font-semibold text-(--color-text)">Finalizar trabalho</p>
+              <p className="mt-1 text-xs leading-relaxed text-(--color-text-muted)">
+                Ao finalizar, você informa ao cliente que concluiu tudo o que foi combinado e encerra a etapa de produção.
               </p>
             </div>
             <button
               type="button"
-              onClick={() => {
-                setShowDeliveryForm(false);
-                setDeliveryFile(null);
-              }}
-              aria-label="Fechar envio de entrega"
+              onClick={() => setShowDeliveryForm(false)}
+              aria-label="Fechar finalização do trabalho"
               title="Fechar"
               className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-(--color-text-muted) transition-colors hover:bg-(--color-surface-2) hover:text-(--color-text)"
             >
               <XCircle size={18} strokeWidth={1.5} />
             </button>
           </div>
-          <form onSubmit={handleSendDelivery} className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="delivery-file" className="text-sm font-medium text-(--color-text)">
-                Arquivo da entrega
-              </label>
-              <input
-                id="delivery-file"
-                type="file"
-                onChange={(e) => setDeliveryFile(e.target.files?.[0] ?? null)}
-                required
-                className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base file:mr-3 file:rounded-full file:border-0 file:bg-(--color-accent) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-(--color-on-accent) sm:text-sm"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="submit"
-                disabled={busy || !deliveryFile}
-                className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
-              >
-                {uploadingDelivery ? (
-                  <Loader2 size={14} className="animate-spin" strokeWidth={1.5} />
-                ) : (
-                  <CheckCircle2 size={14} strokeWidth={1.5} />
-                )}
-                {uploadingDelivery ? "Finalizando…" : "Finalizar e enviar"}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowDeliveryForm(false);
-                  setDeliveryFile(null);
-                }}
-                className="rounded-md px-3 py-2 text-sm text-(--color-text-muted) hover:text-(--color-text)"
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
+
+          <div className="rounded-xl bg-(--color-surface-2) p-3">
+            <p className="text-xs font-semibold text-(--color-text)">Antes de finalizar</p>
+            <ul className="mt-2 flex flex-col gap-2 text-xs leading-relaxed text-(--color-text-muted)">
+              <li>• Finalize somente quando tudo o que foi combinado na proposta estiver concluído.</li>
+              <li>• Se ainda precisa mostrar versões ou pedir ajustes, continue usando “Enviar arquivo”.</li>
+              <li>• Depois de finalizar, o cliente será avisado e poderá confirmar o recebimento ou relatar um problema.</li>
+              <li>• Não é necessário enviar um novo arquivo nesta etapa se os arquivos finais já foram compartilhados na conversa.</li>
+            </ul>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void handleFinalizeDelivery()}
+              disabled={busy}
+              className="flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
+            >
+              {finalizingDelivery ? <Loader2 size={14} className="animate-spin" strokeWidth={1.5} /> : null}
+              {finalizingDelivery ? "Finalizando…" : "Finalizar trabalho"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowDeliveryForm(false)}
+              disabled={busy}
+              className="rounded-md px-3 py-2 text-sm text-(--color-text-muted) hover:text-(--color-text) disabled:opacity-60"
+            >
+              Voltar
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -1231,7 +1208,7 @@ export function ConversationView({
                       className="flex w-full flex-col items-start rounded-xl px-3 py-2.5 text-left opacity-90 transition-opacity hover:opacity-100"
                     >
                       <span className="text-sm font-semibold text-(--color-accent)">Finalizar entrega</span>
-                      <span className="mt-0.5 text-xs opacity-65">Marcar trabalho como concluído</span>
+                      <span className="mt-0.5 text-xs opacity-65">Informar que o trabalho foi concluído</span>
                     </button>
                   </div>
                 ) : null}
