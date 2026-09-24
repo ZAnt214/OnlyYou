@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Compacta os números principais da Visão geral
+
+- Saldo, recebido e trabalhos em produção deixaram de ocupar três cards grandes empilhados no mobile.
+- A Visão geral agora usa um único bloco dividido: saldo ocupa a largura principal e os outros dois
+  números ficam lado a lado no celular; no desktop continuam em três colunas.
+- A mudança reduz a altura inicial do painel e leva o criador mais rápido para “Agora”, onde ficam
+  os pedidos, prazos e pendências que exigem ação.
+
+
 ## 2026-09-24 — Simplifica navegação mobile do dashboard
 
 - Dentro de `/dashboard`, a barra inferior deixa de mostrar navegação pública e vira navegação de
