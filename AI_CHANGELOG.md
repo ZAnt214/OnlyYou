@@ -1,5 +1,20 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Aplica opção 2 à tela de finalizar trabalho
+
+- Objetivo: usuário escolheu a opção 2 das prévias HTML, mas sem o fundo laranja-claro do bloco de confirmação.
+- `components/ConversationView.tsx`: a tela “Finalizar trabalho” agora usa confirmação em duas etapas
+  com dois checkboxes reais: concluir tudo o que foi combinado e confirmar que os arquivos necessários
+  já foram enviados na conversa.
+- O bloco de confirmação usa apenas superfície neutra + borda do design system; não há fundo
+  `--color-accent-soft` nem outro destaque laranja-claro.
+- O botão principal mudou para “Confirmar conclusão” e só é habilitado quando as duas confirmações
+  estiverem marcadas. Fechar/cancelar ou concluir limpa o estado dos checkboxes.
+- O texto final informa que o cliente será avisado e poderá confirmar o recebimento ou relatar um problema.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: sem cores literais/classes fixas de paleta no TSX alterado.
+
+
 ## 2026-09-23 — Finalização do trabalho não exige novo arquivo
 
 - Objetivo: “Finalizar entrega” ainda obrigava o criador a anexar um arquivo final. O novo fluxo
