@@ -128,6 +128,7 @@ export function ProductEditor({ productId }: { productId?: string }) {
   const [creator, setCreator] = useState<User | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [baseline, setBaseline] = useState<FormState>(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState<"draft" | "approved" | null>(null);
@@ -146,6 +147,7 @@ export function ProductEditor({ productId }: { productId?: string }) {
         setCreator(current);
 
         if (!productId) {
+          setBaseline(EMPTY_FORM);
           setLoading(false);
           return;
         }
@@ -156,7 +158,7 @@ export function ProductEditor({ productId }: { productId?: string }) {
 
         if (!active) return;
         setProduct(found);
-        setForm({
+        const nextForm: FormState = {
           title: found.title,
           description: found.description,
           category: found.category,
@@ -168,7 +170,9 @@ export function ProductEditor({ productId }: { productId?: string }) {
           previewImagesText: found.previewImages.join("\n"),
           fileUrl: found.fileUrl,
           fileName: found.fileUrl ? "Arquivo atual" : "",
-        });
+        };
+        setForm(nextForm);
+        setBaseline(nextForm);
       } catch (err) {
         if (active) setLoadError(err instanceof Error ? err.message : "Não foi possível abrir o produto.");
       } finally {
@@ -180,6 +184,55 @@ export function ProductEditor({ productId }: { productId?: string }) {
       active = false;
     };
   }, [productId, supabase]);
+
+  const isDirty = useMemo(
+    () => JSON.stringify(form) !== JSON.stringify(baseline),
+    [baseline, form],
+  );
+
+  useEffect(() => {
+    if (!isDirty || saving !== null) return;
+
+    function handleBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+
+    function handleDocumentClick(event: MouseEvent) {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const anchor = target.closest("a[href]");
+      if (!(anchor instanceof HTMLAnchorElement)) return;
+      if (anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+
+      const next = new URL(anchor.href, window.location.href);
+      if (next.origin !== window.location.origin) return;
+      if (next.pathname === window.location.pathname && next.search === window.location.search) return;
+
+      if (!window.confirm("Você tem alterações não salvas neste produto. Quer sair mesmo assim?")) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("click", handleDocumentClick, true);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("click", handleDocumentClick, true);
+    };
+  }, [isDirty, saving]);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -273,6 +326,14 @@ export function ProductEditor({ productId }: { productId?: string }) {
         : await createProduct(supabase, payload);
 
       setProduct(savedProduct);
+      setBaseline({
+        ...form,
+        title: payload.title,
+        description: payload.description,
+        coverImageUrl: payload.coverImageUrl,
+        previewImagesText: payload.previewImages.join("\n"),
+        tagsText: payload.tags.join(", "),
+      });
       setSaved(true);
 
       if (!product) {
@@ -514,6 +575,9 @@ export function ProductEditor({ productId }: { productId?: string }) {
               <CheckCircle2 size={15} strokeWidth={1.7} />
               Rascunho salvo.
             </p>
+          ) : null}
+          {isDirty && saving === null ? (
+            <p className="text-xs text-(--color-warning)">Você tem alterações não salvas.</p>
           ) : null}
         </div>
 
