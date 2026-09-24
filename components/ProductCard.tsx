@@ -10,10 +10,12 @@ export function ProductCard({
   product,
   creatorName,
   marketplace = false,
+  showPurchaseAction = true,
 }: {
   product: Product;
   creatorName?: string;
   marketplace?: boolean;
+  showPurchaseAction?: boolean;
 }) {
   const productHref = `/produto/${product.id}`;
   const checkoutHref = `/checkout/${product.id}`;
@@ -124,14 +126,16 @@ export function ProductCard({
           />
         </div>
 
-        <Link
-          href={checkoutHref}
-          aria-label={`Comprar ${product.title}`}
-          className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-full bg-(--color-accent) px-3 py-2 text-sm font-semibold text-(--color-on-accent) transition-colors hover:bg-(--color-accent-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent-text)"
-        >
-          <ShoppingBag size={14} strokeWidth={1.8} />
-          Comprar
-        </Link>
+        {showPurchaseAction ? (
+          <Link
+            href={checkoutHref}
+            aria-label={`Comprar ${product.title}`}
+            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-full bg-(--color-accent) px-3 py-2 text-sm font-semibold text-(--color-on-accent) transition-colors hover:bg-(--color-accent-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent-text)"
+          >
+            <ShoppingBag size={14} strokeWidth={1.8} />
+            Comprar
+          </Link>
+        ) : null}
       </div>
     </article>
   );
