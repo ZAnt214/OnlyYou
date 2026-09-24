@@ -1,5 +1,12 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Corrige migration de validação HTTPS
+
+- O parâmetro `values` da função auxiliar de arrays foi renomeado para `p_values`, evitando
+  conflito com a palavra reservada `VALUES` do PostgreSQL.
+- Nenhuma regra funcional mudou; a correção permite aplicar a migration de mídia com segurança.
+
+
 ## 2026-09-24 — URLs públicas de imagens passam a exigir HTTPS
 
 - Capas, galerias e prévias de Produtos/Serviços agora são validadas no formulário antes de salvar.
