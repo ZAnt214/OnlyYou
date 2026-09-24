@@ -37,7 +37,7 @@ export function AdminNav() {
   return (
     <nav
       aria-label="Navegação administrativa"
-      className="no-scrollbar flex gap-2 overflow-x-auto pb-1 md:flex-col md:overflow-visible"
+      className="grid grid-cols-3 gap-2 md:flex md:flex-col"
     >
       {ADMIN_NAV.map((item) => {
         const Icon = item.icon;
@@ -48,7 +48,7 @@ export function AdminNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`flex min-h-11 shrink-0 items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+            className={`flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-center text-[11px] font-medium transition-colors md:min-h-11 md:flex-row md:justify-start md:gap-2.5 md:px-3 md:py-2.5 md:text-left md:text-sm ${
               active
                 ? "bg-(--color-text) text-(--color-bg)"
                 : "text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text)"
