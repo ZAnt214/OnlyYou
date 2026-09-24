@@ -1,5 +1,19 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Redesenha gerenciamento de serviços do criador
+
+- `/dashboard/servicos` passou a usar o mesmo cabeçalho e hierarquia do novo dashboard.
+- Adicionados filtros Todos/Ativos/Pausados, contadores reais e cards responsivos com ações
+  separadas por serviço.
+- A tela agora trata falha de carregamento em vez de ficar presa em loading infinito.
+- Exclusão exige confirmação explícita; pausar/reativar usa estado de carregamento por item.
+- O formulário virou um painel responsivo organizado em Serviço, Preço e prazo, Imagens e
+  Visibilidade. Inputs usam 16px no mobile para evitar zoom do navegador.
+- Validação antes da RPC cobre título, descrição, preço, prazo, revisões e limites de itens/imagens.
+- Upload de galeria respeita o limite de 8 imagens e mantém o fluxo seguro já existente.
+- Removido o overlay com cores literais; a tela usa somente tokens do design system.
+
+
 ## 2026-09-23 — Bloqueia escrita direta em produtos e serviços
 
 - `authenticated` não pode mais fazer INSERT/UPDATE/DELETE direto em `products` ou `gigs`;
