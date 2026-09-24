@@ -12,5 +12,15 @@ export function PageMain({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isConversation = isConversationScreenPath(pathname);
 
-  return <main className={`flex-1 ${isConversation ? "" : "pb-20 md:pb-0"}`}>{children}</main>;
+  return (
+    <main
+      className={`flex-1 ${
+        isConversation
+          ? ""
+          : "pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0"
+      }`}
+    >
+      {children}
+    </main>
+  );
 }
