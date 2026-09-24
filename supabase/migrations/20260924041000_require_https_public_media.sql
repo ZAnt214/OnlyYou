@@ -13,7 +13,7 @@ as $$
     );
 $$;
 
-create or replace function public.are_safe_https_media_urls(values text[])
+create or replace function public.are_safe_https_media_urls(p_values text[])
 returns boolean
 language sql
 immutable
@@ -23,7 +23,7 @@ as $$
     bool_and(public.is_safe_https_media_url(item)),
     true
   )
-  from unnest(coalesce(values, '{}'::text[])) as item;
+  from unnest(coalesce(p_values, '{}'::text[])) as item;
 $$;
 
 alter table public.products
