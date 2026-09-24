@@ -1,5 +1,17 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Consolida políticas RLS duplicadas do dashboard
+
+- Auditoria oficial do Supabase apontou quatro conjuntos de políticas permissivas duplicadas.
+- `conversations` e `custom_requests`: os dois caminhos válidos de INSERT foram combinados em
+  uma única policy equivalente.
+- `gigs`: leitura anônima ficou restrita a serviços ativos; usuário autenticado vê ativos ou
+  os próprios serviços, em uma única policy.
+- `products`: leitura anônima ficou restrita a aprovados; autenticado vê aprovados, os próprios
+  ou produtos com entitlement ativo, em uma única policy.
+- A mudança reduz avaliações redundantes de RLS sem ampliar permissões.
+
+
 ## 2026-09-24 — Dashboard ganha loading e recuperação de erro globais
 
 - Adicionado `app/dashboard/loading.tsx` para transições entre páginas do painel não parecerem
