@@ -1,5 +1,18 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Padroniza páginas operacionais do dashboard
+
+- Produtos ganhou carregamento/erro reais, cards responsivos e confirmação própria antes de excluir.
+  O RPC continua bloqueando exclusão de produto que já foi comprado.
+- Carteira ganhou tratamento de falha de carregamento, validação básica de chave Pix no navegador,
+  inputs de 16px no mobile, saldo disponível junto ao formulário e histórico com chave mascarada.
+- Configurações agora usa o helper autenticado já cacheado, tem loading/erro/saving visíveis,
+  limites de caracteres alinhados à RPC e layout separado entre fotos e informações do perfil.
+- Pedidos personalizados e Oportunidades passaram a usar o mesmo cabeçalho/hierarquia do restante
+  do painel; o feed de oportunidades perdeu o banner grande que consumia espaço no mobile.
+- Todos os formulários alterados mantêm tokens do design system e linguagem curta do dia a dia.
+
+
 ## 2026-09-23 — Dashboard passa a usar vendas reais e remove dados falsos
 
 - Criado `lib/supabase/dashboard.ts`: vendas agora vêm de `payment_confirmations` com

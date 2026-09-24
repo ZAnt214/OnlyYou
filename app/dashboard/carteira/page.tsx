@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ArrowDownToLine, Loader2, TrendingUp, Wallet } from "lucide-react";
 import type { CreatorBalance, PixKeyType, User, Withdrawal } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { getCreatorBalance, listWithdrawalsForCreator, requestWithdrawal } from "@/lib/supabase/wallet";
 import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
+import { DashboardLoading } from "@/components/DashboardLoading";
+import { DashboardPageHeader } from "@/components/DashboardPageHeader";
 import { StatCard } from "@/components/StatCard";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Wallet, TrendingUp, ArrowDownToLine, Loader2 } from "lucide-react";
 
 function formatBRLFromCents(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -20,11 +22,38 @@ const PIX_KEY_TYPE_LABELS: Record<PixKeyType, string> = {
   random: "Chave aleatória",
 };
 
+function maskPixKey(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed.length <= 4) return "••••";
+  return `•••• ${trimmed.slice(-4)}`;
+}
+
+function validatePixKey(type: PixKeyType, value: string): string | null {
+  const key = value.trim();
+  if (!key) return "Informe sua chave Pix.";
+
+  if (type === "cpf" && key.replace(/\D/g, "").length !== 11) {
+    return "Confira o CPF informado.";
+  }
+  if (type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key)) {
+    return "Confira o e-mail informado.";
+  }
+  if (type === "phone") {
+    const digits = key.replace(/\D/g, "");
+    if (digits.length < 10 || digits.length > 13) return "Confira o telefone informado.";
+  }
+  if (type === "random" && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key)) {
+    return "Confira a chave aleatória Pix.";
+  }
+  return null;
+}
+
 export default function DashboardCarteiraPage() {
   const [creator, setCreator] = useState<User | null>(null);
   const [balance, setBalance] = useState<CreatorBalance | null>(null);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [amount, setAmount] = useState("");
   const [pixKeyType, setPixKeyType] = useState<PixKeyType>("cpf");
@@ -34,43 +63,63 @@ export default function DashboardCarteiraPage() {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const c = await getCurrentCreatorClient();
-    setCreator(c);
-    const supabase = createClient();
-    const [b, w] = await Promise.all([
-      getCreatorBalance(supabase, c.id),
-      listWithdrawalsForCreator(supabase, c.id),
-    ]);
-    setBalance(b);
-    setWithdrawals(w);
-    setLoading(false);
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const current = await getCurrentCreatorClient();
+      const supabase = createClient();
+      const [nextBalance, nextWithdrawals] = await Promise.all([
+        getCreatorBalance(supabase, current.id),
+        listWithdrawalsForCreator(supabase, current.id),
+      ]);
+      setCreator(current);
+      setBalance(nextBalance);
+      setWithdrawals(nextWithdrawals);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Não foi possível carregar sua carteira.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
 
-  async function handleRequest(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleRequest(event: React.FormEvent) {
+    event.preventDefault();
+    if (!balance) return;
+
     setError(null);
     setFeedback(null);
-    const amountCents = Math.round(Number(amount.replace(",", ".")) * 100);
+
+    const normalizedAmount = amount.trim().replace(/\./g, "").replace(",", ".");
+    const amountCents = Math.round(Number(normalizedAmount) * 100);
     if (!amountCents || amountCents <= 0) {
       setError("Informe um valor válido.");
       return;
     }
-    if (!pixKey.trim()) {
-      setError("Informe sua chave Pix.");
+    if (amountCents > balance.availableCents) {
+      setError("O valor é maior que o seu saldo disponível.");
       return;
     }
+
+    const pixError = validatePixKey(pixKeyType, pixKey);
+    if (pixError) {
+      setError(pixError);
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const supabase = createClient();
-      await requestWithdrawal(supabase, { amountCents, pixKeyType, pixKey });
+      await requestWithdrawal(createClient(), {
+        amountCents,
+        pixKeyType,
+        pixKey: pixKey.trim(),
+      });
       setAmount("");
       setPixKey("");
-      setFeedback("Solicitação de saque enviada. Você recebe uma notificação quando ela for concluída.");
+      setFeedback("Pedido de saque enviado. Você recebe uma notificação quando ele for analisado.");
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível solicitar o saque.");
@@ -79,113 +128,117 @@ export default function DashboardCarteiraPage() {
     }
   }
 
-  if (loading || !creator || !balance) {
+  if (loading) return <DashboardLoading />;
+
+  if (loadError || !creator || !balance) {
     return (
-      <div className="flex items-center justify-center gap-2 py-16 text-sm text-(--color-text-muted)">
-        <Loader2 size={16} className="animate-spin" strokeWidth={1.5} />
-        Carregando…
+      <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
+        <p className="font-semibold text-(--color-text)">Não foi possível abrir sua carteira</p>
+        <p className="mt-1 text-sm text-(--color-text-muted)">{loadError ?? "Tente novamente."}</p>
+        <button type="button" onClick={() => void load()} className="mt-4 text-sm font-medium text-(--color-accent-text) hover:underline">
+          Tentar de novo
+        </button>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold text-(--color-text)">Carteira</h1>
-        <p className="text-sm text-(--color-text-muted)">
-          Todo pagamento recebido pela plataforma vira saldo aqui, já descontada a comissão do
-          Jobê. O saque é feito manualmente pela nossa equipe via Pix, para a chave que você
-          informar abaixo.
-        </p>
-      </div>
+      <DashboardPageHeader
+        eyebrow="Dinheiro"
+        title="Carteira"
+        description="Aqui fica o valor que já foi confirmado para você. Saques são enviados para a chave Pix informada."
+      />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard label="Saldo disponível" value={formatBRLFromCents(balance.availableCents)} icon={Wallet} />
-        <StatCard label="Total já ganho" value={formatBRLFromCents(balance.earnedCents)} icon={TrendingUp} />
-        <StatCard
-          label="Total já sacado"
-          value={formatBRLFromCents(balance.withdrawnCents)}
-          icon={ArrowDownToLine}
-        />
+        <StatCard label="Disponível para saque" value={formatBRLFromCents(balance.availableCents)} icon={Wallet} />
+        <StatCard label="Total recebido" value={formatBRLFromCents(balance.earnedCents)} icon={TrendingUp} />
+        <StatCard label="Já sacado" value={formatBRLFromCents(balance.withdrawnCents)} icon={ArrowDownToLine} />
       </div>
 
-      <form
-        onSubmit={handleRequest}
-        className="flex flex-col gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm"
-      >
-        <h2 className="text-sm font-medium text-(--color-text)">Solicitar saque</h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <form onSubmit={handleRequest} className="flex flex-col gap-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+        <div>
+          <h2 className="font-semibold text-(--color-text)">Solicitar saque</h2>
+          <p className="mt-1 text-xs text-(--color-text-muted)">Confira a chave com atenção antes de enviar.</p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
           <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-            Valor (R$)
+            Valor
             <input
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(event) => setAmount(event.target.value)}
+              inputMode="decimal"
               placeholder="0,00"
-              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+              className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-base focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
             />
+            <span className="text-xs text-(--color-text-subtle)">Disponível: {formatBRLFromCents(balance.availableCents)}</span>
           </label>
+
           <label className="flex flex-col gap-1 text-sm text-(--color-text)">
-            Tipo de chave Pix
+            Tipo da chave
             <select
               value={pixKeyType}
-              onChange={(e) => setPixKeyType(e.target.value as PixKeyType)}
-              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+              onChange={(event) => setPixKeyType(event.target.value as PixKeyType)}
+              className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-base focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
             >
               {Object.entries(PIX_KEY_TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
+                <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </label>
+
           <label className="flex flex-col gap-1 text-sm text-(--color-text)">
             Chave Pix
             <input
               value={pixKey}
-              onChange={(e) => setPixKey(e.target.value)}
-              placeholder="CPF, e-mail, telefone ou chave aleatória"
-              className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+              onChange={(event) => setPixKey(event.target.value)}
+              autoComplete="off"
+              placeholder={pixKeyType === "email" ? "seu@email.com" : pixKeyType === "cpf" ? "000.000.000-00" : "Informe sua chave"}
+              className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-base focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
             />
           </label>
         </div>
+
         {error ? <p className="text-sm text-(--color-danger)">{error}</p> : null}
         {feedback ? <p className="text-sm text-(--color-success)">{feedback}</p> : null}
+
         <button
           type="submit"
-          disabled={submitting}
-          className="w-fit rounded-full bg-(--color-accent) px-5 py-2 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
+          disabled={submitting || balance.availableCents <= 0}
+          className="inline-flex w-fit items-center gap-2 rounded-full bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Solicitar saque
+          {submitting ? <Loader2 size={14} className="animate-spin" strokeWidth={1.6} /> : null}
+          Pedir saque
         </button>
       </form>
 
-      <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm">
-        <h2 className="border-b border-(--color-border) px-4 py-3 text-sm font-medium text-(--color-text)">
-          Histórico de saques
-        </h2>
+      <section className="overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm">
+        <div className="border-b border-(--color-border) px-4 py-3">
+          <h2 className="font-semibold text-(--color-text)">Histórico de saques</h2>
+        </div>
+
         {withdrawals.length === 0 ? (
-          <p className="px-4 py-3 text-sm text-(--color-text-muted)">Nenhum saque solicitado ainda.</p>
+          <p className="px-4 py-8 text-sm text-(--color-text-muted)">Você ainda não pediu nenhum saque.</p>
         ) : (
-          <table className="w-full text-sm">
-            <tbody>
-              {withdrawals.map((w) => (
-                <tr key={w.id} className="border-b border-(--color-border) last:border-0">
-                  <td className="px-4 py-3 text-(--color-text)">{formatBRLFromCents(w.amountCents)}</td>
-                  <td className="px-4 py-3 text-(--color-text-muted)">
-                    {PIX_KEY_TYPE_LABELS[w.pixKeyType]} · {w.pixKey}
-                  </td>
-                  <td className="px-4 py-3 text-(--color-text-muted)">
-                    {new Date(w.requestedAt).toLocaleDateString("pt-BR")}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <StatusBadge status={w.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="divide-y divide-(--color-border)">
+            {withdrawals.map((withdrawal) => (
+              <div key={withdrawal.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="font-semibold text-(--color-text)">{formatBRLFromCents(withdrawal.amountCents)}</p>
+                  <p className="mt-0.5 text-xs text-(--color-text-muted)">
+                    {PIX_KEY_TYPE_LABELS[withdrawal.pixKeyType]} · {maskPixKey(withdrawal.pixKey)}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between gap-3 sm:justify-end">
+                  <span className="text-xs text-(--color-text-subtle)">{new Date(withdrawal.requestedAt).toLocaleDateString("pt-BR")}</span>
+                  <StatusBadge status={withdrawal.status} />
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

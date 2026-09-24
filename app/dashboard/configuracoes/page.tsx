@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import type { User } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
-import { mapProfileRowToUser, type ProfileRow } from "@/lib/supabase/profile";
+import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
+import { DashboardLoading } from "@/components/DashboardLoading";
+import { DashboardPageHeader } from "@/components/DashboardPageHeader";
 import { ProfileAvatarEditor } from "@/components/ProfileAvatarEditor";
 import { ProfileCoverEditor } from "@/components/ProfileCoverEditor";
 
@@ -14,182 +17,205 @@ export default function DashboardConfiguracoesPage() {
   const [bio, setBio] = useState("");
   const [offerings, setOfferings] = useState("");
   const [offeringsDescription, setOfferingsDescription] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  // Lê o perfil autenticado e grava somente pela RPC controlada. O cliente não
-  // possui UPDATE direto em profiles, então campos internos como roles,
-  // verificação e avaliações não podem ser alterados pela API pública.
-  const [realUserId, setRealUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
     (async () => {
-      const supabase = createClient();
-      const { data } = await supabase.auth.getUser();
-      const authUser = data.user;
-
-      if (authUser) {
-        const { data: row } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", authUser.id)
-          .single();
-        if (row) {
-          const c = mapProfileRowToUser(row as ProfileRow);
-          setRealUserId(authUser.id);
-          setCreator(c);
-          setDisplayName(c.displayName);
-          setBio(c.creatorProfile?.bio ?? "");
-          setOfferings((c.creatorProfile?.offerings ?? []).join(", "));
-          setOfferingsDescription(c.creatorProfile?.offeringsDescription ?? "");
-          return;
-        }
+      try {
+        const current = await getCurrentCreatorClient();
+        if (!active) return;
+        setCreator(current);
+        setDisplayName(current.displayName);
+        setBio(current.creatorProfile?.bio ?? "");
+        setOfferings((current.creatorProfile?.offerings ?? []).join(", "));
+        setOfferingsDescription(current.creatorProfile?.offeringsDescription ?? "");
+      } catch (err) {
+        if (active) setLoadError(err instanceof Error ? err.message : "Não foi possível carregar seu perfil.");
+      } finally {
+        if (active) setLoading(false);
       }
-
     })();
+    return () => {
+      active = false;
+    };
   }, []);
 
-  if (!creator) return null;
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
     if (!creator) return;
+
     setSaveError(null);
+    setSaved(false);
+
     const offeringsList = offerings
       .split(",")
-      .map((tag) => tag.trim())
+      .map((item) => item.trim())
       .filter(Boolean);
 
-    if (!realUserId) return;
-    const supabase = createClient();
-    const { error } = await supabase.rpc("update_my_creator_profile", {
-      p_display_name: displayName,
-      p_bio: bio,
-      p_offerings: offeringsList,
-      p_offerings_description: offeringsDescription,
-    });
-    if (error) {
-      setSaveError(error.message);
+    if (displayName.trim().length < 2) {
+      setSaveError("Seu nome precisa ter pelo menos 2 caracteres.");
       return;
     }
-    setSaved(true);
+    if (offeringsList.some((item) => item.length > 80)) {
+      setSaveError("Cada serviço pode ter no máximo 80 caracteres.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const { error } = await createClient().rpc("update_my_creator_profile", {
+        p_display_name: displayName.trim(),
+        p_bio: bio.trim(),
+        p_offerings: offeringsList,
+        p_offerings_description: offeringsDescription.trim(),
+      });
+      if (error) throw new Error(error.message);
+      setSaved(true);
+      setCreator((current) => current ? { ...current, displayName: displayName.trim() } : current);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Não foi possível salvar suas alterações.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) return <DashboardLoading />;
+
+  if (loadError || !creator) {
+    return (
+      <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
+        <p className="font-semibold text-(--color-text)">Não foi possível abrir as configurações</p>
+        <p className="mt-1 text-sm text-(--color-text-muted)">{loadError ?? "Tente novamente."}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="flex max-w-lg flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold text-(--color-text)">Configurações</h1>
-        <p className="text-sm text-(--color-text-muted)">
-          Essas informações aparecem no seu perfil público.{" "}
-          <Link href={`/criadores/${creator.username}`} className="underline hover:text-(--color-text)">
-            Ver perfil
+    <div className="flex max-w-2xl flex-col gap-6">
+      <DashboardPageHeader
+        eyebrow="Conta"
+        title="Configurações"
+        description="Ajuste como você aparece para quem encontra seu trabalho no Jobê."
+        action={
+          <Link
+            href={`/criadores/${creator.username}`}
+            className="rounded-full border border-(--color-border) bg-(--color-surface) px-4 py-2 text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
+          >
+            Ver meu perfil
           </Link>
-        </p>
-      </div>
+        }
+      />
 
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-(--color-text)">Foto de perfil</span>
-        <ProfileAvatarEditor
-          userId={creator.id}
-          displayName={creator.displayName}
-          initialUrl={creator.avatar}
-          editable
-          sizeClassName="h-24 w-24"
-        />
-        <p className="text-xs text-(--color-text-subtle)">
-          Use uma imagem quadrada. PNG, JPG ou WebP.
-        </p>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-(--color-text)">Imagem de destaque</span>
-        <ProfileCoverEditor
-          userId={creator.id}
-          displayName={creator.displayName}
-          initialUrl={creator.creatorProfile?.cover}
-          editable
-        />
-        <p className="text-xs text-(--color-text-subtle)">
-          Essa é a imagem grande que aparece no seu perfil. PNG, JPG ou WebP.
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="displayName" className="text-sm font-medium text-(--color-text)">
-            Nome de exibição
-          </label>
-          <input
-            id="displayName"
-            value={displayName}
-            onChange={(e) => {
-              setDisplayName(e.target.value);
-              setSaved(false);
-            }}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
-          />
+      <section className="flex flex-col gap-5 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+        <div>
+          <h2 className="font-semibold text-(--color-text)">Fotos do perfil</h2>
+          <p className="mt-1 text-xs text-(--color-text-muted)">Troque quando quiser. PNG, JPG e WebP passam pelo fluxo seguro de imagem.</p>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="bio" className="text-sm font-medium text-(--color-text)">
-            Bio
-          </label>
+        <div className="grid gap-5 sm:grid-cols-[auto_minmax(0,1fr)]">
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium text-(--color-text-muted)">Foto</span>
+            <ProfileAvatarEditor
+              userId={creator.id}
+              displayName={creator.displayName}
+              initialUrl={creator.avatar}
+              editable
+              sizeClassName="h-24 w-24"
+            />
+          </div>
+          <div className="flex min-w-0 flex-col gap-2">
+            <span className="text-xs font-medium text-(--color-text-muted)">Imagem de destaque</span>
+            <ProfileCoverEditor
+              userId={creator.id}
+              displayName={creator.displayName}
+              initialUrl={creator.creatorProfile?.cover}
+              editable
+            />
+          </div>
+        </div>
+      </section>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+        <div>
+          <h2 className="font-semibold text-(--color-text)">Informações do perfil</h2>
+          <p className="mt-1 text-xs text-(--color-text-muted)">Escreva do jeito que você fala. Não precisa parecer currículo.</p>
+        </div>
+
+        <label className="flex flex-col gap-1.5 text-sm text-(--color-text)">
+          Nome de exibição
+          <input
+            value={displayName}
+            maxLength={80}
+            onChange={(event) => {
+              setDisplayName(event.target.value);
+              setSaved(false);
+            }}
+            className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-base focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
+          />
+          <span className="text-xs text-(--color-text-subtle)">{displayName.length}/80</span>
+        </label>
+
+        <label className="flex flex-col gap-1.5 text-sm text-(--color-text)">
+          Sobre você
           <textarea
-            id="bio"
             value={bio}
-            onChange={(e) => {
-              setBio(e.target.value);
+            maxLength={1000}
+            onChange={(event) => {
+              setBio(event.target.value);
+              setSaved(false);
+            }}
+            rows={4}
+            placeholder="Conte rapidinho o que você faz e como gosta de trabalhar."
+            className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-base leading-relaxed focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
+          />
+          <span className="text-xs text-(--color-text-subtle)">{bio.length}/1000</span>
+        </label>
+
+        <label className="flex flex-col gap-1.5 border-t border-(--color-border) pt-5 text-sm text-(--color-text)">
+          O que você faz
+          <input
+            value={offerings}
+            onChange={(event) => {
+              setOfferings(event.target.value);
+              setSaved(false);
+            }}
+            placeholder="Edição de vídeo, Motion graphics, Produção musical"
+            className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-base focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
+          />
+          <span className="text-xs text-(--color-text-subtle)">Separe cada serviço com vírgula. Até 20 itens.</span>
+        </label>
+
+        <label className="flex flex-col gap-1.5 text-sm text-(--color-text)">
+          Uma explicação rápida
+          <textarea
+            value={offeringsDescription}
+            maxLength={1000}
+            onChange={(event) => {
+              setOfferingsDescription(event.target.value);
               setSaved(false);
             }}
             rows={3}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+            placeholder="Ex.: Você me manda o material e a gente vai ajustando pela conversa."
+            className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-base leading-relaxed focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
           />
-        </div>
+        </label>
 
-        <div className="flex flex-col gap-1 border-t border-(--color-border) pt-4">
-          <label htmlFor="offerings" className="text-sm font-medium text-(--color-text)">
-            O que ofereço (tags, separadas por vírgula)
-          </label>
-          <input
-            id="offerings"
-            value={offerings}
-            onChange={(e) => {
-              setOfferings(e.target.value);
-              setSaved(false);
-            }}
-            placeholder="Ensaio fotográfico personalizado, Vídeo personalizado"
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
-          />
-          <p className="text-xs text-(--color-text-subtle)">
-            Aparece no seu perfil, separado das tags automáticas de produtos publicados.
-          </p>
-        </div>
+        {saveError ? <p className="text-sm text-(--color-danger)">{saveError}</p> : null}
+        {saved ? <p className="text-sm text-(--color-success)">Alterações salvas.</p> : null}
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="offeringsDescription" className="text-sm font-medium text-(--color-text)">
-            Descrição do que ofereço
-          </label>
-          <textarea
-            id="offeringsDescription"
-            value={offeringsDescription}
-            onChange={(e) => {
-              setOfferingsDescription(e.target.value);
-              setSaved(false);
-            }}
-            rows={2}
-            className="rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
-          />
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            className="rounded-md bg-(--color-accent) px-4 py-1.5 text-sm font-medium text-(--color-on-accent) hover:bg-(--color-accent-hover)"
-          >
-            Salvar alterações
-          </button>
-          {saved ? <span className="text-sm text-(--color-text-muted)">Alterações salvas.</span> : null}
-          {saveError ? <span className="text-sm text-(--color-danger)">{saveError}</span> : null}
-        </div>
+        <button
+          type="submit"
+          disabled={saving}
+          className="inline-flex w-fit items-center gap-2 rounded-full bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
+        >
+          {saving ? <Loader2 size={14} className="animate-spin" strokeWidth={1.6} /> : null}
+          Salvar alterações
+        </button>
       </form>
     </div>
   );
