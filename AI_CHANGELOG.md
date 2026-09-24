@@ -1,5 +1,21 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Adiciona faixa editorial laranja ao perfil
+
+- Objetivo: usuário destacou as faixas largas das propostas 9 e 17 e pediu esse recurso visual no
+  perfil atual, além de evitar termos genéricos como “vitrine”.
+- `components/CreatorProfileView.tsx`: adicionada uma faixa laranja full-bleed logo depois da
+  apresentação do criador. Ela usa dados reais do perfil e mostra até três serviços cadastrados
+  em tipografia grande, no estilo cartaz/campanha; quando não há serviços, usa uma frase curta.
+- A faixa usa `--color-accent` e `--color-on-accent`, sem cores literais e sem gradiente.
+- O bloco do próprio criador mudou de “Sua vitrine dentro do Jobê” para “Seu trabalho no Jobê”,
+  com texto mais direto e natural.
+- `JOBE_CHAT_DESIGN_GUIDE.md`: registrada a preferência de evitar “vitrine” e outros termos
+  genéricos de marketplace quando uma frase comum e direta puder explicar melhor.
+- Arquivos: `components/CreatorProfileView.tsx`, `JOBE_CHAT_DESIGN_GUIDE.md`,
+  `AI_CHANGELOG.md`.
+
+
 ## 2026-09-23 — Aplica opção 5 “revista de uma pessoa só” ao perfil completo
 
 - Objetivo: usuário escolheu a opção 5 das 20 propostas criativas, pedindo uma página inteira mais

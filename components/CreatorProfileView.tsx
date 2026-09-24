@@ -33,6 +33,7 @@ export function CreatorProfileView({
 
   const approved = products.filter((product) => product.status === "approved");
   const offerings = profile.offerings ?? [];
+  const featuredOfferings = offerings.slice(0, 3);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
@@ -121,6 +122,28 @@ export function CreatorProfileView({
         )}
       </section>
 
+      <section className="-mx-4 bg-(--color-accent) px-4 py-7 text-(--color-on-accent) sm:-mx-6 sm:px-6 sm:py-9">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] opacity-65">
+          {creator.displayName} apresenta
+        </p>
+        {featuredOfferings.length > 0 ? (
+          <div className="mt-3 flex flex-col gap-0.5">
+            {featuredOfferings.map((offering) => (
+              <p
+                key={offering}
+                className="text-3xl font-black uppercase leading-[0.95] tracking-tight sm:text-5xl"
+              >
+                {offering}
+              </p>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 max-w-2xl text-3xl font-black leading-[0.95] tracking-tight sm:text-5xl">
+            Trabalho feito do seu jeito.
+          </p>
+        )}
+      </section>
+
       {offerings.length > 0 || profile.offeringsDescription || isOwnProfile ? (
         <section className="flex flex-col gap-4">
           <div>
@@ -173,9 +196,9 @@ export function CreatorProfileView({
         {isOwnProfile ? (
           <div className="max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] opacity-60">Seu perfil</p>
-            <h2 className="mt-1 font-serif text-2xl font-semibold">Sua vitrine dentro do Jobê</h2>
+            <h2 className="mt-1 font-serif text-2xl font-semibold">Seu trabalho no Jobê</h2>
             <p className="mt-2 text-sm leading-relaxed opacity-75">
-              É aqui que as pessoas veem o que você faz, seus trabalhos e podem chegar com uma ideia.
+              Quem entrar aqui vê o que você faz, conhece seus trabalhos e pode chegar com uma ideia.
             </p>
             <Link
               href="/dashboard"

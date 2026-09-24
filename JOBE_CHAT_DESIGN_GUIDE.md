@@ -257,11 +257,13 @@ Preferir:
 - “Confirmar conclusão”
 - “Voltar”
 - “Cancelar”
+- frases que soem como fala normal do dia a dia, principalmente em páginas públicas de perfil.
 
 Evitar:
 - “Prosseguir com a conclusão da entrega”
 - “Realizar submissão do arquivo final”
 - “Ecossistema”
+- “vitrine” e outros termos genéricos de marketplace quando um texto mais direto puder dizer o que acontece;
 - frases longas que repetem a função já indicada pelo botão.
 
 ## 11. O que evitar em outras páginas
