@@ -6,6 +6,7 @@ import {
   Loader2,
   Pencil,
   Plus,
+  Search,
   Trash2,
   Upload,
   X,
@@ -154,6 +155,8 @@ export default function DashboardServicosPage() {
   const [creator, setCreator] = useState<User | null>(null);
   const [gigs, setGigs] = useState<Gig[] | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
+  const [query, setQuery] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -167,6 +170,7 @@ export default function DashboardServicosPage() {
 
   useEffect(() => {
     let active = true;
+    setLoadError(null);
     (async () => {
       try {
         const current = await getCurrentCreatorClient();
@@ -184,12 +188,21 @@ export default function DashboardServicosPage() {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reloadKey]);
 
+  const normalizedQuery = query.trim().toLocaleLowerCase("pt-BR");
   const visibleGigs = useMemo(() => {
     const rows = gigs ?? [];
-    return filter === "all" ? rows : rows.filter((gig) => gig.status === filter);
-  }, [filter, gigs]);
+    return rows.filter((gig) => {
+      const matchesFilter = filter === "all" || gig.status === filter;
+      const matchesQuery =
+        !normalizedQuery ||
+        gig.title.toLocaleLowerCase("pt-BR").includes(normalizedQuery) ||
+        GIG_CATEGORY_LABELS[gig.category].toLocaleLowerCase("pt-BR").includes(normalizedQuery) ||
+        (gig.game ?? "").toLocaleLowerCase("pt-BR").includes(normalizedQuery);
+      return matchesFilter && matchesQuery;
+    });
+  }, [filter, gigs, normalizedQuery]);
 
   const activeCount = (gigs ?? []).filter((gig) => gig.status === "active").length;
   const pausedCount = (gigs ?? []).filter((gig) => gig.status === "paused").length;
@@ -379,8 +392,18 @@ export default function DashboardServicosPage() {
       />
 
       {loadError ? (
-        <div className="rounded-xl border border-(--color-danger) bg-(--color-surface) px-4 py-3 text-sm text-(--color-danger)">
-          {loadError}
+        <div className="flex flex-col items-start gap-2 rounded-xl border border-(--color-danger) bg-(--color-surface) px-4 py-3">
+          <p className="text-sm text-(--color-danger)">{loadError}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setGigs(null);
+              setReloadKey((value) => value + 1);
+            }}
+            className="text-sm font-medium text-(--color-accent-text) hover:underline"
+          >
+            Tentar de novo
+          </button>
         </div>
       ) : null}
 
@@ -390,17 +413,36 @@ export default function DashboardServicosPage() {
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-2">
-        <FilterButton active={filter === "all"} onClick={() => setFilter("all")}>
-          Todos {gigs.length}
-        </FilterButton>
-        <FilterButton active={filter === "active"} onClick={() => setFilter("active")}>
-          Ativos {activeCount}
-        </FilterButton>
-        <FilterButton active={filter === "paused"} onClick={() => setFilter("paused")}>
-          Pausados {pausedCount}
-        </FilterButton>
-      </div>
+      {gigs.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          <div className="relative">
+            <Search
+              size={15}
+              strokeWidth={1.6}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-subtle)"
+            />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar serviço"
+              aria-label="Buscar serviço"
+              className="w-full rounded-xl border border-(--color-border) bg-(--color-surface) py-2.5 pl-9 pr-3 text-base text-(--color-text) placeholder:text-(--color-text-subtle) focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
+            />
+          </div>
+
+          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+            <FilterButton active={filter === "all"} onClick={() => setFilter("all")}>
+              Todos {gigs.length}
+            </FilterButton>
+            <FilterButton active={filter === "active"} onClick={() => setFilter("active")}>
+              Ativos {activeCount}
+            </FilterButton>
+            <FilterButton active={filter === "paused"} onClick={() => setFilter("paused")}>
+              Pausados {pausedCount}
+            </FilterButton>
+          </div>
+        </div>
+      ) : null}
 
       {gigs.length === 0 ? (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-sm">
@@ -417,9 +459,10 @@ export default function DashboardServicosPage() {
           </button>
         </div>
       ) : visibleGigs.length === 0 ? (
-        <p className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-8 text-sm text-(--color-text-muted)">
-          Nenhum serviço nesse filtro.
-        </p>
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-8 text-center">
+          <p className="text-sm font-medium text-(--color-text)">Nenhum serviço encontrado</p>
+          <p className="mt-1 text-xs text-(--color-text-muted)">Tente outro nome ou mude o filtro.</p>
+        </div>
       ) : (
         <div className="flex flex-col gap-3">
           {visibleGigs.map((gig) => (
