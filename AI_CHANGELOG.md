@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Foco de teclado fica visível em todo o painel
+
+- Adicionado estado global `:focus-visible` para links, botões e campos usando
+  `--color-accent-text`.
+- O contorno só aparece quando o navegador identifica navegação por teclado, então não adiciona
+  ruído ao uso por toque/mouse.
+- Isso evita que `outline-none` dos campos torne o dashboard difícil de usar sem mouse.
+
+
 ## 2026-09-24 — Reserva da barra mobile passa a considerar safe-area
 
 - `PageMain` deixou de usar padding inferior fixo de 80px.
