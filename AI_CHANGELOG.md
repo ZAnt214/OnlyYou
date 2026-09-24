@@ -1,5 +1,15 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Dashboard ganha loading e recuperação de erro globais
+
+- Adicionado `app/dashboard/loading.tsx` para transições entre páginas do painel não parecerem
+  travadas enquanto Server Components e consultas carregam.
+- Adicionado `app/dashboard/error.tsx` com “Tentar de novo” e retorno para a Visão geral, evitando
+  tela quebrada quando uma rota falha por rede/servidor.
+- Estados usam apenas tokens do Jobê e mantêm alvos de toque adequados no mobile.
+- A proteção de acesso do `app/dashboard/layout.tsx` já estava correta e foi preservada.
+
+
 ## 2026-09-24 — Otimiza RLS de Pedidos, Conversas e Notificações
 
 - Policies de pedidos personalizados, propostas, ordens, conversas, mensagens, anexos,
