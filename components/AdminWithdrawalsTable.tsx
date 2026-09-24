@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { reviewWithdrawal, type AdminWithdrawalRow } from "@/lib/supabase/wallet";
 import { StatusBadge } from "@/components/StatusBadge";
-import type { PixKeyType, WithdrawalStatus } from "@/lib/types";
+import type { PixKeyType } from "@/lib/types";
 import { Check, ChevronRight, Loader2, X } from "lucide-react";
 
 function formatBRLFromCents(cents: number): string {
