@@ -482,7 +482,7 @@ export default function DashboardServicosPage() {
                   type="button"
                   disabled={busyId === gig.id}
                   onClick={() => void handleTogglePause(gig)}
-                  className="rounded-full border border-(--color-border) px-3 py-2 text-xs font-medium text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-60"
+                  className="min-h-11 rounded-full border border-(--color-border) px-3 py-2 text-xs font-medium text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-60"
                 >
                   {busyId === gig.id ? "Salvando…" : gig.status === "active" ? "Pausar" : "Reativar"}
                 </button>
@@ -490,7 +490,7 @@ export default function DashboardServicosPage() {
                   type="button"
                   onClick={() => openEdit(gig)}
                   aria-label={`Editar ${gig.title}`}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-text)"
+                  className="flex h-11 w-11 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-text)"
                 >
                   <Pencil size={15} strokeWidth={1.6} />
                 </button>
@@ -499,7 +499,7 @@ export default function DashboardServicosPage() {
                   disabled={busyId === gig.id}
                   onClick={() => setDeleteCandidate(gig)}
                   aria-label={`Excluir ${gig.title}`}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-danger) disabled:opacity-60"
+                  className="flex h-11 w-11 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-danger) disabled:opacity-60"
                 >
                   <Trash2 size={15} strokeWidth={1.6} />
                 </button>
@@ -532,7 +532,7 @@ export default function DashboardServicosPage() {
                 onClick={closeForm}
                 disabled={saving || uploadingCover || uploadingGallery}
                 aria-label="Fechar"
-                className="flex h-9 w-9 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-50"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-50"
               >
                 <X size={18} strokeWidth={1.6} />
               </button>
