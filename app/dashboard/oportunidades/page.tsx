@@ -23,7 +23,7 @@ export default async function CreatorOpportunitiesPage({
   searchParams: Promise<{ categoria?: string }>;
 }) {
   const { categoria = "" } = await searchParams;
-  const requests = await listOpenServiceRequests(createPublicClient(), categoria || undefined).catch(() => []);
+  const requests = await listOpenServiceRequests(createPublicClient(), categoria || undefined);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
@@ -46,9 +46,19 @@ export default async function CreatorOpportunitiesPage({
       </nav>
 
       {requests.length ? (
-        <div className="flex flex-col gap-4">
-          {requests.map((request) => <ServiceRequestCard key={request.id} request={request} feed />)}
-        </div>
+        <section className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3 px-1">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-text-subtle)">
+              Encontradas agora
+            </p>
+            <span className="text-xs text-(--color-text-subtle)">
+              {requests.length} {requests.length === 1 ? "oportunidade" : "oportunidades"}
+            </span>
+          </div>
+          <div className="flex flex-col gap-4">
+            {requests.map((request) => <ServiceRequestCard key={request.id} request={request} feed />)}
+          </div>
+        </section>
       ) : (
         <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-sm">
           <EmptyState
