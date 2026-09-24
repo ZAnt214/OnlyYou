@@ -1,5 +1,12 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Aumenta alvos de toque em Serviços e Produtos
+
+- Ações de editar/excluir nos cards mobile passaram de 36 px para aproximadamente 44 px.
+- Botões de pausar/despublicar/continuar receberam altura mínima de 44 px.
+- A mudança reduz toque acidental sem aumentar significativamente a altura dos cards.
+
+
 ## 2026-09-24 — Oportunidades deixam de esconder erro como lista vazia
 
 - `/dashboard/oportunidades` não converte mais falha de Supabase em array vazio; erros agora sobem
