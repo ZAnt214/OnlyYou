@@ -52,7 +52,7 @@ export default function BibliotecaPage() {
         <div className="grid grid-cols-2 gap-3">
           {products.map((p) => (
             <div key={p.id} className="flex flex-col gap-1.5">
-              <ProductCard product={p} />
+              <ProductCard product={p} showPurchaseAction={false} />
               <a
                 href={`/api/produtos/${p.id}/download`}
                 className="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-3 py-2 text-xs font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
