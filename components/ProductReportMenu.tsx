@@ -1,25 +1,33 @@
 "use client";
 
-import { ReportMenu } from "@/components/ReportMenu";
-import { reportService } from "@/lib/moderation/ReportService";
-import { useMockSession } from "@/lib/mock-session/MockSessionProvider";
 import { useRouter } from "next/navigation";
+import { ReportMenu } from "@/components/ReportMenu";
+import { createClient } from "@/lib/supabase/client";
+import { createReport } from "@/lib/supabase/reports";
+import { useCurrentUserId } from "@/lib/supabase/useCurrentUser";
 import type { ReportReason } from "@/lib/types";
 
-export function ProductReportMenu({ productId, bare = false }: { productId: string; bare?: boolean }) {
-  const session = useMockSession();
+export function ProductReportMenu({
+  productId,
+  bare = false,
+}: {
+  productId: string;
+  bare?: boolean;
+}) {
+  const { userId, loading } = useCurrentUserId();
   const router = useRouter();
 
   return (
     <ReportMenu
       bare={bare}
-      onReport={(reason: ReportReason) => {
-        if (!session.currentUserId) {
+      onReport={async (reason: ReportReason) => {
+        if (loading) return;
+        if (!userId) {
           router.push("/entrar");
           return;
         }
-        reportService.fileReport({
-          reporterId: session.currentUserId,
+
+        await createReport(createClient(), {
           targetType: "product",
           targetId: productId,
           reason,
