@@ -1,5 +1,15 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Dashboard ganha loading e recuperação de erro no nível da rota
+
+- Adicionados `app/dashboard/loading.tsx` e `app/dashboard/error.tsx`.
+- Navegações server-side agora mostram feedback imediato em vez de parecerem travadas enquanto a
+  página carrega.
+- Uma falha inesperada em qualquer página do painel mostra mensagem curta + “Tentar de novo”, sem
+  derrubar a navegação inteira nem deixar tela vazia.
+- O erro não expõe stack/message técnico ao usuário; apenas o digest do Next quando existir.
+
+
 ## 2026-09-24 — Totais financeiros passam a ser agregados no banco
 
 - Corrigido um problema de escala: Visão geral, Vendas, Estatísticas e Carteira não somam mais
