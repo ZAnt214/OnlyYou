@@ -1,5 +1,16 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Endurece solicitação de saque
+
+- Criadores não podem mais inserir saques diretamente em `withdrawals`; toda solicitação passa
+  obrigatoriamente pela RPC `request_withdrawal`.
+- A RPC agora é `SECURITY DEFINER` com `search_path` vazio, confirma que o usuário é criador,
+  valida formato básico de CPF/e-mail/telefone/chave aleatória e normaliza a chave antes de salvar.
+- Adicionado advisory lock por criador para impedir duas solicitações simultâneas de reservarem o
+  mesmo saldo.
+- O saldo é recalculado no banco dentro da própria transação antes do INSERT.
+
+
 ## 2026-09-23 — Corrige declaração duplicada no helper de upload
 
 - Removida a declaração antiga de `UploadKind`/`UPLOAD_TIMEOUT_MS` que ficou duplicada durante
