@@ -15,6 +15,7 @@ export interface ProfileRow {
   display_name: string | null;
   bio: string | null;
   avatar_url: string | null;
+  cover_url: string | null;
   roles: Role[] | null;
   verification_status: VerificationStatus | null;
   offerings: string[] | null;
@@ -54,6 +55,7 @@ export function mapProfileRowToUser(row: ProfileRow): User {
         // ainda para um criador real. 0 é o valor honesto aqui (nenhum
         // produto real publicado), não um placeholder de "em breve".
         productCount: 0,
+        cover: row.cover_url ?? "",
         offerings: row.offerings ?? [],
         offeringsDescription: row.offerings_description ?? "",
         skills: row.skills ?? [],
