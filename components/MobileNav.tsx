@@ -65,7 +65,7 @@ export function MobileNav() {
       ];
 
   // Tela de conversa é tela cheia de verdade — sem nav do site por trás.
-  if (isConversationScreenPath(pathname)) return null;
+  if (isConversationScreenPath(pathname) || pathname.startsWith("/admin")) return null;
 
   return (
     <nav
