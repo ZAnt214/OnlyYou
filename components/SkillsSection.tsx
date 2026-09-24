@@ -8,15 +8,17 @@ import { TagListEditor } from "@/components/TagListEditor";
 export function SkillsSection({
   initialSkills,
   isOwnProfile,
+  title = "Habilidades",
 }: {
   initialSkills: string[];
   isOwnProfile: boolean;
+  title?: string;
 }) {
   const supabase = createClient();
 
   return (
     <TagListEditor
-      title="Habilidades"
+      title={title}
       tags={initialSkills}
       isOwnProfile={isOwnProfile}
       emptyText="Nenhuma habilidade adicionada ainda."

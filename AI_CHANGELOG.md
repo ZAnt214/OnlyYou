@@ -1,5 +1,27 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Aplica opção 5 “revista de uma pessoa só” ao perfil completo
+
+- Objetivo: usuário escolheu a opção 5 das 20 propostas criativas, pedindo uma página inteira mais
+  autoral e menos parecida com perfil padrão de marketplace.
+- `components/CreatorProfileView.tsx`: o perfil virou uma composição editorial completa. O topo
+  usa “Edição #01”, nome em tipografia serifada grande, grade assimétrica com visual + métricas,
+  bio em formato de citação e ações compactas.
+- “O que eu faço” usa somente serviços reais do perfil e linguagem simples: “Me conta o que você
+  precisa e a gente combina o resto pela conversa”.
+- Incluída uma faixa escura de conversão no meio da página. Para visitantes: “Pode explicar do seu
+  jeito” + pedido personalizado. Para o dono: explicação curta de que o perfil é sua vitrine.
+- A página inteira foi reorganizada em: identidade editorial, serviços, chamada de pedido,
+  trabalhos, produtos digitais, avaliações, habilidades e formação/idiomas.
+- Avaliações usam comentários reais em formato de citação; nota só aparece quando existe.
+- `PortfolioSection`, `SkillsSection` e `ResumeSection` ganharam título configurável para a
+  linguagem da nova página (“Trabalhos”, “Coisas que eu manjo”, “Formação e idiomas”).
+- O antigo título em inglês “Career Profile” foi removido.
+- Nenhuma cor literal ou classe fixa de paleta foi adicionada.
+- Arquivos: `components/CreatorProfileView.tsx`, `components/PortfolioSection.tsx`,
+  `components/SkillsSection.tsx`, `components/ResumeSection.tsx`, `AI_CHANGELOG.md`.
+
+
 ## 2026-09-23 — Aplica opção 3 ao perfil completo do criador
 
 - Objetivo: usuário escolheu a opção 3 das novas propostas completas, com direção de “loja pessoal”,

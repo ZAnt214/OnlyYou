@@ -82,10 +82,12 @@ export function ResumeSection({
   initialEntries,
   initialLanguages,
   isOwnProfile,
+  title = "Formação e idiomas",
 }: {
   initialEntries: ResumeEntry[];
   initialLanguages: string[];
   isOwnProfile: boolean;
+  title?: string;
 }) {
   const supabase = createClient();
   const [entries, setEntries] = useState(initialEntries);
@@ -243,7 +245,7 @@ export function ResumeSection({
 
   return (
     <div className="flex flex-col gap-6">
-      <h2 className="text-base font-semibold text-(--color-text)">Career Profile</h2>
+      <h2 className="font-serif text-2xl font-semibold text-(--color-text)">{title}</h2>
 
       {renderList("education", education)}
       {renderList("certification", certifications)}
