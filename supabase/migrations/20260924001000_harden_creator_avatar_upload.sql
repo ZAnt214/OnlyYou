@@ -1,6 +1,6 @@
 -- Foto de perfil: a escrita direta na coluna deixa de ser permitida.
-// Toda alteração passa pela RPC, que só aceita a URL gerada no namespace
-// avatars/<auth.uid()>/ do Vercel Blob.
+-- Toda alteração passa pela RPC, que só aceita a URL gerada no namespace
+-- avatars/<auth.uid()>/ do Vercel Blob.
 revoke update (avatar_url) on table public.profiles from authenticated;
 
 create or replace function public.update_creator_avatar(p_avatar_url text)
