@@ -81,49 +81,84 @@ export default async function DashboardOverviewPage() {
         />
       </div>
 
-      {work.nextDeadline ? (
-        <Link
-          href={`/dashboard/pedidos-personalizados/${work.nextDeadline.customRequestId}`}
-          className="flex items-center justify-between gap-4 rounded-2xl bg-(--color-contrast) p-4 text-(--color-on-contrast) shadow-sm"
-        >
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.13em] opacity-60">Próximo prazo</p>
-            <p className="mt-1 truncate font-semibold">{work.nextDeadline.serviceType}</p>
-            <p className="mt-1 text-xs opacity-70">{formatDeadline(work.nextDeadline.deliveryDeadlineAt)}</p>
-          </div>
-          <ArrowRight size={18} className="shrink-0 text-(--color-accent)" strokeWidth={1.7} />
-        </Link>
-      ) : null}
+      <section className="overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm">
+        <div className="border-b border-(--color-border) px-4 py-3">
+          <h2 className="text-sm font-semibold text-(--color-text)">Agora</h2>
+          <p className="mt-0.5 text-xs text-(--color-text-subtle)">O que merece sua atenção primeiro.</p>
+        </div>
+
+        <div className="divide-y divide-(--color-border)">
+          {work.nextDeadline ? (
+            <AttentionRow
+              href={`/dashboard/pedidos-personalizados/${work.nextDeadline.customRequestId}`}
+              title={work.nextDeadline.serviceType}
+              detail={`Próximo prazo · ${formatDeadline(work.nextDeadline.deliveryDeadlineAt)}`}
+              accent
+            />
+          ) : null}
+
+          {work.openRequests > 0 ? (
+            <AttentionRow
+              href="/dashboard/pedidos-personalizados"
+              title={`${work.openRequests} ${work.openRequests === 1 ? "pedido esperando resposta" : "pedidos esperando resposta"}`}
+              detail="Abra a conversa e veja o que a pessoa precisa."
+            />
+          ) : null}
+
+          {work.awaitingPayment > 0 ? (
+            <AttentionRow
+              href="/dashboard/pedidos-personalizados"
+              title={`${work.awaitingPayment} ${work.awaitingPayment === 1 ? "trabalho aguardando pagamento" : "trabalhos aguardando pagamento"}`}
+              detail="O trabalho começa depois da confirmação."
+            />
+          ) : null}
+
+          {work.waitingForClient > 0 ? (
+            <AttentionRow
+              href="/dashboard/pedidos-personalizados"
+              title={`${work.waitingForClient} ${work.waitingForClient === 1 ? "trabalho esperando o cliente" : "trabalhos esperando o cliente"}`}
+              detail="Você já finalizou; agora falta a confirmação."
+            />
+          ) : null}
+
+          {!work.nextDeadline &&
+          work.openRequests === 0 &&
+          work.awaitingPayment === 0 &&
+          work.waitingForClient === 0 ? (
+            <p className="px-4 py-6 text-sm text-(--color-text-muted)">Tudo em dia por aqui.</p>
+          ) : null}
+        </div>
+      </section>
 
       <section className="flex flex-col gap-3">
         <div>
-          <h2 className="text-base font-semibold text-(--color-text)">Atalhos</h2>
-          <p className="mt-0.5 text-xs text-(--color-text-muted)">As ações que você mais usa no dia a dia.</p>
+          <h2 className="text-base font-semibold text-(--color-text)">Fazer agora</h2>
+          <p className="mt-0.5 text-xs text-(--color-text-muted)">Caminhos rápidos sem sair procurando pelo painel.</p>
         </div>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid gap-px overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-border) sm:grid-cols-2 lg:grid-cols-4">
           <QuickLink
             href="/dashboard/pedidos-personalizados"
             icon={MessageSquare}
-            title="Pedidos"
-            detail={work.openRequests > 0 ? `${work.openRequests} conversa(s) aberta(s)` : "Ver conversas"}
+            title="Abrir pedidos"
+            detail="Conversas e propostas"
           />
           <QuickLink
             href="/dashboard/oportunidades"
             icon={BriefcaseBusiness}
-            title="Oportunidades"
-            detail="Encontrar novos trabalhos"
+            title="Buscar trabalho"
+            detail="Ver pedidos publicados"
           />
           <QuickLink
             href="/dashboard/servicos"
             icon={Store}
-            title="Serviços"
-            detail="Criar ou editar anúncio"
+            title="Meus serviços"
+            detail="Criar, pausar ou editar"
           />
           <QuickLink
             href="/dashboard/produtos/novo"
             icon={PackagePlus}
             title="Novo produto"
-            detail={`${publishedProducts} publicado(s)`}
+            detail={`${publishedProducts} ${publishedProducts === 1 ? "publicado" : "publicados"}`}
           />
         </div>
       </section>
@@ -198,6 +233,30 @@ export default async function DashboardOverviewPage() {
   );
 }
 
+function AttentionRow({
+  href,
+  title,
+  detail,
+  accent = false,
+}: {
+  href: string;
+  title: string;
+  detail: string;
+  accent?: boolean;
+}) {
+  return (
+    <Link href={href} className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-(--color-surface-2)">
+      <div className="min-w-0">
+        <p className={`truncate text-sm font-medium ${accent ? "text-(--color-accent-text)" : "text-(--color-text)"}`}>
+          {title}
+        </p>
+        <p className="mt-0.5 truncate text-xs text-(--color-text-subtle)">{detail}</p>
+      </div>
+      <ArrowRight size={15} className="shrink-0 text-(--color-text-subtle)" strokeWidth={1.7} />
+    </Link>
+  );
+}
+
 function QuickLink({
   href,
   icon: Icon,
@@ -212,13 +271,13 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="flex min-w-0 flex-col gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-colors hover:border-(--color-accent-text)"
+      className="flex min-w-0 items-center gap-3 bg-(--color-surface) p-4 transition-colors hover:bg-(--color-surface-2)"
     >
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-(--color-surface-2)">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--color-surface-2)">
         <Icon size={17} className="text-(--color-accent-text)" strokeWidth={1.7} />
       </span>
       <div className="min-w-0">
-        <p className="font-semibold text-(--color-text)">{title}</p>
+        <p className="truncate text-sm font-semibold text-(--color-text)">{title}</p>
         <p className="mt-0.5 truncate text-xs text-(--color-text-muted)">{detail}</p>
       </div>
     </Link>

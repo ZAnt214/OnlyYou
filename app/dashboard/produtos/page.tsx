@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { listProductsForCreator, updateProduct, deleteProduct } from "@/lib/supabase/products";
@@ -13,8 +13,12 @@ import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { PriceTag } from "@/components/PriceTag";
 import { StatusBadge } from "@/components/StatusBadge";
 
+type ProductFilter = "all" | "published" | "draft" | "blocked";
+
 export default function DashboardProdutosPage() {
   const [products, setProducts] = useState<Product[] | null>(null);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<ProductFilter>("all");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -81,6 +85,32 @@ export default function DashboardProdutosPage() {
 
   if (products === null) return <DashboardLoading />;
 
+  const normalizedQuery = query.trim().toLocaleLowerCase("pt-BR");
+  const counts = {
+    all: products.length,
+    published: products.filter((product) => product.status === "approved").length,
+    draft: products.filter((product) => product.status === "draft").length,
+    blocked: products.filter((product) => !["approved", "draft"].includes(product.status)).length,
+  };
+
+  const visibleProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesQuery =
+        !normalizedQuery ||
+        product.title.toLocaleLowerCase("pt-BR").includes(normalizedQuery) ||
+        product.category.toLocaleLowerCase("pt-BR").includes(normalizedQuery) ||
+        product.tags.some((tag) => tag.toLocaleLowerCase("pt-BR").includes(normalizedQuery));
+
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "published" && product.status === "approved") ||
+        (filter === "draft" && product.status === "draft") ||
+        (filter === "blocked" && !["approved", "draft"].includes(product.status));
+
+      return matchesQuery && matchesFilter;
+    });
+  }, [filter, normalizedQuery, products]);
+
   return (
     <div className="flex flex-col gap-6">
       <DashboardPageHeader
@@ -104,6 +134,41 @@ export default function DashboardProdutosPage() {
         </div>
       ) : null}
 
+      {products.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          <div className="relative">
+            <Search
+              size={15}
+              strokeWidth={1.6}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-subtle)"
+            />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar produto"
+              className="w-full rounded-xl border border-(--color-border) bg-(--color-surface) py-2.5 pl-9 pr-3 text-base text-(--color-text) placeholder:text-(--color-text-subtle) focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
+            />
+          </div>
+
+          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+            <ProductFilterButton active={filter === "all"} onClick={() => setFilter("all")}>
+              Todos {counts.all}
+            </ProductFilterButton>
+            <ProductFilterButton active={filter === "published"} onClick={() => setFilter("published")}>
+              Publicados {counts.published}
+            </ProductFilterButton>
+            <ProductFilterButton active={filter === "draft"} onClick={() => setFilter("draft")}>
+              Rascunhos {counts.draft}
+            </ProductFilterButton>
+            {counts.blocked > 0 ? (
+              <ProductFilterButton active={filter === "blocked"} onClick={() => setFilter("blocked")}>
+                Com restrição {counts.blocked}
+              </ProductFilterButton>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
       {products.length === 0 ? (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-sm">
           <p className="font-semibold text-(--color-text)">Você ainda não publicou nenhum produto</p>
@@ -114,9 +179,14 @@ export default function DashboardProdutosPage() {
             Criar primeiro produto
           </Link>
         </div>
+      ) : visibleProducts.length === 0 ? (
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-8 text-center">
+          <p className="text-sm font-medium text-(--color-text)">Nada encontrado</p>
+          <p className="mt-1 text-xs text-(--color-text-muted)">Tente outro nome ou mude o filtro.</p>
+        </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {products.map((product) => (
+          {visibleProducts.map((product) => (
             <article
               key={product.id}
               className="flex flex-col gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-3 shadow-sm sm:flex-row sm:items-center"
@@ -225,5 +295,30 @@ export default function DashboardProdutosPage() {
         </div>
       ) : null}
     </div>
+  );
+}
+
+
+function ProductFilterButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`shrink-0 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${
+        active
+          ? "border-(--color-contrast) bg-(--color-contrast) text-(--color-on-contrast)"
+          : "border-(--color-border) bg-(--color-surface) text-(--color-text-muted)"
+      }`}
+    >
+      {children}
+    </button>
   );
 }

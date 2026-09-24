@@ -1,5 +1,19 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Simplifica a home e melhora busca de Produtos
+
+- A Visão geral ganhou a seção “Agora”, que coloca prazo, pedidos esperando resposta, pagamentos
+  pendentes e trabalhos aguardando o cliente antes dos atalhos. Quando não há pendência, informa
+  “Tudo em dia por aqui”.
+- “Atalhos” virou “Fazer agora” em um único bloco dividido, reduzindo o excesso de cards sem tirar
+  ações rápidas do criador.
+- `/dashboard/produtos` ganhou busca por nome/categoria/tags e filtros Todos, Publicados,
+  Rascunhos e Com restrição, todos com contagem real.
+- Estado vazio de busca/filtro foi separado do estado de “nenhum produto criado”.
+- Direção visual segue os princípios observados em admins atuais: conteúdo principal mais forte,
+  navegação/apoio com menos peso e ação perto do item que o usuário quer alterar.
+
+
 ## 2026-09-24 — Fecha update direto das informações do perfil
 
 - Revogados updates diretos em nome, bio, serviços, descrição, habilidades, idiomas e `updated_at`.
