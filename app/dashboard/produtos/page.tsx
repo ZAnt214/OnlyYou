@@ -83,18 +83,10 @@ export default function DashboardProdutosPage() {
     }
   }
 
-  if (products === null) return <DashboardLoading />;
-
   const normalizedQuery = query.trim().toLocaleLowerCase("pt-BR");
-  const counts = {
-    all: products.length,
-    published: products.filter((product) => product.status === "approved").length,
-    draft: products.filter((product) => product.status === "draft").length,
-    blocked: products.filter((product) => !["approved", "draft"].includes(product.status)).length,
-  };
 
   const visibleProducts = useMemo(() => {
-    return products.filter((product) => {
+    return (products ?? []).filter((product) => {
       const matchesQuery =
         !normalizedQuery ||
         product.title.toLocaleLowerCase("pt-BR").includes(normalizedQuery) ||
@@ -110,6 +102,15 @@ export default function DashboardProdutosPage() {
       return matchesQuery && matchesFilter;
     });
   }, [filter, normalizedQuery, products]);
+
+  if (products === null) return <DashboardLoading />;
+
+  const counts = {
+    all: products.length,
+    published: products.filter((product) => product.status === "approved").length,
+    draft: products.filter((product) => product.status === "draft").length,
+    blocked: products.filter((product) => !["approved", "draft"].includes(product.status)).length,
+  };
 
   return (
     <div className="flex flex-col gap-6">
