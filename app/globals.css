@@ -118,6 +118,21 @@ body {
   color: var(--color-accent-text);
 }
 
+/*
+ * Foco de teclado precisa continuar visível mesmo em componentes que usam
+ * outline-none para o estado normal/foco por toque. :focus-visible só aparece
+ * quando o navegador identifica navegação por teclado.
+ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--color-accent-text) !important;
+  outline-offset: 2px;
+}
+
 /* Esconde a barra de rolagem nativa em filas de chip horizontais — o
    scroll continua funcionando, só a trilha cinza feia some. */
 .no-scrollbar {
