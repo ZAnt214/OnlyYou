@@ -1,5 +1,17 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Carteira ganha confirmação de saque e reduz dados desnecessários
+
+- Solicitar saque agora abre uma confirmação com valor e chave Pix mascarada antes de enviar a RPC.
+  Isso evita solicitações financeiras por toque acidental.
+- O histórico do criador deixou de buscar `reviewed_by` e `admin_notes`, campos administrativos
+  que não são usados na tela e não precisam trafegar para o navegador.
+- O saldo disponível exibido é limitado a zero em caso de inconsistência histórica; a validação
+  autoritativa continua dentro da RPC no banco.
+- Mantidas as validações de formato da chave e a proteção contra saque concorrente implementada
+  anteriormente.
+
+
 ## 2026-09-24 — Pedidos do dashboard ganham busca, filtros e recuperação de erro
 
 - `CustomRequestsList` agora trata falhas de Supabase: em vez de spinner infinito, mostra o erro

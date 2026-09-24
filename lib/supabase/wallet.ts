@@ -22,8 +22,8 @@ interface WithdrawalRow {
   status: WithdrawalStatus;
   requested_at: string;
   reviewed_at: string | null;
-  reviewed_by: string | null;
-  admin_notes: string | null;
+  reviewed_by?: string | null;
+  admin_notes?: string | null;
 }
 
 function mapWithdrawal(row: WithdrawalRow): Withdrawal {
@@ -37,8 +37,8 @@ function mapWithdrawal(row: WithdrawalRow): Withdrawal {
     status: row.status,
     requestedAt: row.requested_at,
     reviewedAt: row.reviewed_at,
-    reviewedBy: row.reviewed_by,
-    adminNotes: row.admin_notes,
+    reviewedBy: row.reviewed_by ?? null,
+    adminNotes: row.admin_notes ?? null,
   };
 }
 
@@ -70,7 +70,7 @@ export async function getCreatorBalance(
   return {
     creatorId,
     earnedCents,
-    availableCents: earnedCents - reservedCents,
+    availableCents: Math.max(0, earnedCents - reservedCents),
     withdrawnCents,
     currency: "BRL",
   };
@@ -82,7 +82,7 @@ export async function listWithdrawalsForCreator(
 ): Promise<Withdrawal[]> {
   const { data, error } = await supabase
     .from("withdrawals")
-    .select("*")
+    .select("id, creator_id, amount_cents, pix_key_type, pix_key, status, requested_at, reviewed_at")
     .eq("creator_id", creatorId)
     .order("requested_at", { ascending: false });
   if (error) throw new Error(error.message);

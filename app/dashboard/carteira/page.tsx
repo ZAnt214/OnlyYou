@@ -61,6 +61,11 @@ export default function DashboardCarteiraPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [pendingWithdrawal, setPendingWithdrawal] = useState<{
+    amountCents: number;
+    pixKeyType: PixKeyType;
+    pixKey: string;
+  } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -86,7 +91,7 @@ export default function DashboardCarteiraPage() {
     void load();
   }, [load]);
 
-  async function handleRequest(event: React.FormEvent) {
+  function handleRequest(event: React.FormEvent) {
     event.preventDefault();
     if (!balance) return;
 
@@ -110,18 +115,27 @@ export default function DashboardCarteiraPage() {
       return;
     }
 
+    setPendingWithdrawal({
+      amountCents,
+      pixKeyType,
+      pixKey: pixKey.trim(),
+    });
+  }
+
+  async function confirmWithdrawal() {
+    if (!pendingWithdrawal) return;
+
     setSubmitting(true);
+    setError(null);
     try {
-      await requestWithdrawal(createClient(), {
-        amountCents,
-        pixKeyType,
-        pixKey: pixKey.trim(),
-      });
+      await requestWithdrawal(createClient(), pendingWithdrawal);
+      setPendingWithdrawal(null);
       setAmount("");
       setPixKey("");
       setFeedback("Pedido de saque enviado. Você recebe uma notificação quando ele for analisado.");
       await load();
     } catch (err) {
+      setPendingWithdrawal(null);
       setError(err instanceof Error ? err.message : "Não foi possível solicitar o saque.");
     } finally {
       setSubmitting(false);
@@ -239,6 +253,66 @@ export default function DashboardCarteiraPage() {
           </div>
         )}
       </section>
+
+      {pendingWithdrawal ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
+          <button
+            type="button"
+            aria-label="Cancelar confirmação"
+            onClick={() => setPendingWithdrawal(null)}
+            className="absolute inset-0 bg-(--color-contrast) opacity-55"
+          />
+          <div className="relative w-full max-w-sm rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 shadow-lg">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-text-subtle)">
+              Confirmar saque
+            </p>
+            <h2 className="mt-1 text-lg font-semibold text-(--color-text)">
+              Confira antes de enviar
+            </h2>
+
+            <div className="mt-4 divide-y divide-(--color-border) rounded-xl border border-(--color-border)">
+              <div className="flex items-center justify-between gap-3 px-3 py-3">
+                <span className="text-sm text-(--color-text-muted)">Valor</span>
+                <strong className="text-sm text-(--color-text)">
+                  {formatBRLFromCents(pendingWithdrawal.amountCents)}
+                </strong>
+              </div>
+              <div className="flex items-center justify-between gap-3 px-3 py-3">
+                <span className="text-sm text-(--color-text-muted)">
+                  {PIX_KEY_TYPE_LABELS[pendingWithdrawal.pixKeyType]}
+                </span>
+                <strong className="text-sm text-(--color-text)">
+                  {maskPixKey(pendingWithdrawal.pixKey)}
+                </strong>
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs leading-relaxed text-(--color-text-muted)">
+              Depois de confirmar, o pedido entra na fila de análise. Confira principalmente a chave Pix.
+            </p>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={() => setPendingWithdrawal(null)}
+                className="rounded-full border border-(--color-border) px-4 py-2.5 text-sm text-(--color-text) disabled:opacity-50"
+              >
+                Voltar
+              </button>
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={() => void confirmWithdrawal()}
+                className="inline-flex items-center gap-1.5 rounded-full bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-(--color-on-accent) disabled:opacity-50"
+              >
+                {submitting ? <Loader2 size={14} className="animate-spin" strokeWidth={1.6} /> : null}
+                Confirmar saque
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
