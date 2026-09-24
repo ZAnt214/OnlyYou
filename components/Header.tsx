@@ -117,7 +117,7 @@ export function Header() {
   }
 
   // Tela de conversa é tela cheia de verdade — sem header do site por trás.
-  if (isConversationScreenPath(pathname)) return null;
+  if (isConversationScreenPath(pathname) || pathname.startsWith("/admin")) return null;
 
   return (
     <header className="sticky top-0 z-30 border-b border-(--color-border) bg-(--color-bg)">
