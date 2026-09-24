@@ -33,7 +33,6 @@ export function CreatorProfileView({
 
   const approved = products.filter((product) => product.status === "approved");
   const offerings = profile.offerings ?? [];
-  const featuredOfferings = offerings.slice(0, 3);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
@@ -119,28 +118,6 @@ export function CreatorProfileView({
               Seguir
             </button>
           </div>
-        )}
-      </section>
-
-      <section className="-mx-4 bg-(--color-accent) px-4 py-7 text-(--color-on-accent) sm:-mx-6 sm:px-6 sm:py-9">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] opacity-65">
-          {creator.displayName} apresenta
-        </p>
-        {featuredOfferings.length > 0 ? (
-          <div className="mt-3 flex flex-col gap-0.5">
-            {featuredOfferings.map((offering) => (
-              <p
-                key={offering}
-                className="text-3xl font-black uppercase leading-[0.95] tracking-tight sm:text-5xl"
-              >
-                {offering}
-              </p>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-3 max-w-2xl text-3xl font-black leading-[0.95] tracking-tight sm:text-5xl">
-            Trabalho feito do seu jeito.
-          </p>
         )}
       </section>
 

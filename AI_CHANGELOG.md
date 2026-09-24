@@ -1,5 +1,15 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Remove faixa editorial laranja do perfil
+
+- `components/CreatorProfileView.tsx`: removida a faixa laranja larga que mostrava serviços em
+  letras grandes logo depois da apresentação do criador.
+- Também removido o estado auxiliar `featuredOfferings`, que existia apenas para essa faixa.
+- O restante do perfil editorial foi mantido, incluindo a linguagem mais direta e a remoção do
+  termo genérico “vitrine”.
+- Arquivos: `components/CreatorProfileView.tsx`, `AI_CHANGELOG.md`.
+
+
 ## 2026-09-23 — Adiciona faixa editorial laranja ao perfil
 
 - Objetivo: usuário destacou as faixas largas das propostas 9 e 17 e pediu esse recurso visual no
