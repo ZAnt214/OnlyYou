@@ -1,5 +1,13 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Ajusta descrição de “Finalizar entrega”
+
+- `components/ConversationView.tsx`: a descrição de “Finalizar entrega” mudou de
+  “Enviar versão final” para “Marcar trabalho como concluído”, evitando a impressão de que
+  necessariamente é preciso anexar uma nova versão final para concluir.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+
+
 ## 2026-09-23 — Aplica menu escuro e simples nas ações do trabalho
 
 - Objetivo: usuário escolheu a opção 4 das prévias HTML para o submenu aberto pelo botão “+”.
