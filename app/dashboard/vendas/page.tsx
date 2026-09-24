@@ -1,90 +1,88 @@
-"use client";
+import { Receipt } from "lucide-react";
+import { DashboardPageHeader } from "@/components/DashboardPageHeader";
+import { StatCard } from "@/components/StatCard";
+import { getCurrentUser } from "@/lib/supabase/session";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { listCreatorSales } from "@/lib/supabase/dashboard";
 
-import { useEffect, useState } from "react";
-import type { Product, User } from "@/lib/types";
-import { userRepository } from "@/lib/repositories/UserRepository";
-import { listProductsForCreator } from "@/lib/supabase/products";
-import { useSaleRepository } from "@/lib/repositories/SaleRepository";
-import { useOrderRepository } from "@/lib/repositories/OrderRepository";
-import { createClient } from "@/lib/supabase/client";
-import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
-import { StatusBadge } from "@/components/StatusBadge";
-import { DashboardLoading } from "@/components/DashboardLoading";
-
-function formatBRL(value: number): string {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+function formatBRL(cents: number): string {
+  return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-export default function DashboardVendasPage() {
-  const saleRepo = useSaleRepository();
-  const orderRepo = useOrderRepository();
-  const [creator, setCreator] = useState<User | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [buyers, setBuyers] = useState<User[]>([]);
+export default async function DashboardVendasPage() {
+  const creator = await getCurrentUser();
+  if (!creator?.creatorProfile) return null;
 
-  useEffect(() => {
-    (async () => {
-      const c = await getCurrentCreatorClient();
-      setCreator(c);
-      setProducts(await listProductsForCreator(createClient(), c.id));
-      setBuyers(await userRepository.findAll());
-    })();
-  }, []);
-
-  if (!creator) return <DashboardLoading />;
-
-  const sales = saleRepo.findByCreator(creator.id);
-  const productById = new Map(products.map((p) => [p.id, p]));
-  const buyerById = new Map(buyers.map((b) => [b.id, b]));
+  const supabase = await createServerClient();
+  const sales = await listCreatorSales(supabase, creator.id);
+  const netTotal = sales.reduce((sum, sale) => sum + sale.creatorAmountCents, 0);
+  const grossTotal = sales.reduce((sum, sale) => sum + sale.grossAmountCents, 0);
+  const average = sales.length ? Math.round(netTotal / sales.length) : 0;
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-(--color-text)">Vendas</h1>
+      <DashboardPageHeader
+        eyebrow="Dinheiro"
+        title="Vendas"
+        description="Só entram aqui pagamentos realmente confirmados. O valor mostrado como recebido já desconta a parte do Jobê."
+      />
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <StatCard label="Você recebeu" value={formatBRL(netTotal)} icon={Receipt} />
+        <StatCard label="Total pago pelos clientes" value={formatBRL(grossTotal)} />
+        <StatCard label="Média por venda" value={formatBRL(average)} hint={`${sales.length} confirmada(s)`} />
+      </div>
 
       {sales.length === 0 ? (
-        <p className="text-sm text-(--color-text-muted)">Nenhuma venda foi realizada neste período.</p>
-      ) : (
-        <div className="overflow-x-auto rounded-lg border border-(--color-border)">
-          <table className="w-full min-w-[560px] text-sm">
-            <thead>
-              <tr className="border-b border-(--color-border) text-left text-xs text-(--color-text-subtle)">
-                <th className="px-4 py-2 font-medium">Produto</th>
-                <th className="px-4 py-2 font-medium">Comprador</th>
-                <th className="px-4 py-2 font-medium">Valor</th>
-                <th className="px-4 py-2 font-medium">Data</th>
-                <th className="px-4 py-2 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sales
-                .slice()
-                .reverse()
-                .map((s) => {
-                  const order = orderRepo.findById(s.orderId);
-                  const buyer = order ? buyerById.get(order.buyerId) : undefined;
-                  return (
-                    <tr key={s.id} className="border-b border-(--color-border) last:border-0">
-                      <td className="px-4 py-3 text-(--color-text)">
-                        {productById.get(s.productId)?.title ?? s.productId}
-                      </td>
-                      <td className="px-4 py-3 text-(--color-text-muted)">
-                        {buyer?.displayName ?? "—"}
-                      </td>
-                      <td className="px-4 py-3 font-medium text-(--color-text)">
-                        {formatBRL(s.creatorAmount)}
-                      </td>
-                      <td className="px-4 py-3 text-(--color-text-muted)">
-                        {new Date(s.createdAt).toLocaleDateString("pt-BR")}
-                      </td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status="paid" />
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-5 py-10 text-center">
+          <p className="font-semibold text-(--color-text)">Nenhuma venda confirmada ainda</p>
+          <p className="mt-1 text-sm text-(--color-text-muted)">Quando um pagamento for aprovado, ele aparece aqui.</p>
         </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-2 md:hidden">
+            {sales.map((sale) => (
+              <article key={sale.id} className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-(--color-text)">{sale.title}</p>
+                    <p className="mt-1 text-xs text-(--color-text-muted)">{sale.buyerName}</p>
+                  </div>
+                  <span className="shrink-0 font-semibold text-(--color-text)">{formatBRL(sale.creatorAmountCents)}</span>
+                </div>
+                <div className="mt-3 flex items-center justify-between gap-3 border-t border-(--color-border) pt-3 text-xs text-(--color-text-subtle)">
+                  <span>{sale.kind === "product" ? "Produto" : "Serviço"}</span>
+                  <span>{new Date(sale.confirmedAt).toLocaleDateString("pt-BR")}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="hidden overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) md:block">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-(--color-border) text-left text-xs text-(--color-text-subtle)">
+                  <th className="px-4 py-3 font-medium">Venda</th>
+                  <th className="px-4 py-3 font-medium">Cliente</th>
+                  <th className="px-4 py-3 font-medium">Tipo</th>
+                  <th className="px-4 py-3 font-medium">Data</th>
+                  <th className="px-4 py-3 text-right font-medium">Você recebeu</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sales.map((sale) => (
+                  <tr key={sale.id} className="border-b border-(--color-border) last:border-0">
+                    <td className="max-w-64 px-4 py-3 font-medium text-(--color-text)">{sale.title}</td>
+                    <td className="px-4 py-3 text-(--color-text-muted)">{sale.buyerName}</td>
+                    <td className="px-4 py-3 text-(--color-text-muted)">{sale.kind === "product" ? "Produto" : "Serviço"}</td>
+                    <td className="px-4 py-3 text-(--color-text-muted)">{new Date(sale.confirmedAt).toLocaleDateString("pt-BR")}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-(--color-text)">{formatBRL(sale.creatorAmountCents)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

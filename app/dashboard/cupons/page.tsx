@@ -1,67 +1,34 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import type { Coupon, User } from "@/lib/types";
-import { couponRepository } from "@/lib/repositories/CouponRepository";
-import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
-import { DashboardLoading } from "@/components/DashboardLoading";
+import Link from "next/link";
+import { ArrowRight, Ticket } from "lucide-react";
+import { DashboardPageHeader } from "@/components/DashboardPageHeader";
 
 export default function DashboardCuponsPage() {
-  const [creator, setCreator] = useState<User | null>(null);
-  const [coupons, setCoupons] = useState<Coupon[] | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const c = await getCurrentCreatorClient();
-      setCreator(c);
-      setCoupons(await couponRepository.findByCreator(c.id));
-    })();
-  }, []);
-
-  if (!creator) return <DashboardLoading />;
-
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-(--color-text)">Cupons</h1>
+      <DashboardPageHeader
+        eyebrow="Vendas"
+        title="Cupons"
+        description="Essa ferramenta ainda não está ativa no Jobê. Preferimos não mostrar dados de exemplo como se fossem cupons reais."
+      />
 
-      {coupons === null ? null : coupons.length === 0 ? (
-        <p className="text-sm text-(--color-text-muted)">Nenhum cupom criado ainda.</p>
-      ) : (
-        <div className="overflow-x-auto rounded-lg border border-(--color-border)">
-          <table className="w-full min-w-[420px] text-sm">
-            <thead>
-              <tr className="border-b border-(--color-border) text-left text-xs text-(--color-text-subtle)">
-                <th className="px-4 py-2 font-medium">Código</th>
-                <th className="px-4 py-2 font-medium">Desconto</th>
-                <th className="px-4 py-2 font-medium">Validade</th>
-                <th className="px-4 py-2 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {coupons.map((c) => (
-                <tr key={c.id} className="border-b border-(--color-border) last:border-0">
-                  <td className="px-4 py-3 font-mono text-(--color-text)">{c.code}</td>
-                  <td className="px-4 py-3 text-(--color-text-muted)">{c.discountPercent}%</td>
-                  <td className="px-4 py-3 text-(--color-text-muted)">
-                    {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString("pt-BR") : "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded-md px-2 py-0.5 text-xs ${
-                        c.active
-                          ? "bg-(--color-accent-soft) text-(--color-accent-text)"
-                          : "bg-(--color-surface-2) text-(--color-text-muted)"
-                      }`}
-                    >
-                      {c.active ? "Ativo" : "Inativo"}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="flex flex-col items-start gap-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-sm">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--color-surface-2)">
+          <Ticket size={20} className="text-(--color-accent-text)" strokeWidth={1.7} />
+        </span>
+        <div>
+          <p className="font-semibold text-(--color-text)">Cupons entram depois</p>
+          <p className="mt-1 max-w-xl text-sm leading-relaxed text-(--color-text-muted)">
+            Quando essa função estiver ligada ao banco e ao checkout de verdade, ela volta para a navegação do painel.
+          </p>
         </div>
-      )}
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-(--color-accent-text) hover:underline"
+        >
+          Voltar para a visão geral
+          <ArrowRight size={14} strokeWidth={1.7} />
+        </Link>
+      </div>
     </div>
   );
 }

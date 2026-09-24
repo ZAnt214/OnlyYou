@@ -1,217 +1,233 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import Link, { useLinkStatus } from "next/link";
-import type { LucideIcon } from "lucide-react";
-import type { Product, User } from "@/lib/types";
-import { listProductsForCreator } from "@/lib/supabase/products";
-import { useSaleRepository } from "@/lib/repositories/SaleRepository";
-import { createClient } from "@/lib/supabase/client";
-import { getCreatorBalance } from "@/lib/supabase/wallet";
-import { getCurrentCreatorClient } from "@/lib/supabase/current-creator-client";
-import { StatCard } from "@/components/StatCard";
-import { StatusBadge } from "@/components/StatusBadge";
-import { DashboardLoading } from "@/components/DashboardLoading";
+import Link from "next/link";
 import {
-  DollarSign,
-  Package,
-  Wallet,
-  Receipt,
-  MessageSquare,
-  Megaphone,
-  Ticket,
-  Users,
-  BarChart3,
-  Settings,
-  Loader2,
+  ArrowRight,
   BriefcaseBusiness,
+  MessageSquare,
+  PackagePlus,
+  Receipt,
+  Store,
+  Wallet,
 } from "lucide-react";
+import { DashboardPageHeader } from "@/components/DashboardPageHeader";
+import { StatCard } from "@/components/StatCard";
+import { getCurrentUser } from "@/lib/supabase/session";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { listProductsForCreator } from "@/lib/supabase/products";
+import { getCreatorBalance } from "@/lib/supabase/wallet";
+import { getCreatorWorkSummary, listCreatorSales } from "@/lib/supabase/dashboard";
 
-function formatBRL(value: number): string {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+function formatBRL(cents: number): string {
+  return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-/**
- * useLinkStatus só funciona num componente filho do Link (lê o estado de
- * pendência daquele link específico via contexto) — por isso não dá pra
- * chamar o hook direto no componente que renderiza o <Link>. Sem isso, o
- * card ficava sem nenhum feedback entre o toque e a navegação terminar.
- */
-function HubCardIcon({ icon: Icon }: { icon: LucideIcon }) {
-  const { pending } = useLinkStatus();
-  if (pending) return <Loader2 size={20} className="animate-spin text-(--color-accent-text)" strokeWidth={1.5} />;
-  return <Icon size={20} strokeWidth={1.5} className="text-(--color-accent-text)" />;
+function formatDeadline(value: string): string {
+  return new Date(value).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
-/**
- * O painel é hub-style: as seções vivem só aqui, como cards — não há mais
- * nav/dropdown persistente em cada subpágina (ver DashboardBackLink, que
- * só devolve pra este hub). "Meu perfil" fica de fora: já é acessível pelo
- * cabeçalho/nav do site, essa lista é só o que é exclusivo do painel.
- */
-const SECTIONS = [
-  { href: "/dashboard/oportunidades", label: "Oportunidades", icon: BriefcaseBusiness },
-  { href: "/dashboard/produtos", label: "Produtos", icon: Package },
-  { href: "/dashboard/servicos", label: "Serviços", icon: Megaphone },
-  { href: "/dashboard/vendas", label: "Vendas", icon: Receipt },
-  { href: "/dashboard/pedidos-personalizados", label: "Pedidos personalizados", icon: MessageSquare },
-  { href: "/dashboard/carteira", label: "Carteira", icon: Wallet },
-  { href: "/dashboard/cupons", label: "Cupons", icon: Ticket },
-  { href: "/dashboard/afiliados", label: "Afiliados", icon: Users, disabled: true },
-  { href: "/dashboard/estatisticas", label: "Estatísticas", icon: BarChart3 },
-  { href: "/dashboard/configuracoes", label: "Configurações", icon: Settings },
-];
+export default async function DashboardOverviewPage() {
+  const creator = await getCurrentUser();
+  if (!creator?.creatorProfile) return null;
 
-export default function DashboardOverviewPage() {
-  const saleRepo = useSaleRepository();
-  const [creator, setCreator] = useState<User | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [available, setAvailable] = useState(0);
+  const supabase = await createServerClient();
+  const [products, balance, sales, work] = await Promise.all([
+    listProductsForCreator(supabase, creator.id),
+    getCreatorBalance(supabase, creator.id),
+    listCreatorSales(supabase, creator.id),
+    getCreatorWorkSummary(supabase, creator.id),
+  ]);
 
-  useEffect(() => {
-    (async () => {
-      const c = await getCurrentCreatorClient();
-      setCreator(c);
-      const supabase = createClient();
-      setProducts(await listProductsForCreator(supabase, c.id));
-      const balance = await getCreatorBalance(supabase, c.id);
-      setAvailable(balance.availableCents / 100);
-    })();
-  }, []);
+  const totalReceived = sales.reduce((sum, sale) => sum + sale.creatorAmountCents, 0);
+  const publishedProducts = products.filter((product) => product.status === "approved").length;
 
-  const sales = creator ? saleRepo.findByCreator(creator.id) : [];
-  const totalVendas = sales.reduce((sum, s) => sum + s.grossAmount, 0);
-  const produtosVendidos = new Set(sales.map((s) => s.productId)).size;
+  const salesByMonth = new Map<string, { label: string; total: number }>();
+  for (const sale of sales) {
+    const date = new Date(sale.confirmedAt);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    const current = salesByMonth.get(key) ?? {
+      label: date.toLocaleDateString("pt-BR", { month: "short" }).replace(".", ""),
+      total: 0,
+    };
+    current.total += sale.creatorAmountCents;
+    salesByMonth.set(key, current);
+  }
+  const monthly = [...salesByMonth.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-6)
+    .map(([, value]) => value);
+  const maxMonth = Math.max(1, ...monthly.map((item) => item.total));
 
-  const salesByMonth = sales.reduce<Record<string, number>>((acc, s) => {
-    const key = new Date(s.createdAt).toLocaleDateString("pt-BR", { month: "short" });
-    acc[key] = (acc[key] ?? 0) + s.grossAmount;
-    return acc;
-  }, {});
-  const maxMonth = Math.max(1, ...Object.values(salesByMonth));
-
-  const topProducts = [...products].sort((a, b) => b.salesCount - a.salesCount).slice(0, 5);
-
-  // Os cards de navegação não dependem de nenhum dado assíncrono — não faz
-  // sentido travar eles atrás do carregamento de identidade/saldo, que é
-  // exatamente o que a pessoa clicaria pra fugir dessa tela. Só as
-  // estatísticas abaixo esperam `creator`.
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold text-(--color-text)">Dashboard</h1>
-        <p className="text-sm text-(--color-text-muted)">Você recebe pelas vendas realizadas.</p>
-      </div>
+    <div className="flex flex-col gap-7">
+      <DashboardPageHeader
+        eyebrow="Visão geral"
+        title={`Oi, ${creator.displayName.split(" ")[0]}`}
+        description="O que está acontecendo com seus trabalhos e seu dinheiro agora."
+      />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {SECTIONS.map((section) =>
-          section.disabled ? (
-            <span
-              key={section.href}
-              title="Em breve"
-              className="flex flex-col items-center gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-center text-sm text-(--color-text-subtle)"
-            >
-              <section.icon size={20} strokeWidth={1.5} />
-              {section.label}
-            </span>
-          ) : (
-            <Link
-              key={section.href}
-              href={section.href}
-              className="flex flex-col items-center gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 text-center text-sm text-(--color-text) shadow-sm transition-transform hover:border-(--color-accent-text) active:scale-95 active:bg-(--color-surface-2)"
-            >
-              <HubCardIcon icon={section.icon} />
-              {section.label}
-            </Link>
-          ),
-        )}
-      </div>
-
-      {!creator ? (
-        <DashboardLoading />
-      ) : (
-        <>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard label="Vendas totais" value={formatBRL(totalVendas)} icon={DollarSign} />
-        <StatCard label="Produtos vendidos" value={String(produtosVendidos)} icon={Package} />
-        <StatCard label="Saldo disponível" value={formatBRL(available)} icon={Wallet} />
+        <StatCard
+          label="Saldo disponível"
+          value={formatBRL(balance.availableCents)}
+          icon={Wallet}
+          hint="Pronto para solicitar saque."
+        />
+        <StatCard
+          label="Recebido em vendas"
+          value={formatBRL(totalReceived)}
+          icon={Receipt}
+          hint={`${sales.length} ${sales.length === 1 ? "venda confirmada" : "vendas confirmadas"}`}
+        />
+        <StatCard
+          label="Trabalhos em produção"
+          value={String(work.inProduction)}
+          icon={BriefcaseBusiness}
+          hint={work.waitingForClient > 0 ? `${work.waitingForClient} aguardando o cliente` : "Nenhum esperando confirmação."}
+        />
       </div>
 
-      <div className="rounded-lg border border-(--color-border) p-4">
-        <h2 className="mb-3 text-sm font-medium text-(--color-text)">Vendas por mês</h2>
-        {Object.keys(salesByMonth).length === 0 ? (
-          <p className="text-sm text-(--color-text-muted)">Nenhuma venda foi realizada neste período.</p>
-        ) : (
-          <div className="flex items-end gap-3">
-            {Object.entries(salesByMonth).map(([month, total]) => (
-              <div key={month} className="flex flex-col items-center gap-1">
-                <div
-                  className="w-8 rounded-t-sm bg-(--color-accent)"
-                  style={{ height: `${Math.max(8, (total / maxMonth) * 100)}px` }}
-                  title={formatBRL(total)}
-                />
-                <span className="text-xs text-(--color-text-subtle)">{month}</span>
-              </div>
-            ))}
+      {work.nextDeadline ? (
+        <Link
+          href={`/dashboard/pedidos-personalizados/${work.nextDeadline.customRequestId}`}
+          className="flex items-center justify-between gap-4 rounded-2xl bg-(--color-contrast) p-4 text-(--color-on-contrast) shadow-sm"
+        >
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.13em] opacity-60">Próximo prazo</p>
+            <p className="mt-1 truncate font-semibold">{work.nextDeadline.serviceType}</p>
+            <p className="mt-1 text-xs opacity-70">{formatDeadline(work.nextDeadline.deliveryDeadlineAt)}</p>
           </div>
-        )}
-      </div>
+          <ArrowRight size={18} className="shrink-0 text-(--color-accent)" strokeWidth={1.7} />
+        </Link>
+      ) : null}
 
-      <div className="rounded-lg border border-(--color-border)">
-        <h2 className="border-b border-(--color-border) px-4 py-3 text-sm font-medium text-(--color-text)">
-          Últimas vendas
-        </h2>
-        {sales.length === 0 ? (
-          <p className="px-4 py-3 text-sm text-(--color-text-muted)">
-            Nenhuma venda foi realizada neste período.
-          </p>
-        ) : (
-          <table className="w-full text-sm">
-            <tbody>
-              {sales
-                .slice()
-                .reverse()
-                .slice(0, 6)
-                .map((s) => (
-                  <tr key={s.id} className="border-b border-(--color-border) last:border-0">
-                    <td className="px-4 py-2 text-(--color-text)">{s.productId}</td>
-                    <td className="px-4 py-2 text-(--color-text-muted)">
-                      {new Date(s.createdAt).toLocaleDateString("pt-BR")}
-                    </td>
-                    <td className="px-4 py-2 text-right font-medium text-(--color-text)">
-                      {formatBRL(s.creatorAmount)}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <section className="flex flex-col gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-(--color-text)">Atalhos</h2>
+          <p className="mt-0.5 text-xs text-(--color-text-muted)">As ações que você mais usa no dia a dia.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <QuickLink
+            href="/dashboard/pedidos-personalizados"
+            icon={MessageSquare}
+            title="Pedidos"
+            detail={work.openRequests > 0 ? `${work.openRequests} conversa(s) aberta(s)` : "Ver conversas"}
+          />
+          <QuickLink
+            href="/dashboard/oportunidades"
+            icon={BriefcaseBusiness}
+            title="Oportunidades"
+            detail="Encontrar novos trabalhos"
+          />
+          <QuickLink
+            href="/dashboard/servicos"
+            icon={Store}
+            title="Serviços"
+            detail="Criar ou editar anúncio"
+          />
+          <QuickLink
+            href="/dashboard/produtos/novo"
+            icon={PackagePlus}
+            title="Novo produto"
+            detail={`${publishedProducts} publicado(s)`}
+          />
+        </div>
+      </section>
 
-      <div className="rounded-lg border border-(--color-border)">
-        <h2 className="border-b border-(--color-border) px-4 py-3 text-sm font-medium text-(--color-text)">
-          Produtos com melhor desempenho
-        </h2>
-        {topProducts.length === 0 ? (
-          <p className="px-4 py-3 text-sm text-(--color-text-muted)">Nenhum produto publicado ainda.</p>
-        ) : (
-          <table className="w-full text-sm">
-            <tbody>
-              {topProducts.map((p) => (
-                <tr key={p.id} className="border-b border-(--color-border) last:border-0">
-                  <td className="px-4 py-2 text-(--color-text)">{p.title}</td>
-                  <td className="px-4 py-2 text-(--color-text-muted)">{p.salesCount} vendas</td>
-                  <td className="px-4 py-2 text-right">
-                    <StatusBadge status={p.status} />
-                  </td>
-                </tr>
+      <section className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-(--color-text)">Recebido por mês</h2>
+              <p className="mt-0.5 text-xs text-(--color-text-muted)">Valor líquido que ficou para você.</p>
+            </div>
+            <Link href="/dashboard/estatisticas" className="text-xs font-medium text-(--color-accent-text) hover:underline">
+              Ver detalhes
+            </Link>
+          </div>
+
+          {monthly.length === 0 ? (
+            <p className="mt-8 text-sm text-(--color-text-muted)">As vendas confirmadas vão aparecer aqui.</p>
+          ) : (
+            <div className="mt-5 flex h-36 items-end gap-3">
+              {monthly.map((item, index) => (
+                <div key={`${item.label}-${index}`} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+                  <div className="flex h-28 w-full items-end justify-center rounded-xl bg-(--color-surface-2) px-2 pt-2">
+                    <div
+                      className="w-full max-w-10 rounded-t-lg bg-(--color-accent)"
+                      style={{ height: `${Math.max(8, (item.total / maxMonth) * 100)}%` }}
+                      title={formatBRL(item.total)}
+                    />
+                  </div>
+                  <span className="text-[11px] capitalize text-(--color-text-subtle)">{item.label}</span>
+                </div>
               ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-        </>
-      )}
+            </div>
+          )}
+        </div>
+
+        <div className="overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm">
+          <div className="flex items-center justify-between gap-3 border-b border-(--color-border) px-4 py-3">
+            <div>
+              <h2 className="text-sm font-semibold text-(--color-text)">Últimas vendas</h2>
+              <p className="mt-0.5 text-xs text-(--color-text-subtle)">Pagamentos já confirmados.</p>
+            </div>
+            <Link href="/dashboard/vendas" className="text-xs font-medium text-(--color-accent-text) hover:underline">
+              Ver todas
+            </Link>
+          </div>
+
+          {sales.length === 0 ? (
+            <p className="px-4 py-8 text-sm text-(--color-text-muted)">Nenhuma venda confirmada ainda.</p>
+          ) : (
+            <div className="divide-y divide-(--color-border)">
+              {sales.slice(0, 5).map((sale) => (
+                <div key={sale.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-(--color-text)">{sale.title}</p>
+                    <p className="mt-0.5 truncate text-xs text-(--color-text-subtle)">
+                      {sale.buyerName} · {new Date(sale.confirmedAt).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-semibold text-(--color-text)">
+                    {formatBRL(sale.creatorAmountCents)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
     </div>
+  );
+}
+
+function QuickLink({
+  href,
+  icon: Icon,
+  title,
+  detail,
+}: {
+  href: string;
+  icon: typeof MessageSquare;
+  title: string;
+  detail: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex min-w-0 flex-col gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-colors hover:border-(--color-accent-text)"
+    >
+      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-(--color-surface-2)">
+        <Icon size={17} className="text-(--color-accent-text)" strokeWidth={1.7} />
+      </span>
+      <div className="min-w-0">
+        <p className="font-semibold text-(--color-text)">{title}</p>
+        <p className="mt-0.5 truncate text-xs text-(--color-text-muted)">{detail}</p>
+      </div>
+    </Link>
   );
 }

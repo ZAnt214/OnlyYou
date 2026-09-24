@@ -1,5 +1,22 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Dashboard passa a usar vendas reais e remove dados falsos
+
+- Criado `lib/supabase/dashboard.ts`: vendas agora vêm de `payment_confirmations` com
+  `status = paid`, enriquecidas com produto/serviço e nome do cliente. Também calcula o resumo
+  real de pedidos personalizados (abertos, em produção, entregues aguardando cliente e pagamento).
+- A Visão geral foi refeita como página de trabalho: saldo disponível, receita confirmada, pedidos
+  em produção, próximo prazo, atalhos, gráfico mensal e últimas vendas. Tudo usa Supabase real.
+- `/dashboard/vendas` deixou de usar `SaleRepository`, `OrderRepository` e usuários mock.
+  A página agora mostra apenas pagamentos confirmados, com versão em cards no mobile e tabela no desktop.
+- `/dashboard/estatisticas` deixou de usar vendas mock. Receita, média por venda e gráfico mensal
+  usam pagamentos reais; avaliação usa a nota real do perfil.
+- `/dashboard/cupons` não mostra mais cupons de `lib/data/coupons.ts`. Como a função ainda não
+  existe no banco/checkout, a tela informa isso claramente e saiu da navegação principal.
+- Essa mudança elimina a situação em que o criador podia ver números de demonstração misturados
+  com dados reais do próprio painel.
+
+
 ## 2026-09-23 — Navegação persistente e base visual do dashboard
 
 - O dashboard deixou de depender do fluxo “volta ao hub para trocar de seção”. Em desktop agora há
