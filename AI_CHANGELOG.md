@@ -1,5 +1,12 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Corrige migration de segurança do avatar
+
+- Corrigidos comentários inválidos `//` para comentários SQL `--` em
+  `20260924001000_harden_creator_avatar_upload.sql`.
+- Nenhuma regra de segurança mudou; foi apenas uma correção de sintaxe necessária para aplicar a migration.
+
+
 ## 2026-09-24 — Endurece segurança do upload da foto de perfil
 
 - Objetivo: aplicar as três proteções pedidas para foto de perfil: validar o arquivo real,
