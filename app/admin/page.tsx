@@ -27,9 +27,8 @@ export default async function AdminOverviewPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-semibold text-(--color-text)">Visão geral</h1>
         <p className="text-sm text-(--color-text-muted)">
-          Painel administrativo simplificado — o acesso é limitado a usuários com o papel
-          &quot;admin&quot;, mas nesta fase a checagem usa um usuário mock fixo, não autenticação
-          real (ver TODO em lib/security/adminAuth.ts).
+          Acompanhe a operação do Jobê, pagamentos, saques e ocorrências que precisam de atenção.
+          Esta área é restrita a contas com permissão administrativa.
         </p>
       </div>
 
