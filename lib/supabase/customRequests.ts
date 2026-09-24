@@ -750,3 +750,65 @@ export async function submitCustomOrderReview(
   });
   return mapCustomOrderReview(unwrap(data, error) as CustomOrderReviewRow);
 }
+
+
+export interface AdminConversationSummary {
+  conversationId: string;
+  requestId: string;
+  requestStatus: string;
+  requesterName: string;
+  creatorName: string;
+  lastMessageContent: string | null;
+  lastMessageAt: string;
+  relatedReports: number;
+}
+
+export interface AdminConversationPage {
+  items: AdminConversationSummary[];
+  totalCount: number;
+}
+
+export async function listAdminConversationSummaries(
+  supabase: SupabaseClient,
+  params: {
+    status?: string;
+    query?: string;
+    limit?: number;
+    offset?: number;
+  } = {},
+): Promise<AdminConversationPage> {
+  const { data, error } = await supabase.rpc("list_admin_conversations", {
+    p_status: params.status ?? null,
+    p_query: params.query ?? null,
+    p_limit: params.limit ?? 50,
+    p_offset: params.offset ?? 0,
+  });
+
+  if (error) throw new Error(error.message);
+
+  const rows = (data ?? []) as Array<{
+    conversation_id: string;
+    request_id: string;
+    request_status: string;
+    requester_name: string;
+    creator_name: string;
+    last_message_content: string | null;
+    last_message_at: string;
+    related_reports: number | string;
+    total_count: number | string;
+  }>;
+
+  return {
+    items: rows.map((row) => ({
+      conversationId: row.conversation_id,
+      requestId: row.request_id,
+      requestStatus: row.request_status,
+      requesterName: row.requester_name,
+      creatorName: row.creator_name,
+      lastMessageContent: row.last_message_content,
+      lastMessageAt: row.last_message_at,
+      relatedReports: Number(row.related_reports),
+    })),
+    totalCount: rows.length > 0 ? Number(rows[0].total_count) : 0,
+  };
+}
