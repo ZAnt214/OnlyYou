@@ -61,7 +61,13 @@ export function DashboardNav({ variant }: { variant: "desktop" | "mobile" }) {
   const pathname = usePathname();
 
   if (variant === "mobile") {
-    const items: DashboardNavItem[] = DASHBOARD_NAV_GROUPS.flatMap((group) => group.items);
+    const items: DashboardNavItem[] = DASHBOARD_NAV_GROUPS.flatMap((group) => group.items).filter(
+      (item) =>
+        item.href === "/dashboard/oportunidades" ||
+        item.href === "/dashboard/vendas" ||
+        item.href === "/dashboard/estatisticas" ||
+        item.href === "/dashboard/configuracoes",
+    );
     return (
       <nav
         aria-label="Seções do painel"
