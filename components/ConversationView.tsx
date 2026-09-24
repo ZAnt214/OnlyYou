@@ -560,7 +560,10 @@ export function ConversationView({
     setBusy(true);
     setUploadingAttachment(true);
     try {
-      const fileUrl = await uploadFile(attachmentFile, "delivery");
+      const fileUrl = await uploadFile(attachmentFile, "delivery", {
+        creatorId: customServiceOrder.creatorId,
+        customServiceOrderId: customServiceOrder.id,
+      });
       await sendCustomAttachment(supabase, {
         conversationId: conversation.id,
         customServiceOrderId: customServiceOrder.id,

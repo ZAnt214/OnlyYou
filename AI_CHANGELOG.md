@@ -1,5 +1,27 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Produtos ganham rascunho real, edição e arquivo com escopo do criador
+
+- Criado `ProductEditor`: criação e edição usam a mesma tela, sem wizard obrigatório. O criador
+  pode preencher aos poucos, salvar rascunho e voltar depois.
+- Nova rota `/dashboard/produtos/[id]/editar`; a lista de produtos ganhou ação Editar e rascunhos
+  usam “Continuar” em vez de tentar publicar conteúdo incompleto.
+- Publicação exige descrição, preço e arquivo. Rascunho exige apenas o básico e pode ser salvo sem
+  arquivo final.
+- O editor mostra checklist de publicação, valor líquido estimado, upload de capa/prévias e estado
+  claro de upload/salvamento. Inputs seguem 16px no mobile.
+- Upload de `product-file` agora usa namespace `creator-files/<creatorId>/products/`. A rota de
+  autorização confirma que o usuário autenticado é exatamente o dono daquele namespace.
+- Upload de arquivo de trabalho no chat também ganhou escopo do pedido: o token só é emitido para
+  `creator-deliveries/<creatorId>/<orderId>/` e a rota confirma aquele pedido específico em produção.
+- Nova migration torna rascunhos reais no banco e impede que arquivo novo de produto seja ligado
+  a outro criador. Arquivos legados já associados continuam editáveis para não quebrar produtos antigos.
+- Arquivos: `components/ProductEditor.tsx`, `app/dashboard/produtos/novo/page.tsx`,
+  `app/dashboard/produtos/[id]/editar/page.tsx`, `app/dashboard/produtos/page.tsx`,
+  `lib/uploadFile.ts`, `app/api/upload/route.ts`, `components/ConversationView.tsx`,
+  `supabase/migrations/20260924021000_real_product_drafts_and_file_scope.sql`.
+
+
 ## 2026-09-24 — Redesenha gerenciamento de serviços do criador
 
 - `/dashboard/servicos` passou a usar o mesmo cabeçalho e hierarquia do novo dashboard.

@@ -42,11 +42,26 @@ const KIND_RULES = {
 
 type UploadKind = keyof typeof KIND_RULES;
 
-function parseKind(clientPayload: string | null): UploadKind | null {
+interface UploadPayload {
+  kind: UploadKind;
+  creatorId?: string;
+  customServiceOrderId?: string;
+}
+
+function parsePayload(clientPayload: string | null): UploadPayload | null {
   if (!clientPayload) return null;
   try {
-    const { kind } = JSON.parse(clientPayload) as { kind?: string };
-    return kind && kind in KIND_RULES ? (kind as UploadKind) : null;
+    const value = JSON.parse(clientPayload) as {
+      kind?: string;
+      creatorId?: string;
+      customServiceOrderId?: string;
+    };
+    if (!value.kind || !(value.kind in KIND_RULES)) return null;
+    return {
+      kind: value.kind as UploadKind,
+      creatorId: value.creatorId,
+      customServiceOrderId: value.customServiceOrderId,
+    };
   } catch {
     return null;
   }
@@ -73,32 +88,50 @@ export async function POST(request: Request): Promise<NextResponse> {
     const jsonResponse = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async (_pathname, clientPayload) => {
+      onBeforeGenerateToken: async (pathname, clientPayload) => {
         const user = await getCurrentUser();
         if (!user) {
           throw new Error("É necessário estar autenticado para enviar arquivos.");
         }
 
-        const kind = parseKind(clientPayload ?? null);
-        if (!kind) {
+        const payload = parsePayload(clientPayload ?? null);
+        if (!payload) {
           throw new Error("Tipo de upload inválido.");
         }
 
-        if (kind === "product-file" && !user.creatorProfile) {
-          throw new Error("Só criadores podem enviar arquivos de produto.");
+        const { kind } = payload;
+
+        if (kind === "product-file") {
+          if (!user.creatorProfile || payload.creatorId !== user.id) {
+            throw new Error("Só o próprio criador pode enviar este arquivo.");
+          }
+          const prefix = `creator-files/${user.id}/products/`;
+          if (!pathname.startsWith(prefix)) {
+            throw new Error("Destino de arquivo inválido.");
+          }
         }
 
         if (kind === "delivery") {
+          if (
+            payload.creatorId !== user.id ||
+            !payload.customServiceOrderId ||
+            !pathname.startsWith(
+              `creator-deliveries/${user.id}/${payload.customServiceOrderId}/`,
+            )
+          ) {
+            throw new Error("Destino de entrega inválido.");
+          }
+
           const supabase = await createServerClient();
           const { data: activeOrder } = await supabase
             .from("custom_service_orders")
             .select("id")
+            .eq("id", payload.customServiceOrderId)
             .eq("creator_id", user.id)
             .eq("status", "in_progress")
-            .limit(1)
             .maybeSingle();
           if (!activeOrder) {
-            throw new Error("Só é possível enviar arquivo de entrega de um pedido em produção.");
+            throw new Error("Este pedido não está disponível para envio de arquivos.");
           }
         }
 
@@ -107,7 +140,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           allowedContentTypes: [...rules.allowedContentTypes],
           addRandomSuffix: true,
           maximumSizeInBytes: rules.maximumSizeInBytes,
-          tokenPayload: JSON.stringify({ userId: user.id, kind }),
+          tokenPayload: JSON.stringify({ userId: user.id, ...payload }),
         };
       },
       onUploadCompleted: async () => {

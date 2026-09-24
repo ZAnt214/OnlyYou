@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { listProductsForCreator, updateProduct, deleteProduct } from "@/lib/supabase/products";
@@ -152,14 +152,30 @@ export default function DashboardProdutosPage() {
               </div>
 
               <div className="flex items-center justify-between gap-2 border-t border-(--color-border) pt-3 sm:justify-end sm:border-0 sm:pt-0">
-                <button
-                  type="button"
-                  disabled={busyId === product.id}
-                  onClick={() => void handleTogglePause(product)}
-                  className="rounded-full border border-(--color-border) px-3 py-2 text-xs font-medium text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-60"
+                {product.status === "approved" ? (
+                  <button
+                    type="button"
+                    disabled={busyId === product.id}
+                    onClick={() => void handleTogglePause(product)}
+                    className="rounded-full border border-(--color-border) px-3 py-2 text-xs font-medium text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text) disabled:opacity-60"
+                  >
+                    {busyId === product.id ? "Salvando…" : "Despublicar"}
+                  </button>
+                ) : (
+                  <Link
+                    href={`/dashboard/produtos/${product.id}/editar`}
+                    className="rounded-full border border-(--color-border) px-3 py-2 text-xs font-medium text-(--color-text-muted) hover:bg-(--color-surface-2) hover:text-(--color-text)"
+                  >
+                    Continuar
+                  </Link>
+                )}
+                <Link
+                  href={`/dashboard/produtos/${product.id}/editar`}
+                  aria-label={`Editar ${product.title}`}
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-(--color-text-subtle) hover:bg-(--color-surface-2) hover:text-(--color-text)"
                 >
-                  {busyId === product.id ? "Salvando…" : product.status === "approved" ? "Despublicar" : "Publicar"}
-                </button>
+                  <Pencil size={15} strokeWidth={1.6} />
+                </Link>
                 <button
                   type="button"
                   disabled={busyId === product.id}

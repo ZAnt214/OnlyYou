@@ -8,6 +8,11 @@ function sanitizeFileName(name: string): string {
 
 export type UploadKind = "delivery" | "portfolio-image" | "product-image" | "product-file";
 
+export interface UploadContext {
+  creatorId?: string;
+  customServiceOrderId?: string;
+}
+
 const UPLOAD_TIMEOUT_MS = 60_000;
 const CREATOR_IMAGE_TIMEOUT_MS = 45_000;
 
@@ -89,18 +94,40 @@ async function uploadCreatorImage(
  * reconversão. Arquivos grandes de produto/entrega continuam usando upload
  * direto ao Blob para não bater no limite de payload das Functions.
  */
-export async function uploadFile(file: File, kind: UploadKind): Promise<string> {
+export async function uploadFile(
+  file: File,
+  kind: UploadKind,
+  context: UploadContext = {},
+): Promise<string> {
   if (kind === "portfolio-image" || kind === "product-image") {
     return uploadCreatorImage(file, kind);
+  }
+
+  let pathname = sanitizeFileName(file.name);
+  const payload: Record<string, string> = { kind };
+
+  if (kind === "product-file") {
+    if (!context.creatorId) throw new Error("Não foi possível identificar o dono deste arquivo.");
+    pathname = `creator-files/${context.creatorId}/products/${pathname}`;
+    payload.creatorId = context.creatorId;
+  }
+
+  if (kind === "delivery") {
+    if (!context.creatorId || !context.customServiceOrderId) {
+      throw new Error("Não foi possível identificar o pedido deste arquivo.");
+    }
+    pathname = `creator-deliveries/${context.creatorId}/${context.customServiceOrderId}/${pathname}`;
+    payload.creatorId = context.creatorId;
+    payload.customServiceOrderId = context.customServiceOrderId;
   }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
   try {
-    const blob = await upload(sanitizeFileName(file.name), file, {
+    const blob = await upload(pathname, file, {
       access: "public",
       handleUploadUrl: "/api/upload",
-      clientPayload: JSON.stringify({ kind }),
+      clientPayload: JSON.stringify(payload),
       abortSignal: controller.signal,
       multipart: file.size > 10 * 1024 * 1024,
     });
