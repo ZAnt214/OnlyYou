@@ -14,6 +14,8 @@ export interface CreatorProfile {
   rating: number;
   ratingCount: number;
   productCount: number;
+  /** Imagem de destaque horizontal do perfil do criador. */
+  cover?: string;
   /**
    * Tags selecionáveis de "O que ofereço", editadas em /dashboard/configuracoes.
    * Diferente das tags de produto (derivadas automaticamente dos produtos
