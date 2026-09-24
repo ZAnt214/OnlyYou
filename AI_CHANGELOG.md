@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Configurações avisam antes de perder alterações
+
+- Enquanto nome, bio, serviços ou descrição estiverem diferentes do último salvamento, a tela
+  mostra “Você tem alterações não salvas”.
+- Recarregar/fechar a página usa a proteção nativa do navegador.
+- Links internos do Jobê pedem confirmação antes de abandonar o formulário com mudanças pendentes.
+- Cliques modificados (Ctrl/Cmd, abrir em nova aba) e links externos não são interceptados.
+
+
 ## 2026-09-24 — Serviços ganha busca e retry de carregamento
 
 - `/dashboard/servicos` agora permite buscar por título, categoria ou jogo.
