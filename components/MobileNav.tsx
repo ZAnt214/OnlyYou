@@ -2,7 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Library, MessageSquare, LayoutDashboard, BriefcaseBusiness } from "lucide-react";
+import {
+  Home,
+  Compass,
+  Library,
+  MessageSquare,
+  LayoutDashboard,
+  BriefcaseBusiness,
+  Package,
+  Store,
+  Wallet,
+} from "lucide-react";
 import { useCreatorUsername } from "@/lib/supabase/useCreatorUsername";
 import { isConversationScreenPath } from "@/lib/isConversationScreenPath";
 
@@ -12,28 +22,47 @@ export function MobileNav() {
 
   const inDashboard = pathname.startsWith("/dashboard");
 
-  const TABS = [
-    { href: "/", label: "Início", icon: Home },
-    { href: "/descobrir", label: "Explorar", icon: Compass },
-    { href: "/oportunidades", label: "Pedidos", icon: BriefcaseBusiness },
-    { href: "/biblioteca", label: "Biblioteca", icon: Library },
-    { href: "/pedidos", label: "Conversas", icon: MessageSquare },
-    inDashboard
-      ? {
+  const TABS = inDashboard
+    ? [
+        {
           href: "/dashboard",
           label: "Painel",
           icon: LayoutDashboard,
-          matchPrefixes: ["/dashboard"],
-          excludePrefixes: ["/dashboard/oportunidades"],
-        }
-      : {
+          exact: true,
+        },
+        {
+          href: "/dashboard/pedidos-personalizados",
+          label: "Pedidos",
+          icon: MessageSquare,
+        },
+        {
+          href: "/dashboard/servicos",
+          label: "Serviços",
+          icon: Store,
+        },
+        {
+          href: "/dashboard/produtos",
+          label: "Produtos",
+          icon: Package,
+        },
+        {
+          href: "/dashboard/carteira",
+          label: "Carteira",
+          icon: Wallet,
+        },
+      ]
+    : [
+        { href: "/", label: "Início", icon: Home, exact: true },
+        { href: "/descobrir", label: "Explorar", icon: Compass },
+        { href: "/oportunidades", label: "Pedidos", icon: BriefcaseBusiness },
+        { href: "/biblioteca", label: "Biblioteca", icon: Library },
+        { href: "/pedidos", label: "Conversas", icon: MessageSquare },
+        {
           href: creatorUsername ? `/criadores/${creatorUsername}` : "/dashboard",
           label: "Perfil",
           icon: LayoutDashboard,
-          matchPrefixes: creatorUsername ? [`/criadores/${creatorUsername}`] : ["/dashboard"],
-          excludePrefixes: ["/oportunidades"],
         },
-  ];
+      ];
 
   // Tela de conversa é tela cheia de verdade — sem nav do site por trás.
   if (isConversationScreenPath(pathname)) return null;
@@ -44,10 +73,10 @@ export function MobileNav() {
       className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-around border-t border-(--color-border) bg-(--color-bg) px-1 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden"
     >
       {TABS.map((tab) => {
-        const prefixes = tab.matchPrefixes ?? [tab.href];
-        const excluded = tab.excludePrefixes?.some((prefix) => pathname.startsWith(prefix)) ?? false;
         const active =
-          !excluded && (pathname === tab.href || (tab.href !== "/" && prefixes.some((p) => pathname.startsWith(p))));
+          "exact" in tab && tab.exact
+            ? pathname === tab.href
+            : pathname === tab.href || (tab.href !== "/" && pathname.startsWith(`${tab.href}/`));
         return (
           <Link
             key={tab.href}
