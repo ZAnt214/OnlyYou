@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link, { useLinkStatus } from "next/link";
-import { MessageSquare, ChevronRight, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { MessageSquare, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   listCustomRequestsForCreator,
@@ -12,6 +12,7 @@ import {
 } from "@/lib/supabase/customRequests";
 import { StatusBadge } from "@/components/StatusBadge";
 import { RatingStars } from "@/components/RatingStars";
+import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { EmptyState } from "@/components/EmptyState";
 import type { CustomRequest, CustomProposal, CustomServiceOrder } from "@/lib/types";
 
@@ -23,6 +24,7 @@ interface RequestRow {
   request: CustomRequest;
   proposal: CustomProposal | undefined;
   customServiceOrder: CustomServiceOrder | null;
+  counterpartId: string;
   counterpartName: string;
   counterpartRating: number;
   counterpartRatingCount: number;
@@ -50,6 +52,8 @@ export function CustomRequestsList({
   role: "creator" | "requester" | "all";
 }) {
   const [rows, setRows] = useState<RequestRow[] | null>(null);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "production" | "negotiation" | "completed">("all");
 
   useEffect(() => {
     if (!userId) return;
@@ -76,6 +80,7 @@ export function CustomRequestsList({
             request,
             proposal,
             customServiceOrder,
+            counterpartId,
             counterpartName: counterpart?.display_name ?? counterpart?.username ?? "Usuário",
             counterpartRating: counterpart?.rating ?? 0,
             counterpartRatingCount: counterpart?.rating_count ?? 0,
@@ -149,6 +154,208 @@ export function CustomRequestsList({
     );
   }
 
+  if (role === "all") {
+    const query = search.trim().toLocaleLowerCase("pt-BR");
+    const statusFor = (row: RequestRow) => row.customServiceOrder?.status ?? row.request.status;
+    const isProduction = (row: RequestRow) => statusFor(row) === "in_progress";
+    const isNegotiation = (row: RequestRow) =>
+      ["pending", "negotiating", "proposal_sent", "accepted", "awaiting_payment", "paid"].includes(
+        statusFor(row),
+      );
+    const isCompleted = (row: RequestRow) =>
+      ["delivered", "completed"].includes(statusFor(row));
+
+    const filteredRows = rows.filter((row) => {
+      const service = row.proposal?.serviceType || row.request.description;
+      const matchesSearch =
+        !query ||
+        row.counterpartName.toLocaleLowerCase("pt-BR").includes(query) ||
+        service.toLocaleLowerCase("pt-BR").includes(query);
+
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "production" && isProduction(row)) ||
+        (filter === "negotiation" && isNegotiation(row)) ||
+        (filter === "completed" && isCompleted(row));
+
+      return matchesSearch && matchesFilter;
+    });
+
+    const priorityRow = filteredRows.find(isProduction) ?? null;
+    const recentRows = priorityRow
+      ? filteredRows.filter((row) => row.request.id !== priorityRow.request.id)
+      : filteredRows;
+
+    function conversationHref(row: RequestRow): string {
+      return `${row.myRole === "creator" ? "/dashboard/pedidos-personalizados" : "/pedidos"}/${row.request.id}`;
+    }
+
+    function serviceLabel(row: RequestRow): string {
+      return row.proposal?.serviceType || row.request.description;
+    }
+
+    function rowPrice(row: RequestRow): string | null {
+      if (row.customServiceOrder) return formatBRLFromCents(row.customServiceOrder.agreedAmountCents);
+      if (row.proposal) return formatBRLFromCents(row.proposal.priceCents);
+      return null;
+    }
+
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight text-(--color-text)">Mensagens</h1>
+            <p className="mt-1 text-sm text-(--color-text-muted)">
+              Conversas, propostas e pedidos personalizados.
+            </p>
+          </div>
+          <span className="flex-shrink-0 text-3xl font-bold leading-none text-(--color-accent)">
+            {rows.length}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Buscar conversa ou serviço"
+            aria-label="Buscar conversa ou serviço"
+            className="w-full rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 text-base text-(--color-text) shadow-sm outline-none transition-colors placeholder:text-(--color-text-subtle) focus:border-(--color-accent-text) sm:text-sm"
+          />
+
+          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+            {[
+              ["all", "Todas"],
+              ["production", "Produção"],
+              ["negotiation", "Negociação"],
+              ["completed", "Concluídas"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setFilter(value as typeof filter)}
+                className={`flex-shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  filter === value
+                    ? "border-(--color-contrast) bg-(--color-contrast) text-(--color-on-contrast)"
+                    : "border-(--color-border) bg-(--color-surface) text-(--color-text-muted) hover:border-(--color-accent-text)"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {filteredRows.length === 0 ? (
+          <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-10 text-center">
+            <p className="font-semibold text-(--color-text)">Nenhuma conversa encontrada</p>
+            <p className="mt-1 text-sm text-(--color-text-muted)">
+              Tente outro termo ou altere o filtro selecionado.
+            </p>
+          </div>
+        ) : (
+          <>
+            {priorityRow ? (
+              <section className="flex flex-col gap-2">
+                <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-text-subtle)">
+                  Prioridade
+                </p>
+                <Link
+                  href={conversationHref(priorityRow)}
+                  className="rounded-2xl bg-(--color-contrast) p-4 text-(--color-on-contrast) shadow-lg transition-opacity hover:opacity-95"
+                >
+                  <div className="flex items-start gap-3">
+                    <MediaPlaceholder
+                      seed={priorityRow.counterpartId}
+                      kind="avatar"
+                      label={priorityRow.counterpartName}
+                      className="h-10 w-10 flex-shrink-0 border-(--color-on-contrast)"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="truncate font-semibold text-(--color-on-contrast)">
+                          {priorityRow.counterpartName}
+                        </span>
+                        <StatusBadge status={statusFor(priorityRow)} variant="inline" />
+                      </div>
+                      <p className="mt-1 truncate text-sm text-(--color-on-contrast) opacity-75">
+                        {serviceLabel(priorityRow)}
+                      </p>
+                      <div className="mt-3 flex items-center justify-between gap-3 border-t border-(--color-on-contrast) pt-3">
+                        <span className="text-sm font-bold text-(--color-accent)">
+                          {rowPrice(priorityRow) ?? "Em andamento"}
+                        </span>
+                        <span className="text-xs text-(--color-on-contrast) opacity-65">
+                          {priorityRow.customServiceOrder
+                            ? `Prazo ${new Date(priorityRow.customServiceOrder.deliveryDeadlineAt).toLocaleDateString("pt-BR")}`
+                            : new Date(priorityRow.request.updatedAt).toLocaleDateString("pt-BR")}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </section>
+            ) : null}
+
+            {recentRows.length > 0 ? (
+              <section className="flex flex-col gap-2">
+                <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-(--color-text-subtle)">
+                  {priorityRow ? "Recentes" : "Conversas"}
+                </p>
+                <div className="overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface)">
+                  {recentRows.map((row, index) => (
+                    <Link
+                      key={row.request.id}
+                      href={conversationHref(row)}
+                      className={`flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-(--color-surface-2) ${
+                        index > 0 ? "border-t border-(--color-border)" : ""
+                      }`}
+                    >
+                      <MediaPlaceholder
+                        seed={row.counterpartId}
+                        kind="avatar"
+                        label={row.counterpartName}
+                        className="h-10 w-10 flex-shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="truncate font-semibold text-(--color-text)">
+                            {row.counterpartName}
+                          </span>
+                          <StatusBadge status={statusFor(row)} />
+                        </div>
+                        <p className="mt-1 truncate text-sm text-(--color-text-muted)">
+                          {serviceLabel(row)}
+                        </p>
+                        <div className="mt-1.5 flex min-w-0 items-center gap-2 text-xs text-(--color-text-subtle)">
+                          {row.counterpartRatingCount > 0 ? (
+                            <RatingStars
+                              rating={row.counterpartRating}
+                              ratingCount={row.counterpartRatingCount}
+                              size={12}
+                            />
+                          ) : null}
+                          <span className="truncate">
+                            {new Date(row.request.updatedAt).toLocaleDateString("pt-BR")}
+                            {rowPrice(row) ? ` · ${rowPrice(row)}` : ""}
+                            {row.customServiceOrder
+                              ? ` · prazo ${new Date(row.customServiceOrder.deliveryDeadlineAt).toLocaleDateString("pt-BR")}`
+                              : ""}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+          </>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
       {rows.map(
@@ -161,60 +368,33 @@ export function CustomRequestsList({
           counterpartRatingCount,
           myRole,
         }) => (
-        <Link
-          key={request.id}
-          href={`${myRole === "creator" ? "/dashboard/pedidos-personalizados" : "/pedidos"}/${request.id}`}
-          className="flex flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-colors hover:border-(--color-accent-text) sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-        >
-          <div className="flex min-w-0 flex-col gap-0.5">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-(--color-text)">
-                {myRole === "creator" ? counterpartName : `Pedido para ${counterpartName}`}
-              </span>
-              <StatusBadge status={request.status} />
+          <Link
+            key={request.id}
+            href={`${myRole === "creator" ? "/dashboard/pedidos-personalizados" : "/pedidos"}/${request.id}`}
+            className="flex flex-col gap-2 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm transition-colors hover:border-(--color-accent-text) sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+          >
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-(--color-text)">{counterpartName}</span>
+                <StatusBadge status={request.status} />
+              </div>
+              {counterpartRatingCount > 0 ? (
+                <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
+              ) : null}
+              <p className="truncate text-sm text-(--color-text-muted)">
+                {proposal?.serviceType || request.description}
+              </p>
+              <p className="text-xs text-(--color-text-subtle)">
+                {new Date(request.createdAt).toLocaleDateString("pt-BR")}
+                {proposal ? ` · ${formatBRLFromCents(proposal.priceCents)}` : ""}
+                {customServiceOrder
+                  ? ` · prazo ${new Date(customServiceOrder.deliveryDeadlineAt).toLocaleDateString("pt-BR")}`
+                  : ""}
+              </p>
             </div>
-            <RatingStars rating={counterpartRating} ratingCount={counterpartRatingCount} size={12} />
-            <p className="truncate text-sm text-(--color-text-muted)">
-              {proposal?.serviceType || request.description}
-            </p>
-            <p className="text-xs text-(--color-text-subtle)">
-              {new Date(request.createdAt).toLocaleDateString("pt-BR")}
-              {proposal ? ` · ${formatBRLFromCents(proposal.priceCents)}` : ""}
-              {customServiceOrder
-                ? ` · prazo ${new Date(customServiceOrder.deliveryDeadlineAt).toLocaleDateString("pt-BR")}`
-                : ""}
-            </p>
-          </div>
-          <RowStatusIcon />
-        </Link>
+          </Link>
         ),
       )}
     </div>
-  );
-}
-
-/**
- * useLinkStatus só funciona num filho do Link (lê o estado de pendência
- * daquele link específico via contexto) — por isso não dá pra checar
- * direto no componente que renderiza o <Link>. Sem isso, o clique na
- * linha ficava sem nenhum feedback entre o toque e a conversa abrir.
- */
-function RowStatusIcon() {
-  const { pending } = useLinkStatus();
-  if (pending) {
-    return (
-      <Loader2
-        size={18}
-        strokeWidth={1.5}
-        className="shrink-0 animate-spin self-center text-(--color-accent-text)"
-      />
-    );
-  }
-  return (
-    <ChevronRight
-      size={18}
-      strokeWidth={1.5}
-      className="hidden shrink-0 self-center text-(--color-text-subtle) sm:block"
-    />
   );
 }

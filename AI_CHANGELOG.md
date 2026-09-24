@@ -1,5 +1,25 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Aplica opção 15 ao índice de Mensagens
+
+- Objetivo: redesenhar `/pedidos` seguindo a opção 15 aprovada, usando os padrões documentados
+  no guia visual do chat.
+- `app/pedidos/page.tsx`: removido o antigo card introdutório centralizado; a página ficou mais
+  direta e deixa a hierarquia para a própria lista de mensagens.
+- `components/CustomRequestsList.tsx` em `role="all"`: novo cabeçalho compacto com título,
+  descrição e total de conversas; busca real por pessoa/serviço; filtros funcionais para Todas,
+  Produção, Negociação e Concluídas.
+- Conversa em produção recebe bloco “Prioridade” escuro, com avatar, status inline, serviço,
+  valor e prazo. As demais aparecem em uma lista única “Recentes”, mais compacta e alinhada.
+- Avaliação só aparece quando existe `rating_count > 0`; “Sem avaliações” não é renderizado.
+- Nomes são mostrados diretamente, sem o prefixo “Pedido para”, e os avatares usam
+  `MediaPlaceholder` já existente.
+- O layout antigo continua disponível para usos de `CustomRequestsList` que não sejam
+  `role="all"`, evitando alterar o painel específico do criador nesta etapa.
+- Nenhuma cor literal ou classe fixa de paleta foi adicionada.
+- Arquivos: `app/pedidos/page.tsx`, `components/CustomRequestsList.tsx`, `AI_CHANGELOG.md`.
+
+
 ## 2026-09-23 — Documenta padrões visuais aprovados no redesenho do chat
 
 - Objetivo: preservar as decisões de design/UX aprovadas no chat para reaproveitamento consistente
