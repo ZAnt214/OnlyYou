@@ -22,28 +22,49 @@ export default function DashboardConfiguracoesPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [baseline, setBaseline] = useState<{
+    displayName: string;
+    bio: string;
+    offerings: string;
+    offeringsDescription: string;
+  } | null>(null);
 
   useEffect(() => {
     let active = true;
+    setLoadError(null);
+
     (async () => {
       try {
         const current = await getCurrentCreatorClient();
         if (!active) return;
+
+        const next = {
+          displayName: current.displayName,
+          bio: current.creatorProfile?.bio ?? "",
+          offerings: (current.creatorProfile?.offerings ?? []).join(", "),
+          offeringsDescription: current.creatorProfile?.offeringsDescription ?? "",
+        };
+
         setCreator(current);
-        setDisplayName(current.displayName);
-        setBio(current.creatorProfile?.bio ?? "");
-        setOfferings((current.creatorProfile?.offerings ?? []).join(", "));
-        setOfferingsDescription(current.creatorProfile?.offeringsDescription ?? "");
+        setDisplayName(next.displayName);
+        setBio(next.bio);
+        setOfferings(next.offerings);
+        setOfferingsDescription(next.offeringsDescription);
+        setBaseline(next);
       } catch (err) {
-        if (active) setLoadError(err instanceof Error ? err.message : "Não foi possível carregar seu perfil.");
+        if (active) {
+          setLoadError(err instanceof Error ? err.message : "Não foi possível carregar seu perfil.");
+        }
       } finally {
         if (active) setLoading(false);
       }
     })();
+
     return () => {
       active = false;
     };
-  }, []);
+  }, [reloadKey]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -61,6 +82,10 @@ export default function DashboardConfiguracoesPage() {
       setSaveError("Seu nome precisa ter pelo menos 2 caracteres.");
       return;
     }
+    if (offeringsList.length > 20) {
+      setSaveError("Você pode adicionar no máximo 20 serviços.");
+      return;
+    }
     if (offeringsList.some((item) => item.length > 80)) {
       setSaveError("Cada serviço pode ter no máximo 80 caracteres.");
       return;
@@ -75,8 +100,21 @@ export default function DashboardConfiguracoesPage() {
         p_offerings_description: offeringsDescription.trim(),
       });
       if (error) throw new Error(error.message);
+
+      const nextBaseline = {
+        displayName: displayName.trim(),
+        bio: bio.trim(),
+        offerings: offeringsList.join(", "),
+        offeringsDescription: offeringsDescription.trim(),
+      };
+
+      setDisplayName(nextBaseline.displayName);
+      setBio(nextBaseline.bio);
+      setOfferings(nextBaseline.offerings);
+      setOfferingsDescription(nextBaseline.offeringsDescription);
+      setBaseline(nextBaseline);
       setSaved(true);
-      setCreator((current) => current ? { ...current, displayName: displayName.trim() } : current);
+      setCreator((current) => current ? { ...current, displayName: nextBaseline.displayName } : current);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Não foi possível salvar suas alterações.");
     } finally {
@@ -88,12 +126,38 @@ export default function DashboardConfiguracoesPage() {
 
   if (loadError || !creator) {
     return (
-      <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
-        <p className="font-semibold text-(--color-text)">Não foi possível abrir as configurações</p>
-        <p className="mt-1 text-sm text-(--color-text-muted)">{loadError ?? "Tente novamente."}</p>
+      <div className="flex flex-col items-start gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-5">
+        <div>
+          <p className="font-semibold text-(--color-text)">Não foi possível abrir as configurações</p>
+          <p className="mt-1 text-sm text-(--color-text-muted)">{loadError ?? "Tente novamente."}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setLoading(true);
+            setReloadKey((value) => value + 1);
+          }}
+          className="text-sm font-medium text-(--color-accent-text) hover:underline"
+        >
+          Tentar de novo
+        </button>
       </div>
     );
   }
+
+  const offeringsCount = offerings
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean).length;
+  const isDirty = Boolean(
+    baseline &&
+      (
+        displayName !== baseline.displayName ||
+        bio !== baseline.bio ||
+        offerings !== baseline.offerings ||
+        offeringsDescription !== baseline.offeringsDescription
+      ),
+  );
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
@@ -187,7 +251,9 @@ export default function DashboardConfiguracoesPage() {
             placeholder="Edição de vídeo, Motion graphics, Produção musical"
             className="rounded-xl border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-base focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
           />
-          <span className="text-xs text-(--color-text-subtle)">Separe cada serviço com vírgula. Até 20 itens.</span>
+          <span className={`text-xs ${offeringsCount > 20 ? "text-(--color-danger)" : "text-(--color-text-subtle)"}`}>
+            Separe cada serviço com vírgula. {offeringsCount}/20.
+          </span>
         </label>
 
         <label className="flex flex-col gap-1.5 text-sm text-(--color-text)">
@@ -210,8 +276,8 @@ export default function DashboardConfiguracoesPage() {
 
         <button
           type="submit"
-          disabled={saving}
-          className="inline-flex w-fit items-center gap-2 rounded-full bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:opacity-60"
+          disabled={saving || !isDirty || offeringsCount > 20}
+          className="inline-flex w-fit items-center gap-2 rounded-full bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover) disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? <Loader2 size={14} className="animate-spin" strokeWidth={1.6} /> : null}
           Salvar alterações
