@@ -1,5 +1,15 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Sidebar do dashboard fica mais leve e estrutural
+
+- O menu lateral do desktop deixou de ser um card com borda e sombra dentro da página.
+- A sidebar agora usa apenas um divisor vertical discreto, deixando o conteúdo principal mais forte.
+- Item ativo deixou o bloco carvão cheio e passou a usar fundo neutro + linha laranja lateral +
+  ícone em destaque. A navegação continua fácil de localizar sem competir com a página.
+- O ajuste segue a direção usada em admins atuais: navegação mais quieta, conteúdo e ações com
+  maior peso visual, sem copiar a identidade de outra plataforma.
+
+
 ## 2026-09-24 — Foco de teclado fica visível em todo o painel
 
 - Adicionado estado global `:focus-visible` para links, botões e campos usando
