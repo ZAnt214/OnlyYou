@@ -3,7 +3,11 @@ import Link from "next/link";
 import { userRepository } from "@/lib/repositories/UserRepository";
 import { reviewRepository } from "@/lib/repositories/ReviewRepository";
 import { createPublicClient } from "@/lib/supabase/public";
-import { getPublicProductById, listApprovedProductsByCategory, listProductsForCreator } from "@/lib/supabase/products";
+import {
+  getPublicProductById,
+  listApprovedProductsByCategory,
+  listApprovedProductsByCreator,
+} from "@/lib/supabase/products";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { RatingStars } from "@/components/RatingStars";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -27,7 +31,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const [creator, related, moreFromCreator, productReviews] = await Promise.all([
     userRepository.findById(product.creatorId),
     listApprovedProductsByCategory(supabase, product.category),
-    listProductsForCreator(supabase, product.creatorId),
+    listApprovedProductsByCreator(supabase, product.creatorId),
     reviewRepository.findByProduct(product.id),
   ]);
 
