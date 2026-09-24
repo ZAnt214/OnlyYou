@@ -1,5 +1,12 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Valida definitivamente constraints HTTPS de mídia
+
+- Auditoria encontrou zero capas/galerias/prévias antigas fora do padrão HTTPS.
+- As quatro constraints de mídia de Produtos e Serviços deixam de ficar apenas como `NOT VALID`
+  e passam a ser validadas para todo o conteúdo existente e futuro.
+
+
 ## 2026-09-24 — Corrige migration de validação HTTPS
 
 - O parâmetro `values` da função auxiliar de arrays foi renomeado para `p_values`, evitando
