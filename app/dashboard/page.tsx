@@ -10,7 +10,6 @@ import {
   Wallet,
 } from "lucide-react";
 import { DashboardPageHeader } from "@/components/DashboardPageHeader";
-import { StatCard } from "@/components/StatCard";
 import { getCurrentUser } from "@/lib/supabase/session";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { listProductsForCreator } from "@/lib/supabase/products";
@@ -60,26 +59,27 @@ export default async function DashboardOverviewPage() {
         description="O que está acontecendo com seus trabalhos e seu dinheiro agora."
       />
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard
+      <section className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-border) shadow-sm sm:grid-cols-3">
+        <OverviewMetric
+          className="col-span-2 sm:col-span-1"
           label="Saldo disponível"
           value={formatBRL(balance.availableCents)}
           icon={Wallet}
           hint="Pronto para solicitar saque."
         />
-        <StatCard
-          label="Recebido em vendas"
+        <OverviewMetric
+          label="Recebido"
           value={formatBRL(salesSummary.creatorAmountCents)}
           icon={Receipt}
-          hint={`${salesSummary.totalSales} ${salesSummary.totalSales === 1 ? "venda confirmada" : "vendas confirmadas"}`}
+          hint={`${salesSummary.totalSales} ${salesSummary.totalSales === 1 ? "venda" : "vendas"}`}
         />
-        <StatCard
-          label="Trabalhos em produção"
+        <OverviewMetric
+          label="Em produção"
           value={String(work.inProduction)}
           icon={BriefcaseBusiness}
-          hint={work.waitingForClient > 0 ? `${work.waitingForClient} aguardando o cliente` : "Nenhum esperando confirmação."}
+          hint={work.waitingForClient > 0 ? `${work.waitingForClient} esperando cliente` : "Nada esperando confirmação."}
         />
-      </div>
+      </section>
 
       <section className="overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm">
         <div className="border-b border-(--color-border) px-4 py-3">
@@ -281,5 +281,33 @@ function QuickLink({
         <p className="mt-0.5 truncate text-xs text-(--color-text-muted)">{detail}</p>
       </div>
     </Link>
+  );
+}
+
+
+function OverviewMetric({
+  className = "",
+  label,
+  value,
+  icon: Icon,
+  hint,
+}: {
+  className?: string;
+  label: string;
+  value: string;
+  icon: LucideIcon;
+  hint: string;
+}) {
+  return (
+    <div className={`min-w-0 bg-(--color-surface) p-3 sm:p-4 ${className}`}>
+      <div className="flex items-center gap-1.5 text-(--color-text-muted)">
+        <Icon size={14} className="shrink-0 text-(--color-accent-text)" strokeWidth={1.7} />
+        <span className="truncate text-xs font-medium">{label}</span>
+      </div>
+      <p className="mt-2 truncate text-xl font-bold tracking-tight text-(--color-text) sm:text-2xl">
+        {value}
+      </p>
+      <p className="mt-1 truncate text-[11px] text-(--color-text-subtle) sm:text-xs">{hint}</p>
+    </div>
   );
 }
