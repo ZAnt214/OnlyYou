@@ -1,5 +1,26 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Aplica opção 3 ao perfil completo do criador
+
+- Objetivo: usuário escolheu a opção 3 das novas propostas completas, com direção de “loja pessoal”,
+  pedindo mudança da página inteira e não apenas do cabeçalho.
+- `components/CreatorProfileView.tsx`: perfil foi reorganizado por completo. O topo agora é
+  compacto (avatar, nome, @, avaliação quando existir, bio e ações), seguido de métricas em três
+  blocos pequenos em vez da antiga capa grande com contador flutuante.
+- Nova faixa laranja de conversão para pedidos personalizados. Para visitantes ela explica o fluxo
+  sob medida e abre o pedido; para o próprio criador ela explica que aquela é sua vitrine e leva ao
+  painel, sem permitir pedido contra si mesmo.
+- “O que eu faço” usa apenas `offerings` reais do perfil e deixa claro que escopo, prazo e valor
+  são combinados na conversa — sem inventar preços ou popularidade.
+- Produtos digitais viraram uma seção de loja própria, com contador e estado vazio mais útil.
+- A ordem restante foi redesenhada para: portfólio, avaliações, habilidades e formação/idiomas,
+  criando uma página inteira com lógica comercial de vitrine.
+- “Sem avaliações” não aparece no cabeçalho; a nota só é renderizada quando `ratingCount > 0`.
+- Foram removidos ícones decorativos do topo e tabs antigas de Produtos/Seguidores, reduzindo ruído.
+- Nenhuma cor literal ou classe fixa de paleta foi adicionada.
+- Arquivos: `components/CreatorProfileView.tsx`, `AI_CHANGELOG.md`.
+
+
 ## 2026-09-23 — Aplica opção 15 ao índice de Mensagens
 
 - Objetivo: redesenhar `/pedidos` seguindo a opção 15 aprovada, usando os padrões documentados

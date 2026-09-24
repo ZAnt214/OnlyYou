@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Pencil, Images, Star, Users, LayoutDashboard } from "lucide-react";
+import { Star } from "lucide-react";
 import type { CustomOrderReviewWithReviewer, PortfolioItem, Product, ResumeEntry, User } from "@/lib/types";
-import { PRODUCT_TYPE_LABELS } from "@/lib/types";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { RatingStars } from "@/components/RatingStars";
@@ -15,18 +14,9 @@ import { ResumeSection } from "@/components/ResumeSection";
 interface CreatorProfileViewProps {
   creator: User;
   products: Product[];
-  /** Avaliações recebidas em pedidos personalizados — exibidas publicamente. */
   reviews?: CustomOrderReviewWithReviewer[];
-  /** Trabalhos já realizados que o criador escolheu exibir no perfil. */
   portfolio?: PortfolioItem[];
-  /** Formação e certificações do criador. */
   resumeEntries?: ResumeEntry[];
-  /**
-   * O perfil é a mesma tela para quem visita e para o próprio criador —
-   * como em redes sociais como o TikTok. `isOwnProfile` só troca as ações
-   * que não fazem sentido contra si mesmo (seguir, denunciar, pedir
-   * conteúdo personalizado) por equivalentes de dono (editar perfil).
-   */
   isOwnProfile?: boolean;
 }
 
@@ -41,87 +31,56 @@ export function CreatorProfileView({
   const profile = creator.creatorProfile;
   if (!profile) return null;
 
-  const approved = products.filter((p) => p.status === "approved");
-  const typesOffered = [...new Set(approved.map((p) => p.type))];
+  const approved = products.filter((product) => product.status === "approved");
+  const offerings = profile.offerings ?? [];
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Sem card/borda própria — capa, avatar, nome e stats fluem direto na
-          página, igual às seções de Produtos e Avaliações logo abaixo, em
-          vez de ficarem isolados numa caixa branca separada do resto. */}
-      <div className="flex flex-col gap-3">
-        <div className="relative">
-          <MediaPlaceholder
-            seed={`${creator.id}-capa`}
-            className="aspect-[3/1] w-full rounded-2xl"
-            label={`Capa de ${creator.displayName}`}
-          />
-          <div className="absolute right-3 top-3 flex items-center gap-3 rounded-(--radius-pill) bg-(--color-surface) px-3 py-1.5 text-xs text-(--color-text-muted)">
-            <span className="flex items-center gap-1">
-              <Images size={14} strokeWidth={1.5} />
-              {approved.length}
-            </span>
-            <span className="flex items-center gap-1">
-              <Star size={14} strokeWidth={1.5} />
-              {profile.rating.toFixed(1)}
-            </span>
-            <span className="flex items-center gap-1">
-              <Users size={14} strokeWidth={1.5} />
-              {profile.followers.toLocaleString("pt-BR")}
-            </span>
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-7">
+      <section className="flex flex-col gap-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <MediaPlaceholder
+              seed={creator.id}
+              kind="avatar"
+              className="h-20 w-20 flex-shrink-0 border-2 border-(--color-border)"
+              label={creator.displayName}
+              flush
+            />
+            <div className="min-w-0">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <h1 className="truncate text-2xl font-bold tracking-tight text-(--color-text)">
+                  {creator.displayName}
+                </h1>
+                {profile.verificationStatus === "verified" ? <VerifiedBadge size={18} /> : null}
+              </div>
+              <p className="mt-0.5 text-sm text-(--color-text-subtle)">@{creator.username}</p>
+              {profile.ratingCount > 0 ? (
+                <div className="mt-1.5">
+                  <RatingStars rating={profile.rating} ratingCount={profile.ratingCount} />
+                </div>
+              ) : null}
+            </div>
           </div>
-        </div>
 
-        <div className="relative -mt-10 flex items-end justify-between gap-3 px-1">
-          <MediaPlaceholder
-            seed={creator.id}
-            kind="avatar"
-            className="h-20 w-20 border-4 border-(--color-bg)"
-            label={creator.displayName}
-            flush
-          />
           {isOwnProfile ? null : <ReportMenu bare />}
         </div>
 
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1.5">
-            <h1 className="text-xl font-bold text-(--color-text)">{creator.displayName}</h1>
-            {profile.verificationStatus === "verified" ? <VerifiedBadge size={18} /> : null}
-          </div>
-          <span className="text-sm text-(--color-text-subtle)">@{creator.username}</span>
-        </div>
-
-        <p className="text-sm text-(--color-text-muted)">{profile.bio}</p>
-
-        {typesOffered.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {typesOffered.map((type) => (
-              <span
-                key={type}
-                className="rounded-(--radius-pill) bg-(--color-surface-2) px-3 py-1 text-xs text-(--color-text-muted)"
-              >
-                {PRODUCT_TYPE_LABELS[type]}
-              </span>
-            ))}
-          </div>
+        {profile.bio ? (
+          <p className="max-w-2xl text-sm leading-relaxed text-(--color-text-muted)">{profile.bio}</p>
         ) : null}
-
-        <RatingStars rating={profile.rating} ratingCount={profile.ratingCount} />
 
         {isOwnProfile ? (
           <div className="flex flex-wrap gap-2">
             <Link
               href="/dashboard"
-              className="flex w-fit items-center justify-center gap-1.5 rounded-(--radius-pill) bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-(--color-on-accent) hover:bg-(--color-accent-hover)"
+              className="rounded-full bg-(--color-accent) px-4 py-2.5 text-sm font-semibold text-(--color-on-accent) transition-colors hover:bg-(--color-accent-hover)"
             >
-              <LayoutDashboard size={14} strokeWidth={1.5} />
               Painel do criador
             </Link>
             <Link
               href="/dashboard/configuracoes"
-              className="flex w-fit items-center justify-center gap-1.5 rounded-(--radius-pill) border border-(--color-border) px-4 py-2.5 text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
+              className="rounded-full border border-(--color-border) bg-(--color-surface) px-4 py-2.5 text-sm font-medium text-(--color-text) transition-colors hover:bg-(--color-surface-2)"
             >
-              <Pencil size={14} strokeWidth={1.5} />
               Editar perfil
             </Link>
           </div>
@@ -130,89 +89,161 @@ export function CreatorProfileView({
             <CustomOrderForm creator={creator} />
             <button
               type="button"
-              className="w-fit rounded-(--radius-pill) border border-(--color-border) px-4 py-2.5 text-sm font-medium text-(--color-text) hover:bg-(--color-surface-2)"
+              className="rounded-full border border-(--color-border) bg-(--color-surface) px-4 py-2.5 text-sm font-medium text-(--color-text) transition-colors hover:bg-(--color-surface-2)"
             >
               Seguir
             </button>
           </div>
         )}
 
-        <div className="grid grid-cols-2 border-y border-(--color-border) text-sm">
-          <span className="flex items-center justify-center gap-2 border-b-2 border-(--color-accent-text) py-3 font-semibold text-(--color-accent-text)">
-            <Images size={16} strokeWidth={1.5} />
-            {approved.length} Produtos
-          </span>
-          <span className="flex items-center justify-center gap-2 border-b-2 border-transparent py-3 text-(--color-text-muted)">
-            <Users size={16} strokeWidth={1.5} />
-            {profile.followers.toLocaleString("pt-BR")} Seguidores
-          </span>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-xl border border-(--color-border) bg-(--color-surface) px-3 py-3 text-center">
+            <strong className="block text-lg font-bold text-(--color-text)">{approved.length}</strong>
+            <span className="text-[11px] text-(--color-text-muted)">Produtos</span>
+          </div>
+          <div className="rounded-xl border border-(--color-border) bg-(--color-surface) px-3 py-3 text-center">
+            <strong className="block text-lg font-bold text-(--color-text)">
+              {profile.ratingCount > 0 ? profile.rating.toFixed(1) : "—"}
+            </strong>
+            <span className="text-[11px] text-(--color-text-muted)">Avaliação</span>
+          </div>
+          <div className="rounded-xl border border-(--color-border) bg-(--color-surface) px-3 py-3 text-center">
+            <strong className="block text-lg font-bold text-(--color-text)">
+              {profile.followers.toLocaleString("pt-BR")}
+            </strong>
+            <span className="text-[11px] text-(--color-text-muted)">Seguidores</span>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {profile.offerings?.length || profile.offeringsDescription ? (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-base font-semibold text-(--color-text)">O que ofereço</h2>
+      <section className="rounded-2xl bg-(--color-accent) p-5 text-(--color-on-accent)">
+        {isOwnProfile ? (
+          <>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] opacity-70">Sua vitrine profissional</p>
+            <h2 className="mt-1 text-xl font-bold">Pedidos personalizados</h2>
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed opacity-80">
+              É aqui que clientes conhecem seu trabalho e podem iniciar uma conversa para pedir algo sob medida.
+            </p>
+            <Link
+              href="/dashboard"
+              className="mt-4 inline-flex rounded-full bg-(--color-contrast) px-4 py-2.5 text-sm font-semibold text-(--color-on-contrast)"
+            >
+              Gerenciar no painel
+            </Link>
+          </>
+        ) : (
+          <>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] opacity-70">Trabalho personalizado</p>
+            <h2 className="mt-1 text-xl font-bold">Precisa de algo feito sob medida?</h2>
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed opacity-80">
+              Explique o que você precisa. O criador pode conversar com você e enviar uma proposta com valor e prazo.
+            </p>
+            <div className="mt-4 [&>a]:bg-(--color-contrast) [&>a]:text-(--color-on-contrast) [&>button]:bg-(--color-contrast) [&>button]:text-(--color-on-contrast)">
+              <CustomOrderForm creator={creator} />
+            </div>
+          </>
+        )}
+      </section>
+
+      {offerings.length > 0 || profile.offeringsDescription ? (
+        <section className="flex flex-col gap-3">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.1em] text-(--color-text-subtle)">
+                Serviços
+              </p>
+              <h2 className="mt-1 text-lg font-bold text-(--color-text)">O que eu faço</h2>
+            </div>
+            {isOwnProfile ? (
+              <Link href="/dashboard/configuracoes" className="text-sm text-(--color-text-muted) hover:text-(--color-text)">
+                Editar
+              </Link>
+            ) : null}
+          </div>
+
           {profile.offeringsDescription ? (
-            <p className="max-w-2xl text-sm text-(--color-text-muted)">{profile.offeringsDescription}</p>
+            <p className="max-w-2xl text-sm leading-relaxed text-(--color-text-muted)">
+              {profile.offeringsDescription}
+            </p>
           ) : null}
-          {profile.offerings?.length ? (
-            <div className="flex flex-wrap gap-2">
-              {profile.offerings.map((offering) => (
-                <span
+
+          {offerings.length > 0 ? (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {offerings.map((offering) => (
+                <div
                   key={offering}
-                  className="rounded-md border border-(--color-border) px-3 py-1.5 text-sm text-(--color-text-muted)"
+                  className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4"
                 >
-                  {offering}
-                </span>
+                  <p className="font-semibold text-(--color-text)">{offering}</p>
+                  <p className="mt-1 text-xs text-(--color-text-muted)">
+                    Converse com o criador para combinar escopo, prazo e valor.
+                  </p>
+                </div>
               ))}
             </div>
           ) : null}
-        </div>
+        </section>
       ) : null}
 
-      <SkillsSection initialSkills={profile.skills ?? []} isOwnProfile={isOwnProfile} />
+      <section className="flex flex-col gap-3">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.1em] text-(--color-text-subtle)">
+              Loja
+            </p>
+            <h2 className="mt-1 text-lg font-bold text-(--color-text)">Produtos digitais</h2>
+          </div>
+          <span className="text-sm text-(--color-text-muted)">
+            {approved.length} {approved.length === 1 ? "publicado" : "publicados"}
+          </span>
+        </div>
 
-      <div className="flex flex-col gap-3">
-        <h2 className="text-base font-semibold text-(--color-text)">Produtos</h2>
         {approved.length === 0 ? (
-          <p className="text-sm text-(--color-text-muted)">Nenhum produto publicado ainda.</p>
+          <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-8 text-center">
+            <p className="text-sm font-medium text-(--color-text)">Nenhum produto publicado ainda</p>
+            {isOwnProfile ? (
+              <p className="mt-1 text-xs text-(--color-text-muted)">
+                Quando você publicar produtos, eles vão aparecer aqui para quem visitar seu perfil.
+              </p>
+            ) : null}
+          </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {approved.map((p) => (
-              <ProductCard key={p.id} product={p} />
+            {approved.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}
-      </div>
+      </section>
 
-      <div className="border-t border-(--color-border) pt-6">
+      <section className="border-t border-(--color-border) pt-6">
         <PortfolioSection initialItems={portfolio} isOwnProfile={isOwnProfile} />
-      </div>
+      </section>
 
-      <div className="border-t border-(--color-border) pt-6">
-        <ResumeSection
-          initialEntries={resumeEntries}
-          initialLanguages={profile.languages ?? []}
-          isOwnProfile={isOwnProfile}
-        />
-      </div>
-
-      <div className="flex flex-col gap-3 border-t border-(--color-border) pt-6">
-        <div className="flex items-center gap-3">
-          <h2 className="text-base font-semibold text-(--color-text)">Avaliações</h2>
-          <RatingStars rating={profile.rating} ratingCount={profile.ratingCount} />
+      <section className="flex flex-col gap-3 border-t border-(--color-border) pt-6">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.1em] text-(--color-text-subtle)">
+              Reputação
+            </p>
+            <h2 className="mt-1 text-lg font-bold text-(--color-text)">Avaliações</h2>
+          </div>
+          {profile.ratingCount > 0 ? (
+            <RatingStars rating={profile.rating} ratingCount={profile.ratingCount} />
+          ) : null}
         </div>
+
         {reviews.length === 0 ? (
           <p className="text-sm text-(--color-text-muted)">Ainda não há avaliações.</p>
         ) : (
           <div className="flex flex-col gap-2">
             {reviews.map((review) => (
-              <div
+              <article
                 key={review.id}
-                className="flex flex-col gap-1.5 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm"
+                className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium text-(--color-text)">{review.reviewerName}</span>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-semibold text-(--color-text)">{review.reviewerName}</span>
                   <div className="flex items-center gap-0.5">
                     {[1, 2, 3, 4, 5].map((value) => (
                       <Star
@@ -226,16 +257,28 @@ export function CreatorProfileView({
                   </div>
                 </div>
                 {review.comment ? (
-                  <p className="text-sm text-(--color-text-muted)">{review.comment}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-(--color-text-muted)">{review.comment}</p>
                 ) : null}
-                <span className="text-xs text-(--color-text-subtle)">
+                <time className="mt-2 block text-xs text-(--color-text-subtle)">
                   {new Date(review.createdAt).toLocaleDateString("pt-BR")}
-                </span>
-              </div>
+                </time>
+              </article>
             ))}
           </div>
         )}
-      </div>
+      </section>
+
+      <section className="border-t border-(--color-border) pt-6">
+        <SkillsSection initialSkills={profile.skills ?? []} isOwnProfile={isOwnProfile} />
+      </section>
+
+      <section className="border-t border-(--color-border) pt-6">
+        <ResumeSection
+          initialEntries={resumeEntries}
+          initialLanguages={profile.languages ?? []}
+          isOwnProfile={isOwnProfile}
+        />
+      </section>
     </div>
   );
 }
