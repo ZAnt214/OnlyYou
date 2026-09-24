@@ -20,6 +20,8 @@ export function TagListEditor({
   emptyText,
   placeholder,
   onSave,
+  maxTags = 30,
+  maxTagLength = 80,
 }: {
   heading?: "h2" | "h3";
   title: string;
@@ -29,6 +31,8 @@ export function TagListEditor({
   emptyText: string;
   placeholder: string;
   onSave: (tags: string[]) => Promise<void>;
+  maxTags?: number;
+  maxTagLength?: number;
 }) {
   const [tags, setTags] = useState(initialTags);
   const [editing, setEditing] = useState(false);
@@ -52,6 +56,15 @@ export function TagListEditor({
       setInputValue("");
       return;
     }
+    if (value.length > maxTagLength) {
+      setError(`Use no máximo ${maxTagLength} caracteres por item.`);
+      return;
+    }
+    if (draft.length >= maxTags) {
+      setError(`Use no máximo ${maxTags} itens.`);
+      return;
+    }
+    setError(null);
     setDraft((d) => [...d, value]);
     setInputValue("");
   }
@@ -130,7 +143,8 @@ export function TagListEditor({
                 }
               }}
               placeholder={placeholder}
-              className="flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm focus:border-(--color-accent-text) focus:outline-none"
+              maxLength={maxTagLength}
+              className="min-w-0 flex-1 rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-base focus:border-(--color-accent-text) focus:outline-none sm:text-sm"
             />
             <button
               type="button"

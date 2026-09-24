@@ -1,5 +1,15 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Fecha update direto das informações do perfil
+
+- Revogados updates diretos em nome, bio, serviços, descrição, habilidades, idiomas e `updated_at`.
+  A edição passa exclusivamente pelas RPCs validadas.
+- `update_my_creator_profile`, `update_creator_skills` e `update_creator_languages` agora são
+  `SECURITY DEFINER` com `search_path` vazio e verificam o criador autenticado.
+- Habilidades e idiomas são normalizados, deduplicados e limitados a 30 itens de até 80 caracteres.
+- `TagListEditor` ganhou os mesmos limites no cliente e input de 16px no mobile.
+
+
 ## 2026-09-24 — Reduz superfície anônima em dados financeiros
 
 - Revogado `SELECT` do role `anon` em `payment_confirmations`, `withdrawals` e
