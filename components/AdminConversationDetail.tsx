@@ -10,7 +10,7 @@ import {
   getCustomServiceOrderByRequest,
   listAttachmentsForMessage,
 } from "@/lib/supabase/customRequests";
-import { reportRepository } from "@/lib/repositories/ReportRepository";
+import { listReportsForAdmin } from "@/lib/supabase/reports";
 import { auditLogRepository } from "@/lib/security/AuditLogRepository";
 import { newId } from "@/lib/utils/id";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -82,7 +82,7 @@ export function AdminConversationDetail({
         getCustomServiceOrderByRequest(supabase, req.id),
         supabase.from("profiles").select("username").eq("id", req.requesterId).maybeSingle(),
         supabase.from("profiles").select("username").eq("id", req.creatorId).maybeSingle(),
-        reportRepository.findAll(),
+        listReportsForAdmin(supabase),
       ]);
 
       const deliveryMessages = msgs.filter((m) => m.type === "delivery");
@@ -139,7 +139,7 @@ export function AdminConversationDetail({
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-md border border-(--color-border) p-4 text-sm">
+        <div className="rounded-2xl border border-(--color-border) p-4 text-sm">
           <h2 className="mb-2 font-medium text-(--color-text)">Pedido</h2>
           <dl className="flex flex-col gap-1 text-(--color-text-muted)">
             <div className="flex justify-between gap-2">
@@ -167,7 +167,7 @@ export function AdminConversationDetail({
           </dl>
         </div>
 
-        <div className="rounded-md border border-(--color-border) p-4 text-sm">
+        <div className="rounded-2xl border border-(--color-border) p-4 text-sm">
           <h2 className="mb-2 font-medium text-(--color-text)">Contratação</h2>
           {customServiceOrder ? (
             <dl className="flex flex-col gap-1 text-(--color-text-muted)">
@@ -211,7 +211,7 @@ export function AdminConversationDetail({
       </div>
 
       {proposals.length > 0 ? (
-        <div className="rounded-md border border-(--color-border) p-4 text-sm">
+        <div className="rounded-2xl border border-(--color-border) p-4 text-sm">
           <h2 className="mb-2 font-medium text-(--color-text)">Propostas</h2>
           <div className="flex flex-col gap-2">
             {proposals.map((p) => (
@@ -227,7 +227,7 @@ export function AdminConversationDetail({
       ) : null}
 
       {relatedReports.length > 0 ? (
-        <div className="rounded-md border border-(--color-border) p-4 text-sm">
+        <div className="rounded-2xl border border-(--color-border) p-4 text-sm">
           <h2 className="mb-2 font-medium text-(--color-text)">Denúncias relacionadas</h2>
           <div className="flex flex-col gap-2">
             {relatedReports.map((r) => (
@@ -240,14 +240,14 @@ export function AdminConversationDetail({
         </div>
       ) : null}
 
-      <div className="rounded-md border border-(--color-border) p-4">
+      <div className="rounded-2xl border border-(--color-border) p-4">
         <h2 className="mb-3 text-sm font-medium text-(--color-text)">Histórico de mensagens</h2>
         <div className="flex flex-col gap-2">
           {messages.map((m) => {
             const attachments = attachmentsByMessage[m.id] ?? [];
             const senderName = m.senderId === request.requesterId ? names.requester : names.creator;
             return (
-              <div key={m.id} className="rounded-md border border-(--color-border) px-3 py-2 text-sm">
+              <div key={m.id} className="rounded-2xl border border-(--color-border) px-3 py-2 text-sm">
                 <div className="flex items-center justify-between gap-2 text-xs text-(--color-text-subtle)">
                   <span>
                     {senderName} · {m.type}
