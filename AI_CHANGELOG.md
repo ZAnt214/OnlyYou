@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Corrige erro de runtime na Visão geral do dashboard
+
+- `list_my_creator_sales` falhava em produção com `column reference "id" is ambiguous`.
+- A causa era a coluna de retorno `id` da própria função entrando em conflito com `profiles.id`
+  no teste de perfil do criador.
+- A consulta agora usa aliases explícitos (`p.id` e `p.roles`), removendo a ambiguidade que
+  acionava o `app/dashboard/error.tsx` e o código de erro mostrado ao usuário.
+
+
 ## 2026-09-24 — Adiciona índices às foreign keys sem cobertura
 
 - Auditor de performance do Supabase apontou 21 foreign keys sem índice de apoio.
