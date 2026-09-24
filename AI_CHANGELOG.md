@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Reserva da barra mobile passa a considerar safe-area
+
+- `PageMain` deixou de usar padding inferior fixo de 80px.
+- Em mobile, a reserva agora soma a altura útil da navegação ao
+  `env(safe-area-inset-bottom)`, evitando que o último botão/formulário fique escondido em
+  aparelhos com área de gestos maior.
+- Conversas continuam sem padding extra porque escondem a navegação global.
+
+
 ## 2026-09-24 — Consolida políticas RLS duplicadas do dashboard
 
 - Auditoria oficial do Supabase apontou quatro conjuntos de políticas permissivas duplicadas.
