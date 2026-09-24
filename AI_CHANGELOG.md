@@ -1,5 +1,15 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Reduz superfície anônima em dados financeiros
+
+- Revogado `SELECT` do role `anon` em `payment_confirmations`, `withdrawals` e
+  `product_entitlements`. O RLS já barrava essas leituras, mas agora a camada de privilégio SQL
+  também nega o acesso.
+- Removida a policy antiga `creator_insert_own_withdrawals`; saques continuam exclusivamente pela
+  RPC `request_withdrawal`, que valida saldo, Pix e concorrência dentro da transação.
+- A policy de leitura de `product_files` continua exigindo criador dono ou entitlement ativo.
+
+
 ## 2026-09-24 — Valida definitivamente constraints HTTPS de mídia
 
 - Auditoria encontrou zero capas/galerias/prévias antigas fora do padrão HTTPS.
