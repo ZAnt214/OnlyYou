@@ -85,13 +85,11 @@ export async function listWithdrawalsForCreator(
 
 export async function requestWithdrawal(
   supabase: SupabaseClient,
-  input: { amountCents: number; pixKeyType: PixKeyType; pixKey: string },
+  input: { amountCents: number },
 ): Promise<Withdrawal> {
   const { data, error } = await supabase
-    .rpc("request_withdrawal", {
+    .rpc("request_withdrawal_v2", {
       p_amount_cents: input.amountCents,
-      p_pix_key_type: input.pixKeyType,
-      p_pix_key: input.pixKey,
     })
     .single();
   if (error) throw new Error(error.message);
@@ -262,6 +260,111 @@ export async function getAdminWithdrawalRisk(
       : [],
     recentWithdrawals: Array.isArray(row.recent_withdrawals)
       ? (row.recent_withdrawals as AdminWithdrawalRecentHistory[])
+      : [],
+  };
+}
+
+
+export interface CreatorPayoutAccount {
+  pixKeyType: PixKeyType;
+  pixKey: string;
+  createdAt: string;
+  updatedAt: string;
+  changedAt: string;
+  eligibleAfter: string;
+  changeCount: number;
+  canWithdrawNow: boolean;
+}
+
+function mapPayoutAccount(row: Record<string, unknown>): CreatorPayoutAccount {
+  return {
+    pixKeyType: String(row.pix_key_type) as PixKeyType,
+    pixKey: String(row.pix_key),
+    createdAt: String(row.created_at),
+    updatedAt: String(row.updated_at),
+    changedAt: String(row.changed_at),
+    eligibleAfter: String(row.eligible_after),
+    changeCount: Number(row.change_count ?? 0),
+    canWithdrawNow: Boolean(row.can_withdraw_now),
+  };
+}
+
+export async function getMyPayoutAccount(
+  supabase: SupabaseClient,
+): Promise<CreatorPayoutAccount | null> {
+  const { data, error } = await supabase.rpc("get_my_payout_account");
+
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as Record<string, unknown>[];
+  if (rows.length === 0) return null;
+  return mapPayoutAccount(rows[0]);
+}
+
+export async function setMyPayoutAccount(
+  supabase: SupabaseClient,
+  input: { pixKeyType: PixKeyType; pixKey: string },
+): Promise<CreatorPayoutAccount> {
+  const { data, error } = await supabase
+    .rpc("set_my_payout_account", {
+      p_pix_key_type: input.pixKeyType,
+      p_pix_key: input.pixKey,
+    })
+    .single();
+
+  if (error) throw new Error(error.message);
+  return mapPayoutAccount(data as Record<string, unknown>);
+}
+
+export interface AdminPayoutAccountHistory {
+  event_type: "created" | "changed" | "backfilled";
+  old_pix_key_type: string | null;
+  old_pix_key: string | null;
+  new_pix_key_type: string;
+  new_pix_key: string;
+  changed_at: string;
+}
+
+export interface AdminWithdrawalPayoutAccount {
+  creatorId: string;
+  currentPixKeyType: PixKeyType;
+  currentPixKey: string;
+  createdAt: string;
+  updatedAt: string;
+  changedAt: string;
+  eligibleAfter: string;
+  changeCount: number;
+  matchesWithdrawal: boolean;
+  inCooldown: boolean;
+  history: AdminPayoutAccountHistory[];
+}
+
+export async function getAdminWithdrawalPayoutAccount(
+  supabase: SupabaseClient,
+  withdrawalId: string,
+): Promise<AdminWithdrawalPayoutAccount | null> {
+  const { data, error } = await supabase.rpc(
+    "get_admin_withdrawal_payout_account",
+    { p_withdrawal_id: withdrawalId },
+  );
+
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as Record<string, unknown>[];
+  if (rows.length === 0) return null;
+
+  const row = rows[0];
+  return {
+    creatorId: String(row.creator_id),
+    currentPixKeyType: String(row.current_pix_key_type) as PixKeyType,
+    currentPixKey: String(row.current_pix_key),
+    createdAt: String(row.payout_created_at),
+    updatedAt: String(row.payout_updated_at),
+    changedAt: String(row.payout_changed_at),
+    eligibleAfter: String(row.payout_eligible_after),
+    changeCount: Number(row.payout_change_count ?? 0),
+    matchesWithdrawal: Boolean(row.payout_matches_withdrawal),
+    inCooldown: Boolean(row.payout_in_cooldown),
+    history: Array.isArray(row.history)
+      ? (row.history as AdminPayoutAccountHistory[])
       : [],
   };
 }
