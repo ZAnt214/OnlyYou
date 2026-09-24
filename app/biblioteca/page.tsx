@@ -210,7 +210,7 @@ export default function BibliotecaPage() {
                     </Link>
 
                     <div className="flex flex-1 flex-col p-3 sm:p-3.5">
-                      <span className="mb-2 w-fit rounded-(--radius-pill) bg-(--color-success-soft) px-2 py-1 text-[10px] font-semibold text-(--color-success)">
+                      <span className="mb-2 w-fit rounded-(--radius-pill) bg-(--color-surface-2) px-2 py-1 text-[10px] font-semibold text-(--color-success)">
                         Comprado
                       </span>
 
