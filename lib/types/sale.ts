@@ -13,11 +13,16 @@ export interface Sale {
 
 export interface CreatorBalance {
   creatorId: string;
-  /** Ganhos confirmados (payment_confirmations pagos) menos saques já
-   * solicitados ou concluídos — o que ainda pode ser sacado agora. */
-  availableCents: number;
-  /** Total já ganho (histórico, pagos). */
+  /** Total confirmado em pagamentos pagos, inclusive valores ainda não liberados para saque. */
   earnedCents: number;
+  /** Parte dos ganhos que já cumpre as regras de liberação para saque. */
+  eligibleCents: number;
+  /** Ganhos confirmados ainda bloqueados para saque, por exemplo serviço ainda não concluído. */
+  pendingReleaseCents: number;
+  /** Saques solicitados ou já concluídos, portanto já reservados do saldo elegível. */
+  reservedCents: number;
+  /** O que pode ser solicitado agora. */
+  availableCents: number;
   /** Soma de saques com status "paid" — já transferidos de verdade. */
   withdrawnCents: number;
   currency: "BRL";
