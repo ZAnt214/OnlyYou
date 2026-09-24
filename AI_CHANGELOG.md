@@ -1,5 +1,13 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Serviços ganha busca e retry de carregamento
+
+- `/dashboard/servicos` agora permite buscar por título, categoria ou jogo.
+- Busca e filtros Todos/Ativos/Pausados seguem o mesmo padrão visual de Produtos.
+- Falha de carregamento ganhou ação “Tentar de novo”; a página não exige atualizar o navegador.
+- Estado vazio de busca/filtro foi separado do estado de quem ainda não criou nenhum serviço.
+
+
 ## 2026-09-24 — Sidebar do dashboard fica mais leve e estrutural
 
 - O menu lateral do desktop deixou de ser um card com borda e sombra dentro da página.
