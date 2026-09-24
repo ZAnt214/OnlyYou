@@ -53,15 +53,15 @@ export default async function AdminOverviewPage() {
 
   const paidConfirmations = paidResult.data ?? [];
   const grossAmountCents = paidConfirmations.reduce(
-    (sum, row) => sum + row.gross_amount_cents,
+    (sum, row) => sum + Number(row.gross_amount_cents ?? 0),
     0,
   );
   const platformFeeCents = paidConfirmations.reduce(
-    (sum, row) => sum + row.platform_fee_cents,
+    (sum, row) => sum + Number(row.platform_fee_cents ?? 0),
     0,
   );
   const creatorAmountCents = paidConfirmations.reduce(
-    (sum, row) => sum + row.creator_amount_cents,
+    (sum, row) => sum + Number(row.creator_amount_cents ?? 0),
     0,
   );
 
