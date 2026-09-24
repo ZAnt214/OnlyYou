@@ -46,11 +46,13 @@ export async function getCreatorBalance(
   supabase: SupabaseClient,
   creatorId: string,
 ): Promise<CreatorBalance> {
-  const { data, error } = await supabase.rpc("get_my_creator_balance").single();
+  const { data, error } = await supabase.rpc("get_my_creator_payout_summary").single();
   if (error) throw new Error(error.message);
 
   const row = data as {
     earned_cents: number | string;
+    eligible_cents: number | string;
+    pending_release_cents: number | string;
     reserved_cents: number | string;
     withdrawn_cents: number | string;
     available_cents: number | string;
@@ -59,6 +61,9 @@ export async function getCreatorBalance(
   return {
     creatorId,
     earnedCents: Number(row.earned_cents),
+    eligibleCents: Number(row.eligible_cents),
+    pendingReleaseCents: Number(row.pending_release_cents),
+    reservedCents: Number(row.reserved_cents),
     availableCents: Math.max(0, Number(row.available_cents)),
     withdrawnCents: Number(row.withdrawn_cents),
     currency: "BRL",
@@ -127,4 +132,136 @@ export async function reviewWithdrawal(
     .single();
   if (error) throw new Error(error.message);
   return mapWithdrawal(data as WithdrawalRow);
+}
+
+
+export interface AdminWithdrawalRecentSale {
+  kind: string;
+  status: string;
+  gross_amount_cents: number;
+  creator_amount_cents: number;
+  method: string | null;
+  buyer_name: string;
+  confirmed_at: string;
+  service_status: string | null;
+}
+
+export interface AdminWithdrawalRecentHistory {
+  id: string;
+  amount_cents: number;
+  pix_key_type: PixKeyType;
+  pix_key: string;
+  status: WithdrawalStatus;
+  requested_at: string;
+  reviewed_at: string | null;
+}
+
+export interface AdminWithdrawalRisk {
+  withdrawalId: string;
+  creatorId: string;
+  creatorUsername: string | null;
+  creatorDisplayName: string | null;
+  verificationStatus: string | null;
+  accountCreatedAt: string;
+  withdrawalAmountCents: number;
+  withdrawalStatus: WithdrawalStatus;
+  pixKeyType: PixKeyType;
+  pixKey: string;
+  requestedAt: string;
+  snapshotEarnedCents: number | null;
+  snapshotEligibleCents: number | null;
+  snapshotPendingReleaseCents: number | null;
+  snapshotAvailableBeforeCents: number | null;
+  currentEarnedCents: number;
+  currentEligibleCents: number;
+  currentPendingReleaseCents: number;
+  currentReservedCents: number;
+  currentWithdrawnCents: number;
+  currentAvailableCents: number;
+  paidSalesCount: number;
+  productSalesCount: number;
+  serviceSalesCount: number;
+  uniqueBuyersCount: number;
+  completedServicesCount: number;
+  openServiceOrdersCount: number;
+  openDisputesCount: number;
+  totalDisputesCount: number;
+  problemPaymentsCount: number;
+  rejectedWithdrawalsCount: number;
+  paidWithdrawalsCount: number;
+  selfPurchaseCount: number;
+  earningsLast24hCents: number;
+  earningsLast7dCents: number;
+  largestBuyerSharePercent: number;
+  pixKeyChanged: boolean;
+  firstWithdrawal: boolean;
+  paymentSplitMismatchCount: number;
+  requestStillBacked: boolean;
+  recentSales: AdminWithdrawalRecentSale[];
+  recentWithdrawals: AdminWithdrawalRecentHistory[];
+}
+
+export async function getAdminWithdrawalRisk(
+  supabase: SupabaseClient,
+  withdrawalId: string,
+): Promise<AdminWithdrawalRisk> {
+  const { data, error } = await supabase
+    .rpc("get_admin_withdrawal_risk", { p_withdrawal_id: withdrawalId })
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  const row = data as Record<string, unknown>;
+  const numberValue = (value: unknown) => Number(value ?? 0);
+  const nullableNumber = (value: unknown) =>
+    value === null || value === undefined ? null : Number(value);
+
+  return {
+    withdrawalId: String(row.withdrawal_id),
+    creatorId: String(row.creator_id),
+    creatorUsername: row.creator_username ? String(row.creator_username) : null,
+    creatorDisplayName: row.creator_display_name ? String(row.creator_display_name) : null,
+    verificationStatus: row.verification_status ? String(row.verification_status) : null,
+    accountCreatedAt: String(row.account_created_at),
+    withdrawalAmountCents: numberValue(row.withdrawal_amount_cents),
+    withdrawalStatus: String(row.withdrawal_status) as WithdrawalStatus,
+    pixKeyType: String(row.pix_key_type) as PixKeyType,
+    pixKey: String(row.pix_key),
+    requestedAt: String(row.requested_at),
+    snapshotEarnedCents: nullableNumber(row.snapshot_earned_cents),
+    snapshotEligibleCents: nullableNumber(row.snapshot_eligible_cents),
+    snapshotPendingReleaseCents: nullableNumber(row.snapshot_pending_release_cents),
+    snapshotAvailableBeforeCents: nullableNumber(row.snapshot_available_before_cents),
+    currentEarnedCents: numberValue(row.current_earned_cents),
+    currentEligibleCents: numberValue(row.current_eligible_cents),
+    currentPendingReleaseCents: numberValue(row.current_pending_release_cents),
+    currentReservedCents: numberValue(row.current_reserved_cents),
+    currentWithdrawnCents: numberValue(row.current_withdrawn_cents),
+    currentAvailableCents: numberValue(row.current_available_cents),
+    paidSalesCount: numberValue(row.paid_sales_count),
+    productSalesCount: numberValue(row.product_sales_count),
+    serviceSalesCount: numberValue(row.service_sales_count),
+    uniqueBuyersCount: numberValue(row.unique_buyers_count),
+    completedServicesCount: numberValue(row.completed_services_count),
+    openServiceOrdersCount: numberValue(row.open_service_orders_count),
+    openDisputesCount: numberValue(row.open_disputes_count),
+    totalDisputesCount: numberValue(row.total_disputes_count),
+    problemPaymentsCount: numberValue(row.problem_payments_count),
+    rejectedWithdrawalsCount: numberValue(row.rejected_withdrawals_count),
+    paidWithdrawalsCount: numberValue(row.paid_withdrawals_count),
+    selfPurchaseCount: numberValue(row.self_purchase_count),
+    earningsLast24hCents: numberValue(row.earnings_last_24h_cents),
+    earningsLast7dCents: numberValue(row.earnings_last_7d_cents),
+    largestBuyerSharePercent: numberValue(row.largest_buyer_share_percent),
+    pixKeyChanged: Boolean(row.pix_key_changed),
+    firstWithdrawal: Boolean(row.first_withdrawal),
+    paymentSplitMismatchCount: numberValue(row.payment_split_mismatch_count),
+    requestStillBacked: Boolean(row.request_still_backed),
+    recentSales: Array.isArray(row.recent_sales)
+      ? (row.recent_sales as AdminWithdrawalRecentSale[])
+      : [],
+    recentWithdrawals: Array.isArray(row.recent_withdrawals)
+      ? (row.recent_withdrawals as AdminWithdrawalRecentHistory[])
+      : [],
+  };
 }
