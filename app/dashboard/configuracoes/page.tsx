@@ -66,6 +66,52 @@ export default function DashboardConfiguracoesPage() {
     };
   }, [reloadKey]);
 
+  useEffect(() => {
+    const dirty = Boolean(
+      baseline &&
+        (
+          displayName !== baseline.displayName ||
+          bio !== baseline.bio ||
+          offerings !== baseline.offerings ||
+          offeringsDescription !== baseline.offeringsDescription
+        ),
+    );
+    if (!dirty) return;
+
+    function handleBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+
+    function handleDocumentClick(event: MouseEvent) {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const anchor = target.closest("a[href]");
+      if (!(anchor instanceof HTMLAnchorElement)) return;
+      if (anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+
+      const next = new URL(anchor.href, window.location.href);
+      if (next.origin !== window.location.origin) return;
+      if (next.pathname === window.location.pathname && next.search === window.location.search) return;
+
+      if (!window.confirm("Você tem alterações não salvas. Quer sair mesmo assim?")) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("click", handleDocumentClick, true);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("click", handleDocumentClick, true);
+    };
+  }, [baseline, bio, displayName, offerings, offeringsDescription]);
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!creator) return;
@@ -273,6 +319,9 @@ export default function DashboardConfiguracoesPage() {
 
         {saveError ? <p className="text-sm text-(--color-danger)">{saveError}</p> : null}
         {saved ? <p className="text-sm text-(--color-success)">Alterações salvas.</p> : null}
+        {isDirty && !saving ? (
+          <p className="text-xs text-(--color-warning)">Você tem alterações não salvas.</p>
+        ) : null}
 
         <button
           type="submit"
