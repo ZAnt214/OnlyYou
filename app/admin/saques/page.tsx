@@ -15,9 +15,7 @@ export default async function AdminSaquesPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-semibold text-(--color-text)">Saques</h1>
         <p className="text-sm text-(--color-text-muted)">
-          Todo pagamento cai na conta única do Jobê no Mercado Pago — o repasse ao criador é
-          manual: confira a chave Pix abaixo, transfira por fora e marque o saque como concluído
-          ou recusado.
+          Revise as solicitações e marque como pago somente depois de concluir o Pix.
         </p>
       </div>
       <AdminWithdrawalsTable initialWithdrawals={withdrawals} />
