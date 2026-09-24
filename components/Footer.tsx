@@ -17,7 +17,13 @@ export function Footer() {
   const pathname = usePathname();
   // Conversas e o painel do criador funcionam como área de trabalho:
   // o rodapé público só ocupa espaço e quebra a sensação de app nessas telas.
-  if (isConversationScreenPath(pathname) || pathname.startsWith("/dashboard")) return null;
+  if (
+    isConversationScreenPath(pathname) ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/admin")
+  ) {
+    return null;
+  }
 
   return (
     <footer className="border-t border-(--color-border) py-8">
