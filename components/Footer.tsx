@@ -15,8 +15,9 @@ const LINKS = [
 
 export function Footer() {
   const pathname = usePathname();
-  // Tela de conversa é tela cheia de verdade — sem rodapé do site por trás.
-  if (isConversationScreenPath(pathname)) return null;
+  // Conversas e o painel do criador funcionam como área de trabalho:
+  // o rodapé público só ocupa espaço e quebra a sensação de app nessas telas.
+  if (isConversationScreenPath(pathname) || pathname.startsWith("/dashboard")) return null;
 
   return (
     <footer className="border-t border-(--color-border) py-8">

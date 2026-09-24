@@ -1,5 +1,23 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Navegação persistente e base visual do dashboard
+
+- O dashboard deixou de depender do fluxo “volta ao hub para trocar de seção”. Em desktop agora há
+  uma navegação lateral persistente; no mobile há uma barra horizontal rolável logo abaixo do
+  cabeçalho, mantendo todas as áreas do painel a um toque de distância.
+- A navegação foi reduzida às áreas realmente úteis e funcionais: Visão geral, Oportunidades,
+  Pedidos, Serviços, Produtos, Vendas, Carteira, Estatísticas e Configurações. Cupons e Afiliados
+  não entram na navegação principal enquanto não tiverem implementação real.
+- Criados `DashboardNav` e `DashboardPageHeader` para manter títulos, descrições, ações e
+  navegação consistentes entre páginas.
+- `DashboardShell` ganhou layout de área de trabalho em desktop, mantendo as conversas em tela
+  cheia como antes.
+- O rodapé público não aparece mais em `/dashboard`, reduzindo ruído.
+- O menu da conta agora separa “Painel do criador” de “Meu perfil”.
+- `StatCard` foi redesenhado com hierarquia e espaçamento mais claros usando somente tokens do
+  Jobê.
+
+
 ## 2026-09-24 — Imagem grande do perfil agora é editável e topo mais compacto
 
 - A imagem grande abaixo do topo agora pode ser adicionada, trocada e removida direto no perfil.

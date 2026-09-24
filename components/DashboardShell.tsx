@@ -1,25 +1,30 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { DashboardBackLink } from "@/components/DashboardBackLink";
+import { DashboardNav } from "@/components/DashboardNav";
 import { isConversationScreenPath } from "@/lib/isConversationScreenPath";
 
-/**
- * A conversa (/dashboard/pedidos-personalizados/[id]) é tela cheia própria
- * (ver ConversationScreen) — o wrapper com padding e o "← Painel" do resto
- * do painel não podem envolver ela, senão viram um segundo cabeçalho e um
- * segundo "voltar" por cima do da própria conversa, e o padding do wrapper
- * (sem altura própria) faz a página inteira rolar junto com a caixa de
- * mensagens em vez de só ela.
- */
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   if (isConversationScreenPath(pathname)) return <>{children}</>;
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-8">
-      <DashboardBackLink />
-      {children}
+    <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
+      <DashboardNav variant="mobile" />
+
+      <div className="mt-4 grid min-w-0 gap-6 md:mt-0 md:grid-cols-[13rem_minmax(0,1fr)] lg:gap-8">
+        <aside className="hidden md:block">
+          <div className="sticky top-20 rounded-2xl border border-(--color-border) bg-(--color-surface) p-3 shadow-sm">
+            <div className="mb-4 border-b border-(--color-border) px-3 pb-3">
+              <p className="text-sm font-semibold text-(--color-text)">Painel do criador</p>
+              <p className="mt-0.5 text-xs text-(--color-text-subtle)">Seu trabalho, pedidos e dinheiro.</p>
+            </div>
+            <DashboardNav variant="desktop" />
+          </div>
+        </aside>
+
+        <div className="min-w-0">{children}</div>
+      </div>
     </div>
   );
 }

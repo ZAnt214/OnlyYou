@@ -12,13 +12,17 @@ export function StatCard({
   hint?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-(--color-border) bg-(--color-bg) p-4">
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-(--color-text-muted)">{label}</span>
-        {Icon ? <Icon size={16} className="text-(--color-text-subtle)" strokeWidth={1.5} /> : null}
+    <div className="flex min-w-0 flex-col gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <span className="text-xs font-medium text-(--color-text-muted)">{label}</span>
+        {Icon ? (
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-(--color-surface-2)">
+            <Icon size={15} className="text-(--color-accent-text)" strokeWidth={1.7} />
+          </span>
+        ) : null}
       </div>
-      <span className="text-2xl font-semibold text-(--color-text)">{value}</span>
-      {hint ? <span className="text-xs text-(--color-text-subtle)">{hint}</span> : null}
+      <span className="truncate text-2xl font-bold tracking-tight text-(--color-text)">{value}</span>
+      {hint ? <span className="text-xs leading-relaxed text-(--color-text-subtle)">{hint}</span> : null}
     </div>
   );
 }

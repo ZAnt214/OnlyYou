@@ -45,7 +45,10 @@ export function Header() {
     { href: "/oportunidades/minhas", label: "Minhas publicações", icon: ClipboardList },
     { href: "/notificacoes", label: "Notificações", icon: Bell },
     { href: "/favoritos", label: "Favoritos", icon: Heart },
-    { href: creatorUsername ? `/criadores/${creatorUsername}` : "/dashboard", label: "Área do criador", icon: LayoutDashboard },
+    { href: "/dashboard", label: "Painel do criador", icon: LayoutDashboard },
+    ...(creatorUsername
+      ? [{ href: `/criadores/${creatorUsername}`, label: "Meu perfil", icon: User }]
+      : []),
     { href: "/seguranca", label: "Central de segurança", icon: ShieldCheck },
   ];
 
