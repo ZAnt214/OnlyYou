@@ -1,5 +1,14 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Otimiza RLS de Pedidos, Conversas e Notificações
+
+- Policies de pedidos personalizados, propostas, ordens, conversas, mensagens, anexos,
+  notificações e disputas passaram a calcular `auth.uid()` via subselect.
+- As condições de participante/dono/admin foram mantidas; a mudança é apenas de plano de execução.
+- Essa segunda rodada ataca as tabelas mais acessadas quando o criador abre Pedidos ou conversa
+  com um cliente.
+
+
 ## 2026-09-24 — Otimiza RLS das tabelas mais usadas pelo dashboard
 
 - Policies de `payment_confirmations`, `withdrawals`, `products`, `product_orders` e
