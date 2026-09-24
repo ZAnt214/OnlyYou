@@ -1,5 +1,15 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Configurações evitam perda silenciosa e ganham retry
+
+- A tela agora mostra quantos serviços foram digitados em “O que você faz” e bloqueia salvar acima
+  de 20, em vez de deixar a RPC cortar silenciosamente os itens extras.
+- O botão “Salvar alterações” só fica disponível quando existe mudança real e dentro dos limites.
+- Depois de salvar, os valores normalizados retornam para a tela e viram a nova referência de
+  alterações pendentes.
+- Falha ao carregar Configurações ganhou “Tentar de novo” sem precisar atualizar a página inteira.
+
+
 ## 2026-09-24 — Corrige erro de runtime na Visão geral do dashboard
 
 - `list_my_creator_sales` falhava em produção com `column reference "id" is ambiguous`.
