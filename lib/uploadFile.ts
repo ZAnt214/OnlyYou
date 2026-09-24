@@ -140,3 +140,45 @@ export async function prepareAvatarUpload(file: File): Promise<File> {
     bitmap.close();
   }
 }
+
+
+export async function prepareCoverUpload(file: File): Promise<File> {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Selecione uma imagem válida.");
+  }
+
+  const bitmap = await createImageBitmap(file);
+  try {
+    const maxSide = 1600;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Não foi possível preparar a imagem.");
+
+    context.drawImage(bitmap, 0, 0, width, height);
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (result) => (result ? resolve(result) : reject(new Error("Não foi possível preparar a imagem."))),
+        "image/webp",
+        0.88,
+      );
+    });
+
+    if (blob.size > 5 * 1024 * 1024) {
+      throw new Error("A imagem ficou grande demais para o envio.");
+    }
+
+    return new File([blob], "cover.webp", {
+      type: "image/webp",
+      lastModified: Date.now(),
+    });
+  } finally {
+    bitmap.close();
+  }
+}
