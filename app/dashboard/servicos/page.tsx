@@ -160,6 +160,7 @@ export default function DashboardServicosPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [formBaseline, setFormBaseline] = useState<FormState>(EMPTY_FORM);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteCandidate, setDeleteCandidate] = useState<Gig | null>(null);
@@ -209,8 +210,13 @@ export default function DashboardServicosPage() {
 
   if (gigs === null) return <DashboardLoading />;
 
+  const formDirty = JSON.stringify(form) !== JSON.stringify(formBaseline);
+
   function closeForm() {
     if (saving || uploadingCover || uploadingGallery) return;
+    if (formDirty && !window.confirm("Você tem alterações não salvas neste serviço. Quer fechar mesmo assim?")) {
+      return;
+    }
     setShowForm(false);
     setError(null);
   }
@@ -218,13 +224,14 @@ export default function DashboardServicosPage() {
   function openCreate() {
     setEditingId(null);
     setForm(EMPTY_FORM);
+    setFormBaseline(EMPTY_FORM);
     setError(null);
     setShowForm(true);
   }
 
   function openEdit(gig: Gig) {
     setEditingId(gig.id);
-    setForm({
+    const nextForm: FormState = {
       title: gig.title,
       description: gig.description,
       price: centsToInput(gig.priceCents),
@@ -240,7 +247,9 @@ export default function DashboardServicosPage() {
       sessionMinutes: gig.sessionMinutes ? String(gig.sessionMinutes) : "",
       currentRank: gig.currentRank ?? "",
       targetRank: gig.targetRank ?? "",
-    });
+    };
+    setForm(nextForm);
+    setFormBaseline(nextForm);
     setError(null);
     setShowForm(true);
   }
@@ -322,6 +331,7 @@ export default function DashboardServicosPage() {
       setShowForm(false);
       setEditingId(null);
       setForm(EMPTY_FORM);
+      setFormBaseline(EMPTY_FORM);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível salvar o serviço.");
     } finally {
@@ -865,7 +875,10 @@ export default function DashboardServicosPage() {
                 ) : null}
               </div>
 
-              <div className="sticky bottom-0 flex items-center justify-end gap-2 border-t border-(--color-border) bg-(--color-surface) px-4 py-3 sm:px-5">
+              <div className="sticky bottom-0 flex flex-wrap items-center justify-end gap-2 border-t border-(--color-border) bg-(--color-surface) px-4 py-3 sm:px-5">
+                {formDirty && !saving ? (
+                  <span className="mr-auto text-xs text-(--color-warning)">Alterações não salvas</span>
+                ) : null}
                 <button
                   type="button"
                   onClick={closeForm}
