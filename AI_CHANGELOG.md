@@ -1,5 +1,17 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Vendas ganham busca/filtro e Estatísticas mostram origem da receita
+
+- `/dashboard/vendas`: adicionada busca por cliente ou venda, filtros Todas/Produtos/Serviços,
+  contagem de resultados, limpeza rápida de filtros e estados vazios específicos.
+- Os totais de Vendas continuam usando todas as vendas confirmadas; filtros atuam apenas na lista,
+  evitando mudar o significado dos cards conforme o usuário busca.
+- `/dashboard/estatisticas`: adicionada divisão real da receita líquida entre Produtos e Serviços,
+  com quantidade de pagamentos e barras comparáveis.
+- “Publicados” agora considera produtos aprovados + serviços ativos e mostra a divisão no texto auxiliar.
+- Nenhum dado de exemplo foi adicionado; tudo continua vindo de pagamentos/produtos/serviços reais.
+
+
 ## 2026-09-24 — Carteira ganha confirmação de saque e reduz dados desnecessários
 
 - Solicitar saque agora abre uma confirmação com valor e chave Pix mascarada antes de enviar a RPC.
