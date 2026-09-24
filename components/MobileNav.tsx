@@ -10,19 +10,29 @@ export function MobileNav() {
   const pathname = usePathname();
   const creatorUsername = useCreatorUsername();
 
+  const inDashboard = pathname.startsWith("/dashboard");
+
   const TABS = [
     { href: "/", label: "Início", icon: Home },
     { href: "/descobrir", label: "Explorar", icon: Compass },
     { href: "/oportunidades", label: "Pedidos", icon: BriefcaseBusiness },
     { href: "/biblioteca", label: "Biblioteca", icon: Library },
     { href: "/pedidos", label: "Conversas", icon: MessageSquare },
-    {
-      href: creatorUsername ? `/criadores/${creatorUsername}` : "/dashboard",
-      label: "Perfil",
-      icon: LayoutDashboard,
-      matchPrefixes: creatorUsername ? [`/criadores/${creatorUsername}`, "/dashboard"] : ["/dashboard"],
-      excludePrefixes: ["/oportunidades", "/dashboard/oportunidades"],
-    },
+    inDashboard
+      ? {
+          href: "/dashboard",
+          label: "Painel",
+          icon: LayoutDashboard,
+          matchPrefixes: ["/dashboard"],
+          excludePrefixes: ["/dashboard/oportunidades"],
+        }
+      : {
+          href: creatorUsername ? `/criadores/${creatorUsername}` : "/dashboard",
+          label: "Perfil",
+          icon: LayoutDashboard,
+          matchPrefixes: creatorUsername ? [`/criadores/${creatorUsername}`] : ["/dashboard"],
+          excludePrefixes: ["/oportunidades"],
+        },
   ];
 
   // Tela de conversa é tela cheia de verdade — sem nav do site por trás.

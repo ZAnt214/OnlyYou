@@ -1,5 +1,13 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Corrige aba inferior do dashboard no mobile
+
+- Dentro de `/dashboard`, a última aba da navegação inferior agora se chama “Painel” e leva para
+  `/dashboard`. Antes ela aparecia ativa como “Perfil”, mas podia levar ao perfil público ao tocar.
+- Fora do dashboard, a mesma aba continua sendo “Perfil” e aponta para a página pública do criador.
+- A mudança reduz uma ambiguidade importante no celular sem adicionar nova navegação.
+
+
 ## 2026-09-24 — Remove trigger de moderação da API RPC
 
 - Auditor de segurança do Supabase apontou `protect_creator_product_moderation_state()` como
