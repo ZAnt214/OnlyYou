@@ -6,6 +6,7 @@ import type { User } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { mapProfileRowToUser, type ProfileRow } from "@/lib/supabase/profile";
 import { ProfileAvatarEditor } from "@/components/ProfileAvatarEditor";
+import { ProfileCoverEditor } from "@/components/ProfileCoverEditor";
 
 export default function DashboardConfiguracoesPage() {
   const [creator, setCreator] = useState<User | null>(null);
@@ -96,6 +97,19 @@ export default function DashboardConfiguracoesPage() {
         />
         <p className="text-xs text-(--color-text-subtle)">
           Use uma imagem quadrada. PNG, JPG ou WebP.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium text-(--color-text)">Imagem de destaque</span>
+        <ProfileCoverEditor
+          userId={creator.id}
+          displayName={creator.displayName}
+          initialUrl={creator.creatorProfile?.cover}
+          editable
+        />
+        <p className="text-xs text-(--color-text-subtle)">
+          Essa é a imagem grande que aparece no seu perfil. PNG, JPG ou WebP.
         </p>
       </div>
 
