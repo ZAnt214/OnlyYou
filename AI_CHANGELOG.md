@@ -1,5 +1,16 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Oportunidades deixam de esconder erro como lista vazia
+
+- `/dashboard/oportunidades` não converte mais falha de Supabase em array vazio; erros agora sobem
+  para o error boundary do dashboard, evitando mostrar “Nada novo” quando a consulta falhou.
+- O feed mostra a quantidade de oportunidades encontradas no filtro atual.
+- O card valida a apresentação com `trim()` antes da RPC para feedback imediato; o banco continua
+  sendo a fonte autoritativa com limite de 10–500 caracteres.
+- O textarea usa 16px no mobile para evitar zoom ao focar e foi removida uma sombra com cor fixa
+  que fugia do design system.
+
+
 ## 2026-09-24 — Compacta os números principais da Visão geral
 
 - Saldo, recebido e trabalhos em produção deixaram de ocupar três cards grandes empilhados no mobile.
