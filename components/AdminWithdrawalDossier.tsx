@@ -11,7 +11,9 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
+  getAdminWithdrawalPayoutAccount,
   getAdminWithdrawalRisk,
+  type AdminWithdrawalPayoutAccount,
   type AdminWithdrawalRisk,
   type AdminWithdrawalRow,
 } from "@/lib/supabase/wallet";
@@ -44,7 +46,141 @@ interface Signal {
   detail: string;
 }
 
-function buildSignals(risk: AdminWithdrawalRisk): Signal[] {
+type RecommendationLevel = "approve" | "review" | "hold";
+
+interface SystemRecommendation {
+  level: RecommendationLevel;
+  title: string;
+  detail: string;
+  reasons: string[];
+}
+
+function buildRecommendation(
+  risk: AdminWithdrawalRisk,
+  payoutAccount: AdminWithdrawalPayoutAccount | null,
+): SystemRecommendation {
+  const blockers: string[] = [];
+  const cautions: string[] = [];
+
+  if (!risk.requestStillBacked) {
+    blockers.push("o saldo elegível atual não cobre todos os saques reservados");
+  }
+  if (risk.paymentSplitMismatchCount > 0) {
+    blockers.push("há inconsistência na divisão financeira de pagamentos");
+  }
+  if (risk.selfPurchaseCount > 0) {
+    blockers.push("há pagamento em que comprador e criador são a mesma conta");
+  }
+  if (risk.openDisputesCount > 0) {
+    blockers.push("há disputa aberta ligada aos serviços do criador");
+  }
+  if (!payoutAccount) {
+    blockers.push("não há conta Pix de recebimento cadastrada");
+  } else {
+    if (!payoutAccount.matchesWithdrawal) {
+      blockers.push("a chave Pix atual não corresponde à chave registrada no saque");
+    }
+    if (payoutAccount.inCooldown) {
+      blockers.push("a conta Pix está dentro do período de segurança após alteração");
+    }
+  }
+
+  if (risk.problemPaymentsCount > 0) {
+    cautions.push("há histórico de estorno ou chargeback");
+  }
+  if (risk.verificationStatus !== "verified") {
+    cautions.push("a conta ainda não está verificada");
+  }
+  if (accountAgeDays(risk.accountCreatedAt) < 7) {
+    cautions.push("a conta foi criada há menos de 7 dias");
+  }
+  if (payoutAccount && !payoutAccount.matchesWithdrawal) {
+    signals.push({
+      tone: "danger",
+      title: "Chave Pix divergente da conta atual",
+      detail:
+        "A chave cadastrada na conta de recebimento não corresponde à chave registrada neste saque.",
+    });
+  }
+
+  if (payoutAccount?.inCooldown) {
+    signals.push({
+      tone: "danger",
+      title: "Conta Pix em período de segurança",
+      detail: `Novos pagamentos de saque ficam bloqueados até ${new Date(
+        payoutAccount.eligibleAfter,
+      ).toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short",
+      })}.`,
+    });
+  }
+
+  if (risk.pixKeyChanged) {
+    cautions.push("a chave Pix difere da última chave já paga");
+  }
+  if (payoutAccount && payoutAccount.changeCount > 0) {
+    cautions.push(
+      `a conta Pix já foi alterada ${payoutAccount.changeCount} vez(es)`,
+    );
+  }
+  if (
+    risk.paidSalesCount >= 2 &&
+    risk.largestBuyerSharePercent >= 80
+  ) {
+    cautions.push("os ganhos estão muito concentrados em um único comprador");
+  }
+  if (
+    risk.currentEarnedCents > 0 &&
+    risk.paidSalesCount >= 2 &&
+    risk.earningsLast24hCents / risk.currentEarnedCents >= 0.8
+  ) {
+    cautions.push("mais de 80% dos ganhos entraram nas últimas 24 horas");
+  }
+  if (risk.firstWithdrawal) {
+    cautions.push("este é o primeiro saque da conta");
+  }
+  if (risk.rejectedWithdrawalsCount > 0) {
+    cautions.push("há saque anterior recusado");
+  }
+
+  if (blockers.length > 0) {
+    return {
+      level: "hold",
+      title: "Não aprovar agora",
+      detail:
+        "O sistema encontrou pelo menos um bloqueio objetivo. Resolva ou esclareça os pontos abaixo antes de transferir.",
+      reasons: blockers,
+    };
+  }
+
+  if (cautions.length > 0) {
+    return {
+      level: "review",
+      title: "Revisar antes de aprovar",
+      detail:
+        "O saque está tecnicamente coberto, mas existem sinais que merecem conferência manual antes do Pix.",
+      reasons: cautions,
+    };
+  }
+
+  return {
+    level: "approve",
+    title: "Pode aprovar",
+    detail:
+      "A conciliação fecha e nenhum bloqueio ou sinal relevante foi encontrado nas verificações atuais.",
+    reasons: [
+      "saldo elegível cobre a solicitação",
+      "chave Pix confere com a conta de recebimento",
+      "não há bloqueio financeiro ou disputa aberta detectada",
+    ],
+  };
+}
+
+function buildSignals(
+  risk: AdminWithdrawalRisk,
+  payoutAccount: AdminWithdrawalPayoutAccount | null,
+): Signal[] {
   const signals: Signal[] = [];
   const age = accountAgeDays(risk.accountCreatedAt);
 
@@ -193,16 +329,26 @@ export function AdminWithdrawalDossier({
   onReview: (status: "paid" | "rejected") => void;
 }) {
   const [risk, setRisk] = useState<AdminWithdrawalRisk | null>(null);
+  const [payoutAccount, setPayoutAccount] =
+    useState<AdminWithdrawalPayoutAccount | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     setRisk(null);
+    setPayoutAccount(null);
     setError(null);
 
-    getAdminWithdrawalRisk(createClient(), withdrawal.id)
-      .then((data) => {
-        if (active) setRisk(data);
+    const supabase = createClient();
+    Promise.all([
+      getAdminWithdrawalRisk(supabase, withdrawal.id),
+      getAdminWithdrawalPayoutAccount(supabase, withdrawal.id),
+    ])
+      .then(([riskData, payoutData]) => {
+        if (active) {
+          setRisk(riskData);
+          setPayoutAccount(payoutData);
+        }
       })
       .catch((err) => {
         if (active) {
@@ -219,7 +365,14 @@ export function AdminWithdrawalDossier({
     };
   }, [withdrawal.id]);
 
-  const signals = useMemo(() => (risk ? buildSignals(risk) : []), [risk]);
+  const signals = useMemo(
+    () => (risk ? buildSignals(risk, payoutAccount) : []),
+    [risk, payoutAccount],
+  );
+  const recommendation = useMemo(
+    () => (risk ? buildRecommendation(risk, payoutAccount) : null),
+    [risk, payoutAccount],
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center p-3 sm:items-center">
@@ -275,6 +428,51 @@ export function AdminWithdrawalDossier({
 
           {risk ? (
             <>
+              {recommendation ? (
+                <section
+                  className={`rounded-2xl border px-4 py-4 ${
+                    recommendation.level === "hold"
+                      ? "border-(--color-danger) bg-(--color-surface-2)"
+                      : recommendation.level === "review"
+                        ? "border-(--color-warning) bg-(--color-surface-2)"
+                        : "border-(--color-border) bg-(--color-surface-2)"
+                  }`}
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-(--color-text-subtle)">
+                    Recomendação do sistema
+                  </p>
+                  <h3
+                    className={`mt-1 text-lg font-bold ${
+                      recommendation.level === "hold"
+                        ? "text-(--color-danger)"
+                        : recommendation.level === "review"
+                          ? "text-(--color-warning)"
+                          : "text-(--color-accent-text)"
+                    }`}
+                  >
+                    {recommendation.title}
+                  </h3>
+                  <p className="mt-1 text-xs leading-relaxed text-(--color-text-muted)">
+                    {recommendation.detail}
+                  </p>
+                  <div className="mt-3 flex flex-col gap-1.5">
+                    {recommendation.reasons.map((reason) => (
+                      <div
+                        key={reason}
+                        className="flex items-start gap-2 text-xs text-(--color-text)"
+                      >
+                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
+                        <span>{reason}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-[11px] leading-relaxed text-(--color-text-subtle)">
+                    A recomendação é apoio à revisão manual e não substitui sua
+                    conferência do Pix e do histórico.
+                  </p>
+                </section>
+              ) : null}
+
               <section>
                 <h3 className="text-sm font-semibold text-(--color-text)">
                   Sinais para revisar
@@ -382,16 +580,80 @@ export function AdminWithdrawalDossier({
 
               <section>
                 <h3 className="text-sm font-semibold text-(--color-text)">
-                  Chave de pagamento
+                  Conta Pix de recebimento
                 </h3>
                 <div className="mt-3 overflow-hidden rounded-xl border border-(--color-border)">
-                  <TextRow label="Tipo" value={risk.pixKeyType.toUpperCase()} />
-                  <TextRow label="Chave Pix" value={risk.pixKey} breakAll />
+                  <TextRow label="Tipo do saque" value={risk.pixKeyType.toUpperCase()} />
+                  <TextRow label="Chave do saque" value={risk.pixKey} breakAll />
+                  <TextRow
+                    label="Chave atual"
+                    value={
+                      payoutAccount
+                        ? `${payoutAccount.currentPixKeyType.toUpperCase()} · ${payoutAccount.currentPixKey}`
+                        : "Não cadastrada"
+                    }
+                    breakAll
+                  />
+                  <TextRow
+                    label="Confere com o saque"
+                    value={
+                      payoutAccount?.matchesWithdrawal ? "Sim" : "Não"
+                    }
+                  />
+                  <TextRow
+                    label="Alterações de chave"
+                    value={String(payoutAccount?.changeCount ?? 0)}
+                  />
+                  <TextRow
+                    label="Período de segurança"
+                    value={
+                      payoutAccount?.inCooldown
+                        ? `Até ${new Date(
+                            payoutAccount.eligibleAfter,
+                          ).toLocaleString("pt-BR", {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          })}`
+                        : "Sem bloqueio"
+                    }
+                  />
                   <TextRow
                     label="Verificação da conta"
                     value={risk.verificationStatus === "verified" ? "Verificada" : "Não verificada"}
                   />
                 </div>
+
+                {payoutAccount && payoutAccount.history.length > 0 ? (
+                  <div className="mt-3">
+                    <p className="text-xs font-semibold text-(--color-text)">
+                      Histórico recente da chave
+                    </p>
+                    <div className="mt-2 overflow-hidden rounded-xl border border-(--color-border)">
+                      {payoutAccount.history.slice(0, 5).map((item, index) => (
+                        <div
+                          key={`${item.changed_at}-${index}`}
+                          className="flex items-start justify-between gap-3 border-b border-(--color-border) px-3 py-2.5 last:border-b-0"
+                        >
+                          <div>
+                            <p className="text-xs font-medium text-(--color-text)">
+                              {item.event_type === "changed"
+                                ? "Chave alterada"
+                                : item.event_type === "created"
+                                  ? "Chave cadastrada"
+                                  : "Chave migrada"}
+                            </p>
+                            <p className="mt-0.5 text-[11px] text-(--color-text-muted)">
+                              {item.new_pix_key_type.toUpperCase()} · {maskPix(item.new_pix_key)}
+                            </p>
+                          </div>
+                          <span className="shrink-0 text-[10px] text-(--color-text-subtle)">
+                            {new Date(item.changed_at).toLocaleDateString("pt-BR")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </section>
 
               <section>
