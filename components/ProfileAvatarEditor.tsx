@@ -1,10 +1,15 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { uploadFile } from "@/lib/uploadFile";
+import { prepareAvatarUpload } from "@/lib/uploadFile";
 import { MediaPlaceholder } from "@/components/MediaPlaceholder";
+
+interface AvatarResponse {
+  url?: string;
+  error?: string;
+}
 
 export function ProfileAvatarEditor({
   userId,
@@ -19,26 +24,39 @@ export function ProfileAvatarEditor({
   editable?: boolean;
   sizeClassName?: string;
 }) {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [url, setUrl] = useState(initialUrl ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function updateAvatar(nextUrl: string) {
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("update_creator_avatar", {
-      p_avatar_url: nextUrl,
-    });
-    if (rpcError) throw new Error(rpcError.message);
-  }
-
   async function handleFile(file: File) {
+    if (file.size > 8 * 1024 * 1024) {
+      setError("A imagem pode ter no máximo 8 MB.");
+      return;
+    }
+
     setBusy(true);
     setError(null);
     try {
-      const nextUrl = await uploadFile(file, "avatar-image");
-      await updateAvatar(nextUrl);
-      setUrl(nextUrl);
+      // Primeira normalização no navegador para manter o request pequeno.
+      // O servidor revalida e reprocessa de novo — esta etapa não é tratada
+      // como barreira de segurança.
+      const prepared = await prepareAvatarUpload(file);
+      const body = new FormData();
+      body.set("file", prepared);
+
+      const response = await fetch("/api/profile/avatar", {
+        method: "POST",
+        body,
+      });
+      const result = (await response.json()) as AvatarResponse;
+      if (!response.ok || !result.url) {
+        throw new Error(result.error || "Não foi possível trocar a foto.");
+      }
+
+      setUrl(result.url);
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível trocar a foto.");
     } finally {
@@ -50,8 +68,14 @@ export function ProfileAvatarEditor({
     setBusy(true);
     setError(null);
     try {
-      await updateAvatar("");
+      const response = await fetch("/api/profile/avatar", { method: "DELETE" });
+      const result = (await response.json()) as AvatarResponse;
+      if (!response.ok) {
+        throw new Error(result.error || "Não foi possível remover a foto.");
+      }
+
       setUrl("");
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível remover a foto.");
     } finally {
@@ -115,7 +139,7 @@ export function ProfileAvatarEditor({
         </div>
       ) : null}
 
-      {error ? <p className="max-w-48 text-xs text-(--color-danger)">{error}</p> : null}
+      {error ? <p className="max-w-56 text-xs text-(--color-danger)">{error}</p> : null}
     </div>
   );
 }

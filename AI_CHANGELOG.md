@@ -1,5 +1,30 @@
 # Histórico de alterações para IAs
 
+## 2026-09-24 — Endurece segurança do upload da foto de perfil
+
+- Objetivo: aplicar as três proteções pedidas para foto de perfil: validar o arquivo real,
+  reprocessar obrigatoriamente a imagem e limpar o arquivo anterior com segurança.
+- Novo `/api/profile/avatar`: o avatar deixa de usar o upload genérico direto ao Blob. A rota
+  exige criador autenticado, recebe apenas o arquivo normalizado pelo navegador e valida no servidor.
+- Validação real: confere assinatura/magic bytes de PNG, JPEG ou WebP, decodifica com `sharp`,
+  limita pixels/dimensões e rejeita arquivo corrompido ou que apenas finge ser imagem pelo MIME.
+- Reprocessamento obrigatório: o servidor sempre decodifica e gera um novo WebP de até 1024 px.
+  Metadados EXIF, comentários e bytes extras do original não são copiados.
+- Limpeza: novos avatares ficam em `avatars/<userId>/...`. Ao trocar/remover, o Blob anterior só
+  é apagado se pertencer a esse namespace do próprio usuário. Se a atualização no banco falhar,
+  o Blob recém-criado também é removido para não virar arquivo órfão.
+- `update_creator_avatar` virou `SECURITY DEFINER`, bloqueia atualização direta de
+  `profiles.avatar_url` e só aceita URL HTTPS do Vercel Blob dentro do namespace do próprio uid.
+- O tipo `avatar-image` foi removido da rota genérica de upload para impedir que o fluxo seguro
+  seja contornado.
+- O navegador faz uma primeira reconversão para WebP apenas para manter o request pequeno; o
+  servidor não confia nessa etapa e repete toda a validação/reconversão.
+- `sharp` foi promovido a dependência direta do projeto.
+- Arquivos: `components/ProfileAvatarEditor.tsx`, `app/api/profile/avatar/route.ts`,
+  `app/api/upload/route.ts`, `lib/uploadFile.ts`, `package.json`, `package-lock.json`,
+  `supabase/migrations/20260924001000_harden_creator_avatar_upload.sql`, `AI_CHANGELOG.md`.
+
+
 ## 2026-09-23 — Foto de perfil do criador agora é editável
 
 - Objetivo: permitir que o criador troque a própria foto de perfil de verdade, em vez de ficar

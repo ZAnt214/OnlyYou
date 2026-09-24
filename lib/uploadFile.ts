@@ -50,7 +50,7 @@ function sanitizeFileName(name: string): string {
   return (safe || "arquivo").slice(-120);
 }
 
-export type UploadKind = "delivery" | "avatar-image" | "portfolio-image" | "product-image" | "product-file";
+export type UploadKind = "delivery" | "portfolio-image" | "product-image" | "product-file";
 
 /**
  * Timeout de segurança pro upload direto ao Vercel Blob. Sem isso, uma
@@ -71,7 +71,7 @@ const UPLOAD_TIMEOUT_MS = 60_000;
  */
 export async function uploadFile(file: File, kind: UploadKind): Promise<string> {
   const toUpload =
-    kind === "avatar-image" || kind === "portfolio-image" || kind === "product-image"
+    kind === "portfolio-image" || kind === "product-image"
       ? await compressImageIfPossible(file)
       : file;
   const controller = new AbortController();
@@ -91,5 +91,52 @@ export async function uploadFile(file: File, kind: UploadKind): Promise<string> 
     throw err;
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+
+/**
+ * Normaliza a foto antes de enviá-la para a rota protegida de avatar.
+ * Isso reduz o tamanho do request. A validação de segurança de verdade
+ * acontece novamente no servidor com inspeção dos bytes + Sharp.
+ */
+export async function prepareAvatarUpload(file: File): Promise<File> {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Selecione uma imagem válida.");
+  }
+
+  const bitmap = await createImageBitmap(file);
+  try {
+    const maxSide = 1024;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Não foi possível preparar a imagem.");
+
+    context.drawImage(bitmap, 0, 0, width, height);
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (result) => (result ? resolve(result) : reject(new Error("Não foi possível preparar a imagem."))),
+        "image/webp",
+        0.88,
+      );
+    });
+
+    if (blob.size > 4 * 1024 * 1024) {
+      throw new Error("A imagem ficou grande demais para o envio.");
+    }
+
+    return new File([blob], "avatar.webp", {
+      type: "image/webp",
+      lastModified: Date.now(),
+    });
+  } finally {
+    bitmap.close();
   }
 }

@@ -10,10 +10,6 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
  * portfólio, que não precisa de nada disso.
  */
 const KIND_RULES = {
-  "avatar-image": {
-    allowedContentTypes: ["image/png", "image/jpeg", "image/webp"],
-    maximumSizeInBytes: 8 * 1024 * 1024,
-  },
   "portfolio-image": {
     allowedContentTypes: ["image/png", "image/jpeg", "image/webp", "image/gif"],
     maximumSizeInBytes: 25 * 1024 * 1024,
@@ -93,10 +89,6 @@ export async function POST(request: Request): Promise<NextResponse> {
         const kind = parseKind(clientPayload ?? null);
         if (!kind) {
           throw new Error("Tipo de upload inválido.");
-        }
-
-        if (kind === "avatar-image" && !user.creatorProfile) {
-          throw new Error("Só criadores podem alterar a foto do perfil.");
         }
 
         if (kind === "portfolio-image" && !user.creatorProfile) {
