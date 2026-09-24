@@ -1,5 +1,18 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Endurece uploads de imagens do dashboard
+
+- Imagens de serviços, produtos e portfólio não usam mais o token genérico de upload direto.
+  O navegador primeiro normaliza a imagem e a rota `/api/upload/creator-image` valida novamente
+  os bytes reais no servidor, decodifica com `sharp` e sempre gera um WebP novo.
+- MIME falso, arquivo corrompido, dimensões/pixels exagerados e formatos fora de PNG/JPG/WebP são
+  recusados. Metadados e bytes extras do original não são preservados.
+- A rota genérica `/api/upload` ficou apenas para arquivos grandes de entrega/produto, que precisam
+  continuar indo direto ao Blob por causa do limite de payload das Functions.
+- Upload direto grande agora usa multipart quando passa de 10 MB.
+- Inputs de imagem do dashboard foram restringidos a PNG/JPG/WebP.
+
+
 ## 2026-09-23 — Corrige tipagem do dashboard e tokens inexistentes
 
 - `DashboardNav` agora usa tipos explícitos para itens e ícones, evitando inferência problemática

@@ -1,49 +1,5 @@
 import { upload } from "@vercel/blob/client";
 
-const IMAGE_MAX_DIMENSION = 1920;
-const IMAGE_QUALITY = 0.82;
-
-/**
- * Recompacta imagem no navegador antes do upload — redimensiona pro maior
- * lado caber em IMAGE_MAX_DIMENSION e reencoda em JPEG. Reduz o tamanho do
- * arquivo (storage + tempo de upload) sem precisar de nenhuma lib nova.
- * Não mexe em GIF (perderia a animação) nem em nada que não seja imagem —
- * a entrega de pedido pode ser zip/pdf, e recompactar isso no navegador
- * não ajudaria (e corromperia zip).
- */
-async function compressImageIfPossible(file: File): Promise<File> {
-  if (!file.type.startsWith("image/") || file.type === "image/gif") return file;
-
-  try {
-    const bitmap = await createImageBitmap(file);
-    const scale = Math.min(1, IMAGE_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
-    const width = Math.round(bitmap.width * scale);
-    const height = Math.round(bitmap.height * scale);
-
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return file;
-    ctx.drawImage(bitmap, 0, 0, width, height);
-
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, "image/jpeg", IMAGE_QUALITY),
-    );
-    // Só troca pelo arquivo comprimido se ele for realmente menor —
-    // uma imagem já pequena/otimizada pode crescer ao reencodar.
-    if (!blob || blob.size >= file.size) return file;
-
-    const baseName = file.name.replace(/\.[^./\\]+$/, "") || "imagem";
-    return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
-  } catch {
-    // Formato que o navegador não conseguiu decodificar, etc. — sobe o
-    // arquivo original em vez de travar o upload por causa da compressão.
-    return file;
-  }
-}
-
-/** Remove separador de caminho e caracteres fora de um conjunto seguro. */
 function sanitizeFileName(name: string): string {
   const base = name.split(/[\\/]/).pop() || "arquivo";
   const safe = base.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+/, "");
@@ -69,19 +25,103 @@ const UPLOAD_TIMEOUT_MS = 60_000;
  * arquivo em si nunca passa pelo nosso servidor. Devolve a URL pública
  * definitiva do arquivo.
  */
+export type UploadKind = "delivery" | "portfolio-image" | "product-image" | "product-file";
+
+const UPLOAD_TIMEOUT_MS = 60_000;
+const CREATOR_IMAGE_TIMEOUT_MS = 45_000;
+
+async function prepareCreatorImage(file: File): Promise<File> {
+  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+    throw new Error("Use uma imagem PNG, JPG ou WebP.");
+  }
+  if (file.size > 25 * 1024 * 1024) {
+    throw new Error("A imagem pode ter no máximo 25 MB.");
+  }
+
+  const bitmap = await createImageBitmap(file);
+  try {
+    const maxSide = 1920;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Não foi possível preparar a imagem.");
+
+    context.drawImage(bitmap, 0, 0, width, height);
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (result) => (result ? resolve(result) : reject(new Error("Não foi possível preparar a imagem."))),
+        "image/webp",
+        0.86,
+      );
+    });
+
+    // Route Handlers da Vercel têm limite de payload. Mantemos folga para
+    // multipart/form-data; no servidor a imagem será validada e reencodada de novo.
+    if (blob.size > 3.5 * 1024 * 1024) {
+      throw new Error("A imagem ficou grande demais. Tente uma imagem menor.");
+    }
+    return new File([blob], "imagem.webp", { type: "image/webp", lastModified: Date.now() });
+  } finally {
+    bitmap.close();
+  }
+}
+
+async function uploadCreatorImage(
+  file: File,
+  kind: "portfolio-image" | "product-image",
+): Promise<string> {
+  const prepared = await prepareCreatorImage(file);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), CREATOR_IMAGE_TIMEOUT_MS);
+
+  try {
+    const body = new FormData();
+    body.set("file", prepared);
+    body.set("kind", kind);
+
+    const response = await fetch("/api/upload/creator-image", {
+      method: "POST",
+      body,
+      signal: controller.signal,
+    });
+    const result = (await response.json().catch(() => ({}))) as { url?: string; error?: string };
+    if (!response.ok || !result.url) {
+      throw new Error(result.error || "Não foi possível enviar a imagem.");
+    }
+    return result.url;
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error("O envio demorou demais. Verifique sua conexão e tente novamente.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/**
+ * Imagens de catálogo/portfólio passam pelo servidor para validação real e
+ * reconversão. Arquivos grandes de produto/entrega continuam usando upload
+ * direto ao Blob para não bater no limite de payload das Functions.
+ */
 export async function uploadFile(file: File, kind: UploadKind): Promise<string> {
-  const toUpload =
-    kind === "portfolio-image" || kind === "product-image"
-      ? await compressImageIfPossible(file)
-      : file;
+  if (kind === "portfolio-image" || kind === "product-image") {
+    return uploadCreatorImage(file, kind);
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
   try {
-    const blob = await upload(sanitizeFileName(toUpload.name), toUpload, {
+    const blob = await upload(sanitizeFileName(file.name), file, {
       access: "public",
       handleUploadUrl: "/api/upload",
       clientPayload: JSON.stringify({ kind }),
       abortSignal: controller.signal,
+      multipart: file.size > 10 * 1024 * 1024,
     });
     return blob.url;
   } catch (err) {

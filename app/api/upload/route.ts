@@ -10,10 +10,6 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
  * portfólio, que não precisa de nada disso.
  */
 const KIND_RULES = {
-  "portfolio-image": {
-    allowedContentTypes: ["image/png", "image/jpeg", "image/webp", "image/gif"],
-    maximumSizeInBytes: 25 * 1024 * 1024,
-  },
   delivery: {
     allowedContentTypes: [
       "image/png",
@@ -27,10 +23,6 @@ const KIND_RULES = {
       "audio/mpeg",
     ],
     maximumSizeInBytes: 200 * 1024 * 1024,
-  },
-  "product-image": {
-    allowedContentTypes: ["image/png", "image/jpeg", "image/webp", "image/gif"],
-    maximumSizeInBytes: 25 * 1024 * 1024,
   },
   "product-file": {
     allowedContentTypes: [
@@ -66,7 +58,8 @@ function parseKind(clientPayload: string | null): UploadKind | null {
  * aqui em entregas de pedido e imagens de portfólio). O arquivo em si vai
  * direto do navegador para o Blob, sem passar pelo corpo desta rota — ela
  * só autoriza e valida quem pode pedir cada tipo de upload:
- * - "portfolio-image": só quem tem perfil de criador.
+ * Imagens públicas de criador usam /api/upload/creator-image, onde são
+ * decodificadas e reprocessadas no servidor antes de chegar ao Blob.
  * - "delivery": só o criador de um pedido que ele mesmo está produzindo
  *   agora (custom_service_orders.status = "in_progress") — sem isso,
  *   qualquer conta autenticada (inclusive um comprador sem nenhum pedido)
@@ -91,11 +84,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           throw new Error("Tipo de upload inválido.");
         }
 
-        if (kind === "portfolio-image" && !user.creatorProfile) {
-          throw new Error("Só criadores podem enviar imagens de portfólio.");
-        }
-
-        if ((kind === "product-image" || kind === "product-file") && !user.creatorProfile) {
+        if (kind === "product-file" && !user.creatorProfile) {
           throw new Error("Só criadores podem enviar arquivos de produto.");
         }
 

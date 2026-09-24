@@ -547,7 +547,7 @@ export default function DashboardServicosPage() {
                     )}
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/png,image/jpeg,image/webp"
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
@@ -580,7 +580,7 @@ export default function DashboardServicosPage() {
                   Ou envie arquivos do computador
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/png,image/jpeg,image/webp"
                     multiple
                     className="hidden"
                     onChange={(e) => {
