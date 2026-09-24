@@ -1204,7 +1204,7 @@ export function ConversationView({
                 {showWorkActions ? (
                   <div
                     role="menu"
-                    className="absolute bottom-full left-0 z-30 mb-2 w-72 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) p-1.5 shadow-lg"
+                    className="absolute bottom-full left-0 z-30 mb-2 w-64 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl bg-(--color-contrast) p-1.5 text-(--color-on-contrast) shadow-lg"
                   >
                     <button
                       type="button"
@@ -1214,16 +1214,12 @@ export function ConversationView({
                         setShowDeliveryForm(false);
                         setShowAttachmentForm(true);
                       }}
-                      className="flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-(--color-surface-2)"
+                      className="flex w-full flex-col items-start rounded-xl px-3 py-2.5 text-left opacity-90 transition-opacity hover:opacity-100"
                     >
-                      <Paperclip size={18} className="mt-0.5 flex-shrink-0 text-(--color-accent-text)" strokeWidth={1.5} />
-                      <span className="flex flex-col gap-0.5">
-                        <span className="text-sm font-semibold text-(--color-text)">Enviar arquivo</span>
-                        <span className="text-xs leading-relaxed text-(--color-text-muted)">
-                          Compartilhar uma versão para revisão e ajustes.
-                        </span>
-                      </span>
+                      <span className="text-sm font-semibold">Enviar arquivo</span>
+                      <span className="mt-0.5 text-xs opacity-65">Mandar para revisão</span>
                     </button>
+                    <div className="mx-3 h-px bg-(--color-on-contrast) opacity-15" />
                     <button
                       type="button"
                       role="menuitem"
@@ -1232,15 +1228,10 @@ export function ConversationView({
                         setShowAttachmentForm(false);
                         setShowDeliveryForm(true);
                       }}
-                      className="flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-(--color-surface-2)"
+                      className="flex w-full flex-col items-start rounded-xl px-3 py-2.5 text-left opacity-90 transition-opacity hover:opacity-100"
                     >
-                      <CheckCircle2 size={18} className="mt-0.5 flex-shrink-0 text-(--color-accent-text)" strokeWidth={1.5} />
-                      <span className="flex flex-col gap-0.5">
-                        <span className="text-sm font-semibold text-(--color-text)">Finalizar entrega</span>
-                        <span className="text-xs leading-relaxed text-(--color-text-muted)">
-                          Marcar o trabalho como pronto e enviar a versão final.
-                        </span>
-                      </span>
+                      <span className="text-sm font-semibold text-(--color-accent)">Finalizar entrega</span>
+                      <span className="mt-0.5 text-xs opacity-65">Enviar versão final</span>
                     </button>
                   </div>
                 ) : null}
@@ -1256,11 +1247,9 @@ export function ConversationView({
                   title={showWorkActions ? "Fechar ações" : "Ações do trabalho"}
                   className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--color-contrast) text-(--color-on-contrast) shadow-sm transition-colors hover:bg-(--color-highlight)"
                 >
-                  {showWorkActions ? (
-                    <XCircle size={18} strokeWidth={1.5} />
-                  ) : (
-                    <PlusCircle size={18} strokeWidth={1.5} />
-                  )}
+                  <span className="text-xl font-light leading-none" aria-hidden="true">
+                    {showWorkActions ? "×" : "+"}
+                  </span>
                 </button>
               </div>
             ) : canCreateProposal && !showProposalForm ? (

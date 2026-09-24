@@ -1,5 +1,19 @@
 # Histórico de alterações para IAs
 
+## 2026-09-23 — Aplica menu escuro e simples nas ações do trabalho
+
+- Objetivo: usuário escolheu a opção 4 das prévias HTML para o submenu aberto pelo botão “+”.
+- `components/ConversationView.tsx`: o submenu agora usa fundo `--color-contrast`, texto claro,
+  sem ícones nas opções e com largura mais compacta.
+- “Enviar arquivo” usa a descrição curta “Mandar para revisão”; “Finalizar entrega” usa
+  “Enviar versão final” e recebe apenas o laranja da marca no título para diferenciar a ação final.
+- O divisor entre as duas ações ficou discreto e o botão do compositor alterna entre caracteres
+  simples “+” e “×”, sem ícone adicional quando o menu está aberto.
+- Nenhuma regra de negócio foi alterada; os dois fluxos continuam separados.
+- Arquivos: `components/ConversationView.tsx`, `AI_CHANGELOG.md`.
+- Validação: sem cores literais/classes fixas de paleta no TSX alterado.
+
+
 ## 2026-09-23 — Agrupa ações do trabalho no botão “+” do chat
 
 - Objetivo: “Finalizar entrega” estava escondido no menu de três pontos, enquanto “Enviar arquivo”
