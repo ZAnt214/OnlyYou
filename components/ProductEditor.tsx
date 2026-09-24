@@ -108,10 +108,12 @@ function validate(form: FormState, status: "draft" | "approved"): string | null 
   if (tags.some((tag) => tag.length > 40)) return "Cada palavra-chave pode ter no máximo 40 caracteres.";
 
   if (status === "approved") {
-    if (form.description.trim().length < 20) return "Conte um pouco mais sobre o que a pessoa vai receber.";
+    if (form.description.trim().length < 20) {
+      return "A descrição ainda está incompleta. Para publicar, escreva pelo menos 20 caracteres explicando o que a pessoa vai receber.";
+    }
     const price = toCents(form.price);
-    if (price === null || price <= 0) return "Informe um preço maior que zero.";
-    if (!form.fileUrl.trim()) return "Envie o arquivo que o comprador vai receber.";
+    if (price === null || price <= 0) return "Para publicar, informe um preço maior que R$ 0,00.";
+    if (!form.fileUrl.trim()) return "Para publicar, envie o arquivo final que o comprador vai receber.";
 
     const promo = toCents(form.promoPrice);
     if (promo !== null && promo >= price) {
@@ -134,6 +136,7 @@ export function ProductEditor({ productId }: { productId?: string }) {
   const [saving, setSaving] = useState<"draft" | "approved" | null>(null);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [publishAttempted, setPublishAttempted] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingPreview, setUploadingPreview] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -294,6 +297,7 @@ export function ProductEditor({ productId }: { productId?: string }) {
 
   async function save(status: "draft" | "approved") {
     if (!creator) return;
+    setPublishAttempted(status === "approved");
     const validationError = validate(form, status);
     if (validationError) {
       setError(validationError);
@@ -401,15 +405,31 @@ export function ProductEditor({ productId }: { productId?: string }) {
               />
             </Field>
 
-            <Field label="Descrição">
+            <Field label="Descrição" hint="Obrigatória para publicar · mínimo de 20 caracteres.">
               <textarea
                 value={form.description}
                 maxLength={3000}
                 onChange={(event) => update("description", event.target.value)}
                 rows={5}
                 placeholder="O que vem no arquivo, para quem serve e como a pessoa pode usar."
-                className={INPUT_CLASS}
+                className={`${INPUT_CLASS} ${
+                  publishAttempted && form.description.trim().length < 20
+                    ? "border-(--color-danger) focus:border-(--color-danger)"
+                    : ""
+                }`}
               />
+              <div className="flex items-center justify-between gap-3">
+                {publishAttempted && form.description.trim().length < 20 ? (
+                  <span className="text-xs text-(--color-danger)">
+                    Para publicar, escreva pelo menos 20 caracteres.
+                  </span>
+                ) : (
+                  <span />
+                )}
+                <span className="shrink-0 text-xs text-(--color-text-subtle)">
+                  {form.description.trim().length}/20 mínimo
+                </span>
+              </div>
             </Field>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -448,7 +468,13 @@ export function ProductEditor({ productId }: { productId?: string }) {
             title="Arquivo que o comprador recebe"
             description="Esse arquivo só é necessário para publicar. Você pode salvar o rascunho antes de enviá-lo."
           >
-            <div className="flex items-center gap-3 rounded-2xl border border-(--color-border) bg-(--color-bg) p-3">
+            <div
+              className={`flex items-center gap-3 rounded-2xl border bg-(--color-bg) p-3 ${
+                publishAttempted && !form.fileUrl.trim()
+                  ? "border-(--color-danger)"
+                  : "border-(--color-border)"
+              }`}
+            >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--color-surface-2)">
                 <FileArchive size={18} className="text-(--color-accent-text)" strokeWidth={1.6} />
               </span>
@@ -473,18 +499,32 @@ export function ProductEditor({ productId }: { productId?: string }) {
                 />
               </label>
             </div>
+            {publishAttempted && !form.fileUrl.trim() ? (
+              <p className="text-xs text-(--color-danger)">
+                Para publicar, envie o arquivo final que o comprador vai receber.
+              </p>
+            ) : null}
           </EditorSection>
 
           <EditorSection title="Preço">
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Preço normal">
+              <Field label="Preço normal" hint="Obrigatório para publicar · maior que R$ 0,00.">
                 <input
                   value={form.price}
                   onChange={(event) => update("price", event.target.value)}
                   inputMode="decimal"
                   placeholder="39,90"
-                  className={INPUT_CLASS}
+                  className={`${INPUT_CLASS} ${
+                    publishAttempted && priceCents <= 0
+                      ? "border-(--color-danger) focus:border-(--color-danger)"
+                      : ""
+                  }`}
                 />
+                {publishAttempted && priceCents <= 0 ? (
+                  <span className="text-xs text-(--color-danger)">
+                    Informe um preço maior que R$ 0,00 para publicar.
+                  </span>
+                ) : null}
               </Field>
               <Field label="Preço promocional" hint="Opcional">
                 <input
@@ -585,6 +625,9 @@ export function ProductEditor({ productId }: { productId?: string }) {
           <div className="flex flex-col gap-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm">
             <div>
               <p className="text-xs font-medium text-(--color-text-subtle)">Antes de publicar</p>
+              <p className="mt-2 rounded-xl bg-(--color-surface-2) px-3 py-2 text-xs leading-relaxed text-(--color-text-muted)">
+                Para salvar como rascunho, basta dar um nome ao produto. Para publicar, complete todos os itens abaixo.
+              </p>
               {lockedByStatus ? (
                 <p className="mt-2 rounded-xl border border-(--color-border) bg-(--color-surface-2) px-3 py-2 text-xs leading-relaxed text-(--color-text-muted)">
                   Este produto está com um status administrativo e não pode ser alterado ou republicado por aqui.
@@ -592,9 +635,9 @@ export function ProductEditor({ productId }: { productId?: string }) {
               ) : null}
               <ul className="mt-2 space-y-2 text-sm text-(--color-text-muted)">
                 <Checklist done={form.title.trim().length >= 4}>Nome do produto</Checklist>
-                <Checklist done={form.description.trim().length >= 20}>Descrição clara</Checklist>
-                <Checklist done={priceCents > 0}>Preço definido</Checklist>
-                <Checklist done={Boolean(form.fileUrl.trim())}>Arquivo enviado</Checklist>
+                <Checklist done={form.description.trim().length >= 20}>Descrição com no mínimo 20 caracteres</Checklist>
+                <Checklist done={priceCents > 0}>Preço maior que R$ 0,00</Checklist>
+                <Checklist done={Boolean(form.fileUrl.trim())}>Arquivo final enviado</Checklist>
               </ul>
             </div>
 
