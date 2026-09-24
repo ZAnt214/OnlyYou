@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Star } from "lucide-react";
 import type { CustomOrderReviewWithReviewer, PortfolioItem, Product, ResumeEntry, User } from "@/lib/types";
-import { MediaPlaceholder } from "@/components/MediaPlaceholder";
 import { ProfileAvatarEditor } from "@/components/ProfileAvatarEditor";
+import { ProfileCoverEditor } from "@/components/ProfileCoverEditor";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { RatingStars } from "@/components/RatingStars";
 import { ProductCard } from "@/components/ProductCard";
@@ -39,13 +39,14 @@ export function CreatorProfileView({
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
       <section className="flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 items-start gap-3">
+          <div className="flex min-w-0 items-start gap-2">
             <ProfileAvatarEditor
               userId={creator.id}
               displayName={creator.displayName}
               initialUrl={creator.avatar}
               editable={isOwnProfile}
               sizeClassName="h-16 w-16 sm:h-20 sm:w-20"
+              compactControls
             />
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-(--color-text-subtle)">
@@ -65,10 +66,11 @@ export function CreatorProfileView({
         </div>
 
         <div className="grid grid-cols-[1.35fr_0.65fr] gap-3">
-          <MediaPlaceholder
-            seed={`${creator.id}-magazine`}
-            className="h-52 w-full rounded-2xl sm:h-64"
-            label={`Destaque de ${creator.displayName}`}
+          <ProfileCoverEditor
+            userId={creator.id}
+            displayName={creator.displayName}
+            initialUrl={profile.cover}
+            editable={isOwnProfile}
           />
           <div className="grid gap-3">
             <div className="flex flex-col justify-between rounded-2xl border border-(--color-border) bg-(--color-surface) p-4">
